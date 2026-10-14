@@ -1,0 +1,199 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pump It</title>
+<meta name="description" content="Simulador de redes de tubulação em regime permanente, escrito em clean room a partir de métodos públicos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/app.css">
+
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="13" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.2 9.2L15.6 13L8.2 16.8z" fill="currentColor"/><path d="M11 5.5V2.5H22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      <span class="brand-name">Pump It</span>
+      <input id="model-title" class="title-input" type="text" aria-label="Título do modelo" spellcheck="false">
+    </div>
+
+    <nav class="menus" aria-label="Menus">
+      <div class="menu">
+        <button class="btn ghost" data-menu="file" id="btn-menu-file">Arquivo</button>
+        <div class="menu-pop" id="menu-file" hidden>
+          <button data-act="new">Novo modelo</button>
+          <button data-act="open">Abrir arquivo .json…</button>
+          <button data-act="save">Baixar .json</button>
+          <button data-act="copy-json">Copiar modelo (JSON)</button>
+          <button data-act="paste-json">Colar modelo (JSON)…</button>
+          <div class="menu-sep"></div>
+          <button data-act="export-xlsx">Exportar tubos para Excel (.xlsx)</button>
+          <div class="menu-sep"></div>
+          <div class="menu-label">Exemplos</div>
+          <div id="menu-examples"></div>
+        </div>
+      </div>
+      <div class="menu">
+        <button class="btn ghost" data-menu="edit" id="btn-menu-edit">Editar</button>
+        <div class="menu-pop" id="menu-edit" hidden>
+          <button data-act="undo">Desfazer <kbd>Ctrl Z</kbd></button>
+          <button data-act="redo">Refazer <kbd>Ctrl Y</kbd></button>
+          <div class="menu-sep"></div>
+          <button data-act="copy">Copiar seleção <kbd>Ctrl C</kbd></button>
+          <button data-act="paste">Colar <kbd>Ctrl V</kbd></button>
+          <button data-act="select-all">Selecionar tudo <kbd>Ctrl A</kbd></button>
+          <div class="menu-sep"></div>
+          <button data-act="reverse">Inverter sentido do tubo</button>
+          <button data-act="delete">Excluir seleção <kbd>Del</kbd></button>
+          <div class="menu-sep"></div>
+          <button data-act="fit">Ajustar desenho à tela</button>
+          <button data-act="toggle-grid">Grade e encaixe</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="scenario">
+      <label for="scenario-select" class="eyebrow">Cenário</label>
+      <select id="scenario-select"></select>
+      <button class="btn ghost icon" id="btn-scn-add" title="Novo cenário filho do atual" aria-label="Novo cenário filho">
+        <svg viewBox="0 0 16 16" width="14" height="14"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8"/></svg>
+      </button>
+      <button class="btn ghost icon" id="btn-scn-rename" title="Renomear cenário" aria-label="Renomear cenário">
+        <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 13l1-3 7-7 2 2-7 7z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button class="btn ghost icon" id="btn-scn-del" title="Excluir cenário e seus filhos" aria-label="Excluir cenário">
+        <svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 5h8l-1 9H5zM3 5h10M6 5V3h4v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+    </div>
+
+    <div class="run">
+      <button class="checklist" id="btn-checklist" aria-haspopup="true">
+        <span class="dot" id="check-dot"></span><span id="check-text">—</span>
+      </button>
+      <div class="menu-pop right" id="checklist-pop" hidden></div>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" class="tab" data-view="net" aria-selected="true">Rede</button>
+    <button role="tab" class="tab" data-view="data">Dados do modelo</button>
+    <button role="tab" class="tab" data-view="out">Resultados <span class="badge" id="out-badge" hidden></span></button>
+    <button role="tab" class="tab" data-view="charts">Gráficos</button>
+    <div class="tab-spacer"></div>
+    <div class="status" id="status-line"></div>
+  </div>
+
+  <main class="views">
+    <!-- REDE -->
+    <section class="view view-net" id="view-net">
+      <aside class="palette" aria-label="Paleta de objetos">
+        <button class="tool active" data-tool="select" title="Selecionar e mover (Esc)">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 3l12 8-5 1.5 3 6-2 1-3-6L6 17z" fill="currentColor"/></svg>
+          <span>Selecionar</span>
+        </button>
+        <button class="tool" data-tool="pipe" title="Desenhar tubos: clique em uma junção e depois em outra (P)">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 18L21 6" stroke="currentColor" stroke-width="3"/><path d="M12 12l-4 .5 2.5-3.2z" fill="currentColor"/></svg>
+          <span>Tubo</span>
+        </button>
+        <div class="palette-sep"></div>
+        <div id="palette-junctions"></div>
+      </aside>
+      <div class="canvas-wrap" id="canvas-wrap">
+        <svg id="canvas" tabindex="0" aria-label="Área de trabalho"></svg>
+        <div class="canvas-hint" id="canvas-hint"></div>
+        <div class="canvas-tools">
+          <label class="overlay-pick"><span class="eyebrow">Resultados no desenho</span>
+            <select id="overlay-select">
+              <option value="none">Nenhum</option>
+              <option value="Q">Vazão volumétrica</option>
+              <option value="V">Velocidade</option>
+              <option value="dP0">Queda de pressão</option>
+              <option value="P">Pressão estática</option>
+              <option value="HGL">Linha piezométrica (HGL)</option>
+            </select>
+          </label>
+          <div class="zoom">
+            <button class="btn ghost icon" id="zoom-out" aria-label="Diminuir zoom">−</button>
+            <button class="btn ghost icon" id="zoom-fit" aria-label="Ajustar à tela" title="Ajustar à tela">
+              <svg viewBox="0 0 16 16" width="14" height="14"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            </button>
+            <button class="btn ghost icon" id="zoom-in" aria-label="Aumentar zoom">+</button>
+          </div>
+        </div>
+        <div class="legend" id="legend" hidden></div>
+      </div>
+      <aside class="inspector" id="inspector" aria-label="Propriedades"></aside>
+    </section>
+
+    <!-- DADOS -->
+    <section class="view view-data" id="view-data" hidden>
+      <div class="doc">
+        <div class="doc-head">
+          <h2>Dados do modelo</h2>
+          <p class="muted">Entradas do cenário atual. Células em destaque diferem do cenário pai. Clique numa linha para editar o objeto.</p>
+        </div>
+        <div id="data-tables"></div>
+      </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section class="view view-out" id="view-out" hidden>
+      <div class="doc">
+        <div class="doc-head row">
+          <div>
+            <h2>Resultados</h2>
+            <p class="muted" id="out-sub">Execute o modelo para ver os resultados.</p>
+          </div>
+          <div class="seg" id="out-tabs" role="tablist"></div>
+        </div>
+        <div id="out-body"></div>
+      </div>
+    </section>
+
+    <!-- GRÁFICOS -->
+    <section class="view view-charts" id="view-charts" hidden>
+      <div class="doc">
+        <div class="doc-head row">
+          <div>
+            <h2>Gráficos</h2>
+            <p class="muted">Curva de bomba contra a curva do sistema, ou perfil de linhas de carga ao longo de um caminho.</p>
+          </div>
+          <div class="seg" id="chart-tabs" role="tablist">
+            <button data-chart="pump" class="on">Bomba × sistema</button>
+            <button data-chart="profile">Perfil</button>
+          </div>
+        </div>
+        <div class="chart-controls" id="chart-controls"></div>
+        <div class="chart-box" id="chart-box"></div>
+        <div id="chart-notes" class="muted small"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="ctxmenu" id="ctxmenu" hidden></div>
+  <div class="modal-back" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title"></h3>
+      <div id="modal-body"></div>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <input type="file" id="file-input" accept=".json,application/json" hidden>
+</div>
+
+<script src="js/core/units.js" charset="utf-8"></script>
+<script src="js/core/fluids.js" charset="utf-8"></script>
+<script src="js/core/data.js" charset="utf-8"></script>
+<script src="js/core/hydraulics.js" charset="utf-8"></script>
+<script src="js/core/model.js" charset="utf-8"></script>
+<script src="js/core/solver.js" charset="utf-8"></script>
+<script src="js/core/examples.js" charset="utf-8"></script>
+<script src="js/ui/format.js" charset="utf-8"></script>
+<script src="js/ui/symbols.js" charset="utf-8"></script>
+<script src="js/ui/canvas.js" charset="utf-8"></script>
+<script src="js/ui/forms.js" charset="utf-8"></script>
+<script src="js/ui/inspector.js" charset="utf-8"></script>
+<script src="js/ui/tables.js" charset="utf-8"></script>
+<script src="js/ui/charts.js" charset="utf-8"></script>
+<script src="js/ui/xlsx.js" charset="utf-8"></script>
+<script src="js/ui/infocard.js" charset="utf-8"></script>
+<script src="js/ui/app.js" charset="utf-8"></script>

@@ -1,0 +1,9 @@
+# configuração local do editor
+.claude/
+
+# arquivos de modelo de terceiros usados só como gabarito de validação
+*.fth
+
+# sistema
+Thumbs.db
+.DS_Store
