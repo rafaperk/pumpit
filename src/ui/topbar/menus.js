@@ -1,0 +1,72 @@
+// Top bar menus (File, Edit), their commands and the list of examples.
+(function (root) {
+  const PumpIt = root.PumpIt;
+  const M = PumpIt.model, UI = PumpIt.ui;
+  const app = PumpIt.app;
+  const F = UI.format;
+  const { $, $$ } = UI.dom;
+  const { toast, modal, confirmBox, copyText } = UI.dialogs;
+  const { t } = PumpIt.i18n;
+
+  app.hideMenus = () => {
+    $$('.menu-pop').forEach((m) => { m.hidden = true; });
+    $('#ctxmenu').hidden = true;
+  };
+
+  // menu items, by their data-act attribute
+  const ACTIONS = {
+    new: () => confirmBox(t('app.newModel.title'), t('app.newModel.text'), t('app.newModel.ok'), () => { app.pushUndo(); app.loadModel(M.newModel()); }),
+    open: () => $('#file-input').click(),
+    save: () => app.downloadModel(),
+    'copy-json': () => copyText(JSON.stringify(app.model), t('app.files.modelCopied')),
+    'paste-json': () => {
+      const ta = document.createElement('textarea');
+      ta.id = 'paste-area';
+      ta.placeholder = t('app.pasteModel.placeholder');
+      modal({ title: t('app.pasteModel.title'), body: ta, actions: [{ label: t('app.dialog.cancel') }, { label: t('app.pasteModel.ok'), primary: true, onClick: () => {
+        try { app.pushUndo(); app.loadModel(JSON.parse(ta.value)); toast(t('app.pasteModel.opened')); } catch (e) { toast(t('app.pasteModel.cannotRead', { message: e.message })); return false; }
+      } }] });
+    },
+    'export-xlsx': () => app.exportPipesXlsx(),
+    undo: () => app.undo(),
+    redo: () => app.redo(),
+    copy: () => app.copySelection(),
+    paste: () => app.paste(),
+    'select-all': () => { app.setView('net'); app.selectAll(); },
+    reverse: () => { if (app.sel && app.sel.kind === 'pipe') app.reversePipe(app.sel.id); else toast(t('app.edit.selectPipe')); },
+    delete: () => (app.selSet.size ? app.deleteSelection() : toast(t('app.edit.nothingSelected'))),
+    fit: () => { app.setView('net'); requestAnimationFrame(() => UI.canvas.fit()); },
+    'toggle-grid': () => { app.prefs.grid = !app.prefs.grid; app.savePrefs(); UI.canvas.render(); toast(app.prefs.grid ? t('app.edit.gridOn') : t('app.edit.gridOff')); },
+  };
+
+  // the examples list of the File menu (names in the current language)
+  function renderExamples() {
+    $('#menu-examples').innerHTML = PumpIt.examples.EXAMPLES.map((ex) => `<button type="button" data-ex="${ex.id}">${F.esc(ex.name)}</button>`).join('');
+  }
+
+  function bind() {
+    $$('[data-menu]').forEach((b) => b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const pop = $('#menu-' + b.dataset.menu);
+      const was = pop.hidden;
+      app.hideMenus();
+      pop.hidden = !was;
+    }));
+    $$('.menu-pop [data-act]').forEach((b) => b.addEventListener('click', () => { app.hideMenus(); ACTIONS[b.dataset.act](); }));
+    renderExamples();
+    $('#menu-examples').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-ex]');
+      if (!b) return;
+      app.hideMenus();
+      app.pushUndo();
+      app.loadModel(PumpIt.examples.get(b.dataset.ex).build());
+      toast(t('app.exampleLoaded', { name: PumpIt.examples.get(b.dataset.ex).name }));
+    });
+    // a click anywhere else closes the menus
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.menu') && !e.target.closest('.run') && !e.target.closest('.ctxmenu')) app.hideMenus();
+    });
+  }
+
+  PumpIt.ui.menus = { ACTIONS, bind, renderExamples };
+})(window);

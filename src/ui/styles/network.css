@@ -1,0 +1,73 @@
+/* Network view: palette, drawing area, floating tools, legends and the symbols on the drawing. */
+.view-net { display: grid; grid-template-columns: 88px minmax(0, 1fr) 340px; }
+.palette {
+  background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 6px 6px 12px;
+  display: flex; flex-direction: column; gap: 2px; scrollbar-width: thin;
+}
+.palette-sep { height: 1px; background: var(--line); margin: 6px 4px; }
+/* group titles must fit the narrow column in every language; a very long word wraps instead of overflowing */
+.palette-group { font-size: 9px; letter-spacing: .02em; text-transform: uppercase; color: var(--ink-3); padding: 8px 0 2px; text-align: center; overflow-wrap: anywhere; }
+.tool {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1px solid transparent; background: transparent;
+  border-radius: 6px; padding: 6px 2px 5px; cursor: pointer; color: var(--ink-2); font-size: 10.5px; line-height: 1.15; text-align: center;
+}
+.tool svg { color: var(--ink); }
+.tool:hover { background: var(--sunk); border-color: var(--line); }
+.tool.active { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.canvas-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--bg); }
+#canvas { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
+#canvas:focus { outline: none; }
+.canvas-hint {
+  position: absolute; left: 12px; top: 10px; font-size: 12px; color: var(--ink-2); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; pointer-events: none; max-width: calc(100% - 24px);
+}
+.canvas-hint:empty { display: none; }
+.canvas-tools {
+  position: absolute; right: 12px; bottom: 12px; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; justify-content: flex-end;
+}
+.overlay-pick { display: flex; flex-direction: column; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.zoom { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+.legend {
+  position: absolute; left: 12px; bottom: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 7px 10px; font-size: 12px; min-width: 190px;
+}
+.legend .ramp { height: 8px; border-radius: 4px; margin: 5px 0 3px; }
+.legend .ends { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 11px; color: var(--ink-2); }
+.vel-bar { display: flex; height: 10px; margin: 6px 0 2px; width: 250px; max-width: calc(100vw - 72px); }
+.vel-ramp { flex: 1; border-radius: 5px 0 0 5px; }
+.vel-over { width: 26px; background: #000; border-radius: 0 5px 5px 0; box-shadow: inset 0 0 0 1px var(--ink-3); }
+.vel-ticks { display: flex; width: 250px; max-width: calc(100vw - 72px); font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-2); height: 14px; }
+.vel-ticks-in { position: relative; flex: 1; }
+.vel-ticks-in span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.vel-ticks-in span:first-child { transform: none; }
+.vel-ticks-in span:last-child { transform: translateX(-100%); }
+.vel-gt { width: 26px; text-align: center; }
+.vel-key { display: flex; align-items: center; gap: 4px; margin-top: 5px; font-size: 11px; color: var(--ink-2); flex-wrap: wrap; }
+.vel-key i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-left: 6px; }
+.vel-key i:first-child { margin-left: 0; }
+.p-under { stroke: var(--ink); stroke-width: 7.5; stroke-linecap: round; fill: none; }
+
+/* symbols on the drawing */
+.j-bg { fill: var(--panel); stroke: var(--line); stroke-width: 1; }
+.j-sym { color: var(--ink); }
+.j-label { font: 500 11px var(--f-mono); fill: var(--ink-2); }
+.j-name { font: 11px var(--f-ui); fill: var(--ink-3); }
+.j-val { font: 500 11px var(--f-mono); fill: var(--accent); }
+.p-line { stroke: var(--pipe); stroke-width: 2.6; fill: none; stroke-linecap: round; }
+.p-hit { stroke: transparent; stroke-width: 16; fill: none; cursor: pointer; }
+.p-arrow { fill: var(--pipe); }
+.p-label { font: 500 11px var(--f-mono); fill: var(--ink-2); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+.p-val { font: 500 11px var(--f-mono); fill: var(--ink); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+.sel .p-line { stroke: var(--sel); stroke-width: 4; }
+.sel .p-arrow { fill: var(--sel); }
+.sel .j-bg { stroke: var(--sel); stroke-width: 2.5; }
+.undef .p-line { stroke-dasharray: 2 5; stroke: var(--crit); }
+.undef .j-bg { stroke: var(--crit); stroke-dasharray: 3 3; stroke-width: 1.6; }
+.iso .p-line { stroke-dasharray: 8 6; opacity: .55; }
+.iso .j-sym { opacity: .5; }
+.closed .p-line { stroke-dasharray: 8 6; }
+.junction { cursor: grab; }
+.junction.dragging { cursor: grabbing; }
+.rubber { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 4; fill: none; pointer-events: none; }
+.box-sel { fill: var(--accent-soft); fill-opacity: .45; stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 5 4; pointer-events: none; }
+.drop-ok { outline: 2px dashed var(--accent); outline-offset: -6px; }

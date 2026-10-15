@@ -1,0 +1,12 @@
+{
+  "name": "pump-it",
+  "private": true,
+  "description": "Steady-state pipe network simulator for the browser (no build step, no dependencies).",
+  "scripts": {
+    "test": "node tests/run-tests.js && node tests/check-i18n.js",
+    "validate": "node tests/validate-fth.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

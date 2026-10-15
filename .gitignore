@@ -1,9 +1,9 @@
-# configuração local do editor
+# local editor configuration
 .claude/
 
-# arquivos de modelo de terceiros usados só como gabarito de validação
+# third-party model files, used only as a validation answer key
 *.fth
 
-# sistema
+# operating system
 Thumbs.db
 .DS_Store

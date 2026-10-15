@@ -1,0 +1,50 @@
+/* Document views (model data, results, charts): cards, tables, pills, warnings, summary and charts. */
+.view-data, .view-out, .view-charts { overflow-y: auto; }
+.doc { padding: 18px 16px 40px; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.doc > * { min-width: 0; }
+.doc-head h2 { margin: 0; font: 600 22px/1.2 var(--f-display); text-wrap: balance; }
+.doc-head p { margin: 4px 0 0; }
+.doc-head.row { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 3px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 5px 12px; border-radius: 6px; cursor: pointer; color: var(--ink-2); }
+.seg button.on { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.card-head h3 { margin: 0; font: 600 15px var(--f-display); }
+.table-scroll { overflow-x: auto; }
+table.grid { border-collapse: collapse; width: 100%; font-size: 13px; }
+table.grid th, table.grid td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+table.grid th { position: sticky; top: 0; background: var(--sunk); font-weight: 500; color: var(--ink-2); vertical-align: bottom; }
+table.grid th .unit-sel { display: block; margin: 3px 0 0 auto; font-size: 11px; min-height: 22px; padding: 1px 4px; font-family: var(--f-mono); }
+table.grid th .unit-fixed { display: block; font-size: 11px; color: var(--ink-3); font-family: var(--f-mono); margin-top: 3px; }
+table.grid td.txt, table.grid th.txt { text-align: left; }
+table.grid tbody tr { cursor: pointer; }
+table.grid tbody tr:hover td { background: var(--accent-soft); }
+table.grid td.ov { background: var(--override); }
+table.grid td.na { color: var(--ink-3); }
+.pill { display: inline-block; font-size: 11.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--sunk); }
+.pill.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.pill.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+.pill.crit { color: var(--crit); border-color: color-mix(in srgb, var(--crit) 45%, var(--line)); }
+.warn-list { list-style: none; margin: 0; padding: 0; }
+.warn-list li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); cursor: pointer; align-items: baseline; }
+.warn-list li:hover { background: var(--accent-soft); }
+.warn-list li:last-child { border-bottom: 0; }
+.lvl { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; }
+.lvl.critical { color: var(--crit); } .lvl.warning { color: var(--warn); } .lvl.caution { color: var(--caution); }
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); overflow: hidden; }
+.kv > div { padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: -1px; }
+.kv b { font: 500 16px var(--f-mono); font-variant-numeric: tabular-nums; }
+.empty { padding: 28px 16px; text-align: center; color: var(--ink-2); }
+
+.chart-controls { display: flex; gap: 10px 14px; flex-wrap: wrap; align-items: flex-end; }
+.chart-controls label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--ink-3); }
+.chart-box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; min-height: 340px; overflow-x: auto; }
+.chart-box svg { display: block; width: 100%; height: auto; min-width: 520px; }
+.chart text { font: 11px var(--f-mono); fill: var(--ink-2); }
+.chart .axis-label { font: 12px var(--f-ui); fill: var(--ink-2); }
+.chart .gridline { stroke: var(--line); stroke-width: 1; }
+.chart .axis { stroke: var(--ink-3); stroke-width: 1; }
+.chart-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); padding: 6px 4px 0; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend i { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }

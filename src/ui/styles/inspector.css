@@ -1,0 +1,34 @@
+/* Inspector: header, sections, fields, read-outs, mini tables and the curve plot. */
+.inspector { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; min-width: 0; }
+.insp-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; position: sticky; top: 0; background: var(--panel); z-index: 2; }
+.insp-head h3 { margin: 0; font: 600 17px/1.2 var(--f-display); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; text-wrap: balance; }
+.insp-head h3 .id { font: 500 13px var(--f-mono); color: var(--accent); }
+.insp-head .meta { font-size: 12px; color: var(--ink-3); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.insp-sec { padding: 10px 16px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 7px; }
+.insp-sec > h4 { margin: 2px 0 2px; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.field { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr); gap: 8px; align-items: center; }
+.field > label { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 5px; min-width: 0; }
+.field .ctl { display: flex; gap: 4px; min-width: 0; }
+.field .ctl > input[type="text"] { flex: 1 1 auto; width: 100%; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.field .ctl > input.txt { font-family: var(--f-ui); }
+.field .ctl > select { flex: 1 1 auto; width: 100%; }
+.field .ctl > select.unit { flex: 0 0 auto; width: auto; max-width: 96px; }
+.field .ctl > input[type="text"] { min-width: 64px; }
+.field .ctl > span { white-space: nowrap; }
+.field.check { grid-template-columns: auto 1fr; justify-content: start; }
+.field.overridden .ctl > input, .field.overridden .ctl > select { background: var(--override); }
+.ov-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sel); border: 0; padding: 0; cursor: pointer; flex: none; }
+.readout { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.readout b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.hint { font-size: 12px; color: var(--ink-3); margin: 0; }
+.missing { background: color-mix(in srgb, var(--crit) 10%, var(--panel)); border: 1px solid color-mix(in srgb, var(--crit) 40%, var(--line)); border-radius: 6px; padding: 7px 10px; font-size: 12.5px; color: var(--ink); }
+.missing b { color: var(--crit); }
+.mini-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.mini-table th { text-align: left; font-weight: 500; color: var(--ink-3); font-size: 11px; padding: 3px 4px; }
+.mini-table td { padding: 2px 3px; }
+.mini-table input { width: 100%; font-family: var(--f-mono); padding: 3px 5px; min-height: 26px; }
+.mini-table td.x { width: 26px; }
+.row-btn { border: 0; background: transparent; cursor: pointer; color: var(--ink-3); padding: 2px 5px; border-radius: 4px; }
+.row-btn:hover { color: var(--crit); background: var(--sunk); }
+.curve-chart { border: 1px solid var(--line); border-radius: 6px; background: var(--sunk); }
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; }

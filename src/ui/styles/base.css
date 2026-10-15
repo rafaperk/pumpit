@@ -1,0 +1,14 @@
+/* Base elements, shared text styles and the page grid. */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 var(--f-ui); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.muted { color: var(--ink-2); }
+.small { font-size: 12px; }
+.eyebrow { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.num, td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+kbd { font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); margin-left: auto; padding-left: 16px; }
+
+#app { display: grid; grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr); height: 100%; min-height: 0; }

@@ -1,6 +1,6 @@
 # TODO
 
 - [ ] 3D workspace.
-- [ ] English support.
-- [ ] Spanish support.
+- [x] English support.
+- [x] Spanish support.
 - [ ] Transient support.

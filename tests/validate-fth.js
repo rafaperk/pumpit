@@ -1,19 +1,16 @@
-// Validação contra resultados gravados em arquivos .fth do software de referência (seção 10 da especificação).
-// Uso: node tests/validate-fth.js <pasta> [<pasta> ...]
+// Validation against results stored in .fth files of the reference software (specification section 10).
+// Usage: node tests/validate-fth.js <folder> [<folder> ...]
 //
-// Os arquivos servem só como gabarito de saída e não são copiados para o projeto. O leitor segue o
-// layout do Anexo A. Contorno: em reservatórios e pressões impostas, a pressão de estagnação gravada na
-// ponta de cada tubo; todo o resto é calculado. Comparação: vazão mássica de cada tubo (relativa à maior
-// vazão) e pressão de estagnação nas duas pontas (relativa à maior queda de pressão num tubo).
+// The files serve only as an output answer key and are never copied into the project. The reader follows the
+// layout of Annex A. Boundaries: at reservoirs and assigned pressures, the stagnation pressure stored at the
+// end of each pipe; everything else is calculated. Comparison: mass flow of each pipe (relative to the largest
+// flow) and stagnation pressure at both ends (relative to the largest pressure drop in a pipe).
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 
-const ctx = vm.createContext({ console, Math, JSON, Number, Object, Array, Map, Set, Float64Array, Int32Array, Error });
-for (const f of ['units', 'fluids', 'data', 'hydraulics', 'model', 'solver']) {
-  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'core', f + '.js'), 'utf8'), ctx, { filename: f + '.js' });
-}
-const { model: M, solver: S, units: U } = ctx.HR;
+const { loadCore } = require('./load-core');
+
+const { model: M, solver: S, units: U } = loadCore();
 const q = M.q;
 
 const PSI = 6894.757293168, LBM = 0.45359237, FT = 0.3048;
@@ -25,7 +22,7 @@ const UNIT = {
   },
   head: { feet: 'ft', meters: 'm' },
 };
-// vazões volumétricas sem equivalente na lista do aplicativo: fator para m3/s
+// volumetric flow units with no equivalent in the app list: factor to m3/s
 const FLOW_SI = { 'cm3/sec': 1e-6, 'ft3/min': FT ** 3 / 60, 'barrels/hr': 0.158987294928 / 3600, 'liter/sec': 1e-3, 'm3/min': 1 / 60, 'gal/hr': 3.785411784e-3 / 3600, 'gal/sec': 3.785411784e-3 };
 function flowQ(v, name) {
   if (name === 'None' && Number(v) === 0) return q(0, 'm³/h');
@@ -35,7 +32,7 @@ function flowQ(v, name) {
 const unknownUnits = new Set();
 function u(cat, name) {
   const v = UNIT[cat][name];
-  if (!v) { unknownUnits.add(cat + ':' + name); throw new Error(`unidade ${cat} "${name}"`); }
+  if (!v) { unknownUnits.add(cat + ':' + name); throw new Error(`unit ${cat} "${name}"`); }
   return v;
 }
 
@@ -55,27 +52,27 @@ const sec = (S, prefix) => { const k = Object.keys(S).find((x) => x.startsWith(p
 function buildCase(file) {
   const S = readSections(fs.readFileSync(file, 'latin1'));
   const app = kv(S.APPLICATION);
-  for (const mod of ['ANS', 'SSL', 'GSC', 'XTS']) if (app[mod + ' Use'] === '-1') return { skip: 'módulo ' + mod };
+  for (const mod of ['ANS', 'SSL', 'GSC', 'XTS']) if (app[mod + ' Use'] === '-1') return { skip: 'module ' + mod };
   const pa = records(sec(S, 'PIPE ARCHIVE DATA'));
-  if (!pa.length) return { skip: 'sem resultados gravados' };
+  if (!pa.length) return { skip: 'no stored results' };
   const fd = kv(S['FLUID DATA']);
   const rec = new Map(pa.map((f) => [+f[0], { m: +f[1] * LBM, P0in: +f[3] * PSI, P0out: +f[4] * PSI, rho: +f[7] * LBM / FT ** 3, mu: +f[8] * LBM / FT }]));
   const first = rec.values().next().value;
-  if ([...rec.values()].some((r) => Math.abs(r.rho - first.rho) > 1e-6 * first.rho)) return { skip: 'propriedades variáveis por tubo' };
+  if ([...rec.values()].some((r) => Math.abs(r.rho - first.rho) > 1e-6 * first.rho)) return { skip: 'properties vary per pipe' };
 
   const m = M.newModel();
-  m.system.fluid = { kind: 'user', name: 'gravado', rho: q(first.rho, 'kg/m³'), mu: q(first.mu, 'Pa·s'), pv: { value: null, unit: 'kPa(a)' } };
+  m.system.fluid = { kind: 'user', name: 'stored', rho: q(first.rho, 'kg/m³'), mu: q(first.mu, 'Pa·s'), pv: { value: null, unit: 'kPa(a)' } };
   m.system.patm = q(101325, 'Pa(a)');
   m.system.gravity = Number(fd['Gravity'] || 1);
   m.system.reLam = Number(fd['ReTransLam'] || 2300);
   m.system.reTurb = Number(fd['ReTransTurb'] || 4000);
-  // correção laminar dos K: 0 = nenhuma (inferido: K efetivo gravado = K informado em escoamento laminar)
+  // laminar correction of the K values: 0 = none (inferred: stored effective K = given K in laminar flow)
   const alt = Number(fd['AltLossFactorMethod'] || 0);
-  if (alt !== 0) return { skip: `correção laminar dos K (método ${alt})` };
+  if (alt !== 0) return { skip: `laminar K correction (method ${alt})` };
   m.system.laminarK = 'none';
   m.solution.tolRel = 1e-8;
 
-  // tubos
+  // pipes
   const pipes = new Map();
   for (const f of records(sec(S, 'PIPES'))) {
     const id = +f[0];
@@ -86,7 +83,7 @@ function buildCase(file) {
     const geo = +f[b + 16];
     if (geo === 0) p.geometry = Object.assign(p.geometry, { kind: 'circular', d: q(+f[b + 5], u('length', f[b + 6])) });
     else if (geo === 2) p.geometry = Object.assign(p.geometry, { kind: 'noncircular', area: q(+f[b + 7] * U.toSI(1, u('length', f[b + 8].replace('2', '')), 'length') ** 2, 'm²'), perim: q(+f[b + 9], u('length', f[b + 10])) });
-    else return { skip: `geometria de tubo ${geo}` };
+    else return { skip: `pipe geometry ${geo}` };
     const code = +f[b + 12], val = +f[b + 13];
     if (code === 0) p.friction = { model: 'roughness', eps: q(val, u('length', f[b + 14])) };
     else if (code === 1) p.friction = { model: 'relRoughness', rel: val };
@@ -94,14 +91,14 @@ function buildCase(file) {
     else if (code === 3) p.friction = { model: 'hw', C: val };
     else if (code === 4) p.friction = { model: 'explicitF', f: val };
     else if (code === 7) p.friction = { model: 'frictionless' };
-    else return { skip: `modelo de atrito ${code}` };
+    else return { skip: `friction model ${code}` };
     const Ksum = +f[b + 20];
     p.fittings = Ksum ? [{ name: 'ΣK', model: 'K', value: Ksum, qty: 1 }] : [];
     pipes.set(id, { p, zIn: q(+f[4], u('length', f[3])), zOut: q(+f[7], u('length', f[3])) });
     m.pipes.push(p);
   }
 
-  // junções
+  // junctions
   let nextJ = 100000;
   for (const f of records(sec(S, 'JUNCTIONS'))) {
     const type = +f[0], id = +f[1], np = +f[5], b = 6 + np;
@@ -110,10 +107,10 @@ function buildCase(file) {
     const add = (t, props) => { const j = Object.assign(M.newJunction(t, id, 0, 0), { elevation: elev }, props); m.junctions.push(j); return j; };
     switch (type) {
       case 2: case 4: {
-        // contorno: P0 gravado na ponta de cada tubo, numa pressão imposta própria
+        // boundary: stored P0 at the end of each pipe, through its own assigned pressure
         for (const pid of pids) {
           const P = pipes.get(pid), r = rec.get(pid);
-          if (!P || !r) return { skip: 'tubo sem resultado' };
+          if (!P || !r) return { skip: 'pipe without results' };
           const atUp = P.p.up === id;
           const nj = nextJ++;
           m.junctions.push(Object.assign(M.newJunction('pressure', nj, 0, 0), { elevation: atUp ? P.zIn : P.zOut, P: q(atUp ? r.P0in : r.P0out, 'Pa(a)'), ptype: 'stagnation' }));
@@ -122,14 +119,14 @@ function buildCase(file) {
         break;
       }
       case 1: {
-        for (let i = 0; i < np; i++) if (+f[b + 70 + 3 * i]) return { skip: 'K por tubo em nó' };
+        for (let i = 0; i < np; i++) if (+f[b + 70 + 3 * i]) return { skip: 'per-pipe K at a branch' };
         add('branch', { source: flowQ(f[b + 70 + 3 * np], f[b + 71 + 3 * np]) });
         break;
       }
       case 3: { const Q = flowQ(Math.abs(+f[b + 70]), f[b + 71]); add('flow', { Q, dir: +f[b + 72] === 0 ? 'in' : 'out' }); break; }
       case 6: add('generic', { genModel: 'K', K: +f[b + 72] }); break;
       case 8:
-        if (np === 1) { // válvula de descarga: contorno pela pressão gravada na ponta, como os reservatórios
+        if (np === 1) { // discharge valve: boundary at the pressure stored at the pipe end, like the reservoirs
           const pid = pids[0], P = pipes.get(pid), r = rec.get(pid);
           const atUp = P.p.up === id, nj = nextJ++;
           m.junctions.push(Object.assign(M.newJunction('pressure', nj, 0, 0), { elevation: atUp ? P.zIn : P.zOut, P: q(atUp ? r.P0in : r.P0out, 'Pa(a)'), ptype: 'stagnation' }));
@@ -137,13 +134,13 @@ function buildCase(file) {
           break;
         }
         add('valve', { lossModel: 'K', K: +f[b + 90] }); break;
-      case 11: add('flow', { Q: q(0, 'm³/h'), dir: 'out' }); break; // ponta morta
+      case 11: add('flow', { Q: q(0, 'm³/h'), dir: 'out' }); break; // dead end
       case 17: {
         const n = +f[b + 92];
         const a = f.slice(b + 93, b + 93 + n).map(Number);
-        if (!n || a.some((x) => !Number.isFinite(x))) return { skip: 'curva de bomba em outra forma' };
+        if (!n || a.some((x) => !Number.isFinite(x))) return { skip: 'pump curve in another form' };
         const hu = u('head', f[b + 79]), qu = f[b + 81];
-        if (!(qu in { 'gal/min': 1, 'm3/sec': 1, 'm3/hr': 1, 'ft3/sec': 1, 'liters/sec': 1, 'liters/min': 1 })) return { skip: `vazão de bomba em ${qu}` };
+        if (!(qu in { 'gal/min': 1, 'm3/sec': 1, 'm3/hr': 1, 'ft3/sec': 1, 'liters/sec': 1, 'liters/min': 1 })) return { skip: `pump flow in ${qu}` };
         const pid = pids[0], r = rec.get(pid);
         const qop = U.fromSI(Math.abs(r.m) / first.rho, UNIT.flow[qu], 'volFlow') || 1;
         const xs = [0, 0.5, 1, 1.5, 2, 2.5].map((k) => k * qop);
@@ -151,7 +148,7 @@ function buildCase(file) {
         add('pump', { curve: { x: xs, y: ys, xUnit: UNIT.flow[qu], yUnit: hu, fit: String(n - 1) }, eff: { x: [], y: [], xUnit: 'm³/h', fit: '2' }, npshr: { x: [], y: [], xUnit: 'm³/h', yUnit: 'm', fit: '2' } });
         break;
       }
-      default: return { skip: `junção tipo ${type}` };
+      default: return { skip: `junction type ${type}` };
     }
   }
   return { model: m, rec };
@@ -160,7 +157,7 @@ function buildCase(file) {
 function compare(c) {
   const eff = M.effective(c.model, 'base');
   const v = M.validate(eff);
-  if (!v.ok) return { err: 'modelo inválido: ' + JSON.stringify([...v.undef].slice(0, 2)) };
+  if (!v.ok) return { err: 'invalid model: ' + JSON.stringify([...v.undef].slice(0, 2)) };
   const r = S.run(eff);
   if (!r.ok) return { err: r.errors[0] };
   let mmax = 0, dpmax = 0;
@@ -179,7 +176,7 @@ function compare(c) {
 module.exports = { buildCase, compare };
 if (require.main !== module) return;
 const dirs = process.argv.slice(2);
-if (!dirs.length) { console.log('Uso: node tests/validate-fth.js <pasta> [<pasta> ...]'); process.exit(1); }
+if (!dirs.length) { console.log('Usage: node tests/validate-fth.js <folder> [<folder> ...]'); process.exit(1); }
 const rows = [];
 for (const dir of dirs) {
   for (const name of fs.readdirSync(dir).filter((n) => n.toLowerCase().endsWith('.fth')).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }))) {
@@ -196,13 +193,13 @@ const darcy = done.filter((r) => !r.hw).map((r) => r.worst).sort((a, b) => a - b
 const hw = done.filter((r) => r.hw).map((r) => r.worst).sort((a, b) => a - b);
 const med = (a) => (a.length ? a[Math.floor(a.length / 2)] : NaN);
 for (const r of rows) {
-  if (r.worst !== undefined) console.log(`${r.worst < 1e-4 || (r.hw && r.worst < 2e-3) ? 'ok  ' : 'DESV'} ${r.name.padEnd(46)} pior ${r.worst.toExponential(2)}  (vazão ${r.dm.toExponential(1)}, pressão ${r.dp.toExponential(1)})${r.hw ? ' HW' : ''}${r.conv ? '' : ' NÃO CONVERGIU'}`);
-  else if (r.err) console.log(`ERRO ${r.name.padEnd(46)} ${r.err}`);
+  if (r.worst !== undefined) console.log(`${r.worst < 1e-4 || (r.hw && r.worst < 2e-3) ? 'ok  ' : 'FAIL'} ${r.name.padEnd(46)} worst ${r.worst.toExponential(2)}  (flow ${r.dm.toExponential(1)}, pressure ${r.dp.toExponential(1)})${r.hw ? ' HW' : ''}${r.conv ? '' : ' NOT CONVERGED'}`);
+  else if (r.err) console.log(`ERR  ${r.name.padEnd(46)} ${r.err}`);
 }
 const skips = {};
 for (const r of rows.filter((x) => x.skip)) skips[r.skip] = (skips[r.skip] || 0) + 1;
-console.log(`\nComparados: ${done.length} de ${rows.length} arquivos`);
-console.log(`Darcy: ${darcy.length} casos, mediana ${med(darcy).toExponential(2)}, máximo ${darcy.length ? darcy[darcy.length - 1].toExponential(2) : '—'}`);
-console.log(`Hazen-Williams: ${hw.length} casos, mediana ${med(hw).toExponential(2)}, máximo ${hw.length ? hw[hw.length - 1].toExponential(2) : '—'}`);
-console.log('Fora da comparação:', JSON.stringify(skips, null, 1));
-if (unknownUnits.size) console.log('Unidades não mapeadas:', [...unknownUnits].join(', '));
+console.log(`\nCompared: ${done.length} of ${rows.length} files`);
+console.log(`Darcy: ${darcy.length} cases, median ${med(darcy).toExponential(2)}, max ${darcy.length ? darcy[darcy.length - 1].toExponential(2) : '—'}`);
+console.log(`Hazen-Williams: ${hw.length} cases, median ${med(hw).toExponential(2)}, max ${hw.length ? hw[hw.length - 1].toExponential(2) : '—'}`);
+console.log('Not compared:', JSON.stringify(skips, null, 1));
+if (unknownUnits.size) console.log('Unmapped units:', [...unknownUnits].join(', '));

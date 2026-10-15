@@ -1,0 +1,44 @@
+/* Theme tokens: colours, fonts and radius, for the light and the dark theme. Overall layout: a technical
+   drawing desk with a top bar, a vertical palette, a gridded drawing area and the inspector on the right. */
+:root {
+  --bg: #e9eef0;
+  --panel: #fbfcfc;
+  --sunk: #f2f5f6;
+  --ink: #15212a;
+  --ink-2: #4b5b66;
+  --ink-3: #7b8a94;
+  --line: #d2dade;
+  --grid: #dfe6e9;
+  --grid-major: #cfd8dc;
+  --accent: #0a6a86;
+  --accent-ink: #ffffff;
+  --accent-soft: #d8ecf1;
+  --sel: #c46a12;
+  --ok: #2c7a4b;
+  --warn: #a8700f;
+  --crit: #b8342a;
+  --caution: #57707f;
+  --pipe: #34444f;
+  --override: #f6e7c8;
+  --shadow: 0 6px 24px rgba(21, 33, 42, .14);
+  --f-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --f-display: 'IBM Plex Sans Condensed', 'Arial Narrow', 'IBM Plex Sans', system-ui, sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --r: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171b; --panel: #172026; --sunk: #131b20; --ink: #e2eaee; --ink-2: #a3b2bb; --ink-3: #74848e;
+    --line: #2a3840; --grid: #18232a; --grid-major: #1f2c34; --accent: #49b3cf; --accent-ink: #062029;
+    --accent-soft: #163844; --sel: #f0a64a; --ok: #5cc28a; --warn: #e2b04e; --crit: #f0705f; --caution: #93a8b5;
+    --pipe: #b9c7cf; --override: #3d3220; --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171b; --panel: #172026; --sunk: #131b20; --ink: #e2eaee; --ink-2: #a3b2bb; --ink-3: #74848e;
+  --line: #2a3840; --grid: #18232a; --grid-major: #1f2c34; --accent: #49b3cf; --accent-ink: #062029;
+  --accent-soft: #163844; --sel: #f0a64a; --ok: #5cc28a; --warn: #e2b04e; --crit: #f0705f; --caution: #93a8b5;
+  --pipe: #b9c7cf; --override: #3d3220; --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}

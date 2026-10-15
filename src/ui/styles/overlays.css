@@ -1,0 +1,22 @@
+/* Overlays: right-click card, modal dialog and toast. */
+.ctxmenu { position: fixed; z-index: 40; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 0; display: flex; flex-direction: column; width: min(330px, calc(100vw - 16px)); overflow: hidden; }
+.info-head { display: flex; flex-direction: column; gap: 1px; padding: 10px 14px 8px; border-bottom: 1px solid var(--line); background: var(--sunk); }
+.info-head b { font-size: 15px; color: var(--accent); }
+.info-head span { font-size: 12.5px; color: var(--ink-2); }
+.info-rows { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; margin: 0; padding: 10px 14px; font-size: 13px; }
+.info-rows dt { color: var(--ink-2); }
+.info-rows dd { margin: 0; text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.info-rows dd.strong { font-weight: 600; color: var(--ink); }
+.info-actions { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 10px 10px; border-top: 1px solid var(--line); }
+.ctxmenu .info-actions button { border: 1px solid var(--line); background: var(--panel); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; }
+.ctxmenu .info-actions button:hover { background: var(--accent-soft); border-color: var(--accent); }
+.modal-back { position: fixed; inset: 0; background: rgba(10, 16, 20, .45); z-index: 50; display: grid; place-items: center; padding: 16px; }
+.modal { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); width: min(560px, 100%); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.modal h3 { margin: 0; font: 600 18px var(--f-display); }
+.modal textarea { width: 100%; min-height: 220px; font-family: var(--f-mono); font-size: 12px; }
+.modal input[type="text"] { width: 100%; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.toast {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--panel);
+  padding: 8px 16px; border-radius: 8px; box-shadow: var(--shadow); font-size: 13px; max-width: calc(100% - 32px);
+}

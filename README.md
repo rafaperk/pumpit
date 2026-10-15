@@ -1,183 +1,213 @@
 # Pump It
 
-Simulador web de redes de tubulação em regime permanente, para escoamento incompressível. O usuário desenha a rede (tubos e junções) e preenche as propriedades. O cálculo é refeito automaticamente a cada alteração. Os resultados aparecem em tabelas, gráficos, numa ficha por objeto (clique direito) e no próprio desenho.
+Web simulator of steady-state pipe networks for incompressible flow. The user draws the network (pipes and junctions) and fills in the properties. The calculation runs again automatically after every change. Results appear in tables, charts, a data card per object (right click) and on the drawing itself.
 
-O produto não usa marcas, nomes, ícones, textos ou telas de nenhum software comercial.
+The product uses no trademarks, names, icons, texts or screens of any commercial software. The interface is available in Portuguese, English and Spanish (selector at the top right); the code and its documentation are in English.
 
-## Como usar
+## How to use
 
-- **Abrir:** dê dois cliques em `index.html` (funciona direto do disco, sem servidor e sem instalação). As fontes vêm do Google Fonts quando há internet; sem internet, o navegador usa fontes do sistema.
-- **Testes do núcleo de cálculo:** `node tests/run-tests.js` (Node 18 ou mais novo).
-- **Validação contra resultados gravados de referência:** `node tests/validate-fth.js "<pasta com arquivos .fth>"` (veja Verificação).
+- **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
+- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`) and the language consistency check (`tests/check-i18n.js`).
+- **Validation against stored reference results:** `node tests/validate-fth.js "<folder with .fth files>"` (see Verification).
 
-Fluxo de trabalho:
+Workflow (interface names in English; the Portuguese and Spanish screens have the same layout):
 
-1. Arraste um tipo de junção da paleta para o desenho (ou clique no tipo e depois no desenho).
-2. Ferramenta **Tubo** (tecla `P`): clique numa junção e depois em outra. O sentido de referência vai da primeira para a segunda. Clicar no vazio cria um nó.
-3. Selecione um objeto para editar no inspetor à direita. O que falta para ele ficar definido aparece em vermelho.
-4. Quando a lista de verificação ficar completa, o indicador no alto passa a **Calculado** e os resultados aparecem. Não há botão de executar: cada alteração recalcula o cenário atual.
-5. Veja **Resultados** (tubos, junções, bombas, válvulas, avisos), **Gráficos** (bomba × sistema e perfil), a ficha do clique direito ou escolha "Resultados no desenho".
+1. Drag a junction type from the palette onto the drawing (or click the type and then the drawing).
+2. **Pipe** tool, key `P`: click a junction and then another one. The reference direction goes from the first to the second. Clicking empty space creates a branch node.
+3. Select an object to edit it in the inspector on the right. Whatever is still missing for it to be defined appears in red.
+4. When the checklist is complete, the indicator at the top changes to **Calculated** and the results appear. There is no Run button: every change recalculates the current scenario.
+5. See **Results** (pipes, junctions, pumps, valves, warnings), **Charts** (pump × system and profile), the right-click card, or pick a quantity in "Results on the drawing".
 
-Atalhos e seleção:
+Shortcuts and selection:
 
-| Ação | Como |
+| Action | How |
 | --- | --- |
-| Copiar e colar | `Ctrl+C` e `Ctrl+V` (copia as junções selecionadas, as pontas dos tubos selecionados e os tubos entre elas; cada colagem sai deslocada) |
-| Selecionar vários | `Ctrl+clique` ou `Shift+clique`; `Shift+arrastar` no vazio seleciona por área; `Ctrl+A` seleciona tudo |
-| Mover em grupo | arraste qualquer junção selecionada |
-| Dados de um objeto | clique direito: vazão, velocidade, perda de carga, pressões, altura manométrica, elevação, comprimento etc. |
-| Desfazer e refazer | `Ctrl+Z` e `Ctrl+Y` |
-| Excluir | `Del` |
-| Cancelar ferramenta | `Esc` |
-| Zoom e vista | roda do mouse; arrastar o fundo |
+| Copy and paste | `Ctrl+C` and `Ctrl+V` (copies the selected junctions, the end junctions of the selected pipes and the pipes between them; each paste is shifted) |
+| Select several | `Ctrl+click` or `Shift+click`; `Shift+drag` on empty space selects by area; `Ctrl+A` selects all |
+| Move as a group | drag any selected junction |
+| Data of an object | right click: flow, velocity, head loss, pressures, pump head, elevation, length etc. |
+| Undo and redo | `Ctrl+Z` and `Ctrl+Y` |
+| Delete | `Del` |
+| Cancel the tool | `Esc` |
+| Zoom and view | mouse wheel; drag the background |
 
-Unidades padrão: vazão em m³/h, comprimento e cota em m, pressão em kgf/cm²(g), temperatura em °C. Diâmetros e rugosidade são digitados em mm. Cada campo guarda a unidade em que foi digitado, e cada coluna de resultado pode trocar de unidade sem recalcular.
+Default units: flow in m³/h, length and elevation in m, pressure in kgf/cm²(g), temperature in °C. Diameters and roughness are typed in mm. Each field keeps the unit it was typed in, and each result column can switch units without recalculating.
 
-## Resultados por tubo e exportação para Excel
+## Languages
 
-A tabela **Resultados › Tubos** traz, nesta ordem: Tubo, Diâmetro nominal, Schedule, Elevação inicial (m), Elevação final (m), Vazão (m³/h), Velocidade (m/s), Pressão de estagnação na entrada (kgf/cm²(g)), Pressão de estagnação na saída (kgf/cm²(g)) e K (soma dos K dos acessórios do tubo, na área do tubo).
+The selector at the top right switches the whole interface between **Português**, **English** and **Español** at once: menus, panels, tables, charts, warnings and the checklist, without reloading the page. The choice is remembered by the browser; on the first visit the app follows the browser's language (Portuguese when it is none of the three).
 
-- **Exportar para Excel** gera um `.xlsx` com essas colunas na mesma ordem: cabeçalho formatado, números como valores numéricos com casas decimais fixas, linha 1 congelada e filtro. O gerador é próprio e não depende de bibliotecas externas.
-- **Copiar para Excel** copia a mesma tabela para colar direto numa planilha.
-- Na página publicada, o download passa pela confirmação do visualizador; no arquivo local, é um download comum.
+- Numbers follow the language: decimal comma in Portuguese and Spanish, decimal point in English. Typed numbers are accepted with either separator.
+- Unit symbols stay the same, except water column, shown as mH₂O in English.
+- Names typed by the user (model title, objects, scenarios) are never translated. The example models are built in the current language; an example still untouched is rebuilt when the language changes.
+- Library fittings keep an id in the model, so their names are always shown in the current language.
 
-## Escala de cores de velocidade
+Adding a language is a matter of copying a folder of message catalogs; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#interface-languages).
 
-Em "Resultados no desenho › Velocidade", a cor de cada tubo segue uma escala fixa para água, e não o mínimo e o máximo do modelo. Assim, a mesma cor significa a mesma faixa em qualquer rede. A ficha do clique direito e o inspetor mostram a faixa ao lado da velocidade.
+## Pipe results and Excel export
 
-| Velocidade (m/s) | Cor | Faixa | Base |
+The **Results › Pipes** table shows, in this order: pipe, nominal size, schedule, start and end elevation (m), flow (m³/h), velocity (m/s), stagnation pressure at the inlet and at the outlet (kgf/cm²(g)) and K (sum of the pipe's fitting K values, on the pipe area).
+
+- **Export to Excel** creates an `.xlsx` file with these columns in the same order: formatted header, numbers stored as numeric values with fixed decimals, row 1 frozen and a filter. The writer is our own and depends on no external library. Headers and sheet name follow the interface language.
+- **Copy for Excel** copies the same table to paste straight into a spreadsheet (with the decimal separator of the interface language).
+- On the published page, the download goes through the viewer's confirmation; from the local file it is an ordinary download.
+
+## Velocity colour scale
+
+In "Results on the drawing › Velocity", the colour of each pipe follows a fixed scale for water, not the minimum and maximum of the model. The same colour therefore means the same band in any network. The right-click card and the inspector show the band next to the velocity.
+
+| Velocity (m/s) | Colour | Band | Basis |
 | --- | --- | --- | --- |
-| abaixo de 0,6 | azul | abaixo do mínimo usual | mínimo de autolimpeza de 0,6–0,7 m/s, para evitar sedimentação |
-| 0,6 a 1,0 | azul → azul-esverdeado | baixa | tubo provavelmente superdimensionado para a vazão |
-| 1,0 a 1,5 | azul-esverdeado → verde | faixa econômica, lado baixo | estudos de velocidade econômica em adutoras de recalque: 0,62–2,65 m/s |
-| 1,5 a 2,5 | verde | faixa econômica | prática de recalque de 1–3 m/s; serviço geral de 1,2–3,0 m/s (Crane TP-410) |
-| 2,5 a 3,0 | verde → amarelo | alta | 3 m/s é o limite superior usual para água |
-| 3,0 a 5,0 | amarelo → laranja → vermelho | muito alta | erosão em aço carbono a partir de ~4,6 m/s (15 ft/s); risco maior de golpe de aríete |
-| acima de 5,0 | preto | fora da escala | |
+| below 0.6 | blue | below the usual minimum | self-cleansing minimum of 0.6–0.7 m/s, to avoid sedimentation |
+| 0.6 to 1.0 | blue → teal | low | pipe probably oversized for the flow |
+| 1.0 to 1.5 | teal → green | economic range, low side | studies of economic velocity in pumping mains: 0.62–2.65 m/s |
+| 1.5 to 2.5 | green | economic range | pumping practice of 1–3 m/s; general service of 1.2–3.0 m/s (Crane TP-410) |
+| 2.5 to 3.0 | green → yellow | high | 3 m/s is the usual upper limit for water |
+| 3.0 to 5.0 | yellow → orange → red | very high | erosion in carbon steel from ~4.6 m/s (15 ft/s); higher risk of water hammer |
+| above 5.0 | black | off the scale | |
 
-Os valores são referências de projeto, não limites normativos. A velocidade econômica de cada instalação depende do custo da energia, do tempo de operação, do desnível e do material. As faixas ficam em `js/core/data.js` (`WATER_VELOCITY`) e podem ser ajustadas ali.
+The values are design references, not code limits. The economic velocity of each installation depends on the energy cost, the operating hours, the static head and the material. The bands live in `src/core/data/water-velocity.js` (`WATER_VELOCITY`) and can be adjusted there.
 
-Fontes consultadas:
-- Caldas et al. (2016), velocidade econômica em adutoras de recalque (aço galvanizado 0,88–2,65 m/s; PVC 0,68–2,54 m/s): <https://periodicos.ufv.br/reveng/article/download/538/369/2945>
-- Perroni et al. (2011), citado em anais da UFPel (aço galvanizado 0,67–1,63 m/s; PVC 0,62–1,97 m/s; 0,49–3,11 m/s medidos em 40 estações): <https://anais-siiepe.ufpel.edu.br/2015/CA_02884.pdf>
-- Faixas de projeto de sucção e recalque, Crane TP-410 e limite de erosão em aço carbono (discussões técnicas): <https://www.eng-tips.com/viewthread.cfm?qid=425625>, <https://resources.skill-lync.com/branches/chemical-engineering/questions/fluid-mechanics-chem/pipe-sizing-velocity>
-- Mínimo de ~0,7 m/s contra sedimentação e máximos de 5–8 ft/s em distribuição predial: <https://engineerexcel.com/water-velocity-in-pipe/>
+Sources consulted:
+- Caldas et al. (2016), economic velocity in pumping mains (galvanized steel 0.88–2.65 m/s; PVC 0.68–2.54 m/s): <https://periodicos.ufv.br/reveng/article/download/538/369/2945>
+- Perroni et al. (2011), cited in UFPel proceedings (galvanized steel 0.67–1.63 m/s; PVC 0.62–1.97 m/s; 0.49–3.11 m/s measured in 40 stations): <https://anais-siiepe.ufpel.edu.br/2015/CA_02884.pdf>
+- Suction and discharge design ranges, Crane TP-410 and the erosion limit in carbon steel (technical discussions): <https://www.eng-tips.com/viewthread.cfm?qid=425625>, <https://resources.skill-lync.com/branches/chemical-engineering/questions/fluid-mechanics-chem/pipe-sizing-velocity>
+- Minimum of ~0.7 m/s against sedimentation and maximums of 5–8 ft/s in building distribution: <https://engineerexcel.com/water-velocity-in-pipe/>
 
-## Estrutura
+## Project structure
+
+The code is split into small blocks so that several people can work on it at the same time without touching the same files. Every file is a classic script (no build step) that attaches its module to the global `PumpIt` namespace; `index.html` lists them in load order and is the single source of that order (the Node tests read the core list from it). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the block diagram and the extension points, and [CONTRIBUTING.md](CONTRIBUTING.md) for the working rules.
 
 ```
-index.html            página e layout
-css/app.css           estilos (tema claro e escuro)
-js/core/              núcleo de cálculo, sem dependência de interface (roda no Node)
-  units.js            unidades; SI no núcleo, conversão só na entrada e na saída
-  fluids.js           água por correlações públicas; fluido do usuário
-  data.js             tubos ASME B36.10M, rugosidades típicas, acessórios Crane
-  hydraulics.js       Colebrook original, Hazen-Williams, ajuste de curvas, K de orifício
-  model.js            esquema do modelo, tipos de junção, cenários, lista de verificação
-  solver.js           rede, Newton, estados de válvulas, pós-processamento, curva do sistema
-  examples.js         modelos de exemplo
-js/ui/                interface (desenho, inspetor, tabelas, gráficos, ficha, planilha, aplicação)
-tests/run-tests.js    verificação contra soluções independentes
-tests/validate-fth.js validação contra resultados gravados de referência (seção 10 da especificação)
+index.html                 page layout and the ordered list of scripts and stylesheets
+src/i18n/                  interface languages: the i18n engine and one folder of message catalogs per language
+  pt-BR/ en/ es/           one catalog per block (core, junctions, examples, app, network, inspector...)
+src/core/                  calculation core, no DOM (runs in Node)
+  units.js                 units; SI inside the core, conversion only at input and output
+  fluids/                  fluid library (water from public correlations) and evaluation
+  data/                    ASME B36.10M steel pipe, typical roughness, Crane fittings, water velocity bands
+  hydraulics/              friction (original Colebrook, Hazen-Williams), curve fitting, orifice K
+  model/                   model schema and factories, scenarios, checklist (validation)
+  solver/                  network building, connectivity, Newton, device states, results, system curve
+  junctions/               junction type registry + one file per type (defaults, checks, equations, results)
+  examples/                example builder + one file per example model
+src/ui/                    browser interface
+  common/                  formatting, DOM helpers, dialogs, downloads, .xlsx writer
+  junctions/               junction type views + one file per type (symbol, form, summaries, result rows)
+  app/                     application state and commands (PumpIt.app), keyboard, start-up
+  topbar/                  menus, header status, scenarios, checklist, language selector
+  inspector/               field builders and one file per panel (system, pipe, junction, curves...)
+  network/                 drawing area, SVG drawing, colour scales, palette, right-click card
+  model-data/              model data view
+  results/                 results view, result columns, TSV and Excel export
+  charts/                  line chart, pump × system and profile charts
+  styles/                  one stylesheet per block, loaded in cascade order (tokens first, responsive last)
+tests/load-core.js         loads the core (and the catalogs) into Node in the order listed by index.html
+tests/run-tests.js         verification against independent solutions
+tests/check-i18n.js        every language has every text; every key used in the code exists
+tests/validate-fth.js      validation against stored reference results (specification section 10)
+docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
+CONTRIBUTING.md            conventions and how to work in parallel
 ```
 
-## O que está implementado
+## What is implemented
 
-Referência: a especificação clean-room (`Clean Room.md`), seções 0 a 8.
+Reference: the clean-room specification (`Clean Room.md`), sections 0 to 8.
 
-| Área | Implementado |
+| Area | Implemented |
 | --- | --- |
-| Desenho | Paleta, tubos com sentido de referência, mover (também em grupo), seleção múltipla, copiar e colar, apagar, inverter sentido, trocar tipo de junção mantendo dados compatíveis, grade com encaixe, zoom, pan, ajuste à tela, desfazer e refazer |
-| Cálculo | Automático a cada alteração e ao trocar de cenário; lista de verificação mostra o que falta |
-| Cenários | Árvore de cenários; o filho guarda só o que difere do pai; editar com o valor herdado religa ao pai; marcador de campo alterado; tabela de diferenças |
-| Fluido | Água (Kell 1975, Vogel, IAPWS-IF97 região 4) ou ρ, μ e Pv do usuário |
-| Tubos | Aço ASME B36.10M (Sch 40, 80, STD, XS) como padrão, ou diâmetro informado; seções circular, anel, retangular e não circular; incrustação; N tubos em paralelo; tubo fechado |
-| Atrito | Rugosidade absoluta ou relativa, liso, f informado, Hazen-Williams, sem atrito; Colebrook na forma original (1,14 e 9,35); laminar 64/Re; transição linear entre Re 2300 e 4000 |
-| Acessórios | Lista com quantidade; K constante ou K/f<sub>T</sub> (Crane); correção laminar ATKF, ATKF aprimorado ou nenhuma |
-| Junções | Reservatório, pressão imposta, vazão imposta, bocal/aspersor, nó, bomba, válvula (K, Cv, Kv), válvula de controle (PRV, PSV, FCV, PDCV), **válvula de saída** (cota e pressão residual de saída, com perda opcional por K, Cv ou Kv), orifício, componente genérico (K ou curva ΔP × Q) |
-| Bombas | Curva H × Q por mínimos quadrados ou interpolação; leis de afinidade; bombas em paralelo; velocidade variável controlando vazão ou pressão; eficiência, potência, NPSH. No modo **vazão fixa (dimensionamento)** a bomba informa a altura necessária e o painel não pede curva, eficiência nem NPSH |
-| Saída | Resumo, fronteiras, tubos (formato acima), junções, bombas, válvulas e avisos em três níveis; ficha do clique direito; valores com unidade e cores no desenho; bomba × sistema; perfil de HGL, EGL e cota |
-| Arquivos | Salvar e abrir `.json`; copiar e colar o modelo; exportar tubos para `.xlsx`; salvamento automático no navegador |
+| Drawing | Palette, pipes with a reference direction, moving (also as a group), multiple selection, copy and paste, delete, reverse direction, change the junction type keeping the compatible data, grid with snapping, zoom, pan, fit to screen, undo and redo |
+| Calculation | Automatic after every change and when switching scenarios; the checklist shows what is missing |
+| Scenarios | Scenario tree; a child stores only what differs from its parent; editing with the inherited value relinks to the parent; marker on changed fields; table of differences |
+| Fluid | Water (Kell 1975, Vogel, IAPWS-IF97 region 4) or the user's ρ, μ and Pv |
+| Pipes | ASME B36.10M steel (Sch 40, 80, STD, XS) as the default, or a given diameter; circular, annulus, rectangular and non-circular sections; fouling; N parallel pipes; closed pipe |
+| Friction | Absolute or relative roughness, smooth, given f, Hazen-Williams, frictionless; Colebrook in its original form (1.14 and 9.35); laminar 64/Re; linear transition between Re 2300 and 4000 |
+| Fittings | List with quantity; constant K or K/f<sub>T</sub> (Crane); laminar correction ATKF, improved ATKF or none |
+| Junctions | Reservoir, assigned pressure, assigned flow, nozzle/sprinkler, branch, pump, valve (K, Cv, Kv), control valve (PRV, PSV, FCV, PDCV), **exit valve** (elevation and residual outlet pressure, with an optional loss by K, Cv or Kv), orifice, generic component (K or a ΔP × Q curve) |
+| Pumps | H × Q curve by least squares or interpolation; affinity laws; pumps in parallel; variable speed controlling flow or pressure; efficiency, power, NPSH. In **fixed flow (sizing)** mode the pump reports the required head and the panel asks for no curve, efficiency or NPSH |
+| Output | Summary, boundaries, pipes (format above), junctions, pumps, valves and warnings in three levels; right-click card; values with units and colours on the drawing; pump × system; profile of HGL, EGL and elevation |
+| Files | Save and open `.json`; copy and paste the model; export pipes to `.xlsx`; automatic saving in the browser |
+| Languages | Portuguese, English and Spanish, switched live; numbers in the format of the language |
 
-Removidos a pedido: mudança de área, curva, válvula de retenção, ponta morta e os fatores de projeto. Modelos antigos são convertidos ao abrir: retenção vira válvula, curva e mudança de área viram componente genérico com K, ponta morta vira vazão imposta zero. Perdas de curvas e retenções continuam disponíveis como acessórios do tubo (Crane).
+Removed on request: area change, bend, check valve, dead end and the design factors. Older models are converted when opened: a check valve becomes a valve, a bend or an area change becomes a generic component with a K, a dead end becomes a zero assigned flow. Bend and check-valve losses are still available as pipe fittings (Crane).
 
-### Fora desta versão
+### Not in this version
 
-Os módulos XTS, GSC, ANS e SSL, o cálculo de custos, a transferência de calor e os fluidos não newtonianos (seções 4, 5 e 9 da especificação). Também ficaram de fora: tê/ípsilon detalhado, válvula de alívio, válvula de 3 vias, trocador de calor, ejetor, vertedouro, balanço de volume, cotas intermediárias, alertas de projeto, relatório NFPA e importação de arquivos de outros programas.
+The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newtonian fluids (specification sections 4, 5 and 9). Also left out: detailed tee/wye, relief valve, three-way valve, heat exchanger, ejector, weir, volume balance, intermediate elevations, design alerts, NFPA report and importing files from other programs.
 
-## Registro de clean room
+## Clean-room record
 
-**Fontes usadas na implementação:** a especificação `Clean Room.md` e as referências públicas do seu Anexo C. Não foram usados executáveis, ajuda, bancos `.dat`, telas nem textos do software de referência.
+**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used.
 
-**Validação:** os arquivos de modelo `.fth` instalados no computador do usuário foram lidos apenas como gabarito de saída, como prevê a seção 10 (layout do Anexo A). Nenhum desses arquivos foi copiado para o projeto, e o validador só os lê na hora de rodar. Dois valores foram inferidos dessa comparação de resultados (marcados como *inferido*, conforme a regra da seção 0):
+**Validation:** the `.fth` model files installed on the user's computer were read only as an output answer key, as section 10 allows (layout of Annex A). None of these files was copied into the project, and the validator only reads them when it runs. Two values were inferred from that comparison of results (marked as *inferred*, following the rule of section 0):
 
-| Item | O que a comparação mostrou | Decisão |
+| Item | What the comparison showed | Decision |
 | --- | --- | --- |
-| Constante de Hazen-Williams | Em 6 modelos e mais de 50 tubos, com diâmetros de 102 a 2591 mm e velocidades de 0,06 a 3,6 m/s, a constante implícita de V = k·C·R<sub>h</sub><sup>0,63</sup>·S<sup>0,54</sup> é sempre 0,848684 (SI). Os expoentes clássicos batem; só o coeficiente difere de 0,8492 | Adotado k = 0,848684. Desvio em HW caiu de até 1,1·10⁻² para 2,5·10⁻⁵ |
-| Correção laminar dos K nos modelos de verificação | Em escoamento laminar (Re ≈ 700 e 1100), o K efetivo calculado a partir das pressões gravadas é igual ao K turbulento informado. 143 de 145 arquivos usam a mesma opção | Esses modelos usam "nenhuma correção". O padrão do aplicativo continua ATKF aprimorado, conforme a especificação |
+| Hazen-Williams constant | In 6 models and more than 50 pipes, with diameters from 102 to 2591 mm and velocities from 0.06 to 3.6 m/s, the constant implied by V = k·C·R<sub>h</sub><sup>0.63</sup>·S<sup>0.54</sup> is always 0.848684 (SI). The classic exponents match; only the coefficient differs from 0.8492 | Adopted k = 0.848684. The HW deviation fell from up to 1.1·10⁻² to 2.5·10⁻⁵ |
+| Laminar correction of the K values in the verification models | In laminar flow (Re ≈ 700 and 1100), the effective K computed from the stored pressures equals the turbulent K given. 143 of 145 files use the same option | Those models use "no correction". The app default remains improved ATKF, as the specification says |
 
-**Dados de engenharia e suas fontes primárias:**
+**Engineering data and their primary sources:**
 
-| Dado | Fonte |
+| Data | Source |
 | --- | --- |
-| Dimensões de tubo de aço | ASME B36.10M (diâmetro externo e espessura nominais) |
-| K/f<sub>T</sub> de acessórios | Crane, Technical Paper 410 |
-| f<sub>T</sub> por diâmetro | Colebrook totalmente turbulento com ε = 0,0018 in, no diâmetro interno real |
-| Rugosidades típicas | Moody (1944); White, *Fluid Mechanics*, tab. 6.1 |
-| Orifício | Idelchik, *Handbook of Hydraulic Resistance* |
-| Densidade da água | Kell, G. S. (1975), *J. Chem. Eng. Data* 20(1) |
-| Viscosidade da água | Equação de Vogel |
-| Pressão de vapor da água | IAPWS-IF97, região 4 |
-| Método de rede | Todini & Pilati (1988); Jeppson (1976) |
+| Steel pipe dimensions | ASME B36.10M (nominal outside diameter and wall thickness) |
+| K/f<sub>T</sub> of fittings | Crane, Technical Paper 410 |
+| f<sub>T</sub> by diameter | Fully turbulent Colebrook with ε = 0.0018 in, at the actual inner diameter |
+| Typical roughness | Moody (1944); White, *Fluid Mechanics*, table 6.1 |
+| Orifice | Idelchik, *Handbook of Hydraulic Resistance* |
+| Water density | Kell, G. S. (1975), *J. Chem. Eng. Data* 20(1) |
+| Water viscosity | Vogel equation |
+| Water vapour pressure | IAPWS-IF97, region 4 |
+| Network method | Todini & Pilati (1988); Jeppson (1976) |
 
-**Interface:** layout, símbolos, textos e cores próprios. Os símbolos seguem a convenção genérica de fluxograma de processo, desenhados aqui em SVG.
+**Interface:** our own layout, symbols, texts and colours. The symbols follow the generic process flow diagram convention, drawn here in SVG.
 
-## Decisões de engenharia (pontos abertos do Anexo B)
+## Engineering decisions (open points of Annex B)
 
-| Ponto | Decisão |
+| Point | Decision |
 | --- | --- |
-| Chute inicial | 1 m/s em cada tubo no sentido de referência; pressões na média das referências. Converge em 4 a 7 iterações nos exemplos |
-| Relaxação adaptativa | Busca linear com redução do passo pela metade sobre a norma escalada do resíduo; perto da solução o passo completo é sempre aceito. A convergência é medida no passo de Newton completo |
-| Critério de convergência | Variação relativa ≤ tolerância (padrão 10⁻⁴) em duas iterações seguidas, com piso absoluto para vazões e pressões perto de zero |
-| Hazen-Williams | Expoentes clássicos com k = 0,848684 (inferido, ver acima) |
-| Transição laminar-turbulenta | Linear entre f<sub>lam</sub>(Re<sub>lam</sub>) e f<sub>turb</sub>(Re<sub>turb</sub>) |
-| Correção laminar dos K (ATKF) | Fator max(1, f<sub>lam</sub>/f<sub>ref</sub>) abaixo de Re<sub>lam</sub>, interpolado até 1 em Re<sub>turb</sub> para a perda ficar contínua |
-| SG em Cv e Kv | Água a 60 °F (999,0 kg/m³) para Cv; 1000 kg/m³ para Kv e para o fator K de aspersor |
-| Válvula de saída | P<sub>0</sub> na ponta do tubo = pressão residual + perda da válvula (K na área do tubo, ou Cv/Kv). Com K = 0, P<sub>0</sub> na ponta = residual |
-| Orifício por Cd | K = (1 − β⁴)/Cd² referido à velocidade no orifício |
-| HGL e EGL | Calculadas com pressão absoluta, como na seção 0 |
-| K do tubo na tabela de resultados | Soma dos K dos acessórios do tubo (K constante + n·f<sub>T</sub>), na área do tubo, sem correção laminar |
-| Cenários | Topologia comum a todos os cenários; os cenários sobrescrevem propriedades |
+| Initial guess | 1 m/s in every pipe in the reference direction; pressures at the mean of the references. Converges in 4 to 7 iterations in the examples |
+| Adaptive relaxation | Line search halving the step on the scaled residual norm; near the solution the full step is always accepted. Convergence is measured on the full Newton step |
+| Convergence criterion | Relative change ≤ tolerance (default 10⁻⁴) in two consecutive iterations, with an absolute floor for flows and pressures near zero |
+| Hazen-Williams | Classic exponents with k = 0.848684 (inferred, see above) |
+| Laminar-turbulent transition | Linear between f<sub>lam</sub>(Re<sub>lam</sub>) and f<sub>turb</sub>(Re<sub>turb</sub>) |
+| Laminar correction of K (ATKF) | Factor max(1, f<sub>lam</sub>/f<sub>ref</sub>) below Re<sub>lam</sub>, interpolated to 1 at Re<sub>turb</sub> so the loss stays continuous |
+| SG in Cv and Kv | Water at 60 °F (999.0 kg/m³) for Cv; 1000 kg/m³ for Kv and for the sprinkler K factor |
+| Exit valve | P<sub>0</sub> at the pipe end = residual pressure + valve loss (K on the pipe area, or Cv/Kv). With K = 0, P<sub>0</sub> at the pipe end = residual |
+| Orifice by Cd | K = (1 − β⁴)/Cd² referred to the velocity in the orifice |
+| HGL and EGL | Computed with absolute pressure, as in section 0 |
+| Pipe K in the results table | Sum of the pipe's fitting K values (constant K + n·f<sub>T</sub>), on the pipe area, without laminar correction |
+| Scenarios | Topology common to all scenarios; scenarios override properties |
 
-## Verificação
+## Verification
 
-`node tests/run-tests.js` executa 46 verificações contra soluções independentes. Entre elas:
+`node tests/run-tests.js` runs 46 checks against independent solutions. Among them:
 
-- tubo único: Colebrook original analítico com desvio < 10⁻⁷;
+- single pipe: original Colebrook solved analytically, deviation < 10⁻⁷;
 - Hazen-Williams;
-- ponto de operação de bomba por bisseção, também a 80% da rotação;
-- curva do sistema;
-- três reservatórios e rede malhada: continuidade e energia;
-- VRP mantendo 3 kgf/cm²(g) e abrindo no pico;
+- pump operating point by bisection, also at 80 % speed;
+- system curve;
+- three reservoirs and looped network: continuity and energy;
+- PRV holding 3 kgf/cm²(g) and opening at the peak;
 - FCV;
-- válvula de saída: residual exata e vazão analítica com K = 0 e K = 2;
-- bomba de vazão fixa sem curva;
-- aspersor;
-- todos os exemplos.
+- exit valve: exact residual and analytical flow with K = 0 and K = 2;
+- fixed-flow pump without a curve;
+- sprinkler;
+- every example.
 
-`node tests/validate-fth.js` compara com os resultados gravados nos modelos de verificação de referência. Contorno: nos reservatórios, pressões impostas e válvulas de descarga, a pressão de estagnação gravada na ponta do tubo; o resto é calculado. A medida é o pior desvio do caso: vazão relativa à maior vazão, e pressão de estagnação nas pontas relativa à maior queda de pressão num tubo. Resultado:
+`node tests/validate-fth.js` compares with the results stored in the reference verification models. Boundaries: at reservoirs, assigned pressures and discharge valves, the stagnation pressure stored at the pipe end; everything else is calculated. The measure is the worst deviation of the case: flow relative to the largest flow, and stagnation pressure at the pipe ends relative to the largest pressure drop in a pipe. Result:
 
-| Conjunto | Casos comparados | Desvio mediano | Desvio máximo | Critério da seção 10 |
+| Set | Cases compared | Median deviation | Maximum deviation | Section 10 criterion |
 | --- | --- | --- | --- | --- |
-| Darcy-Weisbach | 37 | 5,6·10⁻⁷ | 5,2·10⁻⁵ | ≤ 10⁻⁴: atendido |
-| Hazen-Williams | 6 | 4,6·10⁻⁶ | 2,5·10⁻⁵ | ≤ 2·10⁻³: atendido |
+| Darcy-Weisbach | 37 | 5.6·10⁻⁷ | 5.2·10⁻⁵ | ≤ 10⁻⁴: met |
+| Hazen-Williams | 6 | 4.6·10⁻⁶ | 2.5·10⁻⁵ | ≤ 2·10⁻³: met |
 
-Os 39 modelos de verificação que ficaram fora da comparação são estes:
-- bombas com outra forma de curva (14);
-- módulos SSL e ANS (13);
-- mudança de área (5), removida do aplicativo;
-- válvulas de controle cujo layout de arquivo não é documentado (4);
-- K por tubo em nós (2);
-- um modelo sem resultados.
+The 39 verification models left out of the comparison are:
+- pumps with another curve form (14);
+- SSL and ANS modules (13);
+- area change (5), removed from the app;
+- control valves whose file layout is not documented (4);
+- per-pipe K at branches (2);
+- one model without results.
 
-Na pasta de exemplos não há gabarito comparável: 23 arquivos foram salvos sem resultados e os demais usam os módulos XTS, GSC, ANS ou SSL.
+The examples folder has no comparable answer key: 23 files were saved without results and the others use the XTS, GSC, ANS or SSL modules.

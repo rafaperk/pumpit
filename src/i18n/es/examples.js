@@ -1,0 +1,58 @@
+// Example models: menu names and the texts inside each model (titles, object names, scenarios, notes).
+PumpIt.i18n.add('es', {
+  examples: {
+    pump: {
+      name: 'Bombeo entre tanques',
+      title: 'Bombeo entre tanques',
+      suctionTank: 'Tanque de succión',
+      pump: 'Bomba B-101',
+      dischargeValve: 'Compuerta de impulsión',
+      elevatedTank: 'Tanque elevado',
+      speedScenario: 'Velocidad 90%',
+      speedNotes: 'La misma instalación con el variador al 90% de la velocidad nominal.',
+    },
+    exit: {
+      name: 'Impulsión con presión residual',
+      title: 'Impulsión con presión residual',
+      suctionWell: 'Pozo de succión',
+      pump: 'Bomba de impulsión',
+      deliveryPoint: 'Punto de entrega',
+    },
+    gravity: {
+      name: 'Gravedad entre tanques',
+      title: 'Gravedad entre tanques',
+      dam: 'Represa',
+      valve: 'Válvula',
+      tank: 'Tanque',
+    },
+    threeRes: {
+      name: 'Tres reservorios',
+      title: 'Tres reservorios',
+      junction: 'Unión',
+    },
+    loop: {
+      name: 'Red mallada (Hazen-Williams)',
+      title: 'Red mallada',
+      reservoir: 'Reservorio',
+    },
+    prv: {
+      name: 'Válvula reductora de presión',
+      title: 'Válvula reductora de presión',
+      highReservoir: 'Reservorio alto',
+      prv: 'VRP',
+      demand: 'Consumo',
+      peakScenario: 'Demanda pico',
+      peakNotes: 'Consumo pico: la presión aguas arriba no alcanza y la VRP se abre totalmente.',
+    },
+    sprinkler: {
+      name: 'Ramal de aspersores',
+      title: 'Ramal de aspersores',
+      supply: 'Alimentación',
+      branch1: 'Derivación',
+      sprinkler1: 'Aspersor 1',
+      branch2: 'Derivación 2',
+      sprinkler2: 'Aspersor 2',
+      sprinkler3: 'Aspersor 3',
+    },
+  },
+});
