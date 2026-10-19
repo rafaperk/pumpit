@@ -21,6 +21,12 @@
   --pipe: #34444f;
   --override: #f6e7c8;
   --shadow: 0 6px 24px rgba(21, 33, 42, .14);
+  --shade3d: #15212a; --shade3d-a: .15;
+  /* materials of the 3D symbols (view3d.css) */
+  --m3-steel: #a9b6be; --m3-inside: #6a7a84; --m3-liquid: #3a8fb3; --m3-pump: #1f7d9a; --m3-motor: #59676f;
+  --m3-valve: #8a99a2; --m3-wheel: #3c4a54; --m3-act: #3d82a8; --m3-brass: #b88c3e; --m3-flow: #5a90bd;
+  --m3-press: #8673b5; --m3-block: #9aa7ae; --m3-node: #4a5a65; --m3-mark: #fbfcfc; --m3-closed: #c2473b;
+  --o3: rgba(21, 33, 42, .5);
   --f-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --f-display: 'IBM Plex Sans Condensed', 'Arial Narrow', 'IBM Plex Sans', system-ui, sans-serif;
   --f-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
@@ -32,6 +38,11 @@
     --line: #2a3840; --grid: #18232a; --grid-major: #1f2c34; --accent: #49b3cf; --accent-ink: #062029;
     --accent-soft: #163844; --sel: #f0a64a; --ok: #5cc28a; --warn: #e2b04e; --crit: #f0705f; --caution: #93a8b5;
     --pipe: #b9c7cf; --override: #3d3220; --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+    --shade3d: #000; --shade3d-a: .55;
+    --m3-steel: #93a4ae; --m3-inside: #4f5e67; --m3-liquid: #3a8db0; --m3-pump: #2b94b4; --m3-motor: #6a7a85;
+    --m3-valve: #8798a2; --m3-wheel: #4f606b; --m3-act: #4290b8; --m3-brass: #b8903f; --m3-flow: #5f97c4;
+    --m3-press: #8f7fc0; --m3-block: #8e9ca4; --m3-node: #a6b6bf; --m3-mark: #f4f7f8; --m3-closed: #e0584a;
+    --o3: rgba(0, 0, 0, .6);
     color-scheme: dark;
   }
 }
@@ -40,5 +51,10 @@
   --line: #2a3840; --grid: #18232a; --grid-major: #1f2c34; --accent: #49b3cf; --accent-ink: #062029;
   --accent-soft: #163844; --sel: #f0a64a; --ok: #5cc28a; --warn: #e2b04e; --crit: #f0705f; --caution: #93a8b5;
   --pipe: #b9c7cf; --override: #3d3220; --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  --shade3d: #000; --shade3d-a: .55;
+  --m3-steel: #93a4ae; --m3-inside: #4f5e67; --m3-liquid: #3a8db0; --m3-pump: #2b94b4; --m3-motor: #6a7a85;
+  --m3-valve: #8798a2; --m3-wheel: #4f606b; --m3-act: #4290b8; --m3-brass: #b8903f; --m3-flow: #5f97c4;
+  --m3-press: #8f7fc0; --m3-block: #8e9ca4; --m3-node: #a6b6bf; --m3-mark: #f4f7f8; --m3-closed: #e0584a;
+  --o3: rgba(0, 0, 0, .6);
   color-scheme: dark;
 }

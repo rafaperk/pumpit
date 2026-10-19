@@ -16,10 +16,10 @@ Pump It is a static web app: plain HTML, CSS and JavaScript with no build step a
 flowchart LR
   i18n["src/i18n (engine + catalogs)"] --> core
   subgraph core["src/core (no DOM)"]
-    units --> fluids --> data --> hydraulics --> registry["junctions/registry"] --> model --> solver --> jtypes["junctions/*"] --> examples
+    units --> fluids --> data --> hydraulics --> registry["junctions/registry"] --> model --> solver --> jtypes["junctions/*"] --> examples --> view3d
   end
   subgraph ui["src/ui"]
-    common --> jviews["junctions/* (views)"] --> app --> topbar --> inspector --> network --> modeldata["model-data"] --> results --> charts --> main["app/main.js"]
+    common --> jviews["junctions/* (views)"] --> app --> topbar --> inspector --> network --> view3dui["view3d"] --> modeldata["model-data"] --> results --> charts --> main["app/main.js"]
   end
   core --> ui
 ```
@@ -31,16 +31,18 @@ flowchart LR
 | Fluids | `src/core/fluids/` | `PumpIt.fluids` | Fluid library (`register`, `evaluate`); water from public correlations |
 | Engineering data | `src/core/data/` | `PumpIt.data` | Steel pipe (ASME B36.10M), roughness, fittings (Crane), water velocity bands |
 | Hydraulics | `src/core/hydraulics/` | `PumpIt.hyd` | Friction factors, curve fitting, local loss coefficients |
-| Model | `src/core/model/` | `PumpIt.model` | Factories (`newModel`, `newPipe`, `newJunction`), scenarios, checklist (`validate`) |
+| Model | `src/core/model/` | `PumpIt.model` | Factories (`newModel`, `newPipe`, `newJunction`, `pipeDefaults`), scenarios, checklist (`validate`), drawing-only fields (`LAYOUT_KEYS`, `stripLayout`, `normalizeLayout`) |
 | Solver | `src/core/solver/` | `PumpIt.solver` | `run`, `prepare`, `systemCurve` and the internal stages |
 | Junction types | `src/core/junctions/` | `PumpIt.junctionTypes` | Registry and one file per type |
 | Examples | `src/core/examples/` | `PumpIt.examples` | Builder helpers and one file per example |
+| 3D views geometry | `src/core/view3d/` | `PumpIt.view3d` | Camera and projection, navigation, grids, pipe routes that follow their ends, symbol orientation, scene points from the plan and the elevation, editing in the free view, the junction symbols as solids (pure functions; see [3D-VIEWS.md](3D-VIEWS.md)) |
 | Common UI | `src/ui/common/` | `PumpIt.ui.format`, `.dom`, `.dialogs`, `.download`, `.xlsx` | Formatting, DOM helpers, dialogs, downloads, .xlsx writer |
 | Junction views | `src/ui/junctions/` | `PumpIt.ui.junctionTypes` | Registry and one view per type |
 | Application | `src/ui/app/` | `PumpIt.app` | State, selection, editing and undo, clipboard, calculation, files, layout, keyboard, start-up |
-| Top bar | `src/ui/topbar/` | `PumpIt.ui.menus`, `.header`, `.scenarios`, `.checklist`, `.language` | Menus and commands, header status, scenarios, checklist, language selector |
+| Top bar | `src/ui/topbar/` | `PumpIt.ui.menus`, `.shortcuts`, `.header`, `.scenarios`, `.checklist`, `.language` | Menus and commands, keyboard shortcuts box, header status, scenarios, checklist, language selector |
 | Inspector | `src/ui/inspector/` | `PumpIt.ui.inspector`, `.forms`, ... | Field builders and one file per panel |
 | Network view | `src/ui/network/` | `PumpIt.ui.canvas`, `.drawing`, `.colorScales`, `.palette`, `.infoCard` | Interaction, SVG drawing, colour scales, palette, right-click card |
+| 3D views | `src/ui/view3d/` | `PumpIt.ui.scene3d`, `.commands3d`, `.edit3d` (with `.isoEdit3d`, `.freeEdit3d`), `.solids3d`, `.render3d`, `.quick3d`, `.nav3d`, `.hud3d` | Scene (plan and elevation), commands, editing in each view, the junction symbols as shaded solids, SVG drawing with depth cues and quick frames while something moves, camera navigation and glides, view switch and controls, inspector sections (see [3D-VIEWS.md](3D-VIEWS.md)) |
 | Model data view | `src/ui/model-data/` | `PumpIt.ui.modelData` | Input tables |
 | Results view | `src/ui/results/` | `PumpIt.ui.results`, `.resultColumns`, `.resultExport` | Result tables, warnings, TSV and Excel export |
 | Charts view | `src/ui/charts/` | `PumpIt.ui.charts`, `.lineChart`, `.pumpChart`, `.profileChart` | Charts |
@@ -53,6 +55,8 @@ Load-order rules: a file may use, **at load time**, only modules listed before i
 1. **Edit.** A panel calls `app.setVal(key, path, value)` (or another command in `src/ui/app/editing.js`). The command pushes an undo snapshot and writes through `PumpIt.model.setField`, which applies the scenario rule: the base scenario holds every value, a child scenario stores only the attributes that differ from its parent.
 2. **Recalculate.** `app.changed()` increments `app.version`, clears every result, saves the model to the browser and calls `app.recalc()`: if the checklist (`PumpIt.model.validate`) of the current scenario is complete, `PumpIt.solver.run(app.eff())` calculates it.
 3. **Render.** `app.renderAll()` redraws the header, the drawing, the inspector and the visible view. Panels read `app.eff()` (effective model of the current scenario) and `app.okResults()`.
+
+Drawing fields (`PumpIt.model.LAYOUT_KEYS`: the schematic position, symbol rolls, pipe routes and the 3D view settings) are not calculation data. They live on the objects of the base model, never in scenario overrides; editing them only pushes an undo snapshot and saves, without recalculating or clearing the results; and the solver works on a copy without them. The 3D views draw every junction at its schematic position and at the height of its elevation, which is calculation data: moving a junction up or down there is an elevation edit, with recalculation.
 
 ## Interface languages
 
@@ -75,7 +79,7 @@ Changing the language (`app.setLanguage`, in `src/ui/topbar/language.js`): switc
 
 ## Solver pipeline
 
-`PumpIt.solver.run(eff)` (`src/core/solver/solver.js`):
+`PumpIt.solver.run(eff)` (`src/core/solver/solver.js`) first takes a copy of `eff` without the drawing fields (`PumpIt.model.stripLayout`), then:
 
 1. `prepare` (`network.js`): fluid properties, pipes in SI, nodes and links. Single-node junction types create their node through `buildNode`; two-port types become an element link filled by `buildElement`.
 2. Device loop, until the device states settle: `configure` (`devices.js`) → `analyze` (`connectivity.js`, pressure references and isolated parts) → `newton` (`newton.js`, link mass flows and node pressures solved together) → `review` (`devices.js`).
@@ -86,7 +90,7 @@ Changing the language (`app.setLanguage`, in `src/ui/topbar/language.js`): switc
 ### A new junction type
 
 1. `src/core/junctions/<type>.js`: `PumpIt.junctionTypes.register({ ... })` following the contract at the top of `src/core/junctions/registry.js` (defaults, checklist, network equations, results).
-2. `src/ui/junctions/<type>.js`: `PumpIt.ui.junctionTypes.register('<type>', { ... })` following the contract at the top of `src/ui/junctions/registry.js` (symbol, inspector form, summaries, result rows).
+2. `src/ui/junctions/<type>.js`: `PumpIt.ui.junctionTypes.register('<type>', { ... })` following the contract at the top of `src/ui/junctions/registry.js` (symbol, the solid of the 3D views, inspector form, summaries, result rows).
 3. Its texts under `junctions.<type>` in `src/i18n/<language>/junctions.js` of every language (at least `label`).
 4. Add both `<script>` tags to their groups in `index.html`.
 
@@ -117,11 +121,13 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 
 - Result columns: `COLS` in `src/ui/results/columns.js`.
 - Charts: a new file in `src/ui/charts/`, an entry in `CHARTS` (`charts.js`) and a tab button in `index.html`.
-- Inspector panels: `PumpIt.ui.inspector.panels.<name>(host, ...)`, dispatched by `src/ui/inspector/inspector.js`.
+- Inspector panels: `PumpIt.ui.inspector.panels.<name>(host, ...)`, dispatched by `src/ui/inspector/inspector.js`. Another block adds a section after a panel with `PumpIt.ui.inspector.addSection('system' | 'pipe' | 'junction', fn)`, as the 3D views do.
+- Network drawing: in the isometric and 3D views, `src/ui/network/canvas.js` hands its pointer events and its drawing over to `src/ui/view3d/`; the schematic keeps its own code.
 
 ## Tests
 
 - `tests/run-tests.js`: the core against independent solutions (analytical or by bisection).
 - `tests/validate-fth.js`: the core against results stored in reference model files (answer key only; see the clean-room rules in `CONTRIBUTING.md`).
 - `tests/check-i18n.js`: same keys and placeholders in every language, every literal key of the code defined, every example calculated in every language without missing texts.
+- `tests/view3d.test.cjs`: the geometry of the 3D views against exact values, and the drawing/calculation contract (every example gives byte-identical results with a random drawing).
 - All of them load the core with `tests/load-core.js`, from the list in `index.html`.

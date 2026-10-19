@@ -1,6 +1,7 @@
 // Drawing area: the only place where the topology changes. SVG drawing with pan, zoom, grid, snapping,
 // multiple selection (Ctrl/Shift+click, Shift+drag on empty space) and group dragging. The SVG markup itself
-// is produced by drawing.js.
+// is produced by drawing.js. In the isometric and 3D views (src/ui/view3d/) the same SVG element hands its
+// events and its drawing over to that block.
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui, app = PumpIt.app;
@@ -8,6 +9,7 @@
   const { t } = PumpIt.i18n;
 
   const GRID = 20;
+  const in3d = () => !!UI.scene3d && UI.scene3d.active();
 
   let svg, wrap;
   const view = { tx: 40, ty: 40, s: 1 };
@@ -28,16 +30,18 @@
     svg.addEventListener('pointercancel', onUp);
     svg.addEventListener('wheel', onWheel, { passive: false });
     svg.addEventListener('contextmenu', onContext);
+    svg.addEventListener('dblclick', (e) => { if (in3d()) UI.nav3d.dblclick(hitTarget(e), e); });
     wrap.addEventListener('dragover', (e) => { e.preventDefault(); wrap.classList.add('drop-ok'); });
     wrap.addEventListener('dragleave', () => wrap.classList.remove('drop-ok'));
     wrap.addEventListener('drop', (e) => {
       e.preventDefault(); wrap.classList.remove('drop-ok');
       const type = e.dataTransfer.getData('text/plain');
       if (!PumpIt.junctionTypes.get(type)) return;
+      if (in3d()) { UI.edit3d.dropAt(type, e); return; }
       const w = toWorld(e.clientX, e.clientY);
       app.addJunction(type, snap(w.x), snap(w.y));
     });
-    new ResizeObserver(() => (autoFit ? fit() : render())).observe(wrap);
+    new ResizeObserver(() => (in3d() || !autoFit ? render() : fitSchematic())).observe(wrap);
     bindTools();
   }
 
@@ -62,6 +66,7 @@
   const keyOf = (hit) => (hit.kind === 'pipe' ? 'p:' : 'j:') + hit.id;
 
   function setTool(tool) {
+    if (UI.edit3d) UI.edit3d.reset();
     state.tool = tool;
     state.pending = null;
     document.querySelectorAll('.palette .tool').forEach((b) => b.classList.toggle('active', b.dataset.tool === tool));
@@ -70,8 +75,13 @@
     render();
   }
 
-  // instructions of the current tool, over the drawing
+  // instructions of the current tool (in the 3D views, also of the selection), over the drawing
   function refreshHint() {
+    if (in3d()) {
+      const place = state.tool.startsWith('place:') ? { label: PumpIt.junctionTypes.get(state.tool.slice(6)).label } : undefined;
+      app.hint(t(UI.edit3d.hintKey(), place));
+      return;
+    }
     const tool = state.tool;
     if (tool.startsWith('place:')) app.hint(t('network.hint.place', { label: PumpIt.junctionTypes.get(tool.slice(6)).label }));
     else app.hint(tool === 'pipe' ? t('network.hint.pipe') : '');
@@ -87,6 +97,7 @@
   }
 
   function onDown(e) {
+    if (in3d()) { UI.nav3d.down(e, hitTarget(e)); return; }
     if (e.button === 2) return;
     svg.focus({ preventScroll: true });
     const hit = hitTarget(e);
@@ -144,6 +155,7 @@
   }
 
   function onMove(e) {
+    if (in3d()) { UI.nav3d.move(e); return; }
     state.mouseW = toWorld(e.clientX, e.clientY);
     const drag = state.drag, mouseW = state.mouseW;
     if (!drag) { if (state.tool === 'pipe' && state.pending !== null) render(); return; }
@@ -170,11 +182,12 @@
     }
   }
 
-  function onUp() {
+  function onUp(e) {
+    if (in3d()) { UI.nav3d.up(e); return; }
     const drag = state.drag;
     if (!drag) return;
     if (drag.kind === 'pan' && !drag.moved && drag.clickEmpty) app.select(null);
-    if (drag.kind === 'move' && drag.moved) app.save();
+    if (drag.kind === 'move' && drag.moved) { app.save(); app.layoutChanged(); }
     if (drag.kind === 'box') {
       const x0 = Math.min(drag.x0, drag.x1), x1 = Math.max(drag.x0, drag.x1), y0 = Math.min(drag.y0, drag.y1), y1 = Math.max(drag.y0, drag.y1);
       const inside = new Set(app.model.junctions.filter((j) => j.x >= x0 && j.x <= x1 && j.y >= y0 && j.y <= y1).map((j) => j.id));
@@ -188,6 +201,7 @@
 
   function onWheel(e) {
     e.preventDefault();
+    if (in3d()) { UI.nav3d.wheel(e); return; }
     const f = Math.exp(-e.deltaY * 0.0015);
     zoomAt(e.clientX, e.clientY, f);
   }
@@ -201,9 +215,16 @@
     view.s = s2;
     render();
   }
-  function zoomBy(f) { const r = svg.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, f); }
+  function zoomBy(f) {
+    if (in3d()) { UI.nav3d.zoomBy(f); return; }
+    const r = svg.getBoundingClientRect();
+    zoomAt(r.left + r.width / 2, r.top + r.height / 2, f);
+  }
 
-  function fit() {
+  // fits the drawing of the active view
+  function fit() { if (in3d()) UI.nav3d.fit(); else fitSchematic(); }
+
+  function fitSchematic() {
     const js = app.model.junctions;
     const r = svg.getBoundingClientRect();
     autoFit = true;
@@ -220,6 +241,7 @@
   // right click: the object's data card and actions
   function onContext(e) {
     e.preventDefault();
+    if (in3d() && UI.nav3d.consumedContext()) return; // the right button moved the 3D view
     const hit = hitTarget(e);
     if (!hit) return;
     if (!app.selSet.has(keyOf(hit))) app.select(hit);
@@ -228,15 +250,23 @@
 
   // Esc: drops the pipe being drawn, then the current tool
   function cancel() {
+    if (in3d() && UI.edit3d.cancel()) return true;
     if (state.pending !== null) { state.pending = null; render(); return true; }
     if (state.tool !== 'select') { setTool('select'); return true; }
     return false;
   }
 
-  function render() {
+  // opts.light: a quick 3D frame while the camera moves
+  function render(opts) {
     if (!svg) return;
-    UI.drawing.render(svg, view, state);
+    if (UI.hud3d) UI.hud3d.sync();
+    if (in3d()) {
+      if (!(opts && opts.light)) UI.nav3d.drawn();
+      UI.render3d.render(svg, opts);
+      refreshHint();
+    }
+    else UI.drawing.render(svg, view, state);
   }
 
-  PumpIt.ui.canvas = { init, render, fit, zoomBy, setTool, refreshHint, cancel, get tool() { return state.tool; }, view, GRID };
+  PumpIt.ui.canvas = { init, render, fit, fitSchematic, zoomBy, setTool, refreshHint, cancel, get tool() { return state.tool; }, view, GRID };
 })(typeof window !== 'undefined' ? window : globalThis);

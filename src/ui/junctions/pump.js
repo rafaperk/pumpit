@@ -3,6 +3,7 @@
   const PumpIt = root.PumpIt;
   const F = PumpIt.ui.format;
   const JT = PumpIt.ui.junctionTypes;
+  const S = PumpIt.view3d.solid;
   const { stroke, fill } = JT.SVG;
   const { t } = PumpIt.i18n;
   const tx = (key, params) => t('junctions.pump.' + key, params);
@@ -10,6 +11,21 @@
   JT.register('pump', {
     symbol: `<circle r="11" ${stroke}/><path d="M-5 -7.5L9 0L-5 7.5z" ${fill}/>`,
     orient: 'ports',
+    // 3D views: the casing between its nozzles, the motor on top, and on both faces of the casing an arrow along the
+    // flow (D-29); red when off and closed
+    solid: {
+      parts: [
+        S.cyl([-14.2, 0, 0], [-10, 0, 0], 4, 'steel', { cap0: false, cap1: false }), S.cyl([10, 0, 0], [14.2, 0, 0], 4, 'steel', { cap0: false, cap1: false }),
+        S.cyl([-16, 0, 0], [-14.2, 0, 0], 5.6, 'steel'), S.cyl([14.2, 0, 0], [16, 0, 0], 5.6, 'steel'),
+        S.cyl([0, -4.5, 0], [0, 4.5, 0], 10.5, 'pump'),
+        S.plate([[-4.5, -4.56, 6.5], [8, -4.56, 0], [-4.5, -4.56, -6.5]], [0, -1, 0], 'mark'),
+        S.plate([[-4.5, 4.56, 6.5], [8, 4.56, 0], [-4.5, 4.56, -6.5]], [0, 1, 0], 'mark'),
+        S.cyl([0, 0, 9.3], [0, 0, 18], 5, 'motor', { cap0: false, cap1: false }),
+        S.rev([0, 0, 18], [0, 0, 19.6], 5, 3.2, 'motor', { cap0: false }),
+      ],
+      reach: [S.cyl([-16, 0, 0], [16, 0, 0], 5.6), S.ball([0, 0, 0], 10.5)],
+    },
+    closed: (j) => j.state === 'offClosed',
     pressureRise: true,
 
     form(s, { key, j, f }) {

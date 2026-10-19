@@ -19,6 +19,7 @@
     m.nextId.p = Math.max(m.nextId.p || 1, 1 + Math.max(0, ...m.pipes.map((p) => p.id)));
     m.nextId.j = Math.max(m.nextId.j || 1, 1 + Math.max(0, ...m.junctions.map((j) => j.id)));
     m._notes = M.migrate(m);
+    M.normalizeLayout(m);
     return m;
   }
 
@@ -32,7 +33,9 @@
     app.save();
     app.recalc();
     app.renderAll();
-    if (fit) requestAnimationFrame(() => UI.canvas.fit());
+    // the schematic is framed; the cameras of the 3D views were saved with the model (3D views R-02), and are framed
+    // again only when the scene is out of their sight
+    if (fit) requestAnimationFrame(() => { UI.scene3d.ensureVisible(); UI.canvas.fitSchematic(); });
     if (notes && notes.length) toast(t('app.files.converted', { notes: notes.join('; ') }));
   };
 

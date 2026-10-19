@@ -1,4 +1,4 @@
-// Top bar menus (File, Edit), their commands and the list of examples.
+// Top bar menus (File, Edit, Help), their commands and the list of examples.
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, UI = PumpIt.ui;
@@ -36,8 +36,26 @@
     reverse: () => { if (app.sel && app.sel.kind === 'pipe') app.reversePipe(app.sel.id); else toast(t('app.edit.selectPipe')); },
     delete: () => (app.selSet.size ? app.deleteSelection() : toast(t('app.edit.nothingSelected'))),
     fit: () => { app.setView('net'); requestAnimationFrame(() => UI.canvas.fit()); },
-    'toggle-grid': () => { app.prefs.grid = !app.prefs.grid; app.savePrefs(); UI.canvas.render(); toast(app.prefs.grid ? t('app.edit.gridOn') : t('app.edit.gridOff')); },
+    'toggle-grid': () => {
+      if (UI.scene3d.active()) { UI.hud3d.toggle('grid'); return; } // the grid of the 3D view on the screen
+      app.prefs.grid = !app.prefs.grid; app.savePrefs(); UI.canvas.render(); toast(app.prefs.grid ? t('app.edit.gridOn') : t('app.edit.gridOff'));
+    },
+    help: () => UI.help.open(),
+    'help-tour': () => UI.tour.start(),
+    'help-start': () => UI.help.open('start.welcome'),
+    'help-tech': () => UI.help.open('tech.overview'),
+    'help-about': () => UI.help.open('about.about'),
+    shortcuts: () => UI.shortcuts.show(),
   };
+
+  // opens an example in place of the current model (undo brings the model back)
+  function openExample(id) {
+    const ex = PumpIt.examples.get(id);
+    if (!ex) return;
+    app.pushUndo();
+    app.loadModel(ex.build());
+    toast(t('app.exampleLoaded', { name: ex.name }));
+  }
 
   // the examples list of the File menu (names in the current language)
   function renderExamples() {
@@ -58,9 +76,7 @@
       const b = e.target.closest('[data-ex]');
       if (!b) return;
       app.hideMenus();
-      app.pushUndo();
-      app.loadModel(PumpIt.examples.get(b.dataset.ex).build());
-      toast(t('app.exampleLoaded', { name: PumpIt.examples.get(b.dataset.ex).name }));
+      openExample(b.dataset.ex);
     });
     // a click anywhere else closes the menus
     document.addEventListener('click', (e) => {
@@ -68,5 +84,5 @@
     });
   }
 
-  PumpIt.ui.menus = { ACTIONS, bind, renderExamples };
+  PumpIt.ui.menus = { ACTIONS, bind, renderExamples, openExample };
 })(window);

@@ -14,7 +14,7 @@
   }
 
   // one-line hint over the drawing (tool instructions)
-  const hint = (msg) => { $('#canvas-hint').textContent = msg; };
+  const hint = (msg) => { const h = $('#canvas-hint'); if (h.textContent !== msg) h.textContent = msg; };
 
   // actions: [{ label, primary, onClick }]; onClick returning false keeps the box open
   function modal({ title, body, actions }) {

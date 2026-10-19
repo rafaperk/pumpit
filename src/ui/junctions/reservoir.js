@@ -2,12 +2,15 @@
 (function (root) {
   const PumpIt = root.PumpIt;
   const JT = PumpIt.ui.junctionTypes;
+  const S = PumpIt.view3d.solid;
   const { stroke } = JT.SVG;
   const { t } = PumpIt.i18n;
   const tx = (key, params) => t('junctions.reservoir.' + key, params);
 
   JT.register('reservoir', {
     symbol: `<path d="M-13 -9V11H13V-9" ${stroke}/><path d="M-13 1h26V11H-13z" style="fill:var(--accent)" opacity=".28"/><path d="M-10 1c2.5-2 5-2 7.5 0s5 2 7.5 0 5-2 5.5-.5" ${stroke} style="stroke:var(--accent)"/>`,
+    // 3D views: an open tank with its liquid (D-29)
+    solid: { parts: [S.tank(15, -13, 13, 6, { shell: 'steel', inside: 'inside', liquid: 'liquid' })], reach: [S.cyl([0, 0, -13], [0, 0, 13], 15)] },
     get elevationLabel() { return tx('elevation'); },
     connectionElevation: true,
 

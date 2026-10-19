@@ -2,6 +2,7 @@
 (function (root) {
   const PumpIt = root.PumpIt;
   const JT = PumpIt.ui.junctionTypes;
+  const S = PumpIt.view3d.solid;
   const { stroke, fill } = JT.SVG;
   const { t } = PumpIt.i18n;
   const tx = (key, params) => t('junctions.flow.' + key, params);
@@ -9,6 +10,8 @@
 
   JT.register('flow', {
     symbol: `<circle r="11" ${stroke}/><text y="4.5" text-anchor="middle" style="font-family:var(--f-mono)" font-weight="600" font-size="13" ${fill}>Q</text>`,
+    // 3D views: a drum with its letter (D-29)
+    solid: { parts: [S.cyl([0, 0, -8], [0, 0, 8], 10, 'flow'), S.text([0, 0, 0], 'Q')], reach: [S.cyl([0, 0, -8], [0, 0, 8], 10)] },
 
     form(s, { key, f }) {
       s.appendChild(f.qty(key, 'Q', tx('form.Q'), 'flow'));

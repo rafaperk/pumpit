@@ -20,6 +20,7 @@
     UI.charts.bind();
     UI.modelData.bind();
     UI.palette.bind();
+    UI.hud3d.bind();
     UI.keyboard.bind();
     UI.dialogs.bind();
     UI.language.bind();
@@ -27,6 +28,8 @@
     try { if (m) UI.files.normalize(m); } catch (e) { m = null; }
     app.loadModel(m || PumpIt.examples.get('pump').build());
     if (!m) app.toast(PumpIt.i18n.t('app.welcome'));
+    // the guided tour, offered once
+    setTimeout(() => UI.tour.offer(), 600);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

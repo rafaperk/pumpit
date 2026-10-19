@@ -6,6 +6,9 @@
 //   symbol                      SVG markup in a 32×32 box centred on the origin, drawn with currentColor
 //   orient                      'ports': the symbol turns from the inlet to the outlet neighbour (two-port types)
 //                               'pipe': the symbol turns along its single pipe
+//   solid                       symbol of the 3D views: { parts, reach, orient } made with PumpIt.view3d.solid
+//                               (src/core/view3d/solids.js); orient overrides the one above in the 3D views
+//   closed(j)                   the junction stops the flow: its 3D symbol turns red
 //   elevationLabel              label of the elevation field (default: the common elevation label)
 //   connectionElevation         the per-pipe loss table also edits each pipe's connection elevation
 //   form(sec, ctx)              fills the inspector's data section; ctx = { key, j, f } (f = field builders)

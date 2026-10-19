@@ -13,8 +13,11 @@
     if (app.undoStack.length > 80) app.undoStack.shift();
     app.redoStack = [];
   };
+  // the active view and the cameras are view settings: undo and redo leave them as they are (3D views R-61)
   function restore(json) {
+    const view = app.model.view3;
     app.model = JSON.parse(json);
+    PumpIt.ui.scene3d.carryView(view, app.model);
     app.pruneSelection();
     app.changed();
   }
@@ -44,18 +47,27 @@
   app.addJunction = (type, x, y, opts = {}) => {
     app.pushUndo();
     const id = app.model.nextId.j++;
-    app.model.junctions.push(M.newJunction(type, id, x, y));
+    const j = M.newJunction(type, id, x, y);
+    if (opts.elevation) j.elevation = opts.elevation; // placed in a 3D view, at a height
+    app.model.junctions.push(j);
     if (!opts.silent) { app.selSet = new Set(['j:' + id]); app.sel = { kind: 'junction', id }; }
     app.changed();
     return id;
   };
 
-  app.addPipe = (up, down) => {
+  // a new pipe copies its data from the reference pipe, as the user sees it in the current scenario: the selected
+  // pipe, or else the last one created. The drawn length never counts (R-13 of the 3D views). opts.bends3 and
+  // opts.snap3: its route when it was drawn in a 3D view.
+  app.addPipe = (up, down, opts = {}) => {
     if (up === down) return null;
     app.pushUndo();
     const id = app.model.nextId.p++;
-    const tpl = app.model.pipes[app.model.pipes.length - 1];
-    app.model.pipes.push(M.newPipe(id, up, down, tpl));
+    const last = app.model.pipes[app.model.pipes.length - 1];
+    const ref = (app.sel && app.sel.kind === 'pipe' && app.effObj('p:' + app.sel.id)) || (last && app.effObj('p:' + last.id));
+    const p = Object.assign(M.newPipe(id, up, down), M.pipeDefaults(ref));
+    if (opts.bends3) p.bends3 = opts.bends3;
+    if (opts.snap3 === false) p.snap3 = false;
+    app.model.pipes.push(p);
     app.selSet = new Set(['p:' + id]); app.sel = { kind: 'pipe', id };
     app.changed();
     return id;
@@ -89,6 +101,8 @@
     if (!p) return;
     app.pushUndo();
     [p.up, p.down] = [p.down, p.up];
+    // the bends go from the start to the end of the pipe, and each follows the start (a) or the end (b)
+    if (p.bends3) p.bends3 = p.bends3.reverse().map(({ ref, d }) => ({ ref: [...ref].map((c) => (c === 'a' ? 'b' : 'a')).join(''), d }));
     app.changed();
   };
 
@@ -99,6 +113,7 @@
     app.pushUndo();
     const nj = M.newJunction(type, id, old.x, old.y);
     for (const k of ['name', 'elevation']) nj[k] = old[k];
+    for (const k of M.LAYOUT_KEYS.junction) if (old[k] !== undefined) nj[k] = old[k]; // the drawing stays
     if (old.pipeK && nj.pipeK) nj.pipeK = old.pipeK;
     if (old.lossModel && nj.lossModel) for (const k of ['lossModel', 'K', 'Cv', 'Kv']) nj[k] = old[k];
     Object.keys(old).forEach((k) => delete old[k]);

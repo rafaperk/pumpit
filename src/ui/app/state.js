@@ -36,6 +36,8 @@
     return effCache.eff;
   };
   app.validation = () => { const e = app.eff(); if (!effCache.val) effCache.val = M.validate(e); return effCache.val; };
+  // a drawing-only edit (positions, 3D data): the effective model is copied again, the results stay
+  app.layoutChanged = () => { effCache = { key: null, eff: null, val: null }; };
   app.undefSet = () => app.validation().undef;
   app.effObj = (key) => M.getObj(app.eff(), key);
   app.getVal = (key, path) => { const o = app.effObj(key); return o ? M.getPath(o, path) : undefined; };

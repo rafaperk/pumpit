@@ -6,6 +6,8 @@
   const S = PumpIt.solver;
 
   function run(eff, opts = {}) {
+    // R-10 of the 3D views: the calculation starts from a copy without the drawing fields
+    eff = PumpIt.model.stripLayout(eff);
     let prep;
     try { prep = S.prepare(eff); } catch (e) { return { ok: false, errors: [e.message], warnings: [] }; }
     if (prep.errors.length) return { ok: false, errors: prep.errors, warnings: prep.warnings };

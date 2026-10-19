@@ -9,6 +9,9 @@
   const app = PumpIt.app;
   const { t } = PumpIt.i18n;
   const panels = {};
+  // sections that other blocks add after a panel: fn(host) for the system, fn(host, id) for a pipe or a junction
+  const extras = { system: [], pipe: [], junction: [] };
+  const addSection = (panel, fn) => extras[panel].push(fn);
   let host;
 
   function init(hostEl) { host = hostEl; }
@@ -19,9 +22,9 @@
     host.innerHTML = '';
     const s = app.sel;
     if (app.selSet.size > 1) panels.selection(host);
-    else if (!s) panels.system(host);
-    else if (s.kind === 'pipe') panels.pipe(host, s.id);
-    else panels.junction(host, s.id);
+    else if (!s) { panels.system(host); extras.system.forEach((fn) => fn(host)); }
+    else if (s.kind === 'pipe') { panels.pipe(host, s.id); extras.pipe.forEach((fn) => fn(host, s.id)); }
+    else { panels.junction(host, s.id); extras.junction.forEach((fn) => fn(host, s.id)); }
     host.scrollTop = scroll;
     if (focusId) { const f = document.getElementById(focusId); if (f) f.focus(); }
   }
@@ -68,5 +71,5 @@
     return { A: A * red * red * (p.nParallel || 1), Dh: Dh * red };
   }
 
-  PumpIt.ui.inspector = { init, render, panels, head, missingBox, out, pipeGeom };
+  PumpIt.ui.inspector = { init, render, panels, addSection, head, missingBox, out, pipeGeom };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,104 @@
+/* 3D views: the view switch and the controls of each view on the drawing, the "visual only" seal and the 3D
+   drawing (grid, shadows, drop lines, tubes with their cut, solid symbols, labels). */
+.view-hud { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; pointer-events: auto; max-width: calc(100% - 230px); }
+.view-hud .seg { padding: 2px; }
+.view-hud .seg button { padding: 3px 10px; font-size: 12.5px; }
+.hud-group { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 2px 4px; }
+.hud-group .btn { min-height: 26px; padding: 2px 8px; font-size: 12.5px; }
+.hud-group .btn.icon { padding: 2px 6px; min-width: 28px; }
+.hud-group .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.hud-group .seg { border: 0; background: transparent; padding: 0; }
+.hud-sep { width: 1px; align-self: stretch; background: var(--line); margin: 3px 2px; }
+.seal3 {
+  position: absolute; right: 12px; top: 10px; font-size: 11.5px; color: var(--ink-2); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; pointer-events: none;
+}
+.hud-level { display: flex; align-items: center; gap: 2px; font-size: 12.5px; color: var(--ink-2); padding-left: 4px; }
+.hud-level input { width: 58px; padding: 2px 6px; font-family: var(--f-mono); font-size: 12.5px; text-align: right; }
+.hud-level .unit { color: var(--ink-3); }
+
+/* the drawing */
+.g3-grid line { stroke: var(--grid); stroke-width: 1; }
+.g3-grid line.major { stroke: var(--grid-major); }
+.g3-shadows { opacity: var(--shade3d-a); pointer-events: none; }
+.g3-shadows line { stroke: var(--shade3d); stroke-linecap: round; }
+.g3-shadows circle { fill: var(--shade3d); }
+.g3-stems { pointer-events: none; }
+.g3-stems line { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 2 3; opacity: .6; }
+.g3-stems circle { fill: var(--ink-2); opacity: .6; }
+.g3-scene line { fill: none; }
+.g3-scene .cut { stroke: var(--bg); stroke-linecap: round; }
+.g3-scene .halo { stroke: var(--sel); stroke-linecap: round; opacity: .65; }
+.g3-scene .tube { stroke: var(--pipe); stroke-linecap: round; }
+.g3-scene .tube-edge { stroke: var(--ink); stroke-linecap: round; }
+.g3-scene .tube-shade { stroke: #000; opacity: .25; }
+.g3-scene .tube-gloss { stroke: #fff; opacity: .55; stroke-linecap: round; }
+.g3-scene .fog { stroke: var(--bg); stroke-linecap: round; pointer-events: none; }
+.g3-scene .hit { stroke: transparent; cursor: pointer; }
+.g3-scene .pipe.undef .tube, .g3-quick .tube.undef { stroke: var(--crit); }
+.g3-scene .pipe.iso .tube, .g3-quick .tube.iso { stroke: var(--ink-3); opacity: .6; }
+.g3-scene .flow-arrow { fill: var(--panel); pointer-events: none; }
+.g3-scene .offgrid { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 2 3; pointer-events: none; }
+/* junction symbols as solids (D-29, solids.js): a material sets --m, a shade (k0 … k15) mixes it with black or white,
+   and the fog of a far symbol (--fog, 0 … 1) mixes the result with the background. The halo under the parts outlines
+   the selection; the invisible disc takes the clicks. */
+.g3-scene .junction { --fog: 0; cursor: pointer; }
+.g3-scene .junction.iso { opacity: .5; }
+.g3-scene .shit { fill: transparent; }
+.g3-scene .sh { fill: none; stroke: transparent; stroke-width: 6; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.g3-scene .junction.sel .sh { stroke: var(--sel); }
+.g3-scene .junction.undef .sh { stroke: var(--crit); stroke-dasharray: 3 3; }
+.g3-scene .sf {
+  fill: color-mix(in srgb, var(--c) calc(100% - var(--fog) * 100%), var(--bg));
+  stroke: color-mix(in srgb, var(--c) calc(100% - var(--fog) * 100%), var(--bg)); stroke-width: .6; stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.g3-scene .so { fill: none; stroke: var(--o3); stroke-width: .8; stroke-linejoin: round; pointer-events: none; vector-effect: non-scaling-stroke; }
+.g3-scene .sb { stroke: var(--o3); stroke-width: .8; opacity: calc(1 - var(--fog)); vector-effect: non-scaling-stroke; }
+.g3-scene .st {
+  font-family: var(--f-mono); font-weight: 600; fill: #fff; stroke: rgba(10, 18, 24, .55); stroke-width: 2.4px;
+  paint-order: stroke; text-anchor: middle; dominant-baseline: central; pointer-events: none;
+}
+.g3-scene .m-steel { --m: var(--m3-steel); }
+.g3-scene .m-inside { --m: var(--m3-inside); }
+.g3-scene .m-liquid { --m: var(--m3-liquid); }
+.g3-scene .m-pump { --m: var(--m3-pump); }
+.g3-scene .m-motor { --m: var(--m3-motor); }
+.g3-scene .m-valve { --m: var(--m3-valve); }
+.g3-scene .m-wheel { --m: var(--m3-wheel); }
+.g3-scene .m-act { --m: var(--m3-act); }
+.g3-scene .m-brass { --m: var(--m3-brass); }
+.g3-scene .m-flow { --m: var(--m3-flow); }
+.g3-scene .m-press { --m: var(--m3-press); }
+.g3-scene .m-block { --m: var(--m3-block); }
+.g3-scene .m-node { --m: var(--m3-node); }
+.g3-scene .m-mark { --m: var(--m3-mark); }
+.g3-scene .closed .m-valve, .g3-scene .closed .m-pump { --m: var(--m3-closed); }
+.g3-scene .k0 { --c: color-mix(in srgb, var(--m) 40%, #000); }
+.g3-scene .k1 { --c: color-mix(in srgb, var(--m) 45%, #000); }
+.g3-scene .k2 { --c: color-mix(in srgb, var(--m) 50%, #000); }
+.g3-scene .k3 { --c: color-mix(in srgb, var(--m) 55%, #000); }
+.g3-scene .k4 { --c: color-mix(in srgb, var(--m) 60%, #000); }
+.g3-scene .k5 { --c: color-mix(in srgb, var(--m) 65%, #000); }
+.g3-scene .k6 { --c: color-mix(in srgb, var(--m) 70%, #000); }
+.g3-scene .k7 { --c: color-mix(in srgb, var(--m) 75%, #000); }
+.g3-scene .k8 { --c: color-mix(in srgb, var(--m) 80%, #000); }
+.g3-scene .k9 { --c: color-mix(in srgb, var(--m) 85%, #000); }
+.g3-scene .k10 { --c: color-mix(in srgb, var(--m) 90%, #000); }
+.g3-scene .k11 { --c: color-mix(in srgb, var(--m) 95%, #000); }
+.g3-scene .k12 { --c: var(--m); }
+.g3-scene .k13 { --c: color-mix(in srgb, var(--m) 90%, #fff); }
+.g3-scene .k14 { --c: color-mix(in srgb, var(--m) 80%, #fff); }
+.g3-scene .k15 { --c: color-mix(in srgb, var(--m) 70%, #fff); }
+.g3-labels { pointer-events: none; }
+
+/* editing in the 3D views: segment and bend handles, the pipe being drawn, markers and the label at the cursor */
+.g3-edit .handle { fill: var(--panel); stroke: var(--accent); stroke-width: 2; cursor: move; }
+.g3-edit .handle.bend { stroke-width: 2.5; }
+.g3-edit .handle.bend.on { fill: var(--accent); stroke: var(--panel); }
+.g3-edit .rubber3 { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
+.g3-edit .mark3 { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; pointer-events: none; }
+.g3-edit .drop3 { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; pointer-events: none; }
+.g3-edit .cand-tip { pointer-events: none; }
+.g3-edit .cand-tip rect { fill: var(--ink); opacity: .9; }
+.g3-edit .cand-tip text { fill: var(--panel); font: 500 11px var(--f-mono); }

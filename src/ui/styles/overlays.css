@@ -16,6 +16,13 @@
 .modal textarea { width: 100%; min-height: 220px; font-family: var(--f-mono); font-size: 12px; }
 .modal input[type="text"] { width: 100%; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+/* keyboard shortcuts box (Edit menu) */
+.shortcuts { max-height: min(62vh, 560px); overflow: auto; font-size: 12.5px; }
+.shortcuts h4 { margin: 14px 0 4px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.shortcuts table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.shortcuts th { width: 36%; font: 500 12px var(--f-mono); color: var(--ink); text-align: left; vertical-align: top; padding: 4px 14px 4px 0; }
+.shortcuts td { color: var(--ink-2); padding: 4px 0; border-bottom: 1px solid var(--line); }
+.shortcuts th { border-bottom: 1px solid var(--line); }
 .toast {
   position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--panel);
   padding: 8px 16px; border-radius: 8px; box-shadow: var(--shadow); font-size: 13px; max-width: calc(100% - 32px);

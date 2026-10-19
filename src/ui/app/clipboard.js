@@ -38,7 +38,7 @@
     }
     for (const p0 of cb.pipes) {
       const p = M.clone(p0);
-      p.id = pMap.get(p0.id); p.up = jMap.get(p0.up); p.down = jMap.get(p0.down);
+      p.id = pMap.get(p0.id); p.up = jMap.get(p0.up); p.down = jMap.get(p0.down); // its route follows the new ends
       app.model.pipes.push(p);
       keys.push('p:' + p.id);
     }

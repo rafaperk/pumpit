@@ -7,13 +7,13 @@ The product uses no trademarks, names, icons, texts or screens of any commercial
 ## How to use
 
 - **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
-- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`) and the language consistency check (`tests/check-i18n.js`).
+- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`), the language consistency check (`tests/check-i18n.js`) and the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`).
 - **Validation against stored reference results:** `node tests/validate-fth.js "<folder with .fth files>"` (see Verification).
 
 Workflow (interface names in English; the Portuguese and Spanish screens have the same layout):
 
 1. Drag a junction type from the palette onto the drawing (or click the type and then the drawing).
-2. **Pipe** tool, key `P`: click a junction and then another one. The reference direction goes from the first to the second. Clicking empty space creates a branch node.
+2. **Pipe** tool, key `P`: click a junction and then another one. The reference direction goes from the first to the second. Clicking empty space creates a branch node. A new pipe copies length, material, section and friction from the selected pipe (or else from the last one created); the first pipe of a model gets 100 m. The drawn length never counts.
 3. Select an object to edit it in the inspector on the right. Whatever is still missing for it to be defined appears in red.
 4. When the checklist is complete, the indicator at the top changes to **Calculated** and the results appear. There is no Run button: every change recalculates the current scenario.
 5. See **Results** (pipes, junctions, pumps, valves, warnings), **Charts** (pump × system and profile), the right-click card, or pick a quantity in "Results on the drawing".
@@ -30,6 +30,8 @@ Shortcuts and selection:
 | Delete | `Del` |
 | Cancel the tool | `Esc` |
 | Zoom and view | mouse wheel; drag the background |
+
+Isometric and 3D views (see [docs/3D-VIEWS.md](docs/3D-VIEWS.md)): *Schematic · Isometric · 3D* at the top left of the drawing, or the keys 1, 2 and 3. The three views show one geometry: the schematic is the plan and the height of every junction is its elevation, so moving a junction in one view moves it in the others, and moving it up or down in a 3D view changes its elevation. Pipes are drawn as tubes, along the axes unless drawn freely in the 3D view, nearer ones over farther ones, with shadows on the floor; junctions are small shaded solids (tank, pump, valves, nozzle…) that lie along their pipes and turn with the camera. Both views draw and edit: in the isometric view junctions go on the grid and pipes follow route candidates along the axes; in the free 3D view pipes go in any direction (Shift up and down, Ctrl along an axis) and bends can be moved, inserted and deleted. *Edit → Keyboard shortcuts…* lists the keys of every view. No length ever comes from the drawing. Phones are not supported.
 
 Default units: flow in m³/h, length and elevation in m, pressure in kgf/cm²(g), temperature in °C. Diameters and roughness are typed in mm. Each field keeps the unit it was typed in, and each result column can switch units without recalculating.
 
@@ -87,17 +89,19 @@ src/core/                  calculation core, no DOM (runs in Node)
   fluids/                  fluid library (water from public correlations) and evaluation
   data/                    ASME B36.10M steel pipe, typical roughness, Crane fittings, water velocity bands
   hydraulics/              friction (original Colebrook, Hazen-Williams), curve fitting, orifice K
-  model/                   model schema and factories, scenarios, checklist (validation)
+  model/                   model schema and factories, scenarios, checklist (validation), drawing-only fields
   solver/                  network building, connectivity, Newton, device states, results, system curve
   junctions/               junction type registry + one file per type (defaults, checks, equations, results)
   examples/                example builder + one file per example model
+  view3d/                  geometry of the 3D views: camera, navigation, grids, pipe routes, symbols, plan and elevation, free editing, solids
 src/ui/                    browser interface
   common/                  formatting, DOM helpers, dialogs, downloads, .xlsx writer
-  junctions/               junction type views + one file per type (symbol, form, summaries, result rows)
+  junctions/               junction type views + one file per type (symbol, 3D solid, form, summaries, result rows)
   app/                     application state and commands (PumpIt.app), keyboard, start-up
   topbar/                  menus, header status, scenarios, checklist, language selector
   inspector/               field builders and one file per panel (system, pipe, junction, curves...)
   network/                 drawing area, SVG drawing, colour scales, palette, right-click card
+  view3d/                  isometric and 3D views: scene, commands, editing (isometric and free), solids, drawing and quick frames, navigation, controls, inspector sections
   model-data/              model data view
   results/                 results view, result columns, TSV and Excel export
   charts/                  line chart, pump × system and profile charts
@@ -106,7 +110,9 @@ tests/load-core.js         loads the core (and the catalogs) into Node in the or
 tests/run-tests.js         verification against independent solutions
 tests/check-i18n.js        every language has every text; every key used in the code exists
 tests/validate-fth.js      validation against stored reference results (specification section 10)
+tests/view3d.test.cjs      geometry of the 3D views; a drawing never changes a result
 docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
+docs/3D-VIEWS.md           3D views: progress, where each part lives, decisions
 CONTRIBUTING.md            conventions and how to work in parallel
 ```
 
@@ -116,7 +122,7 @@ Reference: the clean-room specification (`Clean Room.md`), sections 0 to 8.
 
 | Area | Implemented |
 | --- | --- |
-| Drawing | Palette, pipes with a reference direction, moving (also as a group), multiple selection, copy and paste, delete, reverse direction, change the junction type keeping the compatible data, grid with snapping, zoom, pan, fit to screen, undo and redo |
+| Drawing | Palette, pipes with a reference direction, moving (also as a group), multiple selection, copy and paste, delete, reverse direction, change the junction type keeping the compatible data, grid with snapping, zoom, pan, fit to screen, undo and redo; isometric and free 3D views of the same model, with the elevation as height (drawing and editing in both) |
 | Calculation | Automatic after every change and when switching scenarios; the checklist shows what is missing |
 | Scenarios | Scenario tree; a child stores only what differs from its parent; editing with the inherited value relinks to the parent; marker on changed fields; table of differences |
 | Fluid | Water (Kell 1975, Vogel, IAPWS-IF97 region 4) or the user's ρ, μ and Pv |
@@ -160,7 +166,7 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 | Water vapour pressure | IAPWS-IF97, region 4 |
 | Network method | Todini & Pilati (1988); Jeppson (1976) |
 
-**Interface:** our own layout, symbols, texts and colours. The symbols follow the generic process flow diagram convention, drawn here in SVG.
+**Interface:** our own layout, symbols, texts and colours. The symbols follow the generic process flow diagram convention, drawn here in SVG. The solids of the 3D views are shapes of our own, built from cylinders, cones, boxes and spheres.
 
 ## Engineering decisions (open points of Annex B)
 

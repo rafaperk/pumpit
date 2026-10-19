@@ -2,12 +2,15 @@
 (function (root) {
   const PumpIt = root.PumpIt;
   const JT = PumpIt.ui.junctionTypes;
+  const S = PumpIt.view3d.solid;
   const { fill } = JT.SVG;
   const { t } = PumpIt.i18n;
   const tx = (key, params) => t('junctions.branch.' + key, params);
 
   JT.register('branch', {
     symbol: `<circle r="5.5" ${fill}/>`,
+    // 3D views: a ball where the pipes meet (D-29)
+    solid: { parts: [S.ball([0, 0, 0], 6.5, 'node')], reach: [S.ball([0, 0, 0], 6.5)] },
 
     form(s, { key, f }) {
       s.appendChild(f.qty(key, 'source', tx('form.source'), 'flow', { title: tx('form.sourceHint') }));

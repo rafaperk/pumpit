@@ -1,0 +1,403 @@
+// 3D views: SVG markup of the isometric and the free 3D drawings (3D views specification §10). Depth cues: items are
+// painted from the farthest to the nearest (§8.12); a cut of the background colour runs under every pipe segment, so
+// a nearer pipe interrupts the one behind it (R-55); pipes are shaded tubes as thick as their bore, thicker when
+// nearer in perspective; the junctions are small shaded solids that turn with the camera (D-29, solids.js), and the
+// pipes stop at their bodies; farther items fade into the background; and, optionally, every raised pipe and
+// junction casts a shadow on the floor and drop lines mark the heights. While something moves, quick.js draws lean
+// frames from the same projected scene (R-62).
+(function (root) {
+  const PumpIt = root.PumpIt;
+  const UI = PumpIt.ui, V = PumpIt.view3d, U = PumpIt.units;
+  const app = PumpIt.app;
+  const F = UI.format, CS = UI.colorScales, S3 = UI.scene3d, SO = UI.solids3d;
+
+  const CHAR_W = 6.4, LINE_UP = 10, LINE_DOWN = 3; // approximate box of a label character (§10.3)
+  const SOLID = 1.3; // size of the solids against the schematic symbols, which fill their discs
+  const f1 = (v) => Math.round(v * 10) / 10;
+  const f3 = (v) => Math.round(v * 1000) / 1000;
+
+  // tube width (px) from the bore of the pipe: 4 px for small bores, up to 12 px for large ones
+  function tubeWidth(p) {
+    const g = p.geometry || {};
+    const mm = (q) => U.toSI(Number(q.value), q.unit, 'length') * 1000;
+    let d = NaN;
+    try {
+      if (g.kind === 'circular') d = mm(g.d);
+      else if (g.kind === 'annulus') d = mm(g.dOuter);
+      else if (g.kind === 'rectangular') d = Math.max(mm(g.width), mm(g.height));
+      else d = Math.sqrt((4 * U.toSI(Number(g.area.value), g.area.unit, 'area')) / Math.PI) * 1000;
+    } catch (e) { /* incomplete section: default bore */ }
+    return V.clamp(3 + (d > 0 ? d : 100) / 20, 4, 12);
+  }
+
+  // the end a of the screen segment a–b moved towards b by r (at most 45 % of the segment)
+  function trim(a, b, r) {
+    const L = Math.hypot(b.x - a.x, b.y - a.y);
+    if (!L) return a;
+    const k = Math.min(r, L * 0.45) / L;
+    return { ...a, x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+  }
+  const coords = (a, b) => `x1="${f1(a.x)}" y1="${f1(a.y)}" x2="${f1(b.x)}" y2="${f1(b.y)}"`;
+
+  // the effective pipes and junctions by id, indexed once per effective model (app.eff() is the same object until the
+  // next change)
+  const effIndex = new WeakMap();
+  function effIndexOf() {
+    const e = app.eff();
+    let ix = effIndex.get(e);
+    if (!ix) { ix = { pipes: new Map(e.pipes.map((p) => [p.id, p])), junctions: new Map(e.junctions.map((j) => [j.id, j])) }; effIndex.set(e, ix); }
+    return ix;
+  }
+  const effPipes = () => effIndexOf().pipes;
+  const effJunctions = () => effIndexOf().junctions;
+
+  // The end q of a segment that goes towards o, moved to the body of the junction symbol at q (at: its entry in
+  // f.place), at most 45 % of the segment: the pipe meets the solid where it enters it.
+  function stopAt(at, q, o) {
+    if (!at) return q;
+    const v = V.sub(o, q), L = V.len(v);
+    if (L < 1e-12) return q;
+    const d = V.mul(v, 1 / L), { ex, ey, ez } = at.pl.axes;
+    const t = Math.min(V.solidReach(at.model, [V.dot(d, ex), V.dot(d, ey), V.dot(d, ez)]) * at.pl.du, L * 0.45);
+    return V.add(q, V.mul(d, t));
+  }
+
+  // the floor: the working plane, or the lowest point of the scene when lower
+  function floorOf(routes, levelZ) {
+    let z = levelZ;
+    for (const pts of routes.values()) for (const q of pts) z = Math.min(z, q[2]);
+    return z;
+  }
+
+  // ------------------------------------------------------------ the frame
+  // Everything a drawing needs: the camera, the results and the scene projected and sorted from the farthest to the
+  // nearest item. light: a frame while something moves, without flow arrows and fading.
+  function frameOf(svg, light) {
+    const box = svg.getBoundingClientRect();
+    if (!box.width || !box.height) return null;
+    const vp = { w: box.width, h: box.height };
+    const m = app.model, v = m.view3, isoView = v.mode === 'iso';
+    const cam = S3.camera();
+    const persp = cam.projection === 'persp';
+    const kRef = persp ? V.focalPx(cam, vp) / cam.distance : cam.scale;
+    const res = app.okResults();
+    const ovKey = app.prefs.overlay;
+    const unitOf = (cat) => app.outUnit('canvas', cat);
+    const conv = res ? { rho: res.fluid.rho, patm: res.patm } : {};
+    // positions and routes of the scene, with the preview of a drag in progress
+    const sc = S3.scene(UI.edit3d.preview());
+    const f = {
+      svg, vp, m, v, isoView, set: isoView ? v.iso : v.free, cam, persp, kRef, res, ovKey, unitOf,
+      sel: app.selSet, undef: app.undefSet(), ov: CS.overlayValues(res, ovKey),
+      near: (k, lo, hi) => (persp ? V.clamp(k / kRef, lo, hi) : 1), // size factor of a point (perspective)
+      fmtOv: (x, cat) => F.fmt(F.conv(x, cat, unitOf(cat), conv), 3),
+      sc, routes: sc.routes, posOf: (j) => sc.pos.get(j.id),
+      widths: new Map(), arriving: new Map(), leaving: new Map(), longest: new Map(), place: new Map(), items: [],
+    };
+    for (const p of m.pipes) {
+      if (!f.routes.has(p.id)) continue;
+      if (!f.arriving.has(p.down)) f.arriving.set(p.down, p);
+      if (!f.leaving.has(p.up)) f.leaving.set(p.up, p);
+    }
+    f.levelZ = v.level * v.zScale;
+    f.floorZ = floorOf(f.routes, f.levelZ);
+
+    // where every junction symbol goes: its axes (along its pipes when it turns with them, §8.11) and its place on
+    // the screen, of a fixed size like a schematic symbol (larger when nearer in perspective)
+    for (const j of m.junctions) {
+      const p3 = f.posOf(j);
+      if (!p3) continue;
+      const orient = SO.orientOf(j.type);
+      const axes = V.solidAxes(orient ? refDir(f, j, orient) : null, j.icon3 ? j.icon3.roll : 0);
+      const pl = V.solidPlacement(cam, vp, p3, axes, (k) => SOLID * f.near(k, 0.6, 1.4));
+      if (pl) f.place.set(j.id, { j, p3, pl, model: SO.modelOf(j.type) });
+    }
+
+    // scene items with their depth: pipe segments, flow arrows and junction symbols
+    const items = f.items, effP = effPipes();
+    for (const p of m.pipes) {
+      const pts = f.routes.get(p.id);
+      if (!pts) continue;
+      const eff = effP.get(p.id) || p;
+      const w0 = tubeWidth(eff);
+      f.widths.set(p.id, w0);
+      const n = pts.length - 1;
+      for (let i = 0; i < n; i++) {
+        // an end at a junction stops at the body of its symbol
+        const q0 = i === 0 ? stopAt(f.place.get(p.up), pts[0], pts[1]) : pts[i];
+        const q1 = i === n - 1 ? stopAt(f.place.get(p.down), pts[n], pts[n - 1]) : pts[i + 1];
+        const cl = V.clipNear(cam, q0, q1);
+        if (!cl) continue;
+        let a = V.project(cam, vp, cl[0]), b = V.project(cam, vp, cl[1]);
+        const mid = V.project(cam, vp, V.mul(V.add(cl[0], cl[1]), 0.5));
+        if (!a || !b || !mid) continue;
+        const w = w0 * f.near(mid.k, 0.5, 1.8);
+        // and the round cap of the tube there too
+        if (i === 0) a = trim(a, b, w / 2);
+        if (i === n - 1) b = trim(b, a, w / 2);
+        const s = { p, eff, i, a, b, p3: cl, inA: i > 0, inB: i < n - 1, w, depth: mid.depth, len: Math.hypot(b.x - a.x, b.y - a.y) };
+        items.push({ kind: 'seg', depth: s.depth, s });
+        const best = f.longest.get(p.id);
+        if (!best || s.len > best.len) f.longest.set(p.id, s);
+      }
+    }
+    if (!light) for (const s of f.longest.values()) if (s.len > 50) items.push({ kind: 'arrow', depth: s.depth - 1e-6, s }); // R-51
+    for (const at of f.place.values()) items.push({ kind: 'jct', depth: at.pl.c.depth, j: at.j, c: at.pl.c, at });
+    items.sort((x, y) => y.depth - x.depth); // painter's algorithm: the farthest first
+
+    // farther items fade into the background; less when the colours carry results
+    let dMin = Infinity, dMax = -Infinity;
+    for (const it of items) { dMin = Math.min(dMin, it.depth); dMax = Math.max(dMax, it.depth); }
+    const fogMax = light ? 0 : f.ov ? 0.15 : 0.4;
+    f.fog = (d) => (dMax - dMin > 1e-9 ? f3((fogMax * (d - dMin)) / (dMax - dMin)) : 0);
+    return f;
+  }
+
+  // what the editors draw over the scene need
+  const editCtx = (f) => ({ cam: f.cam, vp: f.vp, sc: f.sc, floorZ: f.floorZ });
+
+  // ------------------------------------------------------------ looks shared by the full and the quick frames
+  // the look of a pipe: its state classes, the colour of its result, and whether it is solid (dashed when closed,
+  // isolated or undefined, R-54)
+  function pipeLook(f, p, eff) {
+    const key = 'p:' + p.id;
+    const r = f.res && f.res.pipes[p.id];
+    const isSel = f.sel.has(key), isUndef = f.undef.has(key), isolated = !!(r && r.isolated);
+    const cls = [];
+    if (isSel) cls.push('sel');
+    if (isUndef) cls.push('undef');
+    if (eff.closed) cls.push('closed');
+    if (isolated) cls.push('iso');
+    let color = '', over = false;
+    if (f.ov && f.ov.vals.has(p.id)) {
+      const x = f.ov.vals.get(p.id);
+      color = CS.pipeColor(f.ovKey, x, f.ov.max > f.ov.min ? (x - f.ov.min) / (f.ov.max - f.ov.min) : 0.5);
+      over = CS.beyondScale(f.ovKey, x);
+    }
+    return { cls, isSel, isUndef, solid: !isUndef && !eff.closed && !isolated, color, over };
+  }
+  // dashes of a pipe that is not solid, in proportion to the tube ('' when solid)
+  const dashOf = (look, w) => (look.solid ? '' : look.isUndef ? `${f1(w * 0.1)} ${f1(w * 1.6)}` : `${f1(w * 2.5)} ${f1(w * 2)}`);
+  // ends of the cut and of the halo: short of the bends, so that the segments of one pipe never cut each other, and
+  // with their round caps no farther than the tube's at a junction symbol, which they would bite into
+  const cutEnds = (s) => [s.inA ? trim(s.a, s.b, s.w + 3) : trim(s.a, s.b, 3), s.inB ? trim(s.b, s.a, s.w + 3) : trim(s.b, s.a, 3)];
+
+  // the classes of a junction
+  function junctionLook(f, j) {
+    const key = 'j:' + j.id;
+    const cls = ['junction'];
+    if (f.sel.has(key)) cls.push('sel');
+    if (f.undef.has(key)) cls.push('undef');
+    const jr = f.res && f.res.junctions[j.id];
+    if (jr && jr.isolated) cls.push('iso');
+    if (SO.closed(j.type, effJunctions().get(j.id) || j)) cls.push('closed');
+    return cls;
+  }
+
+  // reference direction of an oriented symbol (§8.11): the last segment of the pipe that arrives, pointing at the
+  // junction, or else the first segment of the pipe that leaves; a symbol on a single pipe points into the junction
+  function refDir(f, j, orient) {
+    const ok = (d) => (d && V.len(d) > 1e-9 ? d : null);
+    const lastIn = (p) => { const r = f.routes.get(p.id); return r && V.sub(r[r.length - 1], r[r.length - 2]); };
+    const firstOut = (p) => { const r = f.routes.get(p.id); return r && V.sub(r[1], r[0]); };
+    const pin = f.arriving.get(j.id), pout = f.leaving.get(j.id);
+    if (orient === 'pipe' && !pin) return pout ? ok(V.mul(firstOut(pout) || [0, 0, 0], -1)) : null;
+    if (pin) return ok(lastIn(pin));
+    return pout ? ok(firstOut(pout)) : null;
+  }
+
+  // The symbol of a junction as a solid (D-29): { html, transform, box }. html draws it at the size of a schematic
+  // symbol around (0, 0) and transform puts it in place at its size (pl.s), so that a symbol that only moves, grows or
+  // shrinks keeps its markup (quick.js); box bounds it on the screen around its centre.
+  function junctionIcon(f, it) {
+    const { pl, model } = it.at, s = pl.s;
+    const drawn = V.drawSolid(model, { ...pl, s: 1, A: pl.A.map((row) => row.map((v) => v / s)) });
+    const b = drawn.box;
+    return {
+      html: SO.markup(drawn, 11), transform: `translate(${f1(it.c.x)} ${f1(it.c.y)}) scale(${f3(s)})`,
+      box: { x0: b.x0 * s, y0: b.y0 * s, x1: b.x1 * s, y1: b.y1 * s },
+    };
+  }
+
+  // ------------------------------------------------------------ the full drawing
+  function segment(f, s) {
+    const { p, a, b, w } = s;
+    const look = pipeLook(f, p, s.eff);
+    const L = coords(a, b);
+    const [ca, cb] = cutEnds(s);
+    const LC = coords(ca, cb);
+    const dash = dashOf(look, w);
+    let o = `<g class="${['pipe', ...look.cls].join(' ')}" data-p="${p.id}" data-i="${s.i}"><line class="cut" ${LC} style="stroke-width:${f1(w + 6)}"/>`;
+    if (look.isSel) o += `<line class="halo" ${LC} style="stroke-width:${f1(w + 7)}"/>`;
+    if (look.over) o += `<line class="tube-edge" ${LC} style="stroke-width:${f1(w + 3)}"/>`;
+    o += `<line class="tube" ${L} style="stroke-width:${f1(w)}${look.color ? ';stroke:' + look.color : ''}${dash ? ';stroke-dasharray:' + dash : ''}"/>`;
+    if (look.solid) {
+      // shading across the tube: darker away from the light (top left of the screen), a highlight towards it
+      const len = s.len || 1;
+      let nx = -(b.y - a.y) / len, ny = (b.x - a.x) / len;
+      if (nx * -0.6 + ny * -0.8 < 0) { nx = -nx; ny = -ny; }
+      const off = (k) => `x1="${f1(a.x + nx * k)}" y1="${f1(a.y + ny * k)}" x2="${f1(b.x + nx * k)}" y2="${f1(b.y + ny * k)}"`;
+      o += `<line class="tube-shade" ${off(-w * 0.25)} style="stroke-width:${f1(w * 0.5)}"/><line class="tube-gloss" ${off(w * 0.2)} style="stroke-width:${f1(Math.max(1, w * 0.22))}"/>`;
+    }
+    const fg = look.isSel ? 0 : f.fog(s.depth);
+    if (fg > 0.02) o += `<line class="fog" ${L} style="stroke-width:${f1(w + 1)};opacity:${fg}"/>`;
+    // in the isometric view, a straight pipe off the axes gets a thin dashed outline (R-30)
+    if (f.isoView && p.snap3 === false && !V.axisOf(s.p3[0], s.p3[1])) o += `<line class="offgrid" ${L}/>`;
+    return o + `<line class="hit" ${L} style="stroke-width:${f1(Math.max(14, w + 8))}"/></g>`;
+  }
+
+  // flow direction (R-51): in the middle of the longest segment, along the flow when there are results
+  function arrow(f, s) {
+    const r = f.res && f.res.pipes[s.p.id];
+    const flip = r && !r.isolated && r.m < 0;
+    const ang = (Math.atan2(s.b.y - s.a.y, s.b.x - s.a.x) * 180) / Math.PI + (flip ? 180 : 0);
+    return `<path class="flow-arrow" d="M5 0L-4 -4.5L-4 4.5z" transform="translate(${f1((s.a.x + s.b.x) / 2)} ${f1((s.a.y + s.b.y) / 2)}) rotate(${f1(ang)}) scale(${f3(Math.max(s.w * 0.8, 5) / 9)})"/>`;
+  }
+
+  function junction(f, it) {
+    const { j } = it;
+    const fg = f.sel.has('j:' + j.id) ? 0 : f.fog(it.depth);
+    const icon = junctionIcon(f, it);
+    it.box = icon.box; // the labels go around it
+    return `<g class="${junctionLook(f, j).join(' ')}" data-j="${j.id}" transform="${icon.transform}"${fg > 0.02 ? ` style="--fog:${fg}"` : ''}>${icon.html}</g>`;
+  }
+
+  // labels (R-52, R-53, §10.3): kept only where they do not collide with one already placed
+  function labels(f) {
+    const cands = [];
+    for (const it of f.items) {
+      if (it.kind !== 'jct') continue;
+      const { j, c } = it;
+      const key = 'j:' + j.id, pri = f.sel.has(key) ? 0 : 1;
+      const effJ = effJunctions().get(j.id) || j;
+      // under and over the symbol, which may be tall
+      const k = f.near(c.k, 0.6, 1.4), box = it.box || { y0: -16 * k, y1: 16 * k };
+      cands.push({ pri, cls: 'j-label', text: 'J' + j.id, x: c.x, y: c.y + box.y1 + 12 });
+      if (effJ.name) cands.push({ pri, cls: 'j-name', text: effJ.name, x: c.x, y: c.y + box.y1 + 24 });
+      const jr = f.res && f.res.junctions[j.id];
+      if (jr && f.ovKey !== 'none' && !jr.isolated) {
+        const text = f.ovKey === 'HGL' ? `${f.fmtOv(jr.HGL, 'head')} ${F.unit(f.unitOf('head'))}` : `${f.fmtOv(jr.Pin, 'pressure')} ${F.unit(f.unitOf('pressure'))}`;
+        cands.push({ pri, cls: 'j-val', text, x: c.x, y: c.y + box.y0 - 6 });
+      }
+    }
+    for (const s of f.longest.values()) {
+      if (s.len < 40) continue;
+      const key = 'p:' + s.p.id, pri = f.sel.has(key) ? 0 : 2;
+      // along the segment in the isometric view, never upside down; horizontal in 3D
+      let ang = 0;
+      if (f.isoView) {
+        ang = (Math.atan2(s.b.y - s.a.y, s.b.x - s.a.x) * 180) / Math.PI;
+        if (ang > 90) ang -= 180; else if (ang <= -90) ang += 180;
+      }
+      const x = (s.a.x + s.b.x) / 2, y = (s.a.y + s.b.y) / 2;
+      cands.push({ pri, size: s.len, cls: 'p-label', text: 'P' + s.p.id, x, y, ang, dy: -(s.w / 2 + 5) });
+      if (f.ov && f.ov.vals.has(s.p.id)) {
+        const cat = CS.OVERLAY[f.ovKey].cat;
+        cands.push({ pri, size: s.len, cls: 'p-val', text: `${f.fmtOv(f.ov.vals.get(s.p.id), cat)} ${F.unit(f.unitOf(cat))}`, x, y, ang, dy: s.w / 2 + 13 });
+      }
+    }
+    // the selection first, then the junctions, then the pipes from the longest on the screen
+    cands.sort((a, b) => a.pri - b.pri || (b.size || 0) - (a.size || 0));
+    const placed = [], out = [];
+    for (const cd of cands) {
+      const W = cd.text.length * CHAR_W, dy = cd.dy || 0, an = ((cd.ang || 0) * Math.PI) / 180;
+      const cs = Math.cos(an), sn = Math.sin(an);
+      const xs = [], ys = [];
+      for (const [u, z] of [[-W / 2, dy - LINE_UP], [W / 2, dy - LINE_UP], [-W / 2, dy + LINE_DOWN], [W / 2, dy + LINE_DOWN]]) {
+        xs.push(cd.x + u * cs - z * sn);
+        ys.push(cd.y + u * sn + z * cs);
+      }
+      const rc = { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+      if (rc.x1 < 0 || rc.y1 < 0 || rc.x0 > f.vp.w || rc.y0 > f.vp.h) continue;
+      if (placed.some((q) => rc.x0 < q.x1 && rc.x1 > q.x0 && rc.y0 < q.y1 && rc.y1 > q.y0)) continue;
+      placed.push(rc);
+      const at = cd.ang ? `transform="translate(${f1(cd.x)} ${f1(cd.y)}) rotate(${f1(cd.ang)})" x="0" y="${f1(dy)}"` : `x="${f1(cd.x)}" y="${f1(cd.y + dy)}"`;
+      out.push(`<text class="${cd.cls}" ${at} text-anchor="middle">${F.esc(cd.text)}</text>`);
+    }
+    return `<g class="g3-labels">${out.join('')}</g>`;
+  }
+
+  // the grid: three families of lines in the isometric view (§8.5), the working plane fading with the distance from
+  // the target in the free 3D view (§8.6)
+  function grid(f) {
+    const { cam, vp, v } = f;
+    const line = (l) => `<line${l.major ? ' class="major"' : ''} x1="${f1(l.x1)}" y1="${f1(l.y1)}" x2="${f1(l.x2)}" y2="${f1(l.y2)}"/>`;
+    if (f.isoView) return `<g class="g3-grid">${V.isoGridLines(cam, vp, v.step, v.major).map(line).join('')}</g>`;
+    const lines = V.planeGridLines(cam, vp, f.levelZ, v.step, v.major, 40);
+    const c = V.project(cam, vp, cam.target) || { x: vp.w / 2, y: vp.h / 2 };
+    const e = V.project(cam, vp, V.add(cam.target, V.mul(V.basis(cam).r, 30 * v.step)));
+    const rad = e ? Math.max(80, Math.hypot(e.x - c.x, e.y - c.y)) : Math.max(vp.w, vp.h) / 2;
+    return `<defs><radialGradient id="g3-fade-g" gradientUnits="userSpaceOnUse" cx="${f1(c.x)}" cy="${f1(c.y)}" r="${f1(rad)}">`
+      + '<stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>'
+      + `<mask id="g3-fade"><rect width="100%" height="100%" fill="url(#g3-fade-g)"/></mask></defs><g class="g3-grid" mask="url(#g3-fade)">${lines.map(line).join('')}</g>`;
+  }
+
+  // shadow of every raised pipe and junction on the floor
+  function shadows(f) {
+    const { cam, vp, floorZ } = f;
+    const down = (q) => [q[0], q[1], floorZ];
+    const raised = (q) => q[2] - floorZ > 1e-6;
+    const out = [];
+    for (const [pid, pts] of f.routes) {
+      for (let i = 0; i < pts.length - 1; i++) {
+        if (!raised(pts[i]) && !raised(pts[i + 1])) continue;
+        const cl = V.clipNear(cam, down(pts[i]), down(pts[i + 1]));
+        const a = cl && V.project(cam, vp, cl[0]), b = cl && V.project(cam, vp, cl[1]);
+        if (a && b) out.push(`<line ${coords(a, b)} style="stroke-width:${f1(f.widths.get(pid) * f.near((a.k + b.k) / 2, 0.5, 1.8))}"/>`);
+      }
+    }
+    for (const at of f.place.values()) {
+      const p = at.p3;
+      if (!raised(p)) continue;
+      const foot = down(p), c = V.project(cam, vp, foot);
+      if (!c) continue;
+      const rDu = SO.footOf(at.j.type) * 0.8 * at.pl.du;
+      const ex = V.screenVec(cam, vp, foot, V.AX.x), ey = V.screenVec(cam, vp, foot, V.AX.y);
+      out.push(`<circle r="1" transform="matrix(${f3(ex[0] * rDu)} ${f3(ex[1] * rDu)} ${f3(ey[0] * rDu)} ${f3(ey[1] * rDu)} ${f1(c.x)} ${f1(c.y)})"/>`);
+    }
+    return `<g class="g3-shadows">${out.join('')}</g>`;
+  }
+
+  // drop lines (R-48): from every junction down to the floor, with a mark at the foot
+  function stems(f) {
+    const { cam, vp, floorZ } = f;
+    const out = [];
+    for (const j of f.m.junctions) {
+      const p = f.posOf(j);
+      if (Math.abs(p[2] - floorZ) < 1e-9) continue;
+      const cl = V.clipNear(cam, p, [p[0], p[1], floorZ]);
+      const a = cl && V.project(cam, vp, cl[0]), b = cl && V.project(cam, vp, cl[1]);
+      if (a && b) out.push(`<line ${coords(a, b)}/><circle cx="${f1(b.x)}" cy="${f1(b.y)}" r="2.5"/>`);
+    }
+    return `<g class="g3-stems">${out.join('')}</g>`;
+  }
+
+  // light: a quick frame while the camera or a dragged object moves (R-62, quick.js)
+  function render(svg, { light = false } = {}) {
+    const f = frameOf(svg, light);
+    if (!f) return;
+    if (light) { UI.quick3d.frame(f); return; }
+    UI.quick3d.drop();
+    let out = SO.defs();
+    if (f.set.grid) out += grid(f);
+    if (f.set.shadows) out += shadows(f);
+    if (!f.isoView && f.v.free.stems) out += stems(f);
+    out += `<g class="g3-scene">${f.items.map((it) => (it.kind === 'seg' ? segment(f, it.s) : it.kind === 'arrow' ? arrow(f, it.s) : junction(f, it))).join('')}</g>`;
+    out += labels(f);
+    out += `<g class="g3-edit">${UI.edit3d.overlay(editCtx(f))}</g>`;
+    svg.innerHTML = out;
+    CS.renderLegend(document.getElementById('legend'), f.ov, f.ovKey, f.unitOf, f.fmtOv);
+  }
+
+  // only the marks of the editors (the pipe being drawn, the markers), over a scene that is still right
+  function renderEdit(svg) {
+    const g = svg.querySelector('.g3-edit');
+    const box = svg.getBoundingClientRect();
+    if (!g || !box.width) { UI.canvas.render(); return; }
+    const sc = S3.scene(UI.edit3d.preview());
+    const v = app.model.view3;
+    g.innerHTML = UI.edit3d.overlay({ cam: S3.camera(), vp: { w: box.width, h: box.height }, sc, floorZ: floorOf(sc.routes, v.level * v.zScale) });
+  }
+
+  PumpIt.ui.render3d = { render, renderEdit, tubeWidth, frameOf, editCtx, grid, pipeLook, dashOf, cutEnds, junctionLook, junctionIcon };
+})(window);

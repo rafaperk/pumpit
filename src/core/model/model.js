@@ -32,8 +32,8 @@
     return notes;
   }
 
-  function newPipe(id, up, down, template) {
-    const p = {
+  function newPipe(id, up, down) {
+    return {
       id, name: '', up, down,
       length: q(10, 'm'),
       material: { kind: 'steel', nps: '4', sch: '40' },
@@ -47,13 +47,16 @@
       nParallel: 1,
       closed: false,
     };
-    if (template) {
-      // reuse material, geometry and friction from the last pipe
-      p.material = clone(template.material);
-      p.geometry = clone(template.geometry);
-      p.friction = clone(template.friction);
-    }
-    return p;
+  }
+
+  // Data of a pipe the user draws (R-13 of the 3D views): length, material, section and friction copied from the
+  // reference pipe, never taken from the drawing. Without a reference (or with an invalid length) the length is
+  // 100 m, and the rest comes from newPipe.
+  function pipeDefaults(prev) {
+    const base = newPipe(0, 0, 0);
+    const pick = (k) => clone(prev && prev[k] ? prev[k] : base[k]);
+    const L = prev && prev.length ? Number(prev.length.value) : NaN;
+    return { length: L > 0 ? pick('length') : q(100, 'm'), material: pick('material'), geometry: pick('geometry'), friction: pick('friction') };
   }
 
   // a new model; its default texts (title, fluid name, base scenario) are in the current language
@@ -120,7 +123,7 @@
   }
 
   PumpIt.model = Object.assign(PumpIt.model || {}, {
-    q, clone, newJunction, newPipe, newModel, migrate,
+    q, clone, newJunction, newPipe, pipeDefaults, newModel, migrate,
     getPath, setPath, getObj, deepEqual,
     pipesAt, ports,
   });
