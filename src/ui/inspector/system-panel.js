@@ -75,7 +75,7 @@
     host.appendChild(cols);
 
     // the regime chooses the calculation (R-01); each one keeps its own fluid (R-03)
-    const s0 = section(tx('regime'), { info: choices(M.REGIMES.map((r) => [tx('regimes.' + r), tx(r === 'compressivel' ? 'regimeHintGas' : 'regimeHintLiquid')])) });
+    const s0 = section(tx('regime'), { info: choices(M.REGIMES.map((r) => [tx('regimes.' + r), tx(r === 'compressible' ? 'regimeHintGas' : 'regimeHintLiquid')])) });
     s0.appendChild(seg(k, 'regime', tx('regime'), M.REGIMES.map((r) => [r, tx('regimes.' + r)]), { bare: true }));
     left.appendChild(s0);
 

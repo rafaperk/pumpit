@@ -33,7 +33,7 @@ flowchart LR
 | Hydraulics | `src/core/hydraulics/` | `PumpIt.hyd` | Friction factors, curve fitting, local loss coefficients |
 | Model | `src/core/model/` | `PumpIt.model` | Factories (`newModel`, `newPipe`, `newJunction`, `pipeDefaults`), scenarios, checklist (`validate`), drawing-only fields (`LAYOUT_KEYS`, `stripLayout`, `normalizeLayout`) |
 | Solver | `src/core/solver/` | `PumpIt.solver` | `run`, `prepare`, `systemCurve` and the internal stages |
-| Compressible mode | `src/core/gas/` | `PumpIt.gas` | The reference physics of gas flow (`gas.js`, appendix A of its specification), the flow relations of the links (`flow.js`), the gas network of a model (`network.js`), Newton on the node pressures (`newton.js`), results (`results.js`) and `solveModelGas` (`solver.js`); see [decisoes-gas.md](decisoes-gas.md) |
+| Compressible mode | `src/core/gas/` | `PumpIt.gas` | The reference physics of gas flow (`gas.js`, appendix A of its specification), the flow relations of the links (`flow.js`), the gas network of a model (`network.js`), Newton on the node pressures (`newton.js`), results (`results.js`) and `solveModelGas` (`solver.js`); see [gas-decisions.md](gas-decisions.md) |
 | Junction types | `src/core/junctions/` | `PumpIt.junctionTypes` | Registry and one file per type |
 | Examples | `src/core/examples/` | `PumpIt.examples` | Builder helpers and one file per example |
 | 3D views geometry | `src/core/view3d/` | `PumpIt.view3d` | Camera and projection, navigation, grids, pipe routes that follow their ends, symbol orientation, scene points from the plan and the elevation, editing in the free view, the junction symbols as solids (pure functions; see [3D-VIEWS.md](3D-VIEWS.md)) |
@@ -65,13 +65,13 @@ Drawing fields (`PumpIt.model.LAYOUT_KEYS`: the schematic position, symbol rolls
 `src/i18n/i18n.js` holds the messages of every language and answers `PumpIt.i18n.t(key, params)` in the current one. Each language is a folder with one catalog per block of the app:
 
 ```
-src/i18n/pt-BR/   language.js  core.js  junctions.js  examples.js  app.js  network.js  inspector.js  model-data.js  results.js  charts.js  help.js
-src/i18n/en/      (same files)
+src/i18n/en/      language.js  core.js  junctions.js  examples.js  app.js  network.js  inspector.js  model-data.js  results.js  charts.js  help.js
+src/i18n/pt-BR/   (same files)
 src/i18n/es/      (same files)
 ```
 
 - **Keys** are dotted paths that start with the block: `app.menu.file`, `junctions.pump.form.speed`, `core.solver.notConverged`. Texts may hold `{name}` placeholders, filled by `t(key, { name })`. A text may contain simple HTML (`<sub>`, `<b>`); values put into it are escaped by the caller.
-- **pt-BR is the base language.** Every key must exist there; a key missing in another language falls back to the Portuguese text (and `tests/check-i18n.js` fails).
+- **English (`en`) is the base language.** Every key must exist there; a key missing in another language falls back to the English text (and `tests/check-i18n.js` fails). It is also the language of a browser whose own language is not supported, and the language of the texts written in `index.html` before `src/ui/topbar/language.js` applies the current one.
 - **Static page texts** in `index.html` carry `data-i18n="key"` (element text) or `data-i18n-title`, `-aria-label`, `-placeholder`, `-content` (attributes); `src/ui/topbar/language.js` applies them.
 - **The core uses the same catalogs** for what it produces (checklist items, warnings, valve states, example models). Results therefore come out in the current language, and a language change recalculates.
 - **Numbers** are formatted with the number locale of the language (`PumpIt.ui.format`); unit symbols are shown through `PumpIt.units.label` (catalog `core.units.label`).
@@ -81,7 +81,7 @@ Changing the language (`app.setLanguage`, in `src/ui/topbar/language.js`): switc
 
 ## Solver pipeline
 
-`PumpIt.solver.run(eff)` (`src/core/solver/solver.js`) first takes a copy of `eff` without the drawing fields (`PumpIt.model.stripLayout`). A model in the compressible regime (`system.regime === 'compressivel'`) goes to `PumpIt.gas.solveModelGas` (below); otherwise:
+`PumpIt.solver.run(eff)` (`src/core/solver/solver.js`) first takes a copy of `eff` without the drawing fields (`PumpIt.model.stripLayout`). A model in the compressible regime (`system.regime === 'compressible'`) goes to `PumpIt.gas.solveModelGas` (below); otherwise:
 
 1. `prepare` (`network.js`): fluid properties, pipes in SI, nodes and links. Single-node junction types create their node through `buildNode`; two-port types become an element link filled by `buildElement`.
 2. Device loop, until the device states settle: `configure` (`devices.js`) → `analyze` (`connectivity.js`, pressure references and isolated parts) → `newton` (`newton.js`, link mass flows and node pressures solved together) → `review` (`devices.js`).
@@ -108,7 +108,7 @@ The palette, the type selector, the checklist, the solver, the tables, the right
 
 ### A new language
 
-1. Copy `src/i18n/pt-BR/` to `src/i18n/<code>/` (for example `fr`) and translate the texts, keeping keys and `{placeholders}`.
+1. Copy `src/i18n/en/` to `src/i18n/<code>/` (for example `fr`) and translate the texts, keeping keys and `{placeholders}`.
 2. In `language.js`, register the language with its own name and number locale: `PumpIt.i18n.register('fr', { name: 'Français', numberLocale: 'fr-FR' })`.
 3. Add the `<script>` tags of the folder to the "Languages" group of `index.html`, in the same order as the other languages.
 4. Run `npm test`: `tests/check-i18n.js` lists any missing or extra key and any placeholder mismatch.
@@ -117,7 +117,7 @@ The selector in the top bar lists the new language automatically.
 
 ### New texts
 
-Never write a user-facing text in the code: add a key to the block's catalog in **every** language folder (pt-BR first) and call `t('block.key', params)`. For a text in `index.html`, add a `data-i18n` attribute. `npm test` checks that every key used literally in the code exists.
+Never write a user-facing text in the code: add a key to the block's catalog in **every** language folder (en first) and call `t('block.key', params)`. For a text in `index.html`, add a `data-i18n` attribute. `npm test` checks that every key used literally in the code exists.
 
 ### A new fluid
 

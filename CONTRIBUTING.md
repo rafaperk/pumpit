@@ -37,7 +37,7 @@ This project is a clean-room implementation. These rules are not optional:
 
 ## Conventions
 
-- **Language:** code, comments, commit messages and documentation in English. Interface texts never go in the code: they are keys in the catalogs of `src/i18n/`, written in every supported language (pt-BR is the base; Portuguese, English and Spanish today). If you cannot translate a text, add it to every language in Portuguese and flag it in the pull request; `npm test` fails while a key is missing anywhere.
+- **Language:** code, comments, commit messages and documentation in English. Interface texts never go in the code: they are keys in the catalogs of `src/i18n/`, written in every supported language (English is the base; Portuguese, English and Spanish today). If you cannot translate a text, add it to every language in English and flag it in the pull request; `npm test` fails while a key is missing anywhere.
 - **Modules:** one IIFE per file, attaching its API to `PumpIt.<module>` (core) or `PumpIt.ui.<module>` (interface). No `import`/`export`, no dependencies, no build step.
 - **Units:** SI inside the core. Input quantities are stored as `{ value, unit }`, as typed; conversion happens only at input and output.
 - **Style:** 2-space indentation, semicolons, single quotes, arrow functions for short callbacks. Comments explain the *why* or the engineering basis, briefly.

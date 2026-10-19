@@ -23,7 +23,7 @@
     warnings.push(...fl.warnings);
     const patm = U.toSI(sys.patm.value, sys.patm.unit, 'pressure');
     const g = U.G0 * sys.gravity;
-    const mode = sys.gasMode === 'adiabatico' ? 'adiabatico' : 'isotermico';
+    const mode = sys.gasMode === 'adiabatic' ? 'adiabatic' : 'isothermal';
     const cx = PumpIt.gas.flow.context(fl, mode, g);
     const si = (qt, cat) => U.toSI(qt.value, qt.unit, cat, { patm });
     const rhoN = PumpIt.fluids.normalDensity(fl.MW);

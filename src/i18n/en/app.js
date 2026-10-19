@@ -58,7 +58,7 @@ PumpIt.i18n.add('en', {
       title: 'Calculation regime: click to open the system properties',
       liquid: 'Liquid · {fluid}',
       gas: 'Gas · {mode} · {gas}',
-      modes: { isotermico: 'isothermal', adiabatico: 'adiabatic' },
+      modes: { isothermal: 'isothermal', adiabatic: 'adiabatic' },
     },
     status: {
       pending: '{n} pending item(s)',

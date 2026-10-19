@@ -97,7 +97,7 @@ PumpIt.i18n.add('en', {
       ambientPressure: 'Ambient pressure',
       regime: 'Regime',
       gasConstants: 'Gas constants',
-      temperature: { isotermico: 'Gas temperature', adiabatico: 'Temperature of the sources' },
+      temperature: { isothermal: 'Gas temperature', adiabatic: 'Temperature of the sources' },
       normalDensity: 'Normal density',
       counts: 'Pipes · junctions',
     },

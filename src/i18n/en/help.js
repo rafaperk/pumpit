@@ -526,7 +526,7 @@ PumpIt.i18n.add('en', {
         sections: {
           fluid: {
             title: 'Fluid',
-            body: `<p>The properties of the system are in the [[t:inspector.system.title]] window. It opens from the [[show:stamp|regime stamp]], next to the title of the model; from the [[t:app.menu.edit]] → [[t:app.menu.system]] menu; from the items of the system in the checklist; or from the [[t:inspector.system.open]] button of the panel, with nothing selected. Each change applies at once, as in the panel. At the top of the window is the [[t:inspector.system.regime]]; with [[t:inspector.system.regimes.incompressivel]], the [[t:inspector.system.fluid]] section has:</p>
+            body: `<p>The properties of the system are in the [[t:inspector.system.title]] window. It opens from the [[show:stamp|regime stamp]], next to the title of the model; from the [[t:app.menu.edit]] → [[t:app.menu.system]] menu; from the items of the system in the checklist; or from the [[t:inspector.system.open]] button of the panel, with nothing selected. Each change applies at once, as in the panel. At the top of the window is the [[t:inspector.system.regime]]; with [[t:inspector.system.regimes.incompressible]], the [[t:inspector.system.fluid]] section has:</p>
 <ul>
 <li>[[t:core.fluids.water.label]]: give the [[t:inspector.system.temperature]] (0 to 150 °C); density, viscosity and vapour pressure come from public correlations.</li>
 <li>[[t:inspector.system.userDefined]]: give the density, the dynamic viscosity and, if you want the cavitation warnings, the vapour pressure.</li>
@@ -996,7 +996,7 @@ PumpIt.i18n.add('en', {
         sections: {
           concept: {
             title: 'The compressible mode',
-            body: `<p>Pump It calculates networks of <b>liquid</b> and of <b>gas</b>. The choice is the <b>regime</b> of the model, at the top of the [[t:inspector.system.title]] window: [[t:inspector.system.regimes.incompressivel]] or [[t:inspector.system.regimes.compressivel]]. The stamp next to the title of the model [[show:stamp|always shows the regime in use]]; a click on it opens that window.</p>
+            body: `<p>Pump It calculates networks of <b>liquid</b> and of <b>gas</b>. The choice is the <b>regime</b> of the model, at the top of the [[t:inspector.system.title]] window: [[t:inspector.system.regimes.incompressible]] or [[t:inspector.system.regimes.compressible]]. The stamp next to the title of the model [[show:stamp|always shows the regime in use]]; a click on it opens that window.</p>
 <h4>When a gas is compressible</h4>
 <p>In the compressible mode the density changes with pressure and temperature along every pipe, the gas speeds up as it expands, and it may reach the speed of sound. Use it when:</p>
 <ul>
@@ -1012,7 +1012,7 @@ PumpIt.i18n.add('en', {
             title: 'Gas, temperature and thermal model',
             body: `<p>In the compressible regime, the system window shows the [[t:inspector.system.gas]] section:</p>
 <ul>
-<li>[[t:inspector.system.gasMode]]: <b>[[t:inspector.system.gasModes.isotermico]]</b> keeps the temperature constant in the whole network (long lines that exchange heat with the surroundings); <b>[[t:inspector.system.gasModes.adiabatico]]</b> exchanges no heat: the stagnation temperature is kept along every pipe and the gas cools as it speeds up (short or insulated lines).</li>
+<li>[[t:inspector.system.gasMode]]: <b>[[t:inspector.system.gasModes.isothermal]]</b> keeps the temperature constant in the whole network (long lines that exchange heat with the surroundings); <b>[[t:inspector.system.gasModes.adiabatic]]</b> exchanges no heat: the stagnation temperature is kept along every pipe and the gas cools as it speeds up (short or insulated lines).</li>
 <li>[[t:inspector.system.gasKind]]: air, nitrogen, oxygen, methane, natural gas (approximate), CO₂ and hydrogen, with molar mass and k from public values and viscosity by Sutherland’s law; or [[t:inspector.system.customGas]], with the molar mass, k and viscosity you give. When you go from a library gas to a custom one, its values become the starting point.</li>
 <li>[[t:inspector.system.Z]]: 1 for an ideal gas; for a real gas, the value at the operating conditions, constant in the model.</li>
 <li>Temperature: in the isothermal model, that of the gas in the whole network; in the adiabatic model, the stagnation temperature of the sources. Each source may have its own, as in [[go:gas.components]].</li>

@@ -203,7 +203,7 @@
     const order = { critical: 0, warning: 1, caution: 2, info: 3 };
     W.sort((a, b) => order[a.level] - order[b.level]);
     return {
-      ok: true, regime: 'compressivel', gasMode: env.mode, converged: res.converged, iterations: meta.totalIt, passes: meta.passes,
+      ok: true, regime: 'compressible', gasMode: env.mode, converged: res.converged, iterations: meta.totalIt, passes: meta.passes,
       history: meta.hist,
       fluid: {
         name: fl.name, rho: meta.sc.rho, mu: fl.mu, pv: NaN, T: fl.T, MW: fl.MW, k: fl.k, Z: fl.Z, R: fl.R, rhoN: env.rhoN, gas: true,

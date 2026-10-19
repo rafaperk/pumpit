@@ -12,7 +12,7 @@ function coreScripts(indexFile = path.join(ROOT, 'index.html')) {
   return [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]).filter((src) => /^src\/(core|i18n)\//.test(src));
 }
 
-// lang: interface language of the messages (default: the base language, pt-BR); log: console to use
+// lang: interface language of the messages (default: the base language, en); log: console to use
 function loadCore(lang, log = console) {
   const ctx = vm.createContext({ console: log });
   for (const file of coreScripts()) {

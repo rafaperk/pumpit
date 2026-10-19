@@ -1,10 +1,10 @@
 // Interface languages. Every text the user can read comes from a message catalog: one folder per language
-// under src/i18n/ (pt-BR is the base language), one file per block of the app. Catalogs are nested objects
+// under src/i18n/ (en is the base language), one file per block of the app. Catalogs are nested objects
 // flattened into dotted keys ('app.menu.file'); texts may hold {name} placeholders filled by t(key, params).
 //
 //   PumpIt.i18n.register(code, { name, numberLocale })   declares a language (its language.js)
 //   PumpIt.i18n.add(code, { block: { key: 'text' } })   adds messages to a language
-//   PumpIt.i18n.t(key, params)                            text in the current language (falls back to pt-BR)
+//   PumpIt.i18n.t(key, params)                            text in the current language (falls back to en)
 //   PumpIt.i18n.setLanguage(code), language(), languages(), numberLocale(), onChange(fn)
 //
 // The core uses it too (checklist, warnings, example models), so results come out in the current language;
@@ -12,7 +12,7 @@
 (function (root) {
   const PumpIt = (root.PumpIt = root.PumpIt || {});
 
-  const BASE = 'pt-BR';
+  const BASE = 'en';
   const langs = new Map(); // code → { meta, messages: Map(key → text) }
   const listeners = [];
   const reported = new Set();

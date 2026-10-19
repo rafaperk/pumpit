@@ -34,7 +34,7 @@
 
     const s = section(t('inspector.junction.data'));
     const sys = app.eff().system;
-    const ctx = { key, j, f: UI.forms, curveEditor: UI.curveEditor.build, gas: M.isCompressible(app.eff()), adiabatic: M.isCompressible(app.eff()) && sys.gasMode === 'adiabatico' };
+    const ctx = { key, j, f: UI.forms, curveEditor: UI.curveEditor.build, gas: M.isCompressible(app.eff()), adiabatic: M.isCompressible(app.eff()) && sys.gasMode === 'adiabatic' };
     if (v.form) v.form(s, ctx);
     host.appendChild(s);
     for (const extra of v.sections ? v.sections(ctx) : []) host.appendChild(extra);
@@ -49,7 +49,7 @@
     const s = section(t('inspector.result'));
     const row = (label, value) => s.appendChild(readout(label, value));
     if (r.isolated) { s.appendChild(hint(t('inspector.junction.isolated'))); host.appendChild(s); return; }
-    const gas = res.regime === 'compressivel';
+    const gas = res.regime === 'compressible';
     // a flow as the regime shows it: the volume of a liquid, the mass of a gas
     const flow = (m) => (gas ? I.out(m, 'massFlow') : I.out(m / res.fluid.rho, 'volFlow'));
     if (gas && r.choked) s.appendChild(el('div', { class: 'missing' }, F.esc(t('inspector.junction.choked'))));

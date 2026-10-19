@@ -38,7 +38,7 @@ Default units: flow in m³/h, length and elevation in m, pressure in kgf/cm²(g)
 
 ## Compressible mode (gas)
 
-Pump It also calculates networks of a gas (see [docs/decisoes-gas.md](docs/decisoes-gas.md) and the Help, chapters *Gas (compressible mode)* and *Technical reference for gases*).
+Pump It also calculates networks of a gas (see [docs/gas-decisions.md](docs/gas-decisions.md) and the Help, chapters *Gas (compressible mode)* and *Technical reference for gases*).
 
 - **Regime:** the *System properties* window starts with *Incompressible (liquid)* or *Compressible (gas)*. Each regime keeps its own fluid, so switching loses nothing. The stamp next to the model title always shows the regime in use (for a gas: the thermal model and the gas); a click on it opens that window.
 - **Gas:** air, nitrogen, oxygen, methane, natural gas (approximate), CO₂ and hydrogen from a small library (viscosity by Sutherland's law), or a custom gas with its molar mass, k and viscosity; the compressibility factor Z and the temperature are always given. Design limits for the warnings: Mach (0.7) and velocity (30 m/s).
@@ -51,7 +51,7 @@ Pump It also calculates networks of a gas (see [docs/decisoes-gas.md](docs/decis
 
 ## Languages
 
-The selector at the top right switches the whole interface between **Português**, **English** and **Español** at once: menus, panels, tables, charts, warnings and the checklist, without reloading the page. The choice is remembered by the browser; on the first visit the app follows the browser's language (Portuguese when it is none of the three).
+The selector at the top right switches the whole interface between **Português**, **English** and **Español** at once: menus, panels, tables, charts, warnings and the checklist, without reloading the page. The choice is remembered by the browser; on the first visit the app follows the browser's language (English when it is none of the three).
 
 - Numbers follow the language: decimal comma in Portuguese and Spanish, decimal point in English. Typed numbers are accepted with either separator.
 - Unit symbols stay the same, except water column, shown as mH₂O in English.
@@ -129,7 +129,7 @@ tests/validate-fth.js      validation against stored reference results (specific
 tests/view3d.test.cjs      geometry of the 3D views; a drawing never changes a result
 docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
 docs/3D-VIEWS.md           3D views: progress, where each part lives, decisions
-docs/decisoes-gas.md       compressible mode: progress, where each part lives, decisions
+docs/gas-decisions.md      compressible mode: progress, where each part lives, decisions
 CONTRIBUTING.md            conventions and how to work in parallel
 ```
 
@@ -163,7 +163,7 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 
 ## Clean-room record
 
-**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used. The compressible mode follows its own clean-room specification (public compressible flow physics only; see [docs/decisoes-gas.md](docs/decisoes-gas.md)).
+**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used. The compressible mode follows its own clean-room specification (public compressible flow physics only; see [docs/gas-decisions.md](docs/gas-decisions.md)).
 
 **Validation:** the `.fth` model files installed on the user's computer were read only as an output answer key, as section 10 allows (layout of Annex A). None of these files was copied into the project, and the validator only reads them when it runs. Two values were inferred from that comparison of results (marked as *inferred*, following the rule of section 0):
 

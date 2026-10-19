@@ -1,5 +1,5 @@
 // Compressible mode: the calculation of a model in the compressible regime (appendix C: PumpIt.solver.run hands the
-// model over when its regime is 'compressivel'). The pipeline is the one of the incompressible mode:
+// model over when its regime is 'compressible'). The pipeline is the one of the incompressible mode:
 //   prepare (network.js) → [configure devices → analyze (connectivity.js) → pressures (newton.js; in the adiabatic model
 //   inside the loop of the node temperatures, §10.3) → review devices] until the device states settle → postprocess
 // The first pressures come from the linear theory of gas networks on P² (a few passes with linearised links).
@@ -177,7 +177,7 @@
     // adiabatic model: the first pressures are those of the isothermal solution of the same network (§10.3); the nodes
     // are built in the same order, so the pressures of its free nodes carry over by index
     if (!opts.guess && !prep.cx.iso && !opts.isoStart) {
-      const isoEff = Object.assign({}, eff, { system: Object.assign({}, eff.system, { gasMode: 'isotermico' }) });
+      const isoEff = Object.assign({}, eff, { system: Object.assign({}, eff.system, { gasMode: 'isothermal' }) });
       const iso = solveModelGas(isoEff, { raw: true, isoStart: true });
       if (iso.ok && iso.res.converged) {
         opts = Object.assign({}, opts, { guess: { P: new Map(iso.res.N.filter((nd) => nd.kind === 'free').map((nd) => [nd.ix, iso.res.P[nd.ix]])), m: new Map() } });

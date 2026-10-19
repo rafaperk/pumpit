@@ -1,6 +1,6 @@
 # Compressible mode (gas)
 
-Pump It calculates networks of a gas as well as networks of a liquid. The user picks the **regime** of the model: incompressible (liquid, as before) or compressible (gas), and, for a gas, the **thermal model**: isothermal or adiabatic. The compressible mode follows the *compressible mode specification* (version 1, 19 October 2026), written for the earlier code base of the app; this file maps it onto Pump It and records the decisions that the specification leaves open or that the adaptation required (its §1 asks for this record, under this name).
+Pump It calculates networks of a gas as well as networks of a liquid. The user picks the **regime** of the model: incompressible (liquid, as before) or compressible (gas), and, for a gas, the **thermal model**: isothermal or adiabatic. The compressible mode follows the *compressible mode specification* (version 1, 19 October 2026), written for the earlier code base of the app; this file maps it onto Pump It and records the decisions that the specification leaves open or that the adaptation required (its §1 asks for this record).
 
 Clean room (§1.1): only the specification, the code of this repository and public engineering knowledge (compressible flow in ducts, gas thermodynamics) were used. No other hydraulic program, manual, example file or installation folder was opened; for that reason `tests/validate-fth.js`, which reads example files of another program, was not run during this work.
 
@@ -26,20 +26,20 @@ Clean room (§1.1): only the specification, the code of this repository and publ
 | Integration in `engine.js` (appendix C) | `PumpIt.solver.run` (`src/core/solver/solver.js`) |
 | `tests/motor.test.cjs` | `tests/motor.test.cjs`, which runs `tests/run-tests.js` |
 | Example of appendix D | `src/core/examples/compressed-air.js` ("Compressed air line (gas)", with an adiabatic scenario); also `air-plant.js` ("Compressed air plant (gas)") |
-| "Fluido e sistema" dialog, stamp (R-01, §12) | the system window (`src/ui/inspector/system-window.js`, its fields in `system-panel.js`) and the stamp of the top bar (`src/ui/topbar/header.js`), which opens it |
+| "Fluid and system" dialog, stamp (R-01, §12) | the system window (`src/ui/inspector/system-window.js`, its fields in `system-panel.js`) and the stamp of the top bar (`src/ui/topbar/header.js`), which opens it |
 | Gas results in the interface (§12.2) | `src/ui/results/columns.js` (`GAS_COLS`), the inspector panels, the right-click card, `src/ui/network/color-scales.js`, the profile chart |
 | Compressor (§10.5) | the `gas` hooks of `src/core/junctions/pump.js` and its view `src/ui/junctions/pump.js` |
 | Help (phase 4) | chapters `gas` and `gasTech` of `src/ui/help/help.js`, the formulas in `src/ui/help/equations.js`, texts in `src/i18n/<language>/help.js` |
 
 ## Decisions
 
-**G-01 Module and namespace.** `src/core/gas/gas.js` holds appendix A with its statements unchanged (checked token by token, comments aside); its comments are in English, as the code base requires. It attaches itself to `PumpIt.gas` (one global namespace) and to `module.exports` when required from Node; `window.PumpItGas` is not created.
+**G-01 Module and namespace.** `src/core/gas/gas.js` holds appendix A with its statements unchanged (checked token by token, comments aside), except the names of the thermal models, in English like every stored value (G-04); its comments are in English, as the code base requires. It attaches itself to `PumpIt.gas` (one global namespace) and to `module.exports` when required from Node; `window.PumpItGas` is not created.
 
-**G-02 Choosing the calculation.** `PumpIt.solver.run` hands a model whose `system.regime` is `'compressivel'` to `PumpIt.gas.solveModelGas`, after removing the drawing fields, as it does for a liquid. The incompressible path is unchanged: every example and scenario gives byte-identical results in the three languages, against a record taken before the work.
+**G-02 Choosing the calculation.** `PumpIt.solver.run` hands a model whose `system.regime` is `'compressible'` to `PumpIt.gas.solveModelGas`, after removing the drawing fields, as it does for a liquid. The incompressible path is unchanged: every example and scenario gives byte-identical results in the three languages, against a record taken before the work.
 
-**G-03 Tests.** `tests/gas.test.cjs` is appendix B (T1–T11, identical to the appendix) followed by T12 onwards for the models of the app; it loads the module of the repository, or a file given as its argument (the usage of the appendix). `tests/motor.test.cjs` runs `tests/run-tests.js`, the suite of the incompressible engine. `npm test` runs both.
+**G-03 Tests.** `tests/gas.test.cjs` is appendix B (T1–T11: the checks of the appendix, with their names and messages in English) followed by T12 onwards for the models of the app; it loads the module of the repository, or a file given as its argument (the usage of the appendix). `tests/motor.test.cjs` runs `tests/run-tests.js`, the suite of the incompressible engine. `npm test` runs both.
 
-**G-04 Values.** The fields take the values of §8: `regime` `'incompressivel'` | `'compressivel'`, `gasMode` `'isotermico'` | `'adiabatico'`.
+**G-04 Values.** The fields take the values of §8, named in English like every value Pump It stores: `regime` `'incompressible'` | `'compressible'`, `gasMode` `'isothermal'` | `'adiabatic'`. A model saved with the Portuguese names of the specification (before 19 October 2026) still opens: `PumpIt.model.normalizeRegime` reads them as the English ones, in the system and in the scenarios.
 
 **G-05 Both fluids kept.** `system.fluid` stays the liquid, as in every model saved before; `system.fluidGas` holds the gas. The regime chooses which one the calculation uses, so a change of regime moves nothing and scenario overrides keep their paths (R-03, §8.5). A gas written as the active fluid (`system.fluid.kind: 'gas'`, the layout of §8.1) becomes `fluidGas` on load, its numbers read in SI, and the liquid goes back to the default one.
 
@@ -75,7 +75,7 @@ Clean room (§1.1): only the specification, the code of this repository and publ
 
 **G-21 Speed of the tests.** The hot code (`flow.js`, `newton.js`) keeps local names for the Math functions: in the Node `vm` contexts of the tests a global lookup is about 16 times slower. Results do not change.
 
-**G-22 Where the regime is chosen.** Pump It has no "Fluido e sistema" dialog: with nothing selected, the inspector shows the system, and the regime is its first section, two buttons. The thermal model, the gas and the design limits follow it. The stamp of R-01 sits next to the model title ("Gás · isotérmico · Ar"); a click on it opens that panel.
+**G-22 Where the regime is chosen.** The "Fluid and system" dialog of the specification is the *System properties* window: the regime is its first section, two buttons, and the thermal model, the gas and the design limits follow it. The stamp of R-01 sits next to the model title ("Gas · isothermal · Air"); a click on it opens the window, as do *Edit → System properties…* and the button of the inspector when nothing is selected.
 
 **G-23 Gas results in the interface.** The result tables have columns of their own for a gas (`GAS_COLS`); the inspector, the right-click card and the junction views show mass flows where a liquid shows volume flows, and add the Mach number, both pressures and the temperature. On the drawing, a gas adds mass flow and Mach number and drops the hydraulic grade line; its velocity is coloured over the range of the model, since the fixed scale is a water scale. The profile chart draws the points of the march (or of the closed form) inside each pipe. The pump × system chart is not drawn for a gas.
 

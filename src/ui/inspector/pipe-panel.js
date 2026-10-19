@@ -77,7 +77,7 @@
     const r = res.pipes[id];
     const s = section(t('inspector.result'));
     if (r.isolated) { s.appendChild(hint(tx('isolated'))); host.appendChild(s); return; }
-    if (res.regime === 'compressivel') { gasQuickResults(s, r, res); host.appendChild(s); return; }
+    if (res.regime === 'compressible') { gasQuickResults(s, r, res); host.appendChild(s); return; }
     s.appendChild(readout(tx('quick.flow'), I.out(r.Q, 'volFlow')));
     s.appendChild(readout(tx('quick.velocity'), `${I.out(r.V, 'velocity')} · ${D.velocityBand(r.V)}`));
     s.appendChild(readout(tx('quick.reynolds'), `${F.fmt(r.Re, 4)} · ${F.fmt(r.f, 4)}`));

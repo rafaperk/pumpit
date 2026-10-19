@@ -74,7 +74,7 @@
     ]),
   };
   // the columns of a table for a set of results (a gas has its own)
-  const isGas = (res) => !!(res && res.regime === 'compressivel');
+  const isGas = (res) => !!(res && res.regime === 'compressible');
   const colsFor = (table, res) => (isGas(res) ? GAS_COLS : COLS)[table];
 
   // header text of a column

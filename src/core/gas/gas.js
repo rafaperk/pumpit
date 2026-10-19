@@ -1,7 +1,8 @@
 /* Compressible (gas) flow in steady state: the reference physics of the compressible mode (specification of the
  * compressible mode, appendix A). Pure, no DOM. Derived from public physics (1D compressible flow in a duct of
- * constant area). Verified by tests/gas.test.cjs (appendix B). The statements are those of the appendix; only the
- * comments are in English and the module attaches itself to PumpIt.gas (decision G-01 in docs/decisoes-gas.md).
+ * constant area). Verified by tests/gas.test.cjs (appendix B). The statements are those of the appendix, with the
+ * thermal models named in English ('isothermal', 'adiabatic'); the comments are in English too, and the module
+ * attaches itself to PumpIt.gas (decision G-01 in docs/gas-decisions.md).
  *
  * Conventions (SI):
  *   P  absolute static pressure [Pa]         T  static temperature [K]
@@ -82,9 +83,9 @@
   //   continuity:  rho·V = G (constant)
   //   momentum:    (P'−P) + G(V'−V) + (f/D)(rhō V̄²/2)dx + rhō·g·dz_step = 0
   //   energy:      isothermal  T'=T ;  adiabatic/heat  cp(T'−T) + (V'²−V²)/2 = q_step
-  function marchPipe(gas, { P1, T1, G, L, D, f, mode = 'isotermico', dz = 0, q = 0 }, nSeg = 200) {
+  function marchPipe(gas, { P1, T1, G, L, D, f, mode = 'isothermal', dz = 0, q = 0 }, nSeg = 200) {
     const R = Rspec(gas), Z = gas.Z || 1, MW = gas.MW, cp = gas.k * R / (gas.k - 1);
-    const Mmax = mode === 'isotermico' ? 1 / Math.sqrt(gas.k) : 1;
+    const Mmax = mode === 'isothermal' ? 1 / Math.sqrt(gas.k) : 1;
     const rho = (P, T) => P * MW / (Z * Ru * T);
     const Vof = (P, T) => G / rho(P, T);
     const h = L / nSeg, dzs = dz / nSeg, qs = q / nSeg;
@@ -94,7 +95,7 @@
       const resid = (Pn, Tn) => {
         const Vp = Vof(Pn, Tn), ra = (rhoO + rho(Pn, Tn)) / 2, Va = (Vo + Vp) / 2;
         const F1 = (Pn - Po) + G * (Vp - Vo) + (f / D) * (ra * Va * Va / 2) * h + ra * G0 * dzs;
-        const F2 = mode === 'isotermico' ? (Tn - To) : cp * (Tn - To) + (Vp * Vp - Vo * Vo) / 2 - qs;
+        const F2 = mode === 'isothermal' ? (Tn - To) : cp * (Tn - To) + (Vp * Vp - Vo * Vo) / 2 - qs;
         return [F1, F2];
       };
       let Pn = Math.max(Po * 0.5, Po - (f / D) * (rhoO * Vo * Vo / 2) * h - rhoO * G0 * dzs), Tn = To, done = false;

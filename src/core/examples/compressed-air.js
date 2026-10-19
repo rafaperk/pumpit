@@ -19,11 +19,11 @@
       [2, 2, 3, plain(80, 150)],
       [3, 2, 4, plain(80, 180)],
     ], (m) => {
-      Object.assign(m.system, { regime: 'compressivel', gasMode: 'isotermico' });
+      Object.assign(m.system, { regime: 'compressible', gasMode: 'isothermal' });
       m.system.fluidGas = Object.assign(M.newGasFluid(), { gas: 'air', T: q(300, 'K') });
       // the same line with the adiabatic model, for comparison
       const s = M.addScenario(m, 'base', x('adiabaticScenario'));
-      s.overrides['sys|gasMode'] = 'adiabatico';
+      s.overrides['sys|gasMode'] = 'adiabatic';
       s.notes = x('adiabaticNotes');
     }),
   });

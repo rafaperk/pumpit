@@ -97,7 +97,7 @@ PumpIt.i18n.add('es', {
       ambientPressure: 'Presión ambiente',
       regime: 'Régimen',
       gasConstants: 'Constantes del gas',
-      temperature: { isotermico: 'Temperatura del gas', adiabatico: 'Temperatura de las fuentes' },
+      temperature: { isothermal: 'Temperatura del gas', adiabatic: 'Temperatura de las fuentes' },
       normalDensity: 'Densidad normal',
       counts: 'Tuberías · uniones',
     },

@@ -21,7 +21,7 @@
   };
   // whether a quantity is offered for a regime (a gas has no head, a liquid no Mach number)
   const offered = (key, gas) => key === 'none' || (!!OVERLAY[key] && !(gas ? OVERLAY[key].liquid : OVERLAY[key].gas));
-  const isGas = (res) => !!(res && res.regime === 'compressivel');
+  const isGas = (res) => !!(res && res.regime === 'compressible');
 
   function rampColor(t) {
     t = Math.max(0, Math.min(1, t));

@@ -84,7 +84,7 @@
     const f = sys.fluid;
     const um = unitMiss(sys);
     if (um.length) return um;
-    if (sys.regime === 'compressivel') return checkGas(sys);
+    if (sys.regime === 'compressible') return checkGas(sys);
     if (PumpIt.fluids.LIBRARY[f.kind]) return fin(f.T) ? [] : [t('core.checklist.fluid.temperature')]; // library fluid: by temperature
     const miss = [];
     if (!pos(f.rho)) miss.push(t('core.checklist.fluid.density'));

@@ -2,7 +2,7 @@
 // Each case compares the network solver with an independent solution (analytical or by bisection).
 const { loadCore } = require('./load-core');
 
-const PumpIt = loadCore();
+const PumpIt = loadCore('en'); // some checks read texts of the results (valve states, warnings)
 const { model: M, solver: S, hyd: H, units: U, fluids: F } = PumpIt;
 const q = M.q;
 
@@ -124,7 +124,7 @@ console.log('\nLooped network (Hazen-Williams)');
   const dh = (id) => r.pipes[id].P0in - r.pipes[id].P0out + r.fluid.rho * r.g * (r.pipes[id].zin - r.pipes[id].zout);
   const loop = dh(2) + dh(7) - dh(5) - dh(4);
   check('Energy closes around the loop', Math.abs(loop) < 1e-3, `${loop.toExponential(2)} Pa`);
-  check('No mass imbalance warnings', !r.warnings.some((w) => /desbalanceada/.test(w.text)));
+  check('No mass imbalance warnings', !r.warnings.some((w) => /imbalance/.test(w.text)));
 }
 
 console.log('\nPressure-reducing valve and scenarios');
@@ -133,9 +133,9 @@ console.log('\nPressure-reducing valve and scenarios');
   const r = solveOk(m);
   const Ps = r.pipes[2].Pin - r.patm;
   check('PRV keeps 3 kgf/cm²(g) static downstream', Math.abs(Ps - 3 * 98066.5) < 1, `${(Ps / 98066.5).toFixed(6)} kgf/cm²(g)`);
-  check('State: controlling', r.valves[2].state === 'controlando');
+  check('State: controlling', r.valves[2].state === 'controlling');
   const r2 = solveOk(m, 's1');
-  check('Peak: the PRV goes fully open', r2.valves[2].state === 'totalmente aberta', r2.valves[2].state);
+  check('Peak: the PRV goes fully open', r2.valves[2].state === 'fully open', r2.valves[2].state);
   check('Peak: assigned flow respected', rel(r2.pipes[2].Q * 3600, 300) < 1e-9);
   // inheritance rule: editing with the inherited value relinks the attribute to the parent
   M.setField(m, 's1', 'j:3', 'Q', q(80, 'm³/h'));

@@ -26,7 +26,7 @@
       [5, 4, 6, steel('1 1/2', 50)],
       [6, 4, 7, steel('1', 10)],
     ], (m) => {
-      Object.assign(m.system, { regime: 'compressivel', gasMode: 'isotermico' });
+      Object.assign(m.system, { regime: 'compressible', gasMode: 'isothermal' });
       m.system.fluidGas = Object.assign(M.newGasFluid(), { gas: 'air', T: q(25, '°C') });
     }),
   });

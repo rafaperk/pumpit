@@ -1,5 +1,5 @@
 // Consistency of the interface languages. Usage: node tests/check-i18n.js
-//   1. every language has exactly the keys of the base language (pt-BR), with the same {placeholders};
+//   1. every language has exactly the keys of the base language (en), with the same {placeholders};
 //   2. every key written literally in the code (t('…'), tx('…') with its file prefix, need('…'), data-i18n
 //      attributes in index.html) exists in the base language;
 //   3. every example and scenario calculates in every language without missing texts or unfilled placeholders.

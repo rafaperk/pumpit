@@ -79,8 +79,8 @@
         laminarK: 'improvedAtkf',
         // compressible mode (R-01..R-04, R-41): the regime, the thermal model, the gas (kept beside the liquid of
         // `fluid`, so a change of regime loses nothing: decision G-05) and the design limits of the warnings
-        regime: 'incompressivel',
-        gasMode: 'isotermico',
+        regime: 'incompressible',
+        gasMode: 'isothermal',
         fluidGas: newGasFluid(),
         machLimit: 0.7,
         gasVelLimit: q(30, 'm/s'),
@@ -125,18 +125,29 @@
 
   function pipesAt(m, jid) { return m.pipes.filter((p) => p.up === jid || p.down === jid); }
 
-  // regime of a model (compressible mode, R-02): 'compressivel' (gas) or 'incompressivel' (liquid, the default and the
+  // regime of a model (compressible mode, R-02): 'compressible' (gas) or 'incompressible' (liquid, the default and the
   // regime of every model saved before the field existed)
-  const REGIMES = ['incompressivel', 'compressivel'];
-  const GAS_MODES = ['isotermico', 'adiabatico'];
-  const isCompressible = (m) => !!(m && m.system && m.system.regime === 'compressivel');
+  const REGIMES = ['incompressible', 'compressible'];
+  const GAS_MODES = ['isothermal', 'adiabatic'];
+  const isCompressible = (m) => !!(m && m.system && m.system.regime === 'compressible');
+  // the values of the specification, in Portuguese, which models saved before 19 October 2026 hold
+  const OLD_VALUES = { incompressivel: 'incompressible', compressivel: 'compressible', isotermico: 'isothermal', adiabatico: 'adiabatic' };
+  const renamed = (v) => (typeof v === 'string' && Object.prototype.hasOwnProperty.call(OLD_VALUES, v) ? OLD_VALUES[v] : v);
 
-  // regime fields of a loaded model (§8.5): unknown values back to the defaults, missing gas fields filled in. A gas
-  // written as the active fluid (system.fluid.kind 'gas', the layout of §8.1) becomes the gas of the model, with
-  // its numbers in SI, and the liquid goes back to the default one.
+  // regime fields of a loaded model (§8.5): old values renamed (in the system and in the scenarios), unknown values
+  // back to the defaults, missing gas fields filled in. A gas written as the active fluid (system.fluid.kind 'gas',
+  // the layout of §8.1) becomes the gas of the model, with its numbers in SI, and the liquid goes back to the default
+  // one.
   const isQty = (v) => v && typeof v === 'object' && 'value' in v && 'unit' in v;
   function normalizeRegime(m) {
     const s = m.system;
+    s.regime = renamed(s.regime);
+    s.gasMode = renamed(s.gasMode);
+    for (const scn of (m.scenarios && m.scenarios.list) || []) {
+      const ov = scn && scn.overrides;
+      if (!ov) continue;
+      for (const k of ['sys|regime', 'sys|gasMode']) if (k in ov) ov[k] = renamed(ov[k]);
+    }
     if (s.fluid && s.fluid.kind === 'gas') {
       const f = s.fluid;
       s.fluidGas = Object.assign(newGasFluid(), {
@@ -144,10 +155,10 @@
         mu: isQty(f.mu) ? f.mu : q(f.mu, 'Pa·s'), T: isQty(f.T) ? f.T : q(f.T, 'K'),
       });
       s.fluid = newModel().system.fluid;
-      if (s.regime === undefined) s.regime = 'compressivel';
+      if (s.regime === undefined) s.regime = 'compressible';
     }
-    if (!REGIMES.includes(s.regime)) s.regime = 'incompressivel';
-    if (!GAS_MODES.includes(s.gasMode)) s.gasMode = 'isotermico';
+    if (!REGIMES.includes(s.regime)) s.regime = 'incompressible';
+    if (!GAS_MODES.includes(s.gasMode)) s.gasMode = 'isothermal';
     const g = s.fluidGas && typeof s.fluidGas === 'object' && !Array.isArray(s.fluidGas) ? s.fluidGas : {};
     s.fluidGas = Object.assign(newGasFluid(), g, { kind: 'gas' });
     if (!isQty(s.fluidGas.T)) s.fluidGas.T = newGasFluid().T;

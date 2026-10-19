@@ -20,7 +20,7 @@
     const rows = [];
     const add = (label, value, strong) => rows.push({ label, value, strong });
     let title, sub;
-    const gas = !!(res && res.regime === 'compressivel');
+    const gas = !!(res && res.regime === 'compressible');
     // a flow as the regime shows it: the volume of a liquid, the mass of a gas
     const flow = (m) => (gas ? out(m, 'massFlow') : out(m / res.fluid.rho, 'volFlow'));
 

@@ -526,7 +526,7 @@ PumpIt.i18n.add('pt-BR', {
         sections: {
           fluid: {
             title: 'Fluido',
-            body: `<p>As propriedades do sistema ficam na janela [[t:inspector.system.title]]. Ela abre pelo [[show:stamp|selo do regime]], ao lado do título do modelo; pelo menu [[t:app.menu.edit]] → [[t:app.menu.system]]; pelos itens do sistema na lista de verificação; ou pelo botão [[t:inspector.system.open]] do painel, com nada selecionado. Cada alteração vale na hora, como no painel. No topo da janela fica o [[t:inspector.system.regime]]; com [[t:inspector.system.regimes.incompressivel]], a seção [[t:inspector.system.fluid]] traz:</p>
+            body: `<p>As propriedades do sistema ficam na janela [[t:inspector.system.title]]. Ela abre pelo [[show:stamp|selo do regime]], ao lado do título do modelo; pelo menu [[t:app.menu.edit]] → [[t:app.menu.system]]; pelos itens do sistema na lista de verificação; ou pelo botão [[t:inspector.system.open]] do painel, com nada selecionado. Cada alteração vale na hora, como no painel. No topo da janela fica o [[t:inspector.system.regime]]; com [[t:inspector.system.regimes.incompressible]], a seção [[t:inspector.system.fluid]] traz:</p>
 <ul>
 <li>[[t:core.fluids.water.label]]: informe a [[t:inspector.system.temperature]] (de 0 a 150 °C); densidade, viscosidade e pressão de vapor vêm de correlações públicas.</li>
 <li>[[t:inspector.system.userDefined]]: informe a densidade, a viscosidade dinâmica e, se quiser os avisos de cavitação, a pressão de vapor.</li>
@@ -996,7 +996,7 @@ PumpIt.i18n.add('pt-BR', {
         sections: {
           concept: {
             title: 'O modo compressível',
-            body: `<p>O Pump It calcula redes de <b>líquido</b> e de <b>gás</b>. A escolha é o <b>regime</b> do modelo, no topo da janela [[t:inspector.system.title]]: [[t:inspector.system.regimes.incompressivel]] ou [[t:inspector.system.regimes.compressivel]]. O selo ao lado do título do modelo [[show:stamp|mostra sempre o regime em uso]]; um clique nele abre essa janela.</p>
+            body: `<p>O Pump It calcula redes de <b>líquido</b> e de <b>gás</b>. A escolha é o <b>regime</b> do modelo, no topo da janela [[t:inspector.system.title]]: [[t:inspector.system.regimes.incompressible]] ou [[t:inspector.system.regimes.compressible]]. O selo ao lado do título do modelo [[show:stamp|mostra sempre o regime em uso]]; um clique nele abre essa janela.</p>
 <h4>Quando o gás é compressível</h4>
 <p>No modo compressível a densidade muda com a pressão e a temperatura ao longo de cada tubo, o gás acelera enquanto se expande e pode chegar à velocidade do som. Use-o quando:</p>
 <ul>
@@ -1012,7 +1012,7 @@ PumpIt.i18n.add('pt-BR', {
             title: 'Gás, temperatura e modelo térmico',
             body: `<p>No regime compressível, a janela do sistema mostra a seção [[t:inspector.system.gas]]:</p>
 <ul>
-<li>[[t:inspector.system.gasMode]]: <b>[[t:inspector.system.gasModes.isotermico]]</b> mantém a temperatura constante em toda a rede (linhas longas que trocam calor com o ambiente); <b>[[t:inspector.system.gasModes.adiabatico]]</b> não troca calor: a temperatura de estagnação se conserva em cada tubo e o gás esfria ao acelerar (linhas curtas ou isoladas).</li>
+<li>[[t:inspector.system.gasMode]]: <b>[[t:inspector.system.gasModes.isothermal]]</b> mantém a temperatura constante em toda a rede (linhas longas que trocam calor com o ambiente); <b>[[t:inspector.system.gasModes.adiabatic]]</b> não troca calor: a temperatura de estagnação se conserva em cada tubo e o gás esfria ao acelerar (linhas curtas ou isoladas).</li>
 <li>[[t:inspector.system.gasKind]]: ar, nitrogênio, oxigênio, metano, gás natural (aproximado), CO₂ e hidrogênio, com massa molar e k de valores públicos e viscosidade pela lei de Sutherland; ou [[t:inspector.system.customGas]], com massa molar, k e viscosidade informados. Ao passar de um gás da biblioteca para o personalizado, os valores dele viram o ponto de partida.</li>
 <li>[[t:inspector.system.Z]]: 1 para gás ideal; para um gás real, o valor nas condições de operação, constante no modelo.</li>
 <li>Temperatura: no isotérmico, a do gás em toda a rede; no adiabático, a temperatura de estagnação das fontes. Cada fonte pode ter a sua, como em [[go:gas.components]].</li>

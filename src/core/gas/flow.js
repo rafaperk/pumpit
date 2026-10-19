@@ -20,7 +20,7 @@
 
   // gas context of one calculation: properties, thermal model, gravity [m/s²] and the temperature of the isothermal model
   function context(fl, mode, g) {
-    const k = fl.k, iso = mode !== 'adiabatico';
+    const k = fl.k, iso = mode !== 'adiabatic';
     return {
       k, MW: fl.MW, Z: fl.Z, mu: fl.mu, ZR: fl.Z * Ru / fl.MW, cp: k * (Ru / fl.MW) / (k - 1), g, mode, iso, T: fl.T,
       Mlim: iso ? 1 / sqrt(k) : 1, e: k / (k - 1),
