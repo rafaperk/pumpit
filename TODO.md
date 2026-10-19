@@ -10,6 +10,6 @@
 - [ ] Import .xlsx files.
 - [ ] Import .fth files.
 - [ ] Import .aro files.
-- [ ] Add piping and HDPE.
+- [ ] Add HDPE piping library.
 - [ ] Add fluids.
-- [ ] Make the window look cleaner.
+- [ ] Make the interface look cleaner.
