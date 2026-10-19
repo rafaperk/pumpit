@@ -14,6 +14,8 @@
     const eff = app.eff();
     const pumps = eff.junctions.filter((j) => j.type === 'pump');
     if (!pumps.length) { ctl.innerHTML = ''; box.innerHTML = `<div class="empty">${tx('noPumps')}</div>`; notes.textContent = ''; return; }
+    // a head curve against a liquid system: not drawn for a gas
+    if (PumpIt.model.isCompressible(eff)) { ctl.innerHTML = ''; box.innerHTML = `<div class="empty">${tx('gasMode')}</div>`; notes.textContent = ''; return; }
     let pid = app.prefs.chartPump;
     if (!pumps.some((p) => p.id === pid)) pid = pumps[0].id;
     app.prefs.chartPump = pid;

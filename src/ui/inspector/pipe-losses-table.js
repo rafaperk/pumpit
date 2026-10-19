@@ -10,7 +10,7 @@
   const tx = (key, params) => t('inspector.pipeLosses.' + key, params);
 
   function build(key, j) {
-    const s = section(tx('title'));
+    const s = section(tx('title'), { info: tx('hint') });
     const pipes = M.pipesAt(app.model, j.id);
     if (!pipes.length) { s.appendChild(hint(tx('noPipes'))); return s; }
     const table = el('table', { class: 'mini-table' });
@@ -40,7 +40,6 @@
     }
     table.appendChild(tb);
     s.appendChild(table);
-    s.appendChild(hint(tx('hint')));
     return s;
   }
 

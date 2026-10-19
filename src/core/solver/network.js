@@ -10,26 +10,11 @@
   const types = PumpIt.junctionTypes;
   const { t } = PumpIt.i18n;
 
-  function prepare(eff) {
-    const errors = [], warnings = [];
-    const sys = eff.system;
-    const fl = PumpIt.fluids.evaluate(sys);
-    warnings.push(...fl.warnings);
-    const rho = fl.rho, mu = fl.mu;
-    if (!(rho > 0) || !(mu > 0)) throw new Error(t('core.solver.badFluid'));
-    const patm = U.toSI(sys.patm.value, sys.patm.unit, 'pressure');
-    const g = U.G0 * sys.gravity;
-    if (sys.gravity === 0) warnings.push({ level: 'caution', text: t('core.solver.zeroGravity') });
-    const ctx = { rho, patm };
-    const si = (qt, cat) => U.toSI(qt.value, qt.unit, cat, ctx);
-    const reLam = sys.reLam, reTurb = sys.reTurb;
-    const lamMode = sys.laminarK;
-    const env = { rho, mu, pv: fl.pv, patm, g, reLam, reTurb, fluid: fl };
-
+  // pipe data in SI, by pipe id (also used by the compressible mode): section, length, friction model, ΣK of the
+  // fittings, parallel tubes and the elevations where the pipe connects
+  function pipeData(eff, si, errors) {
     const jById = new Map(eff.junctions.map((j) => [j.id, j]));
-    const pp = new Map(); // pipe data in SI
-
-    // ---- pipes
+    const pp = new Map();
     for (const p of eff.pipes) {
       const gm = p.geometry;
       let A, Dh;
@@ -67,6 +52,27 @@
       const z = def && def.pipeEndElevation ? def.pipeEndElevation(j, pk, si) : undefined;
       return z !== undefined ? z : si(j.elevation, 'length');
     }
+    return pp;
+  }
+
+  function prepare(eff) {
+    const errors = [], warnings = [];
+    const sys = eff.system;
+    const fl = PumpIt.fluids.evaluate(sys);
+    warnings.push(...fl.warnings);
+    const rho = fl.rho, mu = fl.mu;
+    if (!(rho > 0) || !(mu > 0)) throw new Error(t('core.solver.badFluid'));
+    const patm = U.toSI(sys.patm.value, sys.patm.unit, 'pressure');
+    const g = U.G0 * sys.gravity;
+    if (sys.gravity === 0) warnings.push({ level: 'caution', text: t('core.solver.zeroGravity') });
+    const ctx = { rho, patm };
+    const si = (qt, cat) => U.toSI(qt.value, qt.unit, cat, ctx);
+    const reLam = sys.reLam, reTurb = sys.reTurb;
+    const lamMode = sys.laminarK;
+    const env = { rho, mu, pv: fl.pv, patm, g, reLam, reTurb, fluid: fl };
+
+    const jById = new Map(eff.junctions.map((j) => [j.id, j]));
+    const pp = pipeData(eff, si, errors); // pipe data in SI
 
     // laminar correction factor of the K values (ATKF); continuous at Re_lam and Re_turb
     function kTerm(K, P, V) {
@@ -181,5 +187,5 @@
     return { eff, env, nodes, links, pp, jNodes, jById, errors, warnings, pipeLoss, kTerm };
   }
 
-  PumpIt.solver = Object.assign(PumpIt.solver || {}, { prepare });
+  PumpIt.solver = Object.assign(PumpIt.solver || {}, { prepare, pipeData });
 })(typeof window !== 'undefined' ? window : globalThis);

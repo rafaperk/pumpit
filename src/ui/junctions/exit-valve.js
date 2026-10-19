@@ -25,9 +25,8 @@
     get elevationLabel() { return tx('elevation'); },
 
     form(s, { key, j, f }) {
-      s.appendChild(f.qty(key, 'Pout', tx('form.Pout'), 'pressure'));
+      s.appendChild(f.qty(key, 'Pout', tx('form.Pout'), 'pressure', { info: tx('form.hint') }));
       JT.shared.lossModelFields(s, key, j, f);
-      s.appendChild(f.hint(tx('form.hint')));
     },
 
     summary: (j, q) => tx('summary', { pressure: q(j.Pout), loss: JT.shared.lossSummary(j) }),

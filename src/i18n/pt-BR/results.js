@@ -4,7 +4,7 @@ PumpIt.i18n.add('pt-BR', {
     title: 'Resultados',
     intro: 'Execute o modelo para ver os resultados.',
     tabs: { general: 'Geral', pipes: 'Tubos', junctions: 'Junções', pumps: 'Bombas', valves: 'Válvulas', warnings: 'Avisos' },
-    level: { critical: 'Crítico', warning: 'Aviso', caution: 'Cautela' },
+    level: { critical: 'Crítico', warning: 'Aviso', caution: 'Cautela', info: 'Informação' },
     columns: {
       pipes: {
         id: 'Tubo',
@@ -57,6 +57,13 @@ PumpIt.i18n.add('pt-BR', {
         K: 'K efetivo',
       },
     },
+    gasColumns: {
+      pipes: { id: 'Tubo', dn: 'Diâmetro nominal', m: 'Vazão mássica', Q: 'Vazão na entrada', QN: 'Vazão normal', Vin: 'V na entrada', Vout: 'V na saída', Min: 'Mach na entrada', Mout: 'Mach na saída', Pin: 'P estática na entrada', Pout: 'P estática na saída', P0in: 'P de estagnação na entrada', P0out: 'P de estagnação na saída', Tin: 'T estática na entrada', Tout: 'T estática na saída', rhoIn: 'Densidade na entrada', rhoOut: 'Densidade na saída', f: 'Fator de atrito', dP0: 'Queda de P0', chokedTxt: 'Bloqueio' },
+      junctions: { id: 'Junção', name: 'Nome', typeLabel: 'Tipo', Pin: 'P estática entrada', Pout: 'P estática saída', P0in: 'P0 entrada', P0out: 'P0 saída', Tin: 'T estática', T0in: 'T de estagnação', dP: 'ΔP0', m: 'Vazão mássica', Q: 'Vazão (local)', massErr: 'Desbalanço de massa', z: 'Cota' },
+      pumps: { id: 'Compressor', name: 'Nome', m: 'Vazão mássica', Q: 'Vazão na sucção', ratio: 'Razão de compressão', dP: 'ΔP0', T0out: 'T0 na descarga', Pgas: 'Potência no gás', stateTxt: 'Estado' },
+      valves: { id: 'Válvula', name: 'Nome', typeLabel: 'Tipo', state: 'Estado', m: 'Vazão mássica', Q: 'Vazão na entrada', dP: 'ΔP0', Pin: 'P estática entrada', K: 'K efetivo', chokedTxt: 'Bloqueio' },
+    },
+    gas: { choked: 'bloqueado' },
     unitOf: 'Unidade de {label}',
     innerDiameter: 'DI {d} mm',
     noItems: 'Nenhum item deste tipo no modelo.',
@@ -88,6 +95,10 @@ PumpIt.i18n.add('pt-BR', {
       viscosity: 'Viscosidade',
       vaporPressure: 'Pressão de vapor',
       ambientPressure: 'Pressão ambiente',
+      regime: 'Regime',
+      gasConstants: 'Constantes do gás',
+      temperature: { isotermico: 'Temperatura do gás', adiabatico: 'Temperatura das fontes' },
+      normalDensity: 'Densidade normal',
       counts: 'Tubos · junções',
     },
     boundaries: {
@@ -96,6 +107,7 @@ PumpIt.i18n.add('pt-BR', {
       junction: 'Junção',
       type: 'Tipo',
       netFlow: 'Vazão líquida',
+      netMass: 'Vazão mássica líquida',
       flowUnit: 'vazão',
       stagnation: 'P estagnação',
       pressureUnit: 'pressão',

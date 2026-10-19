@@ -2,6 +2,10 @@
 // summaries and result rows. One section per type, in palette order.
 PumpIt.i18n.add('pt-BR', {
   junctions: {
+    gasT: {
+      label: 'Temperatura do gás que entra',
+      hint: 'Modelo adiabático: a temperatura de estagnação do gás que esta fonte fornece. Vazio usa a temperatura das fontes, dada com o gás.',
+    },
     groups: { boundary: 'Contorno', connection: 'Conexão', equipment: 'Equipamento', valves: 'Válvula', losses: 'Perda' },
     states: {
       open: 'aberta',
@@ -26,6 +30,9 @@ PumpIt.i18n.add('pt-BR', {
       check: { liquidElev: 'nível do líquido', surfP: 'pressão na superfície' },
       elevation: 'Cota do fundo (conexões)',
       form: {
+        gasElev: 'Cota da pressão de referência',
+        gasP: 'Pressão do gás (estagnação)',
+        gasHint: 'No modo compressível o reservatório é um vaso de gás em repouso: a pressão vale na cota de referência, e a coluna de gás até cada tubo entra no cálculo.',
         liquidElev: 'Cota da superfície do líquido',
         surfP: 'Pressão na superfície',
         hint: 'Sem K informado não há perda de entrada nem de saída: a pressão de estagnação é contínua entre o tanque e a ponta do tubo.',
@@ -79,6 +86,9 @@ PumpIt.i18n.add('pt-BR', {
     pump: {
       label: 'Bomba',
       check: {
+        ratio: 'razão de compressão',
+        ratioGasOnly: 'razão de compressão fixa só no modo compressível (gás)',
+        etaGas: 'eficiência entre 0 e 100%',
         curve: 'curva de altura × vazão',
         fixedFlow: 'vazão fixa',
         setQ: 'vazão de controle',
@@ -99,12 +109,16 @@ PumpIt.i18n.add('pt-BR', {
         npsh: 'Bomba J{id}: NPSH disponível ({available} m) menor que o requerido ({required} m).',
       },
       form: {
+        ratio: 'Razão de compressão (P0 saída / P0 entrada)',
+        etaGas: 'Eficiência politrópica',
+        gasHint: 'Modo compressível: a bomba é um compressor ou soprador. A curva de altura vale como altura isentrópica do gás contra a vazão na sucção; a eficiência (a curva, ou este valor) dá o aquecimento do gás no modelo adiabático.',
         state: 'Estado',
         on: 'Ligada',
         offClosed: 'Desligada, sem fluxo',
         offOpen: 'Desligada, passagem livre',
         mode: 'Modo',
         modes: {
+          ratio: 'Razão de compressão fixa (gás)',
           curve: 'Curva, velocidade fixa',
           fixedFlow: 'Vazão fixa (dimensionamento)',
           controlFlow: 'Velocidade variável: controlar vazão',
@@ -121,6 +135,8 @@ PumpIt.i18n.add('pt-BR', {
         affinityHint: 'A velocidade necessária é calculada pelas leis de afinidade, H(Q; s) = s²·H(Q/s).',
       },
       curves: {
+        headGas: 'Altura isentrópica × vazão na sucção (100% da rotação)',
+        effGas: 'Eficiência politrópica × vazão na sucção (opcional)',
         head: 'Curva de altura × vazão (100% da rotação)',
         headY: 'Altura',
         eff: 'Eficiência × vazão (opcional)',
@@ -129,6 +145,7 @@ PumpIt.i18n.add('pt-BR', {
         npshrY: 'NPSHR',
       },
       summary: {
+        ratio: 'Razão de compressão {ratio}',
         curve: 'Curva a {speed}%',
         fixedFlow: 'Vazão fixa {flow}',
         controlFlow: 'Controla vazão {flow}',
@@ -136,8 +153,13 @@ PumpIt.i18n.add('pt-BR', {
         controlSuction: 'Controla sucção {pressure}',
         off: ' · desligada',
       },
-      quick: { head: 'Altura', speed: 'Velocidade', shaftPower: 'Potência no eixo', hydraulicPower: 'Potência hidráulica', npsh: 'NPSH disp. / req.' },
+      quick: { head: 'Altura', speed: 'Velocidade', shaftPower: 'Potência no eixo', hydraulicPower: 'Potência hidráulica', npsh: 'NPSH disp. / req.', ratio: 'Razão de compressão', dischargeT: 'T0 na descarga', gasPower: 'Potência no gás' },
       info: {
+        massFlow: 'Vazão mássica',
+        ratio: 'Razão de compressão',
+        isentropicHead: 'Altura isentrópica',
+        dischargeT: 'T0 na descarga',
+        gasPower: 'Potência no gás',
         flow: 'Vazão',
         head: 'Altura manométrica',
         rise: 'Ganho de pressão',

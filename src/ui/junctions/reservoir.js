@@ -14,29 +14,33 @@
     get elevationLabel() { return tx('elevation'); },
     connectionElevation: true,
 
-    form(s, { key, f }) {
-      s.appendChild(f.qty(key, 'liquidElev', tx('form.liquidElev'), 'length'));
-      s.appendChild(f.qty(key, 'surfP', tx('form.surfP'), 'pressure'));
-      s.appendChild(f.hint(tx('form.hint')));
+    // for a gas (compressible mode) the reservoir is a vessel: its pressure applies at the reference elevation
+    form(s, ctx) {
+      const { key, f, gas } = ctx;
+      s.appendChild(f.qty(key, 'liquidElev', tx(gas ? 'form.gasElev' : 'form.liquidElev'), 'length'));
+      s.appendChild(f.qty(key, 'surfP', tx(gas ? 'form.gasP' : 'form.surfP'), 'pressure'));
+      f.note(s, tx(gas ? 'form.gasHint' : 'form.hint'));
+      JT.shared.sourceTemperature(s, ctx);
     },
 
     summary: (j, q) => tx('summary', { level: q(j.liquidElev), pressure: q(j.surfP) }),
 
-    infoInputs(j, add, inp) {
-      add(tx('info.liquidElev'), inp(j.liquidElev));
-      add(tx('info.surfP'), inp(j.surfP));
+    infoInputs(j, add, inp, gas) {
+      add(tx(gas ? 'form.gasElev' : 'info.liquidElev'), inp(j.liquidElev));
+      add(tx(gas ? 'form.gasP' : 'info.surfP'), inp(j.surfP));
     },
 
     quickResults(row, r, c) {
-      row(tx('results.netFlow'), c.out(r.net / c.res.fluid.rho, 'volFlow'));
+      row(tx('results.netFlow'), c.flow(r.net));
     },
 
-    // at the liquid surface the fluid is at rest: no static pressure row, and the net flow into the network
+    // at the liquid surface the fluid is at rest: no static pressure row, and the net flow into the network (a mass
+    // flow for a gas, which has no head either)
     infoResults(add, r, c) {
       add(t('network.info.stagnation'), c.out(r.P0in, 'pressure'), true);
-      add(t('network.info.flowThrough'), c.out(r.m / c.res.fluid.rho, 'volFlow'), true);
-      add(tx('results.netFlow'), c.out(r.net / c.res.fluid.rho, 'volFlow'));
-      add(t('network.info.hgl'), c.out(r.HGL, 'head'));
+      add(t('network.info.flowThrough'), c.flow(r.m), true);
+      add(tx('results.netFlow'), c.flow(r.net));
+      if (!c.gas) add(t('network.info.hgl'), c.out(r.HGL, 'head'));
     },
 
     boundaryFlow: (r) => r.net,

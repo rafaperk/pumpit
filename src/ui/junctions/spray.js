@@ -25,8 +25,7 @@
     form(s, { key, j, f }) {
       s.appendChild(f.sel(key, 'sprayModel', tx('form.model'), [['CdA', tx('form.CdA')], ['K', tx('form.K')]]));
       if (j.sprayModel === 'K') {
-        s.appendChild(f.qty(key, 'Kf', tx('form.Kf'), 'kfactor'));
-        s.appendChild(f.hint(tx('form.KfHint')));
+        s.appendChild(f.qty(key, 'Kf', tx('form.Kf'), 'kfactor', { info: tx('form.KfHint') }));
       } else {
         s.appendChild(f.num(key, 'Cd', 'Cd'));
         s.appendChild(f.qty(key, 'dHole', tx('form.dHole'), 'length'));

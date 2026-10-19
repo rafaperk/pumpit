@@ -81,13 +81,15 @@
     const persp = cam.projection === 'persp';
     const kRef = persp ? V.focalPx(cam, vp) / cam.distance : cam.scale;
     const res = app.okResults();
-    const ovKey = app.prefs.overlay;
+    const gas = PumpIt.model.isCompressible(app.eff());
+    CS.syncPicker(document.getElementById('overlay-select'), gas, app.prefs.overlay);
+    const ovKey = CS.offered(app.prefs.overlay, gas) ? app.prefs.overlay : 'none';
     const unitOf = (cat) => app.outUnit('canvas', cat);
     const conv = res ? { rho: res.fluid.rho, patm: res.patm } : {};
     // positions and routes of the scene, with the preview of a drag in progress
     const sc = S3.scene(UI.edit3d.preview());
     const f = {
-      svg, vp, m, v, isoView, set: isoView ? v.iso : v.free, cam, persp, kRef, res, ovKey, unitOf,
+      svg, vp, m, v, isoView, set: isoView ? v.iso : v.free, cam, persp, kRef, res, ovKey, unitOf, gas,
       sel: app.selSet, undef: app.undefSet(), ov: CS.overlayValues(res, ovKey),
       near: (k, lo, hi) => (persp ? V.clamp(k / kRef, lo, hi) : 1), // size factor of a point (perspective)
       fmtOv: (x, cat) => F.fmt(F.conv(x, cat, unitOf(cat), conv), 3),
@@ -171,8 +173,8 @@
     let color = '', over = false;
     if (f.ov && f.ov.vals.has(p.id)) {
       const x = f.ov.vals.get(p.id);
-      color = CS.pipeColor(f.ovKey, x, f.ov.max > f.ov.min ? (x - f.ov.min) / (f.ov.max - f.ov.min) : 0.5);
-      over = CS.beyondScale(f.ovKey, x);
+      color = CS.pipeColor(f.ovKey, x, f.ov.max > f.ov.min ? (x - f.ov.min) / (f.ov.max - f.ov.min) : 0.5, f.gas);
+      over = CS.beyondScale(f.ovKey, x, f.gas);
     }
     return { cls, isSel, isUndef, solid: !isUndef && !eff.closed && !isolated, color, over };
   }
@@ -292,8 +294,7 @@
       const x = (s.a.x + s.b.x) / 2, y = (s.a.y + s.b.y) / 2;
       cands.push({ pri, size: s.len, cls: 'p-label', text: 'P' + s.p.id, x, y, ang, dy: -(s.w / 2 + 5) });
       if (f.ov && f.ov.vals.has(s.p.id)) {
-        const cat = CS.OVERLAY[f.ovKey].cat;
-        cands.push({ pri, size: s.len, cls: 'p-val', text: `${f.fmtOv(f.ov.vals.get(s.p.id), cat)} ${F.unit(f.unitOf(cat))}`, x, y, ang, dy: s.w / 2 + 13 });
+        cands.push({ pri, size: s.len, cls: 'p-val', text: CS.labelOf(f.fmtOv, f.unitOf, f.ov.vals.get(s.p.id), CS.OVERLAY[f.ovKey].cat), x, y, ang, dy: s.w / 2 + 13 });
       }
     }
     // the selection first, then the junctions, then the pipes from the longest on the screen
@@ -386,7 +387,7 @@
     out += labels(f);
     out += `<g class="g3-edit">${UI.edit3d.overlay(editCtx(f))}</g>`;
     svg.innerHTML = out;
-    CS.renderLegend(document.getElementById('legend'), f.ov, f.ovKey, f.unitOf, f.fmtOv);
+    CS.renderLegend(document.getElementById('legend'), f.ov, f.ovKey, f.unitOf, f.fmtOv, f.gas);
   }
 
   // only the marks of the editors (the pipe being drawn, the markers), over a scene that is still right

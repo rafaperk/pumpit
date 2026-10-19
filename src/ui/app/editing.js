@@ -41,6 +41,13 @@
     }
     app.changed();
   };
+  // several fields of one object in a single step (one undo snapshot, one recalculation): [[path, value], ...]
+  app.setVals = (key, pairs) => {
+    app.pushUndo();
+    const sid = app.model.scenarios.current;
+    for (const [path, value] of pairs) M.setField(app.model, sid, key, path, value);
+    app.changed();
+  };
   app.clearOv = (key, path) => { app.pushUndo(); M.clearOverride(app.model, app.model.scenarios.current, key, path); app.changed(); };
 
   // ------------------------------------------------------------ objects

@@ -2,6 +2,10 @@
 // summaries and result rows. One section per type, in palette order.
 PumpIt.i18n.add('en', {
   junctions: {
+    gasT: {
+      label: 'Temperature of the gas supplied',
+      hint: 'Adiabatic model: the stagnation temperature of the gas this source supplies. Empty uses the temperature of the sources, given with the gas.',
+    },
     groups: { boundary: 'Boundary', connection: 'Connection', equipment: 'Equipment', valves: 'Valves', losses: 'Losses' },
     states: {
       open: 'open',
@@ -25,6 +29,9 @@ PumpIt.i18n.add('en', {
       check: { liquidElev: 'liquid level', surfP: 'surface pressure' },
       elevation: 'Bottom elevation (connections)',
       form: {
+        gasElev: 'Elevation of the reference pressure',
+        gasP: 'Gas pressure (stagnation)',
+        gasHint: 'In the compressible mode the reservoir is a vessel of gas at rest: its pressure applies at the reference elevation, and the column of gas down to each pipe is part of the calculation.',
         liquidElev: 'Liquid surface elevation',
         surfP: 'Surface pressure',
         hint: 'Without a given K there is no entrance or exit loss: the stagnation pressure is continuous between the tank and the pipe end.',
@@ -78,6 +85,9 @@ PumpIt.i18n.add('en', {
     pump: {
       label: 'Pump',
       check: {
+        ratio: 'pressure ratio',
+        ratioGasOnly: 'a fixed pressure ratio only in the compressible (gas) mode',
+        etaGas: 'efficiency between 0 and 100%',
         curve: 'head × flow curve',
         fixedFlow: 'fixed flow',
         setQ: 'control flow',
@@ -98,12 +108,16 @@ PumpIt.i18n.add('en', {
         npsh: 'Pump J{id}: NPSH available ({available} m) lower than required ({required} m).',
       },
       form: {
+        ratio: 'Pressure ratio (P0 out / P0 in)',
+        etaGas: 'Polytropic efficiency',
+        gasHint: 'Compressible mode: the pump is a compressor or a blower. The head curve reads as the isentropic head of the gas against the suction flow; the efficiency (the curve, or this value) gives the heating of the gas in the adiabatic model.',
         state: 'State',
         on: 'On',
         offClosed: 'Off, no flow',
         offOpen: 'Off, free flow-through',
         mode: 'Mode',
         modes: {
+          ratio: 'Fixed pressure ratio (gas)',
           curve: 'Curve, fixed speed',
           fixedFlow: 'Fixed flow (sizing)',
           controlFlow: 'Variable speed: control flow',
@@ -120,6 +134,8 @@ PumpIt.i18n.add('en', {
         affinityHint: 'The required speed comes from the affinity laws, H(Q; s) = s²·H(Q/s).',
       },
       curves: {
+        headGas: 'Isentropic head × suction flow (100% speed)',
+        effGas: 'Polytropic efficiency × suction flow (optional)',
         head: 'Head × flow curve (100% speed)',
         headY: 'Head',
         eff: 'Efficiency × flow (optional)',
@@ -128,6 +144,7 @@ PumpIt.i18n.add('en', {
         npshrY: 'NPSHR',
       },
       summary: {
+        ratio: 'Pressure ratio {ratio}',
         curve: 'Curve at {speed}%',
         fixedFlow: 'Fixed flow {flow}',
         controlFlow: 'Controls flow {flow}',
@@ -135,8 +152,13 @@ PumpIt.i18n.add('en', {
         controlSuction: 'Controls suction {pressure}',
         off: ' · off',
       },
-      quick: { head: 'Head', speed: 'Speed', shaftPower: 'Shaft power', hydraulicPower: 'Hydraulic power', npsh: 'NPSH avail. / req.' },
+      quick: { head: 'Head', speed: 'Speed', shaftPower: 'Shaft power', hydraulicPower: 'Hydraulic power', npsh: 'NPSH avail. / req.', ratio: 'Pressure ratio', dischargeT: 'T0 at the discharge', gasPower: 'Power to the gas' },
       info: {
+        massFlow: 'Mass flow',
+        ratio: 'Pressure ratio',
+        isentropicHead: 'Isentropic head',
+        dischargeT: 'T0 at the discharge',
+        gasPower: 'Power to the gas',
         flow: 'Flow',
         head: 'Pump head',
         rise: 'Pressure rise',

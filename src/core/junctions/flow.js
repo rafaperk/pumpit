@@ -18,5 +18,10 @@
       const m = net.si(j.Q, 'flow');
       return net.addNode({ z, jid: j.id, demand: j.dir === 'in' ? -m : m });
     },
+
+    // compressible mode: a mass flow, a volume at the conditions of the node or a normal volume (§8.4)
+    gas: {
+      node: (j, net, z) => net.addNode({ z, jid: j.id, ext: net.flowExt(j.Q, j.dir === 'in' ? 1 : -1, j) }),
+    },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="src/ui/styles/overlays.css">
 <link rel="stylesheet" href="src/ui/styles/help.css">
 <link rel="stylesheet" href="src/ui/styles/responsive.css">
+<!-- Light and dark mode: loaded before the page, so a chosen mode shows from the first paint -->
+<script src="src/ui/topbar/theme.js" charset="utf-8"></script>
 
 <div id="app">
   <header class="topbar">
@@ -23,6 +25,7 @@
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="13" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.2 9.2L15.6 13L8.2 16.8z" fill="currentColor"/><path d="M11 5.5V2.5H22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
       <span class="brand-name">Pump It</span>
       <input id="model-title" class="title-input" type="text" aria-label="Título do modelo" spellcheck="false" data-i18n-aria-label="app.page.titleInput">
+      <button id="regime-stamp" class="stamp" type="button" title="Regime do cálculo: clique para abrir as propriedades do sistema" data-i18n-title="app.stamp.title"></button>
     </div>
 
     <nav class="menus" aria-label="Menus" data-i18n-aria-label="app.page.menus">
@@ -56,6 +59,8 @@
           <div class="menu-sep"></div>
           <button data-act="fit" data-i18n="app.menu.fit">Ajustar desenho à tela</button>
           <button data-act="toggle-grid" data-i18n="app.menu.grid">Grade e encaixe</button>
+          <div class="menu-sep"></div>
+          <button data-act="system" data-i18n="app.menu.system">Propriedades do sistema…</button>
         </div>
       </div>
       <div class="menu">
@@ -98,6 +103,11 @@
       <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.7 8h12.6M8 1.7c-2.3 2.5-2.3 10.1 0 12.6M8 1.7c2.3 2.5 2.3 10.1 0 12.6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
       <select id="lang-select" aria-label="Idioma" title="Idioma" data-i18n-aria-label="app.language" data-i18n-title="app.language"></select>
     </div>
+    <!-- title and label set by src/ui/topbar/theme.js: the mode the button switches to -->
+    <button class="btn ghost icon theme-toggle" id="theme-toggle" type="button" aria-label="Mudar para o modo escuro">
+      <svg class="moon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M13.19 8.74A5.6 5.6 0 1 1 7.26 2.81A4.3 4.3 0 0 0 13.19 8.74Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="sun" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.2V3M8 13v1.8M1.2 8H3M13 8h1.8M3.19 3.19l1.27 1.27M11.54 11.54l1.27 1.27M3.19 12.81l1.27-1.27M11.54 4.46l1.27-1.27" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </button>
   </header>
 
   <div class="tabs" role="tablist">
@@ -190,7 +200,9 @@
             <select id="overlay-select">
               <option value="none" data-i18n="network.overlay.none">Nenhum</option>
               <option value="Q" data-i18n="network.overlay.Q">Vazão volumétrica</option>
+              <option value="m" data-i18n="network.overlay.m">Vazão mássica</option>
               <option value="V" data-i18n="network.overlay.V">Velocidade</option>
+              <option value="M" data-i18n="network.overlay.M">Número de Mach</option>
               <option value="dP0" data-i18n="network.overlay.dP0">Queda de pressão</option>
               <option value="P" data-i18n="network.overlay.P">Pressão estática</option>
               <option value="HGL" data-i18n="network.overlay.HGL">Linha piezométrica (HGL)</option>
@@ -205,6 +217,10 @@
           </div>
         </div>
         <div class="legend" id="legend" hidden></div>
+        <!-- collapses the properties panel and brings it back; title and label set by src/ui/inspector/inspector.js -->
+        <button type="button" class="panel-toggle" id="panel-toggle" aria-controls="inspector" aria-expanded="true" aria-label="Recolher o painel de propriedades">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5L10.5 8L6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       <aside class="inspector" id="inspector" aria-label="Propriedades" data-i18n-aria-label="inspector.aria"></aside>
     </section>
@@ -306,6 +322,7 @@
 <script src="src/core/units.js" charset="utf-8"></script>
 <script src="src/core/fluids/fluids.js" charset="utf-8"></script>
 <script src="src/core/fluids/water.js" charset="utf-8"></script>
+<script src="src/core/fluids/gases.js" charset="utf-8"></script>
 <script src="src/core/data/steel-pipe.js" charset="utf-8"></script>
 <script src="src/core/data/roughness.js" charset="utf-8"></script>
 <script src="src/core/data/fittings.js" charset="utf-8"></script>
@@ -327,6 +344,13 @@
 <script src="src/core/solver/results.js" charset="utf-8"></script>
 <script src="src/core/solver/solver.js" charset="utf-8"></script>
 <script src="src/core/solver/system-curve.js" charset="utf-8"></script>
+<!-- Compressible mode (gas): the physics and its own calculation path, chosen by the regime of the model -->
+<script src="src/core/gas/gas.js" charset="utf-8"></script>
+<script src="src/core/gas/flow.js" charset="utf-8"></script>
+<script src="src/core/gas/network.js" charset="utf-8"></script>
+<script src="src/core/gas/newton.js" charset="utf-8"></script>
+<script src="src/core/gas/results.js" charset="utf-8"></script>
+<script src="src/core/gas/solver.js" charset="utf-8"></script>
 <!-- Junction types: calculation side, one file per type -->
 <script src="src/core/junctions/shared.js" charset="utf-8"></script>
 <script src="src/core/junctions/reservoir.js" charset="utf-8"></script>
@@ -349,6 +373,8 @@
 <script src="src/core/examples/looped-network.js" charset="utf-8"></script>
 <script src="src/core/examples/pressure-reducing.js" charset="utf-8"></script>
 <script src="src/core/examples/sprinkler-branch.js" charset="utf-8"></script>
+<script src="src/core/examples/compressed-air.js" charset="utf-8"></script>
+<script src="src/core/examples/air-plant.js" charset="utf-8"></script>
 <!-- 3D views: geometry of the isometric and free 3D drawings (pure functions, no DOM) -->
 <script src="src/core/view3d/camera.js" charset="utf-8"></script>
 <script src="src/core/view3d/navigation.js" charset="utf-8"></script>
@@ -363,6 +389,7 @@
 <script src="src/ui/common/format.js" charset="utf-8"></script>
 <script src="src/ui/common/dom.js" charset="utf-8"></script>
 <script src="src/ui/common/dialogs.js" charset="utf-8"></script>
+<script src="src/ui/common/tips.js" charset="utf-8"></script>
 <script src="src/ui/common/download.js" charset="utf-8"></script>
 <script src="src/ui/common/xlsx.js" charset="utf-8"></script>
 <!-- Junction types: interface side (symbol, form, summaries, result rows), one file per type -->
@@ -399,11 +426,12 @@
 <script src="src/ui/help/equations.js" charset="utf-8"></script>
 <script src="src/ui/help/help.js" charset="utf-8"></script>
 <script src="src/ui/help/tour.js" charset="utf-8"></script>
-<!-- Inspector (properties panel) -->
+<!-- Inspector (properties panel) and the system window -->
 <script src="src/ui/inspector/forms.js" charset="utf-8"></script>
 <script src="src/ui/inspector/inspector.js" charset="utf-8"></script>
 <script src="src/ui/inspector/selection-panel.js" charset="utf-8"></script>
 <script src="src/ui/inspector/system-panel.js" charset="utf-8"></script>
+<script src="src/ui/inspector/system-window.js" charset="utf-8"></script>
 <script src="src/ui/inspector/pipe-panel.js" charset="utf-8"></script>
 <script src="src/ui/inspector/fittings-editor.js" charset="utf-8"></script>
 <script src="src/ui/inspector/junction-panel.js" charset="utf-8"></script>

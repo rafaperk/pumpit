@@ -46,8 +46,39 @@
     ],
   };
 
+  // compressible mode (R-25, §12.2): the columns of a gas, headers in results.gasColumns.<table>.<k>; the "in" and "out"
+  // ends of a pipe are those of its reference direction, as for a liquid
+  const gas = (cols) => cols.map((c) => Object.assign({ gas: true }, c));
+  const GAS_COLS = {
+    pipes: gas([
+      { k: 'id', t: 'id' }, { k: 'dn', t: 'txt' },
+      { k: 'm', c: 'massFlow' }, { k: 'Q', c: 'volFlow' }, { k: 'QN', c: 'normFlow' },
+      { k: 'Vin', c: 'velocity' }, { k: 'Vout', c: 'velocity' }, { k: 'Min' }, { k: 'Mout' },
+      { k: 'Pin', c: 'pressure' }, { k: 'Pout', c: 'pressure' }, { k: 'P0in', c: 'pressure' }, { k: 'P0out', c: 'pressure' },
+      { k: 'Tin', c: 'temperature' }, { k: 'Tout', c: 'temperature' }, { k: 'rhoIn', c: 'density' }, { k: 'rhoOut', c: 'density' },
+      { k: 'f' }, { k: 'dP0', c: 'dp' }, { k: 'chokedTxt', t: 'txt' },
+    ]),
+    junctions: gas([
+      { k: 'id', t: 'id' }, { k: 'name', t: 'txt' }, { k: 'typeLabel', t: 'txt' },
+      { k: 'Pin', c: 'pressure' }, { k: 'Pout', c: 'pressure' }, { k: 'P0in', c: 'pressure' }, { k: 'P0out', c: 'pressure' },
+      { k: 'Tin', c: 'temperature' }, { k: 'T0in', c: 'temperature' }, { k: 'dP', c: 'dp' },
+      { k: 'm', c: 'massFlow' }, { k: 'Q', c: 'volFlow' }, { k: 'massErr', c: 'massFlow' }, { k: 'z', c: 'length' },
+    ]),
+    pumps: gas([
+      { k: 'id', t: 'id' }, { k: 'name', t: 'txt' }, { k: 'm', c: 'massFlow' }, { k: 'Q', c: 'volFlow' },
+      { k: 'ratio' }, { k: 'dP', c: 'dp' }, { k: 'T0out', c: 'temperature' }, { k: 'Pgas', c: 'power' }, { k: 'stateTxt', t: 'txt' },
+    ]),
+    valves: gas([
+      { k: 'id', t: 'id' }, { k: 'name', t: 'txt' }, { k: 'typeLabel', t: 'txt' }, { k: 'state', t: 'txt' },
+      { k: 'm', c: 'massFlow' }, { k: 'Q', c: 'volFlow' }, { k: 'dP', c: 'dp' }, { k: 'Pin', c: 'pressure' }, { k: 'K' }, { k: 'chokedTxt', t: 'txt' },
+    ]),
+  };
+  // the columns of a table for a set of results (a gas has its own)
+  const isGas = (res) => !!(res && res.regime === 'compressivel');
+  const colsFor = (table, res) => (isGas(res) ? GAS_COLS : COLS)[table];
+
   // header text of a column
-  const colLabel = (table, col) => t('results.columns.' + table + '.' + col.k);
+  const colLabel = (table, col) => t((col.gas ? 'results.gasColumns.' : 'results.columns.') + table + '.' + col.k);
 
   // unit selector in a column header (label = the column name, for screen readers)
   function unitSelect(table, col, label = colLabel(table, col)) {
@@ -58,10 +89,11 @@
 
   function rowsFor(table, res, eff) {
     const name = (k) => (M.getObj(eff, k) || {}).name || '';
+    const choked = (r) => (r.choked ? t('results.gas.choked') : '');
     if (table === 'pipes') return eff.pipes.map((p) => {
       const r = res.pipes[p.id] || {};
       const dn = r.nps ? `${r.nps}"` : Number.isFinite(r.Dh) ? t('results.innerDiameter', { d: F.fmt(r.Dh * 1000, 4) }) : '—';
-      return Object.assign({ id: p.id, name: p.name, key: 'p:' + p.id }, r, { dn, schTxt: r.sch ? `Sch. ${r.sch}` : '—' });
+      return Object.assign({ id: p.id, name: p.name, key: 'p:' + p.id }, r, { dn, schTxt: r.sch ? `Sch. ${r.sch}` : '—', chokedTxt: choked(r) });
     });
     if (table === 'junctions') return eff.junctions.map((j) => {
       const r = res.junctions[j.id] || {};
@@ -69,7 +101,7 @@
     });
     if (table === 'pumps') return Object.entries(res.pumps).map(([id, r]) => Object.assign({ id: +id, name: name('j:' + id), key: 'j:' + id, etaPct: r.etaAssumed ? NaN : r.eta * 100 }, r));
     // a control valve shows its kind next to the type ("Control valve PRV")
-    if (table === 'valves') return Object.entries(res.valves).map(([id, r]) => Object.assign({ id: +id, name: name('j:' + id), key: 'j:' + id, typeLabel: M.JT[r.type].label + (r.ctype ? ' ' + r.ctype : '') }, r));
+    if (table === 'valves') return Object.entries(res.valves).map(([id, r]) => Object.assign({ id: +id, name: name('j:' + id), key: 'j:' + id, typeLabel: M.JT[r.type].label + (r.ctype ? ' ' + r.ctype : '') }, r, { chokedTxt: choked(r) }));
     return [];
   }
 
@@ -84,5 +116,5 @@
     return F.fmt(x, 5);
   }
 
-  PumpIt.ui.resultColumns = { level, COLS, colLabel, unitSelect, rowsFor, cellValue };
+  PumpIt.ui.resultColumns = { level, COLS, GAS_COLS, colsFor, isGas, colLabel, unitSelect, rowsFor, cellValue };
 })(typeof window !== 'undefined' ? window : globalThis);

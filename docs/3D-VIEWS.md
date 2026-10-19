@@ -32,7 +32,7 @@ Pump It has two views of the network besides the schematic: an **isometric** vie
   - In the *Front* and *Side* views the floor is seen edge on, so placing, drawing and moving use the vertical plane that faces the camera.
 - **Symbols:** every junction is a small solid: an open tank with its liquid (reservoir), a pump with its motor and an arrow along the flow on its casing, a valve with its handwheel, a control valve under its actuator, an exit valve with an arrow for the discharge, an orifice plate between flanges, a nozzle spraying drops, a ball where pipes meet, a drum (assigned flow, Q), a sphere (assigned pressure, P) and a block (loss K). They keep a fixed size on the screen (larger when nearer in perspective), lie along their pipes, turn about them with the roll of the panel, and turn red when the junction stops the flow (a closed valve, a pump off and closed).
 - **Inspector,** with the 3D views open: the vertical scale, *Automatic scale* and *Fit every pipe to the grid* with nothing selected; the drawn length, the bends, *Snap to the isometric grid*, *Fit to the grid*, *Next route* and *Remove bends* for a pipe; X and Y in the plan and the roll of the symbol for a junction.
-- **Keys:** *Edit → Keyboard shortcuts…* lists the keys of every view.
+- **Keys:** *Help → Keyboard shortcuts…* lists the keys of every view.
 - **Camera jumps** (ready-made views, framing, centring, turns, the zoom buttons and the keys) glide for a quarter of a second, or happen at once when the system asks for reduced motion.
 
 ## Where things are
@@ -61,7 +61,7 @@ Pump It has two views of the network besides the schematic: an **isometric** vie
 | HUD and seal (§6.1) | markup in `index.html`, behaviour in `PumpIt.ui.hud3d` (`src/ui/view3d/hud.js`), styles in `src/ui/styles/view3d.css` |
 | panel sections (§6.3) | `src/ui/view3d/panel.js`, through `PumpIt.ui.inspector.addSection` |
 | junction symbols, `index.html` symbols as billboards or on the plane of their pipes (§8.11) | solids (D-29): the geometry in `src/core/view3d/solids.js` (`PumpIt.view3d.solid`, `solidAxes`, `solidPlacement`, `drawSolid`, `solidReach`), the shape of each type in its view (property `solid` in `src/ui/junctions/`), the markup in `PumpIt.ui.solids3d` (`src/ui/view3d/solids.js`) and the colours in `view3d.css` and the theme tokens |
-| Help window section (§6.3, §6.4) | the keyboard shortcuts box of the Edit menu, `PumpIt.ui.shortcuts` (`src/ui/topbar/shortcuts.js`) |
+| Help window section (§6.3, §6.4) | the chapter *3D views* of the help window (`src/ui/help/`) and the keyboard shortcuts box of the Help menu, `PumpIt.ui.shortcuts` (`src/ui/topbar/shortcuts.js`) |
 
 ## Decisions
 
@@ -132,7 +132,7 @@ Junctions placed one above the other share their place in the plan, so they over
 
 **D-24. No phones (user decision, 16 October 2026).** Pump It no longer supports phones. The phone layout of Phase 4, the *View ▾* button below 980 px of §6.1 and the 375 px checks of §12.2 are dropped. What already exists for small screens (`src/ui/styles/responsive.css`) and the touch navigation of the 3D views (R-41) stay as they are, without further work.
 
-**D-25. Keyboard shortcuts instead of a Help section.** Pump It has no Help window, so the section that §6.3 asks for is a box of its own: *Edit → Keyboard shortcuts…* lists the keys of every view (§6.4, as Pump It implements them) and says in one line that the 3D views share the schematic's geometry.
+**D-25. Keyboard shortcuts and the help.** When the 3D views were built Pump It had no Help window, so the section that §6.3 asks for became a box of its own, which lists the keys of every view (§6.4, as Pump It implements them) and says in one line that the 3D views share the schematic's geometry. The app now has a Help menu: the box is *Help → Keyboard shortcuts…*, and the help window has a chapter on the 3D views (concept, isometric, free 3D, symbols).
 
 **D-26. The rest of the panel (§6.3).** With D-20 there is no generated scene and the heights are always the elevations, so *Generate again from the schematic* and *Heights from the elevations…* have nothing to do; their place goes to *Automatic scale*, which picks the vertical scale again as the first entry did. A junction shows X and Y as fields (du; the isometric view rounds the typed value to the grid step), and a point already taken by another junction is refused with a message. Z is not a field: the height is the elevation, edited in the junction's own fields. Item 12 of §13 holds by construction.
 

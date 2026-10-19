@@ -32,7 +32,9 @@
     const res = res0 && res0.ok ? res0 : null;
     const sel = app.selSet;
     const undef = app.undefSet();
-    const ovKey = app.prefs.overlay;
+    const gas = PumpIt.model.isCompressible(app.eff());
+    CS.syncPicker(document.getElementById('overlay-select'), gas, app.prefs.overlay);
+    const ovKey = CS.offered(app.prefs.overlay, gas) ? app.prefs.overlay : 'none';
     const ov = CS.overlayValues(res, ovKey);
     const unitOf = (cat) => app.outUnit('canvas', cat);
     const ctx = res ? { rho: res.fluid.rho, patm: res.patm } : {};
@@ -75,9 +77,8 @@
       if (ov && ov.vals.has(p.id)) {
         const v = ov.vals.get(p.id);
         const t = ov.max > ov.min ? (v - ov.min) / (ov.max - ov.min) : 0.5;
-        if (!sel.has(key)) { color = CS.pipeColor(ovKey, v, t); over = CS.beyondScale(ovKey, v); }
-        const cat = CS.OVERLAY[ovKey].cat;
-        val = `${fmtOv(v, cat)} ${F.unit(unitOf(cat))}`;
+        if (!sel.has(key)) { color = CS.pipeColor(ovKey, v, t, gas); over = CS.beyondScale(ovKey, v, gas); }
+        val = CS.labelOf(fmtOv, unitOf, v, CS.OVERLAY[ovKey].cat);
       }
       const lineStyle = color ? ` style="stroke:${color};stroke-width:4.5"` : '';
       const arrowStyle = color ? ` style="fill:${over ? '#ffffff' : color}"` : '';
@@ -137,7 +138,7 @@
     svg.innerHTML = out;
 
     // colour scale legend
-    CS.renderLegend(document.getElementById('legend'), ov, ovKey, unitOf, fmtOv);
+    CS.renderLegend(document.getElementById('legend'), ov, ovKey, unitOf, fmtOv, gas);
   }
 
   PumpIt.ui.drawing = { render, symbolAngle };

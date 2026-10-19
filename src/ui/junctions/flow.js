@@ -13,9 +13,11 @@
     // 3D views: a drum with its letter (D-29)
     solid: { parts: [S.cyl([0, 0, -8], [0, 0, 8], 10, 'flow'), S.text([0, 0, 0], 'Q')], reach: [S.cyl([0, 0, -8], [0, 0, 8], 10)] },
 
-    form(s, { key, f }) {
+    form(s, ctx) {
+      const { key, j, f } = ctx;
       s.appendChild(f.qty(key, 'Q', tx('form.Q'), 'flow'));
       s.appendChild(f.sel(key, 'dir', tx('form.dir'), [['in', tx('form.in')], ['out', tx('form.out')]]));
+      if (j.dir === 'in') JT.shared.sourceTemperature(s, ctx);
     },
 
     summary: (j, q) => tx('summary', { flow: q(j.Q), dir: dir(j) }),

@@ -1,5 +1,17 @@
 /* Network view: palette, drawing area, floating tools, legends and the symbols on the drawing. */
-.view-net { display: grid; grid-template-columns: 88px minmax(0, 1fr) 340px; }
+.view-net { --palette-w: 88px; --inspector-w: 340px; display: grid; grid-template-columns: var(--palette-w) minmax(0, 1fr) var(--inspector-w); }
+/* the properties panel collapsed by its arrow: the drawing takes its room */
+.view-net.insp-off { --inspector-w: 0px; }
+.view-net.insp-off .inspector { display: none; }
+.panel-toggle {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 3; width: 18px; height: 52px; padding: 0;
+  display: grid; place-items: center; cursor: pointer; color: var(--ink-2); background: var(--panel);
+  border: 1px solid var(--line); border-right: 0; border-radius: 8px 0 0 8px; box-shadow: -2px 0 6px rgba(10, 16, 20, .06);
+}
+.panel-toggle:hover { color: var(--accent); background: var(--sunk); }
+.panel-toggle svg { display: block; }
+/* collapsed: the arrow points back into the window */
+.insp-off .panel-toggle svg { transform: rotate(180deg); }
 .palette {
   background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 6px 6px 12px;
   display: flex; flex-direction: column; gap: 2px; scrollbar-width: thin;

@@ -31,12 +31,14 @@
     if (app.sel && !app.selSet.has(keyOf(app.sel))) app.sel = app.selSet.size ? hitOf([...app.selSet][0]) : null;
   };
 
-  // selects an object and shows it on the network view (from tables, warnings and the checklist)
+  // selects an object and shows it on the network view, with the properties panel open (from tables, warnings and the
+  // checklist)
   app.gotoKey = (key) => {
     if (!key) return;
     app.selSet = new Set([key]);
     app.sel = hitOf(key);
     app.setView('net');
+    UI.inspector.setCollapsed(false);
     UI.inspector.render();
   };
 

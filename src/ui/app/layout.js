@@ -9,6 +9,7 @@
     UI.header.render();
     UI.canvas.render();
     UI.inspector.render();
+    UI.systemWindow.render(); // when open
     app.renderView();
   };
 

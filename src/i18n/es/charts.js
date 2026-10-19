@@ -7,6 +7,7 @@ PumpIt.i18n.add('es', {
     noData: 'Sin datos para el gráfico.',
     chart: 'Gráfico',
     pump: {
+      gasMode: 'En el modo compresible no se traza la curva del sistema: compara la altura de una bomba con un sistema de líquido.',
       noPumps: 'El modelo no tiene bombas.',
       pump: 'Bomba',
       flow: 'Caudal',
@@ -44,6 +45,7 @@ PumpIt.i18n.add('es', {
       xLabel: 'Distancia a lo largo del camino ({u})',
       yHead: 'Altura ({u})',
       yPressure: 'Presión ({u})',
+      notesGas: 'Camino: {path} · {length} {u}. La presión de un gas cae cada vez más rápido a lo largo de la tubería, a medida que se expande y acelera; las curvas siguen los puntos calculados dentro de cada tubería.',
       notes: 'Camino: {path} · {length} {u}. HGL y EGL usan presión absoluta; los escalones verticales son uniones con pérdida o ganancia.',
     },
   },

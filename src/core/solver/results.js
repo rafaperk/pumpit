@@ -61,6 +61,20 @@
       if (nB.isRes && P.zDown > nB.z && m > 0) warn('warning', t('core.solver.aboveLevel', { id: p.id, res: nB.jid }), 'p:' + p.id);
     }
 
+    // §5 of the compressible mode: a fluid as light as a gas (ρ < 50 kg/m³) in a pipe past Mach 0.3 (sound speed of an
+    // ideal gas, √(k·P/ρ), k of the gas of the model) or with a drop above 10 % of its absolute pressure: that mode
+    // would be the right one
+    if (rho < 50) {
+      const fg = eff.system.fluidGas || {}, lib = PumpIt.fluids.gasById && PumpIt.fluids.gasById(fg.gas);
+      const k = lib ? lib.k : fg.k > 1 ? fg.k : 1.4;
+      const fast = Object.entries(pipes).filter(([, r]) => {
+        if (r.isolated || r.closed) return false;
+        const Plo = Math.min(r.Pin, r.Pout), Phi = Math.max(r.Pin, r.Pout);
+        return (Plo > 0 && Math.abs(r.V) / Math.sqrt(k * Plo / rho) > 0.3) || (Phi > 0 && (Phi - Plo) / Phi > 0.1);
+      }).map(([id]) => 'P' + id);
+      if (fast.length) warn('caution', t('core.solver.adviceCompressible', { pipes: fast.join(', ') }));
+    }
+
     const pipeOf = (id) => pipes[id];
     const pipeV = (id) => (pipes[id] ? pipes[id].V : 0);
     // what a junction type sees while it adds its own results
@@ -119,7 +133,7 @@
       }
     } else warn('critical', t('core.solver.massCheckOff'));
 
-    const order = { critical: 0, warning: 1, caution: 2 };
+    const order = { critical: 0, warning: 1, caution: 2, info: 3 };
     W.sort((a, b) => order[a.level] - order[b.level]);
     return {
       ok: true, converged: res.converged, iterations: meta.totalIt, passes: meta.passes, history: meta.hist,

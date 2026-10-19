@@ -7,6 +7,7 @@ PumpIt.i18n.add('pt-BR', {
     noData: 'Sem dados para o gráfico.',
     chart: 'Gráfico',
     pump: {
+      gasMode: 'No modo compressível a curva do sistema não é traçada: ela compara a altura de uma bomba com um sistema de líquido.',
       noPumps: 'O modelo não tem bombas.',
       pump: 'Bomba',
       flow: 'Vazão',
@@ -44,6 +45,7 @@ PumpIt.i18n.add('pt-BR', {
       xLabel: 'Distância ao longo do caminho ({u})',
       yHead: 'Altura ({u})',
       yPressure: 'Pressão ({u})',
+      notesGas: 'Caminho: {path} · {length} {u}. A pressão de um gás cai cada vez mais depressa ao longo do tubo, à medida que ele se expande e acelera; as curvas seguem os pontos calculados dentro de cada tubo.',
       notes: 'Caminho: {path} · {length} {u}. HGL e EGL usam pressão absoluta; degraus verticais são junções com perda ou ganho.',
     },
   },

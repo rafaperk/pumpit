@@ -19,6 +19,7 @@
     m.nextId.p = Math.max(m.nextId.p || 1, 1 + Math.max(0, ...m.pipes.map((p) => p.id)));
     m.nextId.j = Math.max(m.nextId.j || 1, 1 + Math.max(0, ...m.junctions.map((j) => j.id)));
     m._notes = M.migrate(m);
+    M.normalizeRegime(m);
     M.normalizeLayout(m);
     return m;
   }

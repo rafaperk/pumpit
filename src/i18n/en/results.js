@@ -4,7 +4,7 @@ PumpIt.i18n.add('en', {
     title: 'Results',
     intro: 'Run the model to see the results.',
     tabs: { general: 'General', pipes: 'Pipes', junctions: 'Junctions', pumps: 'Pumps', valves: 'Valves', warnings: 'Warnings' },
-    level: { critical: 'Critical', warning: 'Warning', caution: 'Caution' },
+    level: { critical: 'Critical', warning: 'Warning', caution: 'Caution', info: 'Information' },
     columns: {
       pipes: {
         id: 'Pipe',
@@ -57,6 +57,13 @@ PumpIt.i18n.add('en', {
         K: 'Effective K',
       },
     },
+    gasColumns: {
+      pipes: { id: 'Pipe', dn: 'Nominal size', m: 'Mass flow', Q: 'Flow at the inlet', QN: 'Normal flow', Vin: 'V at the inlet', Vout: 'V at the outlet', Min: 'Mach at the inlet', Mout: 'Mach at the outlet', Pin: 'Static P at the inlet', Pout: 'Static P at the outlet', P0in: 'Stagnation P at the inlet', P0out: 'Stagnation P at the outlet', Tin: 'Static T at the inlet', Tout: 'Static T at the outlet', rhoIn: 'Density at the inlet', rhoOut: 'Density at the outlet', f: 'Friction factor', dP0: 'Drop of P0', chokedTxt: 'Choking' },
+      junctions: { id: 'Junction', name: 'Name', typeLabel: 'Type', Pin: 'Static P in', Pout: 'Static P out', P0in: 'P0 in', P0out: 'P0 out', Tin: 'Static T', T0in: 'Stagnation T', dP: 'ΔP0', m: 'Mass flow', Q: 'Flow (local)', massErr: 'Mass imbalance', z: 'Elevation' },
+      pumps: { id: 'Compressor', name: 'Name', m: 'Mass flow', Q: 'Suction flow', ratio: 'Pressure ratio', dP: 'ΔP0', T0out: 'T0 at the discharge', Pgas: 'Power to the gas', stateTxt: 'State' },
+      valves: { id: 'Valve', name: 'Name', typeLabel: 'Type', state: 'State', m: 'Mass flow', Q: 'Flow at the inlet', dP: 'ΔP0', Pin: 'Static P in', K: 'Effective K', chokedTxt: 'Choking' },
+    },
+    gas: { choked: 'choked' },
     unitOf: 'Unit of {label}',
     innerDiameter: 'ID {d} mm',
     noItems: 'No items of this kind in the model.',
@@ -88,6 +95,10 @@ PumpIt.i18n.add('en', {
       viscosity: 'Viscosity',
       vaporPressure: 'Vapor pressure',
       ambientPressure: 'Ambient pressure',
+      regime: 'Regime',
+      gasConstants: 'Gas constants',
+      temperature: { isotermico: 'Gas temperature', adiabatico: 'Temperature of the sources' },
+      normalDensity: 'Normal density',
       counts: 'Pipes · junctions',
     },
     boundaries: {
@@ -96,6 +107,7 @@ PumpIt.i18n.add('en', {
       junction: 'Junction',
       type: 'Type',
       netFlow: 'Net flow',
+      netMass: 'Net mass flow',
       flowUnit: 'flow',
       stagnation: 'Stagnation P',
       pressureUnit: 'pressure',

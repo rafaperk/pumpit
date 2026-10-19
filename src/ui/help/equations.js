@@ -66,6 +66,27 @@
     heads: row(`HGL = ${frac(v('p'), `${rho} ${g}`)} + ${z}`, gap, `EGL = ${frac(P0, `${rho} ${g}`)} + ${z}`, gap, `${sub(v('h'), 'L')} = ${frac(dp('«losses»'), `${rho} ${g}`)}`),
     gauge: row(`${sub(v('p'), 'abs')} = ${sub(v('p'), '«gauge»')} + ${sub(v('p'), '«amb»')}`),
     effectiveK: row(`${sub(K, '«eff»')} = ${frac(`Δ${P0}`, `½ ${rho} ${sup(sub(V, '1'), 2)}`)}`),
+    // compressible mode (src/core/gas/, src/core/fluids/gases.js)
+    gasLaw: row(`${rho} = ${frac(`${v('P')} · MW`, `${v('Z')} ${sub(v('R'), 'u')} ${v('T')}`)}`, gap, `${v('R')} = ${frac(sub(v('R'), 'u'), 'MW')}`, gap, `${sub(v('R'), 'u')} = 8314,462618 J/(kmol·K)`),
+    machGas: row(`${v('a')} = ${sqrt(`${v('Z')} ${v('k')} ${v('R')} ${v('T')}`)}`, gap, `${v('G')} = ${frac(m, A)} = ${rho} ${V}`, gap, `${v('M')} = ${frac(V, v('a'))}`),
+    stagnationGas: row(`${sub(v('T'), '0')} = ${v('T')} ( 1 + ${frac(`${v('k')} − 1`, '2')} ${sup(v('M'), 2)} )`, gap, `${sub(v('P'), '0')} = ${v('P')} ( 1 + ${frac(`${v('k')} − 1`, '2')} ${sup(v('M'), 2)} )<sup>${v('k')}/(${v('k')}−1)</sup>`),
+    sutherland: row(`${mu} = ${sub(mu, '0')} ( ${frac(v('T'), sub(v('T'), '0'))} )<sup>3/2</sup> ${frac(`${sub(v('T'), '0')} + ${v('S')}`, `${v('T')} + ${v('S')}`)}`, gap, `${sub(v('T'), '0')} = 273,15 K`),
+    normalFlow: row(`${sub(rho, 'N')} = ${frac(`${sub(v('P'), 'N')} · MW`, `${sub(v('R'), 'u')} ${sub(v('T'), 'N')}`)}`, gap, `${sub(v('P'), 'N')} = 101,325 kPa`, gap, `${sub(v('T'), 'N')} = 273,15 K`, gap, `${m} = ${sub(rho, 'N')} ${sub(Q, 'N')}`),
+    isoClosed: row(`${sup(sub(v('P'), '1'), 2)} − ${sup(sub(v('P'), '2'), 2)} = ${sup(v('G'), 2)} ${v('Z')} ${v('R')} ${v('T')} [ ${f} ${frac(L, Dh)} + Σ${K} + 2 ln ${frac(sub(v('P'), '1'), sub(v('P'), '2'))} ]`),
+    fannoRel: row(`${frac(v('T'), `${v('T')}*`)} = ${frac(`${v('k')} + 1`, `2 + (${v('k')} − 1) ${sup(v('M'), 2)}`)}`, gap, `${frac(v('P'), `${v('P')}*`)} = ${frac('1', v('M'))} ${sqrt(frac(`${v('k')} + 1`, `2 + (${v('k')} − 1) ${sup(v('M'), 2)}`))}`),
+    fannoLength: row(`${frac(`${f} ${L}*`, Dh)} = ${frac(`1 − ${sup(v('M'), 2)}`, `${v('k')} ${sup(v('M'), 2)}`)} + ${frac(`${v('k')} + 1`, `2${v('k')}`)} ln ${frac(`(${v('k')} + 1) ${sup(v('M'), 2)}`, `2 + (${v('k')} − 1) ${sup(v('M'), 2)}`)}`, gap, `${f} ${frac(`${sub(v('x'), '2')} − ${sub(v('x'), '1')}`, Dh)} = ${frac(`${f}${L}*`, Dh)}(${sub(v('M'), '1')}) − ${frac(`${f}${L}*`, Dh)}(${sub(v('M'), '2')})`),
+    marchMomentum: row(`(${v('P')}′ − ${v('P')}) + ${v('G')} (${V}′ − ${V}) + ${frac(f, Dh)} ${frac(`${rho}̄ ${V}̄<sup>2</sup>`, '2')} Δ${v('x')} + ${rho}̄ ${g} Δ${z} = 0`, gap, `${rho}′ ${V}′ = ${v('G')}`),
+    marchEnergy: row(`«iso»: ${v('T')}′ = ${v('T')}`, gap, `«adiab»: ${sub(v('c'), 'p')} (${v('T')}′ − ${v('T')}) + ${frac(`${V}′<sup>2</sup> − ${sup(V, 2)}`, '2')} = 0`, gap, `${sub(v('c'), 'p')} = ${frac(`${v('k')} ${v('R')}`, `${v('k')} − 1`)}`),
+    equivalentF: row(`${sub(f, '«eq»')} = ${f} + Σ${K} ${frac(Dh, L)}`),
+    chokeLimits: row(`${sub(v('M'), 'max')} = ${frac('1', sqrt(v('k')))} («iso»)`, gap, `${sub(v('M'), 'max')} = 1 («adiab»)`),
+    entranceGas: row(`${v('G')} = ${P0} ${sqrt(frac(v('k'), `${v('Z')} ${v('R')} ${sub(v('T'), '0')}`))} ${v('M')} ( 1 + ${frac(`${v('k')} − 1`, '2')} ${sup(v('M'), 2)} )<sup>−(${v('k')}+1)/(2(${v('k')}−1))</sup>`),
+    nozzleGas: row(`${m} = ${sub(v('C'), 'd')}${A} ${P0} ${sqrt(`${frac(`2${v('k')}`, `(${v('k')} − 1) ${v('Z')} ${v('R')} ${sub(v('T'), '0')}`)} ( ${sup(v('r'), `2/${v('k')}`)} − ${sup(v('r'), `(${v('k')}+1)/${v('k')}`)} )`)}`, gap, `${v('r')} = max ( ${frac(sub(v('p'), '«ext»'), P0)} ; ${v('r')}* )`, gap, `${v('r')}* = ( ${frac('2', `${v('k')} + 1`)} )<sup>${v('k')}/(${v('k')}−1)</sup>`),
+    criticalFlux: row(`${sub(m, 'max')} = ${sub(v('C'), 'c')} ${sub(A, 'o')} ${P0} ${sqrt(frac(v('k'), `${v('Z')} ${v('R')} ${sub(v('T'), '0')}`))} ( ${frac('2', `${v('k')} + 1`)} )<sup>(${v('k')}+1)/(2(${v('k')}−1))</sup>`),
+    gasMixing: row(`${sub(v('T'), '0,«node»')} = ${frac(`Σ ${sub(m, v('i'))} ${sub(v('T'), `0,${v('i')}`)}`, `Σ ${sub(m, v('i'))}`)}`, gap, `«enteringFlows»`),
+    compRatio: row(`${sub(P0, '«out»')} = ${v('r')} · ${sub(P0, '«in»')}`),
+    compHead: row(`${v('r')} = [ 1 + ${frac(`${g} ${v('H')} (${v('k')} − 1)`, `${v('k')} ${v('Z')} ${v('R')} ${sub(v('T'), '0,«in»')}`)} ]<sup>${v('k')}/(${v('k')}−1)</sup>`, gap, `${v('H')} = ${sup(s, 2)} · ${sub(v('H'), '1')} ( ${frac(Q, `${N} ${s}`)} )`),
+    compHeat: row(`${sub(v('T'), '0,«out»')} = ${sub(v('T'), '0,«in»')} · ${v('r')}<sup>(${v('k')}−1)/(${v('k')} ${v('η')})</sup>`, gap, `${sub(v('P'), '«gas»')} = ${m} ${sub(v('c'), 'p')} (${sub(v('T'), '0,«out»')} − ${sub(v('T'), '0,«in»')})`),
+    gasValveK: row(`${K} = ${frac(`2 ${sup(A, 2)} · psi`, `999,0 · gpm<sup>2</sup> · ${sup(v('Cv'), 2)}`)}`, gap, `${K} = 200 ( ${frac(`3600 ${A}`, v('Kv'))} )<sup>2</sup>`),
     // water
     kell: row(`${rho}(${v('t')}) = ${frac(`999,83952 + 16,945176 ${v('t')} − 7,9870401·10<sup>−3</sup> ${sup(v('t'), 2)} − 46,170461·10<sup>−6</sup> ${sup(v('t'), 3)} + 105,56302·10<sup>−9</sup> ${sup(v('t'), 4)} − 280,54253·10<sup>−12</sup> ${sup(v('t'), 5)}`, `1 + 16,879850·10<sup>−3</sup> ${v('t')}`)}`),
     vogel: row(`${mu} [mPa·s] = exp ( −3,7188 + ${frac('578,919', `${v('T')} − 137,546`)} )`),
@@ -82,6 +103,9 @@
     water: ['água', 'water', 'agua'], end: ['ponta', 'end', 'extremo'], residual: ['residual', 'residual', 'residual'],
     valve: ['válvula', 'valve', 'válvula'], sign: ['sinal', 'sign', 'signo'], fit: ['ajuste', 'fit', 'ajuste'],
     losses: ['perdas', 'losses', 'pérdidas'], gauge: ['man', 'g', 'man'], amb: ['amb', 'amb', 'amb'],
+    iso: ['isotérmico', 'isothermal', 'isotérmico'], adiab: ['adiabático', 'adiabatic', 'adiabático'], eq: ['eq', 'eq', 'eq'],
+    ext: ['ext', 'ext', 'ext'], node: ['nó', 'node', 'nodo'], gas: ['gás', 'gas', 'gas'],
+    enteringFlows: ['vazões que chegam ao nó', 'flows that reach the node', 'caudales que llegan al nodo'],
   };
   const LANGS = { 'pt-BR': 0, en: 1, es: 2 };
 

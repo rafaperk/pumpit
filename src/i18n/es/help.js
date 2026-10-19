@@ -35,6 +35,10 @@ PumpIt.i18n.add('es', {
           title: 'Título del modelo',
           body: 'Haga clic para dar un nombre al modelo. Ese nombre también da nombre al archivo cuando descarga el modelo.',
         },
+        stamp: {
+          title: 'Régimen del cálculo',
+          body: 'Muestra si el modelo es de líquido (incompresible) o de gas (compresible) y, en el gas, el modelo térmico y el gas. Un clic abre la ventana de las propiedades del sistema, donde se cambia el régimen.',
+        },
         scenario: {
           title: 'Escenarios',
           body: 'Elija el escenario que está en pantalla. El botón <b>+</b> crea un escenario hijo del actual (por ejemplo, la bomba al 90% de la velocidad); los otros cambian el nombre y eliminan. Cada escenario guarda solo lo que cambia respecto a su padre.',
@@ -46,6 +50,10 @@ PumpIt.i18n.add('es', {
         language: {
           title: 'Idioma',
           body: 'Cambia toda la interfaz entre portugués, inglés y español, al instante. Los nombres que usted escribió no se traducen.',
+        },
+        theme: {
+          title: 'Modo claro u oscuro',
+          body: 'El sol y la luna alternan la pantalla entre el modo claro y el oscuro. Sin una elección, la aplicación sigue el modo del sistema; la elección se guarda en este navegador.',
         },
         tabs: {
           title: 'Pestañas',
@@ -73,7 +81,11 @@ PumpIt.i18n.add('es', {
         },
         inspector: {
           title: 'Propiedades',
-          body: 'Muestra y edita el objeto seleccionado. Sin nada seleccionado, muestra el sistema: fluido, ambiente, control de la solución y el escenario actual. Lo que le falta a un objeto aparece en un recuadro rojo.',
+          body: 'Muestra y edita el objeto seleccionado. Sin nada seleccionado, resume el sistema y trae el botón que abre la ventana de las propiedades del sistema. Lo que le falta a un objeto aparece en un recuadro rojo; la <b>i</b> junto a un campo muestra una nota sobre él cuando el ratón pasa por encima.',
+        },
+        panel: {
+          title: 'Contraer el panel',
+          body: 'La flecha contrae el panel de propiedades y devuelve el espacio al dibujo; otro clic trae el panel de vuelta. La elección se guarda en este navegador.',
         },
         help: {
           title: 'Ayuda',
@@ -88,7 +100,7 @@ PumpIt.i18n.add('es', {
         sections: {
           welcome: {
             title: 'Bienvenida',
-            body: `<p><b>Pump It</b> calcula redes de tuberías en <b>régimen permanente</b>, con flujo incompresible (líquidos). Usted dibuja la red — tuberías y uniones, como reservorios, bombas y válvulas —, completa los datos, y el programa encuentra los caudales y las presiones en todos los puntos.</p>
+            body: `<p><b>Pump It</b> calcula redes de tuberías en <b>régimen permanente</b>, de líquidos (flujo incompresible) y de gases ([[go:gas.concept|modo compresible]]). Usted dibuja la red — tuberías y uniones, como reservorios, bombas y válvulas —, completa los datos, y el programa encuentra los caudales y las presiones en todos los puntos.</p>
 <p>No hay botón de calcular: <b>cada cambio recalcula el modelo</b>, siempre que los datos necesarios estén completos. Los resultados aparecen en tablas, en gráficos, en la tarjeta de datos de cada objeto (clic derecho) y en el propio dibujo.</p>
 <h4>Cómo está organizada esta ayuda</h4>
 <ul>
@@ -167,7 +179,7 @@ PumpIt.i18n.add('es', {
             title: 'Visión general',
             body: `<p>La pantalla tiene cinco áreas. Haga clic en los botones para ver cada una resaltada:</p>
 <ol>
-<li>[[show:menus|Barra superior]]: menús, título del modelo, escenarios, estado del cálculo e idioma.</li>
+<li>[[show:menus|Barra superior]]: menús, título del modelo, escenarios, estado del cálculo, idioma y modo claro u oscuro.</li>
 <li>[[show:tabs|Pestañas]]: [[t:app.tabs.net]], [[t:app.tabs.data]], [[t:app.tabs.out]] y [[t:app.tabs.charts]].</li>
 <li>[[show:palette|Paleta]], a la izquierda: las herramientas y los tipos de unión.</li>
 <li>[[show:canvas|Área de dibujo]], en el centro: la red, las vistas, los resultados en el dibujo y el zoom.</li>
@@ -185,6 +197,7 @@ PumpIt.i18n.add('es', {
 <li>[[t:app.scenario.label]]: la lista elige el escenario en pantalla; los botones de al lado crean un escenario hijo, cambian el nombre y eliminan. Vea [[go:scenarios.concept|Escenarios]].</li>
 <li><b>Indicador de cálculo</b>: pendientes, convergencia y errores. Haga clic en él para ver la lista de verificación.</li>
 <li><b>Idioma</b>: portugués, inglés o español.</li>
+<li><b>Sol y luna</b>: alternan entre el modo claro y el oscuro. Sin una elección, la aplicación sigue el modo del sistema.</li>
 </ul>`,
           },
           tabs: {
@@ -201,7 +214,7 @@ PumpIt.i18n.add('es', {
             title: 'Panel de propiedades',
             body: `<p>El panel de la derecha cambia según la selección:</p>
 <ul>
-<li><b>Nada seleccionado</b>: [[t:inspector.system.title]] — fluido, ambiente, control de la solución y el escenario actual.</li>
+<li><b>Nada seleccionado</b>: un resumen del sistema y el botón [[t:inspector.system.open]], que abre la ventana [[t:inspector.system.title]] — régimen, fluido, ambiente, control de la solución y el escenario actual. Vea [[go:system.fluid|Sistema y solución]].</li>
 <li><b>Una tubería</b>: resultados rápidos, nombre, geometría, fricción, accesorios y condición especial.</li>
 <li><b>Una unión</b>: resultados rápidos, nombre, [[t:inspector.junction.type]], [[t:inspector.junction.elevation]] y los datos propios del tipo.</li>
 <li><b>Varios objetos</b>: el recuento y las acciones de copiar, pegar y eliminar.</li>
@@ -212,7 +225,10 @@ PumpIt.i18n.add('es', {
 <li>Junto a cada magnitud hay una lista de unidades. <b>Cambiar la unidad no convierte el número</b>: el valor pasa a leerse en la nueva unidad. Elija primero la unidad y escriba el valor en ella.</li>
 <li>En un escenario hijo, un punto de color junto a la etiqueta indica un valor cambiado en este escenario. Haga clic en el punto para volver a heredar el valor del padre.</li>
 <li>El recuadro rojo <b>Indefinido</b> lista lo que le falta al objeto para entrar en el cálculo.</li>
-</ul>`,
+<li>Una <b>i</b> en un círculo, junto a un campo o al título de una sección, guarda una nota: pase el ratón sobre ella, o llegue a ella con <kbd>Tab</kbd>, para leerla.</li>
+</ul>
+<h4>Contraer el panel</h4>
+<p>La [[show:panel|flecha]] en el borde izquierdo del panel lo contrae, y el dibujo gana el espacio; otro clic lo trae de vuelta. La elección se guarda en este navegador. Ir a un objeto desde la lista de verificación, las tablas o los avisos abre el panel de nuevo.</p>`,
           },
           units: {
             title: 'Unidades',
@@ -510,12 +526,12 @@ PumpIt.i18n.add('es', {
         sections: {
           fluid: {
             title: 'Fluido',
-            body: `<p>Sin nada seleccionado, el panel muestra [[t:inspector.system.title]]. En la sección [[t:inspector.system.fluid]]:</p>
+            body: `<p>Las propiedades del sistema están en la ventana [[t:inspector.system.title]]. Se abre desde el [[show:stamp|sello del régimen]], junto al título del modelo; desde el menú [[t:app.menu.edit]] → [[t:app.menu.system]]; desde los ítems del sistema en la lista de verificación; o desde el botón [[t:inspector.system.open]] del panel, sin nada seleccionado. Cada cambio vale al instante, como en el panel. Arriba de la ventana está el [[t:inspector.system.regime]]; con [[t:inspector.system.regimes.incompressivel]], la sección [[t:inspector.system.fluid]] trae:</p>
 <ul>
 <li>[[t:core.fluids.water.label]]: indique la [[t:inspector.system.temperature]] (de 0 a 150 °C); la densidad, la viscosidad y la presión de vapor salen de correlaciones públicas.</li>
 <li>[[t:inspector.system.userDefined]]: indique la densidad, la viscosidad dinámica y, si quiere los avisos de cavitación, la presión de vapor.</li>
 </ul>
-<p>Los valores en uso (ρ, μ y Pv) aparecen justo debajo. El flujo siempre se trata como incompresible y a una sola temperatura. Las correlaciones están en [[go:tech.fluid|Propiedades del agua]].</p>`,
+<p>Los valores en uso (ρ, μ y Pv) aparecen justo debajo. En este régimen el fluido tiene densidad constante y una sola temperatura; para gases, vea [[go:gas.concept|el modo compresible]]. Las correlaciones están en [[go:tech.fluid|Propiedades del agua]].</p>`,
           },
           environment: {
             title: 'Ambiente y flujo',
@@ -562,7 +578,7 @@ PumpIt.i18n.add('es', {
 <li>Cambie de escenario en la lista para comparar los resultados.</li>
 </ol>
 <ul>
-<li>En la sección [[t:inspector.system.scenario]] (en el panel, sin nada seleccionado) están las notas del escenario, el número de atributos cambiados y el botón [[t:inspector.system.showDiffs]], con la tabla "en este escenario × en el padre".</li>
+<li>En la sección [[t:inspector.system.scenario]] (en la ventana [[t:inspector.system.title]]) están las notas del escenario, el número de atributos cambiados y el botón [[t:inspector.system.showDiffs]], con la tabla "en este escenario × en el padre".</li>
 <li>En la pestaña [[t:app.tabs.data]], las celdas que difieren del padre quedan resaltadas.</li>
 <li>Los botones junto a la lista cambian el nombre y eliminan el escenario actual, junto con sus hijos. El escenario Base no se puede eliminar.</li>
 </ul>`,
@@ -764,7 +780,7 @@ PumpIt.i18n.add('es', {
         sections: {
           overview: {
             title: 'Hipótesis y magnitudes',
-            body: `<p>Pump It resuelve el flujo en <b>régimen permanente</b> de un <b>líquido incompresible</b> en una red de tuberías y componentes, con estas hipótesis:</p>
+            body: `<p>Pump It resuelve el flujo en <b>régimen permanente</b> de un <b>líquido incompresible</b> en una red de tuberías y componentes (para gases, el modo compresible tiene su propia [[go:gasTech.properties|referencia técnica]]), con estas hipótesis:</p>
 <ul>
 <li>propiedades del fluido constantes, evaluadas a una sola temperatura, sin transferencia de calor;</li>
 <li>flujo unidimensional y plenamente desarrollado en cada tubería, con pérdidas por Darcy-Weisbach (o Hazen-Williams);</li>
@@ -956,7 +972,7 @@ PumpIt.i18n.add('es', {
             body: `<h4>Validación</h4>
 <p>Pruebas automáticas comprueban el cálculo frente a soluciones independientes: una tubería única (Colebrook resuelto analíticamente), Hazen-Williams, el punto de operación de una bomba por bisección (también al 80% de la velocidad), la curva del sistema, tres reservorios y una red mallada (continuidad y energía), una válvula reductora que mantiene su ajuste y abre en la punta, control de caudal, una válvula de salida con solución analítica, una bomba de caudal fijo, aspersores y todos los ejemplos. Comparados con resultados de referencia de casos de verificación, los desvíos máximos fueron de 5·10⁻⁵ en Darcy-Weisbach y 2,5·10⁻⁵ en Hazen-Williams.</p>
 <h4>Fuera de alcance</h4>
-<p>Transitorios (golpe de ariete), gases y flujo compresible, transferencia de calor, fluidos no newtonianos, flujo bifásico y costos.</p>
+<p>Transitorios (golpe de ariete), transferencia de calor, fluidos no newtonianos, flujo bifásico y costos.</p>
 <h4>Referencias</h4>
 <ul>
 <li>Todini, E.; Pilati, S. (1988). A gradient algorithm for the analysis of pipe networks.</li>
@@ -975,12 +991,188 @@ PumpIt.i18n.add('es', {
         },
       },
 
+      gas: {
+        title: 'Gas (modo compresible)',
+        sections: {
+          concept: {
+            title: 'El modo compresible',
+            body: `<p>Pump It calcula redes de <b>líquido</b> y de <b>gas</b>. La elección es el <b>régimen</b> del modelo, arriba de la ventana [[t:inspector.system.title]]: [[t:inspector.system.regimes.incompressivel]] o [[t:inspector.system.regimes.compressivel]]. El sello junto al título del modelo [[show:stamp|muestra siempre el régimen en uso]]; un clic en él abre esa ventana.</p>
+<h4>Cuándo un gas es compresible</h4>
+<p>En el modo compresible la densidad cambia con la presión y la temperatura a lo largo de cada tubería, el gas acelera mientras se expande y puede llegar a la velocidad del sonido. Úselo cuando:</p>
+<ul>
+<li>el número de Mach supera 0,3 en alguna tubería; o</li>
+<li>la caída de presión supera el 10 % de la presión absoluta de entrada, incluso con Mach bajo.</li>
+</ul>
+<p>Por debajo de eso, el modo incompresible con la densidad del gas comete un error pequeño. La app ayuda en los dos sentidos: en el modo incompresible, un fluido liviano como un gas que supera esos límites genera un aviso que sugiere el compresible; en el compresible, cuando todo queda por debajo de Mach 0,1 y del 2 % de caída, una información recuerda que el incompresible daría prácticamente lo mismo.</p>
+<h4>Nada se pierde al cambiar</h4>
+<p>Cada régimen guarda su fluido: el líquido de un lado, el gas del otro. Cambiar de régimen recalcula al instante, sin borrar datos. Se pueden comparar los dos, incluso con un [[go:scenarios.concept|escenario]] que cambie solo el régimen o el modelo térmico. El dibujo, las uniones, las tuberías y las vistas son los mismos.</p>
+<p class="tip">Para empezar, abra [[act:example:air]], una línea de aire comprimido con una caída de presión de alrededor del 50 %, o [[act:example:airPlant]], con compresor, válvula reductora y boquilla de limpieza.</p>`,
+          },
+          setup: {
+            title: 'Gas, temperatura y modelo térmico',
+            body: `<p>En el régimen compresible, la ventana del sistema muestra la sección [[t:inspector.system.gas]]:</p>
+<ul>
+<li>[[t:inspector.system.gasMode]]: <b>[[t:inspector.system.gasModes.isotermico]]</b> mantiene la temperatura constante en toda la red (líneas largas que intercambian calor con el ambiente); <b>[[t:inspector.system.gasModes.adiabatico]]</b> no intercambia calor: la temperatura de estancamiento se conserva en cada tubería y el gas se enfría al acelerar (líneas cortas o aisladas).</li>
+<li>[[t:inspector.system.gasKind]]: aire, nitrógeno, oxígeno, metano, gas natural (aproximado), CO₂ e hidrógeno, con masa molar y k de valores públicos y viscosidad por la ley de Sutherland; o [[t:inspector.system.customGas]], con la masa molar, k y la viscosidad que usted indique. Al pasar de un gas de la biblioteca al personalizado, sus valores se vuelven el punto de partida.</li>
+<li>[[t:inspector.system.Z]]: 1 para un gas ideal; para un gas real, el valor en las condiciones de operación, constante en el modelo.</li>
+<li>Temperatura: en el isotérmico, la del gas en toda la red; en el adiabático, la temperatura de estancamiento de las fuentes. Cada fuente puede tener la suya, como en [[go:gas.components]].</li>
+</ul>
+<p>Debajo aparecen la constante del gas R, la velocidad del sonido a la temperatura dada y la densidad normal.</p>
+<h4>Límites de diseño</h4>
+<p>[[t:inspector.system.machLimit]] (0,7 por defecto) y [[t:inspector.system.velLimit]] (30 m/s por defecto) generan avisos cuando una tubería los supera. El bloqueo sónico siempre se informa.</p>
+<h4>Presiones y caudales</h4>
+<p>Las presiones del gas se calculan en valor <b>absoluto</b>; las unidades manométricas suman la [[t:inspector.system.patm]]. Los caudales pueden darse en masa (kg/s, kg/h, t/h…), en volumen en las condiciones del punto (m³/h, L/s…) o en volumen <b>normal</b> (Nm³/h, a 0 °C y 101,325 kPa).</p>`,
+          },
+          components: {
+            title: 'Contornos y componentes con gas',
+            body: `<p>Las uniones son las del modo incompresible. Con gas:</p>
+<ul>
+<li>[[icon:reservoir]] <b>Reservorio</b>: un recipiente de gas en reposo. La presión indicada es de estancamiento y vale en la cota de referencia; la columna de gas hasta cada tubería entra en el cálculo.</li>
+<li>[[icon:pressure]] <b>Presión impuesta</b>: estática o de estancamiento, como usted elija.</li>
+<li>[[icon:flow]] <b>Caudal impuesto</b> y [[icon:branch]] <b>nodo</b>: caudal en masa, en volumen en las condiciones del nodo o en volumen normal.</li>
+<li>En el modelo adiabático, el reservorio, la presión impuesta, el caudal que entra y la fuente de un nodo tienen el campo [[t:junctions.gasT.label]]; vacío, vale la temperatura de las fuentes.</li>
+<li>[[icon:valve]] <b>Válvula</b>, [[icon:generic]] <b>componente genérico</b> y [[icon:orifice]] <b>orificio</b>: las pérdidas localizadas cuentan como longitud equivalente de fricción. Cv y Kv se vuelven el K equivalente en el área de la tubería de entrada. El orificio también limita el caudal al caudal crítico de su agujero: un orificio de restricción se bloquea mucho antes que la tubería.</li>
+<li>[[icon:control]] <b>Válvula de control</b>: reductora, sostenedora, de caudal y de ΔP, con los estados del líquido.</li>
+<li>[[icon:spray]] <b>Boquilla</b>: flujo isentrópico por el área efectiva, que se bloquea cuando la presión exterior cae por debajo de la relación crítica (alrededor de 0,53 de la presión aguas arriba, para el aire).</li>
+<li>[[icon:exitvalve]] <b>Válvula de salida</b>: la pérdida de la válvula hasta la presión exterior, donde la presión estática del chorro es la residual.</li>
+<li>[[icon:pump]] <b>Bomba</b>: con gas, es un compresor o un soplador, como en [[go:gas.compressor]].</li>
+</ul>
+<p>El modelo de Hazen-Williams no vale para gases: esas tuberías se calculan con Darcy y la rugosidad guardada en la tubería, y un aviso las lista.</p>`,
+          },
+          compressor: {
+            title: 'Compresores y sopladores',
+            body: `<p>En el modo compresible, la [[icon:pump]] bomba es un compresor o un soplador. En [[t:junctions.pump.form.mode]]:</p>
+<ul>
+<li>[[t:junctions.pump.form.modes.ratio]]: la presión de estancamiento de salida es la de entrada por la relación.</li>
+<li>[[t:junctions.pump.form.modes.curve]]: la curva de altura vale como <b>altura isentrópica</b> del gas contra el caudal volumétrico de succión, con las leyes de afinidad (velocidad y máquinas en paralelo). Para alturas pequeñas, como en un soplador, esto es ΔP = ρgH, la curva de una bomba.</li>
+<li>[[t:junctions.pump.form.modes.fixedFlow]]: el caudal es impuesto y el cálculo muestra la relación necesaria.</li>
+<li>Los modos de velocidad variable controlan el caudal, la presión estática de descarga o la de succión, y la app muestra la velocidad que pide la curva.</li>
+</ul>
+<p>La [[t:junctions.pump.form.etaGas]] (o la curva de eficiencia, cuando exista) dice cuánto se calienta el gas. En el modelo adiabático el gas sale más caliente y lleva esa temperatura por la red; en el isotérmico se supone que un enfriador lo devuelve a la temperatura de la red, y la temperatura de descarga solo se informa. Los resultados traen la relación, la altura isentrópica, la temperatura de descarga y la potencia entregada al gas. Las ecuaciones están en [[go:gasTech.machines]].</p>`,
+          },
+          results: {
+            title: 'Resultados con gas',
+            body: `<p>Los resultados de un gas traen, además de lo que vale para líquidos:</p>
+<ul>
+<li>El <b>caudal másico</b>, el mismo a lo largo de la tubería; el caudal volumétrico a la entrada, en las condiciones locales; y el caudal normal.</li>
+<li>En cada extremo de la tubería: velocidad, <b>número de Mach</b>, presiones <b>estática</b> y <b>de estancamiento</b>, temperatura y densidad. "Entrada" y "salida" siguen el sentido de referencia de la tubería.</li>
+<li>La marca de <b>bloqueo</b>: el gas llegó a la velocidad del sonido a la salida de la tubería (Mach 1/√k en el isotérmico, 1 en el adiabático). El caudal se queda en el crítico por más que baje la presión aguas abajo; el resultado muestra el estado a la salida de la tubería, antes de la expansión hasta la presión del nodo.</li>
+</ul>
+<p>En [[show:overlay|Resultados en el dibujo]] entran el caudal másico y el número de Mach; la línea piezométrica, una altura de líquido, sale. La velocidad del gas se colorea según el rango del propio modelo, porque la escala fija es la del agua. El gráfico de perfil traza las presiones estática y de estancamiento punto a punto dentro de cada tubería, porque la presión de un gas no cae en línea recta.</p>
+<h4>Avisos</h4>
+<ul>
+<li><b>Crítico</b>: tubería bloqueada; cálculo que no convergió.</li>
+<li><b>Aviso</b>: unión bloqueada (válvula, orificio, boquilla); Mach por encima del límite de diseño.</li>
+<li><b>Precaución</b>: velocidad por encima del límite; Hazen-Williams tomado como Darcy.</li>
+<li><b>Información</b>: el modo incompresible daría prácticamente el mismo resultado.</li>
+</ul>`,
+          },
+        },
+      },
+
+      gasTech: {
+        title: 'Referencia técnica del gas',
+        sections: {
+          properties: {
+            title: 'Propiedades del gas',
+            body: `<p>El gas es ideal, con factor de compresibilidad <i>Z</i> constante. Con la masa molar MW, la densidad y la constante del gas son:</p>
+[[eq:gasLaw]]
+<p>La velocidad del sonido, el flujo de masa <i>G</i> (caudal másico por área, constante en una tubería de área constante) y el número de Mach:</p>
+[[eq:machGas]]
+<p>Las magnitudes de estancamiento, las del gas frenado hasta el reposo sin pérdidas, vienen de las relaciones isentrópicas:</p>
+[[eq:stagnationGas]]
+<p>En los gases de la biblioteca la viscosidad sigue la ley de Sutherland, con μ₀ y S de valores públicos; se evalúa a la temperatura del gas y queda constante en la red:</p>
+[[eq:sutherland]]
+<p>Los caudales normales usan la densidad a 0 °C y 101,325 kPa, como gas ideal:</p>
+[[eq:normalFlow]]`,
+          },
+          pipe: {
+            title: 'La tubería: forma cerrada, Fanno y marcha',
+            body: `<p>En una tubería de área constante, en régimen permanente, valen la continuidad (ρV = G), la cantidad de movimiento y la energía. El factor de fricción <i>f</i> es el de Darcy, por la misma correlación del líquido, con Re = G·D<sub>h</sub>/μ, constante a lo largo de la tubería porque G y μ lo son.</p>
+<h4>Isotérmico: forma cerrada</h4>
+<p>En la tubería horizontal e isotérmica, la integración da la relación exacta entre las presiones estáticas de los extremos; el logaritmo es la aceleración del gas que se expande:</p>
+[[eq:isoClosed]]
+<h4>Adiabático: Fanno</h4>
+<p>Sin intercambio de calor, la temperatura de estancamiento se conserva y el Mach crece hacia 1. Las relaciones referidas al punto sónico (*):</p>
+[[eq:fannoRel]]
+[[eq:fannoLength]]
+<h4>Marcha</h4>
+<p>El método general divide la tubería en 100 volúmenes y resuelve en cada uno, por Newton, la cantidad de movimiento y la energía para el nuevo estado (ρ̄ y V̄ son los promedios del volumen):</p>
+[[eq:marchMomentum]]
+[[eq:marchEnergy]]
+<p>La marcha calcula las tuberías del modelo adiabático y las tuberías con desnivel del isotérmico, donde la gravedad entra por el término ρ̄gΔz. La tubería horizontal isotérmica usa la forma cerrada, que la marcha reproduce. Cerca del bloqueo el paso se achica: cada volumen cambia el Mach como máximo en 0,005 y como máximo en el 5 % de lo que falta hasta el límite. El error frente al Fanno exacto es de 10⁻⁶ con Mach de salida 0,4, de alrededor de 2·10⁻⁴ con 0,77 y de 10⁻³ con 0,94.</p>
+<h4>Pérdidas localizadas</h4>
+<p>La suma de los K de la tubería, con las pérdidas de entrada y de salida de las uniones, cuenta como longitud equivalente de fricción: sumada a f·L/D en la forma cerrada y repartida a lo largo de la marcha. Válvulas, orificios y componentes genéricos son tramos de longitud nula con f·L/D = K, por la forma cerrada isotérmica o por Fanno. La corrección laminar de los K es la del líquido.</p>
+[[eq:equivalentF]]`,
+          },
+          choking: {
+            title: 'Bloqueo sónico',
+            body: `<p>El caudal de una tubería tiene un máximo, alcanzado cuando el gas llega al Mach límite a la salida:</p>
+[[eq:chokeLimits]]
+<p>Si la presión aguas abajo pide más caudal que eso, la tubería queda <b>bloqueada</b>: el caudal es el crítico, el mayor que no se bloquea antes del final de la tubería; la presión aguas abajo deja de influir en él, y la expansión hasta la presión del nodo ocurre fuera de la tubería. La app encuentra el caudal crítico por la propia relación de la tubería.</p>
+<h4>Entrada desde un recipiente</h4>
+<p>Al salir de un nodo de estancamiento, como un reservorio, el gas acelera desde el reposo hasta la velocidad de la tubería de forma isentrópica. En el modelo adiabático:</p>
+[[eq:entranceGas]]
+<p>En el isotérmico vale la misma relación con el exponente −k/(k−1) y la temperatura del gas.</p>
+<h4>Boquillas y orificios</h4>
+<p>Una boquilla descarga de forma isentrópica por su área efectiva y se bloquea por debajo de la relación crítica de presiones:</p>
+[[eq:nozzleGas]]
+<p>Un orificio es un elemento K cuyo caudal tampoco supera el caudal crítico de su vena contracta, de área C<sub>c</sub>·A<sub>o</sub>: C<sub>c</sub> = C<sub>d</sub> en el modelo por C<sub>d</sub>, 0,61 con borde vivo, y de 0,61 a 1 con borde redondeado.</p>
+[[eq:criticalFlux]]`,
+          },
+          network: {
+            title: 'La red de gas',
+            body: `<p>La topología es la del líquido. Las incógnitas son las presiones de los nodos libres; cada enlace común (tubería, válvula, orificio, boquilla) da su caudal másico a partir de las presiones de sus dos nodos, resolviendo su propia relación, con el tope del caudal crítico. En cada nodo libre cierra el balance de masa:</p>
+[[eq:continuity]]
+<p>Las válvulas de control, los compresores y los enlaces sin pérdida tienen el caudal como incógnita y una ecuación propia: la presión ajustada, la relación de compresión, la diferencia de presiones o el caudal impuesto.</p>
+<h4>Qué presión lleva cada nodo</h4>
+<p>En el modelo isotérmico las uniones llevan la <b>presión estática</b>, el método clásico de redes de gas, que desprecia la energía cinética en la unión; en el adiabático, la <b>de estancamiento</b>. Los contornos mantienen su naturaleza: el reservorio es de estancamiento, la presión impuesta es estática o de estancamiento según la elección, y la presión exterior de una boquilla o de una válvula de salida es estática. Cada tubería convierte en sus extremos.</p>
+<h4>Solución</h4>
+<p>Newton-Raphson sobre las presiones, con el jacobiano armado a partir de las derivadas de cada enlace, eliminación de Gauss, búsqueda lineal y presiones siempre positivas. Las primeras presiones vienen de la teoría lineal de redes de gas sobre P². El cálculo converge cuando cada nodo cierra su balance dentro de 10⁻⁸ del caudal que pasa por él. Las válvulas de control cambian de estado como con el líquido, con nuevos cálculos hasta que los estados se asientan.</p>
+<h4>Temperatura en el modelo adiabático</h4>
+<p>Un lazo externo actualiza las temperaturas: con los caudales, la temperatura de estancamiento de cada nodo es la mezcla, ponderada por la masa, de lo que llega a él. Las fuentes mantienen la suya, y un compresor eleva la del gas que pasa. El lazo se repite hasta que las temperaturas cambian menos de 10⁻⁶. El cálculo adiabático parte de la solución isotérmica de la misma red.</p>
+[[eq:gasMixing]]`,
+          },
+          machines: {
+            title: 'Compresores y válvulas',
+            body: `<p>Con relación fija:</p>
+[[eq:compRatio]]
+<p>Con la curva, la altura <i>H</i> leída en el caudal volumétrico de succión, con las leyes de afinidad, es la altura isentrópica del gas:</p>
+[[eq:compHead]]
+<p>La temperatura de descarga, con la eficiencia politrópica η, y la potencia entregada al gas:</p>
+[[eq:compHeat]]
+<p>Con caudal impuesto o control de presión la relación sale del cálculo, y la velocidad que pide la curva se encuentra por bisección, como en la bomba de líquido. Las válvulas por Cv y Kv se vuelven un K equivalente en el área de la tubería de entrada, la misma pérdida que con el líquido:</p>
+[[eq:gasValveK]]`,
+          },
+          validation: {
+            title: 'Validación y límites',
+            body: `<h4>Validación</h4>
+<p>Pruebas automáticas verifican la física y el cálculo de redes: las propiedades del aire; la forma cerrada isotérmica en los dos sentidos; la marcha frente a la forma cerrada y a Fanno, incluida la conservación de la temperatura de estancamiento; el bloqueo en los dos modelos; el límite incompresible (con caída pequeña, la pérdida de Darcy); redes en serie y ramificadas, con su balance de masa; el ejemplo de la línea de aire comprimido frente a un cálculo independiente; el caudal crítico frente a la forma cerrada y a Fanno; la mezcla de temperaturas; boquillas y orificios bloqueados; válvulas de control; y el compresor.</p>
+<h4>Fuera del alcance</h4>
+<ul>
+<li>mezclas de gases y cambios de composición;</li>
+<li>intercambio de calor con el ambiente (el modelo es isotérmico o adiabático);</li>
+<li>transitorios, ondas de choque y flujo supersónico (el cálculo llega hasta el bloqueo);</li>
+<li>condensación y flujo bifásico;</li>
+<li>gas real por ecuación de estado (se usa Z constante);</li>
+<li>la relación crítica de presiones del obturador de una válvula (la válvula es un elemento K).</li>
+</ul>
+<h4>Referencias</h4>
+<ul>
+<li>Shapiro, A. H. (1953). <i>The Dynamics and Thermodynamics of Compressible Fluid Flow</i>.</li>
+<li>Anderson, J. D. <i>Modern Compressible Flow</i>.</li>
+<li>White, F. M. <i>Viscous Fluid Flow</i> (ley de Sutherland).</li>
+</ul>`,
+          },
+        },
+      },
+
       about: {
         title: 'Acerca de',
         sections: {
           about: {
             title: 'Acerca de Pump It',
-            body: `<p><b>Pump It</b> es un simulador de redes de tuberías en régimen permanente, para flujo incompresible, que funciona en el navegador, sin instalación y sin servidor.</p>
+            body: `<p><b>Pump It</b> es un simulador de redes de tuberías en régimen permanente, de líquidos (flujo incompresible) y de gases (flujo compresible), que funciona en el navegador, sin instalación y sin servidor.</p>
 <ul>
 <li>Escrito desde cero, en <i>clean room</i>, a partir de métodos y datos públicos (vea [[go:tech.references|Validación y referencias]]). No usa marcas, nombres, íconos, textos ni pantallas de programas comerciales.</li>
 <li>Interfaz en portugués, inglés y español.</li>

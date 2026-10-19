@@ -15,6 +15,8 @@ PumpIt.i18n.add('es', {
       place: 'Haga clic en el dibujo para colocar: {label}. Mayús mantiene la herramienta.',
     },
     overlay: {
+      m: 'Caudal másico',
+      M: 'Número de Mach',
       label: 'Resultados en el dibujo',
       none: 'Ninguno',
       Q: 'Caudal volumétrico',
@@ -26,6 +28,8 @@ PumpIt.i18n.add('es', {
     overlayNeedsResults: 'Complete la lista de verificación para colorear el dibujo con resultados.',
     zoom: { out: 'Alejar', fit: 'Ajustar a la pantalla', in: 'Acercar' },
     legend: {
+      m: 'Caudal másico',
+      M: 'Mach (el mayor de los extremos)',
       Q: 'Caudal volumétrico',
       V: 'Velocidad',
       dP0: 'Caída de presión',
@@ -89,6 +93,13 @@ PumpIt.i18n.add('es', {
       deleteMany: 'Eliminar {n} objetos',
     },
     info: {
+      chokedPipe: 'bloqueada (sónico a la salida)',
+      chokedJunction: 'bloqueada (flujo sónico)',
+      massFlow: 'Caudal másico',
+      flowInlet: 'Caudal a la entrada',
+      machInOut: 'Mach entrada / salida',
+      temperatureInOut: 'T entrada / salida',
+      temperature: 'Temperatura',
       pipeSub: 'Tubería · J{up} → J{down}',
       length: 'Longitud',
       nominalSize: 'Diámetro nominal',

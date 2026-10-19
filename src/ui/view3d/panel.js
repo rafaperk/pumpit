@@ -8,7 +8,7 @@
   const F = UI.format;
   const app = PumpIt.app;
   const { el } = UI.dom;
-  const { section, readout, hint } = UI.forms;
+  const { section, readout } = UI.forms;
   const S3 = UI.scene3d, C3 = UI.commands3d;
   const { t } = PumpIt.i18n;
   const tx = (key, params) => t('inspector.view3.' + key, params);
@@ -41,11 +41,11 @@
   UI.inspector.addSection('system', (host) => {
     const v = app.model.view3;
     if (!v) return;
-    const s = section(tx('title'));
+    const s = section(tx('title'), { info: tx('note') });
     s.appendChild(numberField('zscale3', tx('zScale'), v.zScale, tx('zScaleUnit'), (k) => (k > 0 && k <= 1000 ? C3.setView({ zScale: k }) : false)));
     // the scale that the first entry chose: heights about half the size of the plan
     const auto = () => C3.setView({ zScale: V.autoZScale(app.eff().junctions.map((j) => ({ x: j.x, y: j.y, elev: S3.elevationM(j) }))) });
-    s.append(row(button(tx('autoScale'), auto, tx('autoScaleTitle')), button(tx('fitAll'), () => C3.fitToGrid(null))), hint(tx('note')));
+    s.append(row(button(tx('autoScale'), auto, tx('autoScaleTitle')), button(tx('fitAll'), () => C3.fitToGrid(null))));
     host.appendChild(s);
   });
 
@@ -77,7 +77,7 @@
     const j = app.model.junctions.find((x) => x.id === id);
     const p = app.model.view3 && j && S3.scene().pos.get(id);
     if (!p) return;
-    const s = section(tx('title'));
+    const s = section(tx('title'), { info: tx('heightNote') });
     const setPlan = (k, n) => {
       const v = app.model.view3;
       const q = [...p];
@@ -95,7 +95,6 @@
       s.appendChild(readout(tx('symbol'), j.icon3 ? tx('symbolRoll', { deg }) : tx('symbolAuto')));
       s.appendChild(row(button(tx('roll'), () => C3.roll(id, deg + 90)), button(tx('auto'), () => C3.roll(id, null))));
     }
-    s.appendChild(hint(tx('heightNote')));
     host.appendChild(s);
   });
 })(window);

@@ -1,6 +1,7 @@
 // Results on the drawing: values per pipe, colour scales and the legend.
-// Velocity uses a fixed water scale (PumpIt.data.WATER_VELOCITY, in m/s); every other quantity is coloured
-// from the smallest to the largest value in the model.
+// Velocity uses a fixed water scale (PumpIt.data.WATER_VELOCITY, in m/s) for a liquid; every other quantity, and the
+// velocity of a gas, is coloured from the smallest to the largest value in the model. Mass flow and Mach number are
+// offered for a gas, the hydraulic grade line for a liquid (OVERLAY_FOR).
 (function (root) {
   const PumpIt = root.PumpIt;
   const F = PumpIt.ui.format;
@@ -11,11 +12,16 @@
   // quantities offered for results on the drawing; legend titles in network.legend.<key>
   const OVERLAY = {
     Q: { cat: 'volFlow' },
+    m: { cat: 'massFlow', gas: true },
     V: { cat: 'velocity' },
+    M: { cat: null, gas: true },
     dP0: { cat: 'dp' },
     P: { cat: 'pressure' },
-    HGL: { cat: 'head' },
+    HGL: { cat: 'head', liquid: true },
   };
+  // whether a quantity is offered for a regime (a gas has no head, a liquid no Mach number)
+  const offered = (key, gas) => key === 'none' || (!!OVERLAY[key] && !(gas ? OVERLAY[key].liquid : OVERLAY[key].gas));
+  const isGas = (res) => !!(res && res.regime === 'compressivel');
 
   function rampColor(t) {
     t = Math.max(0, Math.min(1, t));
@@ -50,14 +56,15 @@
 
   // value of the chosen quantity in every pipe with results, with its range
   function overlayValues(res, key) {
-    if (!res || key === 'none') return null;
+    if (!res || key === 'none' || !offered(key, isGas(res))) return null;
     const vals = new Map();
     for (const [id, r] of Object.entries(res.pipes)) {
       if (r.isolated) continue;
       let v;
       if (key === 'P') v = (r.Pin + r.Pout) / 2;
       else if (key === 'HGL') v = (r.HGLin + r.HGLout) / 2;
-      else if (key === 'Q' || key === 'V' || key === 'dP0') v = Math.abs(r[key]);
+      else if (key === 'M') v = Math.max(r.Min || 0, r.Mout || 0);
+      else if (key === 'Q' || key === 'V' || key === 'dP0' || key === 'm') v = Math.abs(r[key]);
       else v = r[key];
       if (Number.isFinite(v)) vals.set(Number(id), v);
     }
@@ -66,23 +73,32 @@
     return { vals, min: Math.min(...arr), max: Math.max(...arr) };
   }
 
-  // pipe colour: fixed scale for velocity, model range for the rest
-  function pipeColor(ovKey, v, t) { return ovKey === 'V' ? velColor(v) : rampColor(t); }
-  const beyondScale = (ovKey, v) => ovKey === 'V' && Math.abs(v) > VEL.max;
+  // pipe colour: fixed scale for the velocity of a liquid, model range for the rest
+  function pipeColor(ovKey, v, t, gas = false) { return ovKey === 'V' && !gas ? velColor(v) : rampColor(t); }
+  const beyondScale = (ovKey, v, gas = false) => ovKey === 'V' && !gas && Math.abs(v) > VEL.max;
 
   // legend of the colour scale (lg = the legend element)
-  function renderLegend(lg, ov, ovKey, unitOf, fmtOv) {
-    if (ov && ovKey === 'V') {
+  function renderLegend(lg, ov, ovKey, unitOf, fmtOv, gas = false) {
+    if (ov && ovKey === 'V' && !gas) {
       lg.hidden = false;
       lg.innerHTML = velLegend();
     } else if (ov) {
       const cat = OVERLAY[ovKey].cat;
       lg.hidden = false;
-      lg.innerHTML = `<div class="eyebrow">${t('network.legend.' + ovKey)} (${F.esc(F.unit(unitOf(cat)))})</div>
+      lg.innerHTML = `<div class="eyebrow">${t('network.legend.' + ovKey)}${cat ? ` (${F.esc(F.unit(unitOf(cat)))})` : ''}</div>
         <div class="ramp" style="background:linear-gradient(90deg,${RAMP.join(',')})"></div>
         <div class="ends"><span>${fmtOv(ov.min, cat)}</span><span>${fmtOv(ov.max, cat)}</span></div>`;
     } else lg.hidden = true;
   }
 
-  PumpIt.ui.colorScales = { OVERLAY, RAMP, rampColor, velColor, velLegend, overlayValues, pipeColor, beyondScale, renderLegend };
+  // the options of the overlay selector offered for the regime of the results (or of the model); a choice not offered
+  // shows as "none"
+  function syncPicker(sel, gas, key) {
+    for (const o of sel.options) o.hidden = !offered(o.value, gas);
+    sel.value = offered(key, gas) ? key : 'none';
+  }
+  // value and unit of a quantity on the drawing (the Mach number has no unit)
+  const labelOf = (fmtOv, unitOf, v, cat) => (cat ? `${fmtOv(v, cat)} ${F.unit(unitOf(cat))}` : F.fmt(v, 3));
+
+  PumpIt.ui.colorScales = { OVERLAY, RAMP, offered, isGas, rampColor, velColor, velLegend, overlayValues, pipeColor, beyondScale, renderLegend, syncPicker, labelOf };
 })(typeof window !== 'undefined' ? window : globalThis);

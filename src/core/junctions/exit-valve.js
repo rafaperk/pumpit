@@ -44,5 +44,36 @@
       if (jr.m < 0) rc.warn('warning', t('junctions.exitvalve.warn.inflow', { id: j.id }), 'j:' + j.id);
       rc.valves[j.id] = vr;
     },
+
+    // compressible mode: a K element (K, or the K of Cv or Kv at the area of the pipe) from the end of the pipe to the
+    // outside pressure, where the static pressure of the jet is the residual one; it chokes like a K element
+    gas: {
+      node(j, net, z) {
+        const nd = net.addNode({ z, jid: j.id });
+        const ext = net.addNode({ kind: 'fixed', value: net.si(j.Pout, 'pressure'), pk: 'static', z, jid: j.id, role: 'ext' });
+        const pc = PumpIt.model.pipesAt(net.eff, j.id)[0];
+        const P = pc && net.pp.get(pc.id);
+        if (!P) { net.errors.push(t('junctions.exitvalve.error.noPipe', { id: j.id })); return nd; }
+        const A = P.A * P.N, K = JS.gasValveK(j, j.K, A);
+        const lk = {
+          kind: 'ext', jid: j.id, a: nd.ix, b: ext.ix, mode: 'loss', rel: 'duct', P,
+          d: { L: 0, N: 1, A: [A, A], D: [P.Dh, P.Dh], K: [K, K], lam: [net.lamOf(P), net.lamOf(P)], fm: 'none', eD: 0, fx: 0, dz: 0, reLam: net.env.reLam, reTurb: net.env.reTurb },
+        };
+        // without a loss between two pressures of one kind, the end of the pipe is at the outside pressure
+        if (!(K > 0) && nd.pk === ext.pk) { lk.mode = 'dP'; lk.value = 0; lk.con = (m, na, nb) => na.P - nb.P; lk.conScale = 'P'; }
+        net.addLink(lk);
+        return nd;
+      },
+      results(j, jr, rc) {
+        JS.gasDischargeResults(j, jr, rc);
+        if (rc.nd.isolated) return;
+        const pc = rc.con[0], pr = pc && rc.pipeOf(pc.id);
+        const vr = { type: j.type, m: jr.m, Q: jr.Q, QN: jr.QN, dP: jr.dP, Pin: jr.Pin, P0in: jr.P0in, Pout: jr.Pext, state: t('junctions.states.discharging'), choked: jr.choked };
+        vr.K = pr && pr.V ? jr.dP / (pr.rhoOut * pr.V * pr.V / 2) : NaN;
+        vr.Cv = pr ? JS.gasEquivalentCv(vr.K, pr.A * pr.N) : NaN;
+        if (jr.m < 0) rc.warn('warning', t('junctions.exitvalve.warn.inflow', { id: j.id }), 'j:' + j.id);
+        rc.valves[j.id] = vr;
+      },
+    },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -19,5 +19,10 @@
       const P = net.si(j.P, 'pressure');
       return net.addNode({ kind: j.ptype === 'static' ? 'fixedStatic' : 'fixed', value: P, z, jid: j.id });
     },
+
+    // compressible mode: a fixed pressure, static or stagnation as chosen (the pipe relations convert at its end)
+    gas: {
+      node: (j, net, z) => net.addNode({ kind: 'fixed', value: net.si(j.P, 'pressure'), pk: j.ptype === 'static' ? 'static' : 'stagnation', z, jid: j.id, T0: net.sourceT(j) }),
+    },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

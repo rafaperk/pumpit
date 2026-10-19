@@ -7,6 +7,7 @@ PumpIt.i18n.add('en', {
     noData: 'No data for the chart.',
     chart: 'Chart',
     pump: {
+      gasMode: 'In the compressible mode the system curve is not drawn: it sets the head of a pump against a liquid system.',
       noPumps: 'The model has no pumps.',
       pump: 'Pump',
       flow: 'Flow',
@@ -44,6 +45,7 @@ PumpIt.i18n.add('en', {
       xLabel: 'Distance along the path ({u})',
       yHead: 'Head ({u})',
       yPressure: 'Pressure ({u})',
+      notesGas: 'Path: {path} · {length} {u}. The pressure of a gas falls faster and faster along a pipe as it expands and speeds up; the curves follow the points calculated inside each pipe.',
       notes: 'Path: {path} · {length} {u}. HGL and EGL use absolute pressure; vertical steps are junctions with a loss or a gain.',
     },
   },

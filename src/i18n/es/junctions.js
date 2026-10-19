@@ -2,6 +2,10 @@
 // summaries and result rows. One section per type, in palette order.
 PumpIt.i18n.add('es', {
   junctions: {
+    gasT: {
+      label: 'Temperatura del gas que entra',
+      hint: 'Modelo adiabático: la temperatura de estancamiento del gas que suministra esta fuente. Vacío usa la temperatura de las fuentes, dada con el gas.',
+    },
     groups: { boundary: 'Contorno', connection: 'Conexión', equipment: 'Equipo', valves: 'Válvulas', losses: 'Pérdidas' },
     states: {
       open: 'abierta',
@@ -25,6 +29,9 @@ PumpIt.i18n.add('es', {
       check: { liquidElev: 'nivel del líquido', surfP: 'presión en la superficie' },
       elevation: 'Cota del fondo (conexiones)',
       form: {
+        gasElev: 'Cota de la presión de referencia',
+        gasP: 'Presión del gas (estancamiento)',
+        gasHint: 'En el modo compresible el reservorio es un recipiente de gas en reposo: su presión vale en la cota de referencia, y la columna de gas hasta cada tubería entra en el cálculo.',
         liquidElev: 'Cota de la superficie del líquido',
         surfP: 'Presión en la superficie',
         hint: 'Sin K indicado no hay pérdida de entrada ni de salida: la presión de estancamiento es continua entre el tanque y el extremo de la tubería.',
@@ -78,6 +85,9 @@ PumpIt.i18n.add('es', {
     pump: {
       label: 'Bomba',
       check: {
+        ratio: 'relación de compresión',
+        ratioGasOnly: 'relación de compresión fija solo en el modo compresible (gas)',
+        etaGas: 'eficiencia entre 0 y 100 %',
         curve: 'curva de altura × caudal',
         fixedFlow: 'caudal fijo',
         setQ: 'caudal de control',
@@ -98,12 +108,16 @@ PumpIt.i18n.add('es', {
         npsh: 'Bomba J{id}: NPSH disponible ({available} m) menor que el requerido ({required} m).',
       },
       form: {
+        ratio: 'Relación de compresión (P0 salida / P0 entrada)',
+        etaGas: 'Eficiencia politrópica',
+        gasHint: 'Modo compresible: la bomba es un compresor o un soplador. La curva de altura vale como altura isentrópica del gas contra el caudal de succión; la eficiencia (la curva, o este valor) da el calentamiento del gas en el modelo adiabático.',
         state: 'Estado',
         on: 'Encendida',
         offClosed: 'Apagada, sin flujo',
         offOpen: 'Apagada, paso libre',
         mode: 'Modo',
         modes: {
+          ratio: 'Relación de compresión fija (gas)',
           curve: 'Curva, velocidad fija',
           fixedFlow: 'Caudal fijo (dimensionamiento)',
           controlFlow: 'Velocidad variable: controlar caudal',
@@ -120,6 +134,8 @@ PumpIt.i18n.add('es', {
         affinityHint: 'La velocidad necesaria se calcula con las leyes de afinidad, H(Q; s) = s²·H(Q/s).',
       },
       curves: {
+        headGas: 'Altura isentrópica × caudal de succión (100 % de la velocidad)',
+        effGas: 'Eficiencia politrópica × caudal de succión (opcional)',
         head: 'Curva de altura × caudal (100% de la velocidad)',
         headY: 'Altura',
         eff: 'Eficiencia × caudal (opcional)',
@@ -128,6 +144,7 @@ PumpIt.i18n.add('es', {
         npshrY: 'NPSHR',
       },
       summary: {
+        ratio: 'Relación de compresión {ratio}',
         curve: 'Curva al {speed}%',
         fixedFlow: 'Caudal fijo {flow}',
         controlFlow: 'Controla caudal {flow}',
@@ -135,8 +152,13 @@ PumpIt.i18n.add('es', {
         controlSuction: 'Controla succión {pressure}',
         off: ' · apagada',
       },
-      quick: { head: 'Altura', speed: 'Velocidad', shaftPower: 'Potencia en el eje', hydraulicPower: 'Potencia hidráulica', npsh: 'NPSH disp. / req.' },
+      quick: { head: 'Altura', speed: 'Velocidad', shaftPower: 'Potencia en el eje', hydraulicPower: 'Potencia hidráulica', npsh: 'NPSH disp. / req.', ratio: 'Relación de compresión', dischargeT: 'T0 en la descarga', gasPower: 'Potencia al gas' },
       info: {
+        massFlow: 'Caudal másico',
+        ratio: 'Relación de compresión',
+        isentropicHead: 'Altura isentrópica',
+        dischargeT: 'T0 en la descarga',
+        gasPower: 'Potencia al gas',
         flow: 'Caudal',
         head: 'Altura manométrica',
         rise: 'Aumento de presión',

@@ -1,6 +1,7 @@
-// Inspector (properties panel): the system, the selected pipe or junction, or the multiple selection, with
-// what is still missing for the object to be defined. Each panel lives in its own file and registers in
-// PumpIt.ui.inspector.panels; this file dispatches and holds the helpers they share.
+// Inspector (properties panel): the summary of the system, the selected pipe or junction, or the multiple selection,
+// with what is still missing for the object to be defined. Each panel lives in its own file and registers in
+// PumpIt.ui.inspector.panels; this file dispatches and holds the helpers they share. The arrow on the left edge of
+// the panel collapses it, to give the drawing more room, and brings it back; the choice is kept with the preferences.
 (function (root) {
   const PumpIt = root.PumpIt;
   const U = PumpIt.units, UI = PumpIt.ui;
@@ -14,9 +15,32 @@
   const addSection = (panel, fn) => extras[panel].push(fn);
   let host;
 
-  function init(hostEl) { host = hostEl; }
+  function init(hostEl) {
+    host = hostEl;
+    document.getElementById('panel-toggle').addEventListener('click', () => setCollapsed(!isCollapsed()));
+    setCollapsed(!!app.prefs.inspectorCollapsed);
+  }
+
+  // ------------------------------------------------------------ collapsing the panel
+
+  const isCollapsed = () => document.getElementById('view-net').classList.contains('insp-off');
+  function setCollapsed(on) {
+    document.getElementById('view-net').classList.toggle('insp-off', on);
+    labelToggle();
+    if (!!app.prefs.inspectorCollapsed !== on) { app.prefs.inspectorCollapsed = on; app.savePrefs(); }
+  }
+  // the arrow says what it does: collapse the panel, or show it again
+  function labelToggle() {
+    const b = document.getElementById('panel-toggle');
+    const on = isCollapsed();
+    const label = t(on ? 'inspector.toggle.show' : 'inspector.toggle.hide');
+    b.title = label;
+    b.setAttribute('aria-label', label);
+    b.setAttribute('aria-expanded', String(!on));
+  }
 
   function render() {
+    labelToggle(); // its texts follow the language
     const focusId = document.activeElement && host.contains(document.activeElement) ? document.activeElement.id : null;
     const scroll = host.scrollTop;
     host.innerHTML = '';
@@ -71,5 +95,5 @@
     return { A: A * red * red * (p.nParallel || 1), Dh: Dh * red };
   }
 
-  PumpIt.ui.inspector = { init, render, panels, addSection, head, missingBox, out, pipeGeom };
+  PumpIt.ui.inspector = { init, render, panels, addSection, head, missingBox, out, pipeGeom, isCollapsed, setCollapsed };
 })(typeof window !== 'undefined' ? window : globalThis);

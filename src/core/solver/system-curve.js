@@ -5,6 +5,7 @@
   const U = PumpIt.units, H = PumpIt.hyd, M = PumpIt.model;
 
   function systemCurve(eff, pumpId, npts = 16) {
+    if (M.isCompressible(eff)) return null; // a head curve against a liquid system: not drawn for a gas
     const j0 = eff.junctions.find((j) => j.id === pumpId);
     if (!j0 || j0.type !== 'pump') return null;
     const fl = PumpIt.fluids.evaluate(eff.system);

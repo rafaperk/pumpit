@@ -101,5 +101,45 @@ for (const { code } of i18n.languages()) {
   console.log(`  ${warnings.length || unfilled.length ? 'FAIL' : 'ok  '} ${code}: ${texts.length} texts produced`);
 }
 
+console.log('\nHelp');
+{
+  // the tokens of the help bodies point to things that exist: labels ([[t:key]]), sections ([[go:chapter.section]]),
+  // formulas ([[eq:id]]), examples ([[act:example:id]]) and areas of the screen ([[show:area]]); the formulas have their
+  // words in every language, and every step of the guided tour has its texts
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const helpSrc = read('src/ui/help/help.js'), tourSrc = read('src/ui/help/tour.js');
+  const chapters = [...helpSrc.match(/const CHAPTERS = \[([\s\S]*?)\];/)[1].matchAll(/\['(\w+)', \[([^\]]*)\]\]/g)]
+    .map((m) => [m[1], [...m[2].matchAll(/'(\w+)'/g)].map((x) => x[1])]);
+  const sections = new Set(chapters.flatMap(([ch, secs]) => secs.map((s) => `${ch}.${s}`)));
+  const areas = new Set([...tourSrc.match(/const AREAS = \{([\s\S]*?)\};/)[1].matchAll(/(\w+):/g)].map((m) => m[1]));
+  const steps = [...tourSrc.match(/const STEPS = \[([^\]]*)\]/)[1].matchAll(/'(\w+)'/g)].map((m) => m[1]);
+  const vm = require('vm');
+  const ectx = vm.createContext({ PumpIt: { ui: {} } });
+  vm.runInContext(read('src/ui/help/equations.js'), ectx);
+  const E = ectx.PumpIt.ui.helpEquations;
+  let bad = 0, n = 0;
+  const err = (msg) => { bad++; fail(msg); };
+  for (const { code } of i18n.languages()) {
+    const cat = i18n.catalog(code);
+    for (const id of sections) {
+      const [ch, s] = id.split('.');
+      const body = cat.get(`help.chapters.${ch}.sections.${s}.body`);
+      if (!cat.has(`help.chapters.${ch}.title`) || !cat.has(`help.chapters.${ch}.sections.${s}.title`) || body === undefined) { err(`${code}: help section ${id} without its texts`); continue; }
+      for (const m of body.matchAll(/\[\[(\w+):([^\]|]+)(?:\|[^\]]*)?\]\]/g)) {
+        n++;
+        const [, kind, arg] = m;
+        if (kind === 't' && !base.has(arg)) err(`${code}: ${id}: unknown label ${arg}`);
+        if (kind === 'go' && !sections.has(arg)) err(`${code}: ${id}: link to a missing section ${arg}`);
+        if (kind === 'eq') { const f = E.formula(arg, code); if (f === undefined) err(`${code}: ${id}: unknown formula ${arg}`); else if (/«\w+»/.test(f)) err(`${code}: ${id}: formula ${arg} with a word missing`); }
+        if (kind === 'show' && !areas.has(arg)) err(`${code}: ${id}: unknown area ${arg}`);
+        if (kind === 'act' && arg.startsWith('example:') && !PumpIt.examples.get(arg.slice(8))) err(`${code}: ${id}: unknown example ${arg}`);
+        if (kind === 'icon' && !PumpIt.junctionTypes.get(arg)) err(`${code}: ${id}: unknown junction type ${arg}`);
+      }
+    }
+    for (const st of steps) if (!cat.has(`help.tour.steps.${st}.title`) || !cat.has(`help.tour.steps.${st}.body`)) err(`${code}: tour step ${st} without its texts`);
+  }
+  console.log(`  ${bad ? 'FAIL' : 'ok  '} ${sections.size} sections, ${n} tokens and ${steps.length} tour steps checked in every language`);
+}
+
 console.log(problems ? `\n${problems} problem(s)` : '\nAll languages consistent');
 process.exit(problems ? 1 : 0);

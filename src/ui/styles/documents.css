@@ -31,7 +31,7 @@ table.grid td.na { color: var(--ink-3); }
 .warn-list li:hover { background: var(--accent-soft); }
 .warn-list li:last-child { border-bottom: 0; }
 .lvl { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; }
-.lvl.critical { color: var(--crit); } .lvl.warning { color: var(--warn); } .lvl.caution { color: var(--caution); }
+.lvl.critical { color: var(--crit); } .lvl.warning { color: var(--warn); } .lvl.caution { color: var(--caution); } .lvl.info { color: var(--accent); }
 .kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); overflow: hidden; }
 .kv > div { padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: -1px; }
 .kv b { font: 500 16px var(--f-mono); font-variant-numeric: tabular-nums; }

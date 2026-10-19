@@ -59,6 +59,7 @@
     UI.canvas.refreshHint();
     UI.help.refresh();
     UI.tour.refresh();
+    UI.theme.render();
     // an untouched example is rebuilt, so its names follow the language; the user's own models are kept as they are
     if (example) { app.model = example.build(); app.pruneSelection(); app.save(); }
     app.version++;

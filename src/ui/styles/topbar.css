@@ -10,6 +10,13 @@
   color: var(--ink-2); width: clamp(120px, 22vw, 260px); min-width: 0;
 }
 .title-input:hover, .title-input:focus { border-color: var(--line); background: var(--sunk); }
+/* the stamp of the regime (liquid, or gas with its thermal model): always in sight */
+.stamp {
+  border: 1px solid var(--line); background: var(--sunk); color: var(--ink-2); border-radius: 999px; padding: 3px 10px;
+  font-size: 12px; white-space: nowrap; cursor: pointer; max-width: 260px; overflow: hidden; text-overflow: ellipsis;
+}
+.stamp:hover { border-color: var(--ink-3); color: var(--ink); }
+.stamp.gas { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: var(--accent-soft); color: var(--ink); }
 .menus { display: flex; gap: 2px; }
 .menu { position: relative; }
 .scenario { display: flex; align-items: center; gap: 6px; }
@@ -17,6 +24,15 @@
 .run { display: flex; align-items: center; gap: 8px; margin-left: auto; position: relative; }
 .lang { display: flex; align-items: center; gap: 6px; color: var(--ink-3); }
 .lang select { max-width: 130px; }
+/* light and dark mode: the moon on the light page, the sun on the dark one (theme.js sets data-mode) */
+.theme-toggle { color: var(--ink-2); }
+.theme-toggle:hover { color: var(--ink); }
+.theme-toggle svg { display: block; }
+.theme-toggle .sun, .theme-toggle[data-mode="dark"] .moon { display: none; }
+.theme-toggle[data-mode="dark"] .sun { display: block; }
+.theme-toggle.turn svg { animation: theme-turn .32s ease-out; }
+@keyframes theme-turn { from { transform: rotate(-70deg) scale(.55); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .theme-toggle.turn svg { animation: none; } }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
@@ -57,5 +73,7 @@ select:hover, input[type="text"]:hover, textarea:hover { border-color: var(--ink
 .menu-sep { height: 1px; background: var(--line); margin: 4px 2px; }
 .menu-label { padding: 6px 10px 2px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .check-item { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; }
+/* an item edited in the system window: a link to it */
+.menu-pop button.check-item { align-items: baseline; padding: 4px 6px; margin: 0 -6px; font: inherit; color: inherit; }
 .check-item .dot { transform: translateY(1px); }
 .check-item small { color: var(--ink-3); display: block; }

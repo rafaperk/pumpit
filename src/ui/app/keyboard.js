@@ -24,6 +24,7 @@
       if (e.key === 'Escape') {
         if (isModalOpen()) { closeModal(); return; }
         if (UI.help.isOpen()) { UI.help.close(); return; }
+        if (UI.systemWindow.isOpen()) { UI.systemWindow.close(); return; }
         app.hideMenus();
         if (!typing) UI.canvas.cancel();
         return;
@@ -33,7 +34,8 @@
       const k = e.key.toLowerCase();
       if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? app.redo() : app.undo(); return; }
       if (mod && k === 'y') { e.preventDefault(); app.redo(); return; }
-      if (app.view !== 'net') return;
+      // the system window takes undo and redo only
+      if (app.view !== 'net' || UI.systemWindow.isOpen()) return;
       // does not steal the copy of text selected on the page
       const textSel = String(root.getSelection ? root.getSelection() : '').length > 0;
       if (mod && k === 'c' && !textSel) { e.preventDefault(); app.copySelection(); return; }

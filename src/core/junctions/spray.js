@@ -21,9 +21,7 @@
       const rho = net.rho;
       const nd = net.addNode({ z, jid: j.id });
       const ext = net.addNode({ kind: 'fixed', value: net.si(j.Pext, 'pressure'), z, jid: j.id, role: 'ext' });
-      let CdA;
-      if (j.sprayModel === 'K') CdA = Math.sqrt(1000 / 2) * net.si(j.Kf, 'kfactor');
-      else { const d = net.si(j.dHole, 'length'); CdA = j.Cd * j.nHoles * Math.PI * d * d / 4; }
+      const CdA = effectiveArea(j, net.si);
       net.addLink({
         kind: 'ext', jid: j.id, a: nd.ix, b: ext.ix, G: 0, mode: 'loss', CdA,
         phi: (m) => m * Math.abs(m) / (2 * rho * CdA * CdA),
@@ -34,5 +32,23 @@
     },
 
     nodeResults: (j, jr, rc) => JS.dischargeResults(j, jr, rc),
+
+    // compressible mode: the same effective area, with isentropic flow that chokes below the critical pressure ratio
+    gas: {
+      node(j, net, z) {
+        const nd = net.addNode({ z, jid: j.id });
+        const ext = net.addNode({ kind: 'fixed', value: net.si(j.Pext, 'pressure'), pk: 'static', z, jid: j.id, role: 'ext' });
+        net.addLink({ kind: 'ext', jid: j.id, a: nd.ix, b: ext.ix, mode: 'loss', rel: 'nozzle', CdA: effectiveArea(j, net.si), Text: net.env.fluid.T });
+        return nd;
+      },
+      results: (j, jr, rc) => JS.gasDischargeResults(j, jr, rc),
+    },
   });
+
+  // effective area Cd·A of the holes, or the area of a K factor read as water (ρ = 1000 kg/m³): Q = K·√ΔP
+  function effectiveArea(j, si) {
+    if (j.sprayModel === 'K') return Math.sqrt(1000 / 2) * si(j.Kf, 'kfactor');
+    const d = si(j.dHole, 'length');
+    return j.Cd * j.nHoles * Math.PI * d * d / 4;
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

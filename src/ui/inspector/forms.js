@@ -11,17 +11,40 @@
 
   const idOf = (objKey, path) => ('f-' + objKey + '-' + path).replace(/[^a-zA-Z0-9_-]/g, '_');
 
-  function section(title) {
+  // a note on a field or a section: an "i" in a circle that shows the text (HTML from the catalogs) while the pointer
+  // rests on it or it has the focus (the bubble: src/ui/common/tips.js)
+  const INFO_ICON = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="4.9" r="1" fill="currentColor"/><path d="M8 7.3v4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  let notes = 0;
+  function info(html) {
+    const id = 'note-' + ++notes;
+    const b = el('button', { type: 'button', class: 'info', 'aria-label': t('inspector.fields.info'), 'aria-describedby': id }, INFO_ICON);
+    b.appendChild(el('span', { class: 'info-text', id, hidden: true }, html));
+    return b;
+  }
+  // adds a note to a section (its title gets the "i"; a second note joins the first one)
+  function note(sec, html) {
+    const h = sec.querySelector(':scope > h4');
+    if (!h) { sec.appendChild(hint(html)); return; }
+    const old = h.querySelector('.info-text');
+    if (old) old.insertAdjacentHTML('beforeend', `<br><br>${html}`); else h.appendChild(info(html));
+  }
+
+  // opts.info: a note on the section, by its title
+  function section(title, opts = {}) {
     const s = el('div', { class: 'insp-sec' });
     if (title) s.appendChild(el('h4', {}, F.esc(title)));
+    if (opts.info) note(s, opts.info);
     return s;
   }
 
-  // label + control; an overridden attribute gets a dot that restores the inherited value
+  // label + control; an overridden attribute gets a dot that restores the inherited value; opts.info: a note, whose
+  // "i" stands next to the label (outside it, so the label alone stays the name of the control)
   function wrap(objKey, path, label, ctl, opts = {}) {
-    const f = el('div', { class: 'field' + (opts.check ? ' check' : '') });
+    const f = el('div', { class: 'field' + (opts.check ? ' check' : '') + (opts.wide ? ' wide' : '') });
     const lab = el('label', { for: ctl.id || null });
     lab.textContent = label;
+    // bare: the section title already names the field; the label stays for screen readers (and the override dot)
+    if (opts.bare) lab.classList.add('sr-label');
     if (opts.title) lab.title = opts.title;
     if (objKey && app.isOv(objKey, path)) {
       f.classList.add('overridden');
@@ -32,12 +55,16 @@
     const c = el('div', { class: 'ctl' });
     c.appendChild(ctl);
     if (opts.after) c.appendChild(opts.after);
-    if (opts.check) { f.appendChild(c); f.appendChild(lab); } else { f.appendChild(lab); f.appendChild(c); }
+    let head = lab;
+    if (opts.info) { head = el('div', { class: 'lab' }); head.append(lab, info(opts.info)); }
+    if (opts.check) { f.appendChild(c); f.appendChild(head); } else { f.appendChild(head); f.appendChild(c); }
     return f;
   }
 
   function unitOptions(cat, current) {
-    const units = cat === 'flow' ? U.list('massFlow').concat(U.list('volFlow')) : U.list(cat);
+    // a flow: mass or volume; for a gas (compressible mode) also a normal volume (§8.4)
+    const gas = cat === 'flow' && PumpIt.model.isCompressible(app.eff());
+    const units = cat === 'flow' ? U.list('massFlow').concat(U.list('volFlow'), gas ? U.list('normFlow') : []) : U.list(cat);
     if (current && !units.includes(current)) units.unshift(current);
     return units.map((u) => `<option value="${F.esc(u)}"${u === current ? ' selected' : ''}>${F.esc(F.unit(u))}</option>`).join('');
   }
@@ -86,6 +113,20 @@
     return wrap(objKey, path, label, s, opts);
   }
 
+  // a choice among a few options shown side by side, as buttons (regime, thermal model): [[value, label], ...]
+  function seg(objKey, path, label, options, opts = {}) {
+    const v = app.getVal(objKey, path);
+    const id = idOf(objKey, path);
+    const g = el('div', { class: 'seg', role: 'radiogroup', id, 'aria-label': label });
+    for (const [val, lab] of options) {
+      const on = String(val) === String(v);
+      const b = el('button', { type: 'button', role: 'radio', 'aria-checked': String(on), class: on ? 'on' : null, 'data-v': val }, F.esc(lab));
+      b.addEventListener('click', () => { if (!on) app.setVal(objKey, path, val); });
+      g.appendChild(b);
+    }
+    return wrap(objKey, path, label, g, Object.assign({ wide: true }, opts));
+  }
+
   function chk(objKey, path, label, opts = {}) {
     const v = !!app.getVal(objKey, path);
     const id = idOf(objKey, path);
@@ -110,7 +151,8 @@
     r.innerHTML = `<span>${F.esc(label)}</span><b>${F.esc(value)}</b>`;
     return r;
   }
-  const hint = (t) => el('p', { class: 'hint' }, t);
+  // a line of text that stays in sight: a state (an isolated pipe, the fitted curve) or an error; notes go in info()
+  function hint(t) { return el('p', { class: 'hint' }, t); }
 
-  PumpIt.ui.forms = { el, section, qty, num, sel, chk, text, readout, hint, unitOptions, idOf };
+  PumpIt.ui.forms = { el, section, qty, num, sel, seg, chk, text, readout, hint, info, note, unitOptions, idOf, wrap };
 })(typeof window !== 'undefined' ? window : globalThis);

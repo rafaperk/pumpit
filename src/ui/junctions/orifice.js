@@ -24,7 +24,7 @@
       s.appendChild(f.sel(key, 'orModel', tx('form.model'), [['sharp', tx('form.sharp')], ['rounded', tx('form.rounded')], ['Cd', tx('form.Cd')], ['K', tx('form.K')]]));
       if (j.orModel !== 'K') s.appendChild(f.qty(key, 'dO', tx('form.dO'), 'length'));
       if (j.orModel === 'rounded') s.appendChild(f.qty(key, 'rEdge', tx('form.rEdge'), 'length'));
-      if (j.orModel === 'Cd') { s.appendChild(f.num(key, 'Cd', 'Cd')); s.appendChild(f.hint(tx('form.CdHint'))); }
+      if (j.orModel === 'Cd') s.appendChild(f.num(key, 'Cd', 'Cd', { info: tx('form.CdHint') }));
       if (j.orModel === 'K') s.appendChild(f.num(key, 'K', tx('form.KField')));
     },
 

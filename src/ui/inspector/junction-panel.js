@@ -33,7 +33,8 @@
     host.appendChild(s0);
 
     const s = section(t('inspector.junction.data'));
-    const ctx = { key, j, f: UI.forms, curveEditor: UI.curveEditor.build };
+    const sys = app.eff().system;
+    const ctx = { key, j, f: UI.forms, curveEditor: UI.curveEditor.build, gas: M.isCompressible(app.eff()), adiabatic: M.isCompressible(app.eff()) && sys.gasMode === 'adiabatico' };
     if (v.form) v.form(s, ctx);
     host.appendChild(s);
     for (const extra of v.sections ? v.sections(ctx) : []) host.appendChild(extra);
@@ -48,15 +49,23 @@
     const s = section(t('inspector.result'));
     const row = (label, value) => s.appendChild(readout(label, value));
     if (r.isolated) { s.appendChild(hint(t('inspector.junction.isolated'))); host.appendChild(s); return; }
+    const gas = res.regime === 'compressivel';
+    // a flow as the regime shows it: the volume of a liquid, the mass of a gas
+    const flow = (m) => (gas ? I.out(m, 'massFlow') : I.out(m / res.fluid.rho, 'volFlow'));
+    if (gas && r.choked) s.appendChild(el('div', { class: 'missing' }, F.esc(t('inspector.junction.choked'))));
     if (M.JT[j.type].multi) {
       row(t('inspector.junction.stagnation'), I.out(r.P0in, 'pressure'));
-      row(t('inspector.junction.flowThrough'), I.out(r.m / res.fluid.rho, 'volFlow'));
+      if (gas) {
+        row(t('inspector.junction.static'), I.out(r.Pin, 'pressure'));
+        row(t('inspector.junction.temperature'), `${I.out(r.T, 'temperature')} · T₀ ${F.fmt(F.conv(r.T0, 'temperature', app.outUnit('insp', 'temperature')))}`);
+        row(t('inspector.junction.massThrough'), `${flow(r.m)} · ${I.out(r.Q, 'volFlow')}`);
+      } else row(t('inspector.junction.flowThrough'), flow(r.m));
     } else {
-      row(t('inspector.junction.flow'), I.out(r.Q, 'volFlow'));
+      row(t('inspector.junction.flow'), gas ? `${flow(r.m)} · ${I.out(r.Q, 'volFlow')}` : I.out(r.Q, 'volFlow'));
       row(t('inspector.junction.p0InOut'), `${I.out(r.P0in, 'pressure')} / ${F.fmt(F.conv(r.P0out, 'pressure', app.outUnit('insp', 'pressure'), { patm: res.patm }))}`);
       row(v.pressureRise ? t('inspector.junction.pressureRise') : 'ΔP', I.out(v.pressureRise ? -r.dP : r.dP, 'dp'));
     }
-    if (v.quickResults) v.quickResults(row, r, { id, j, res, out: I.out });
+    if (v.quickResults) v.quickResults(row, r, { id, j, res, out: I.out, flow, gas });
     const vr = res.valves[id];
     if (vr) row(t('inspector.junction.state'), vr.state);
     host.appendChild(s);

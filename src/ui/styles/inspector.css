@@ -1,13 +1,23 @@
-/* Inspector: header, sections, fields, read-outs, mini tables and the curve plot. */
+/* Inspector: header, sections, fields and their notes, read-outs, mini tables, the curve plot and the system window. */
 .inspector { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; min-width: 0; }
 .insp-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; position: sticky; top: 0; background: var(--panel); z-index: 2; }
 .insp-head h3 { margin: 0; font: 600 17px/1.2 var(--f-display); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; text-wrap: balance; }
 .insp-head h3 .id { font: 500 13px var(--f-mono); color: var(--accent); }
 .insp-head .meta { font-size: 12px; color: var(--ink-3); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .insp-sec { padding: 10px 16px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 7px; }
-.insp-sec > h4 { margin: 2px 0 2px; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.insp-sec > h4 { margin: 2px 0 2px; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; display: flex; align-items: center; gap: 5px; }
 .field { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr); gap: 8px; align-items: center; }
-.field > label { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 5px; min-width: 0; }
+.field > label, .field > .lab > label { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 5px; min-width: 0; }
+/* a field with a note: its label, then the "i" */
+.field > .lab { display: flex; align-items: center; gap: 4px; min-width: 0; }
+/* the "i" of a note (forms.info); the bubble with the text is .tip (overlays.css) */
+.info {
+  display: inline-grid; place-items: center; flex: none; width: 18px; height: 18px; margin: -2px 0; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--ink-3); cursor: help;
+}
+.info:hover, .info:focus-visible { color: var(--accent); }
+.info svg { display: block; }
+.insp-sec > h4 .info svg { width: 14px; height: 14px; }
 .field .ctl { display: flex; gap: 4px; min-width: 0; }
 .field .ctl > input[type="text"] { flex: 1 1 auto; width: 100%; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .field .ctl > input.txt { font-family: var(--f-ui); }
@@ -16,6 +26,12 @@
 .field .ctl > input[type="text"] { min-width: 64px; }
 .field .ctl > span { white-space: nowrap; }
 .field.check { grid-template-columns: auto 1fr; justify-content: start; }
+/* a choice shown as buttons (regime, thermal model): the label above, the buttons sharing the width */
+.field.wide { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+.field.wide .ctl > .seg { display: flex; width: 100%; flex-wrap: nowrap; }
+.field.wide .seg button { flex: 1 1 0; min-width: 0; padding: 5px 8px; }
+.field .sr-label { font-size: 0; gap: 0; }
+.field .sr-label:not(:has(.ov-dot)) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .field.overridden .ctl > input, .field.overridden .ctl > select { background: var(--override); }
 .ov-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sel); border: 0; padding: 0; cursor: pointer; flex: none; }
 .readout { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--ink-2); }
@@ -32,3 +48,28 @@
 .row-btn:hover { color: var(--crit); background: var(--sunk); }
 .curve-chart { border: 1px solid var(--line); border-radius: 6px; background: var(--sunk); }
 .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+/* nothing selected: the button under the summary of the system */
+.sys-open { width: 100%; margin-top: 4px; }
+
+/* the system window (system-window.js): the properties of the system in two columns of sections */
+.sys-back { position: fixed; inset: 0; z-index: 44; background: rgba(10, 16, 20, .45); display: grid; place-items: center; padding: 16px; }
+.sys-back[hidden] { display: none; }
+.sys-win {
+  width: min(880px, 100%); max-height: min(90vh, 900px); display: flex; flex-direction: column; overflow: hidden; outline: none;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
+}
+.sys-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); background: var(--sunk); }
+.sys-logo { color: var(--accent); display: flex; }
+.sys-titles { flex: 1; min-width: 0; }
+.sys-head h2 { margin: 0; font: 600 17px/1.25 var(--f-display); }
+.sys-meta { font-size: 12px; color: var(--ink-3); }
+.sys-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 16px; background: var(--bg); }
+.sys-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.sys-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.sys-col > .insp-sec { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.sys-body > .insp-sec { padding: 0; border: 0; margin-bottom: 14px; }
+.sys-foot { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--line); background: var(--sunk); }
+.sys-foot .hint { flex: 1; }
+@media (max-width: 760px) {
+  .sys-cols { grid-template-columns: minmax(0, 1fr); }
+}

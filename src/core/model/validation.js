@@ -52,11 +52,31 @@
       miss.push(min === max ? t('core.checklist.junction.pipesExact', { n: min, has: n }) : t('core.checklist.junction.pipesRange', { min, max, has: n }));
     }
     if (!fin(j.elevation)) miss.push(t('core.checklist.junction.elevation'));
+    // temperature of the gas a source supplies (compressible mode, adiabatic model): empty, or above absolute zero
+    if (fin(j.gasT) && !(PumpIt.units.toSI(j.gasT.value, j.gasT.unit, 'temperature') > 0)) miss.push(t('core.checklist.junction.gasT'));
     if (!def.multi && n === 2) {
       const pr = M.ports(m, j);
       if (def.directional && pr && !pr.consistent) miss.push(t('core.checklist.junction.direction'));
     }
-    if (def.validate) def.validate(j, miss, { fin, pos, curveOk, pipeCount: n });
+    if (def.validate) def.validate(j, miss, { fin, pos, curveOk, pipeCount: n, gas: M.isCompressible(m) });
+    return miss;
+  }
+
+  // the gas of the compressible mode (§8.5): temperature above absolute zero and Z > 0; a custom gas also MW > 0,
+  // k > 1 and μ > 0. The design limits of the warnings too.
+  function checkGas(sys) {
+    const g = sys.fluidGas || {};
+    const miss = [];
+    const T = fin(g.T) ? PumpIt.units.toSI(g.T.value, g.T.unit, 'temperature') : NaN;
+    if (!(T > 0)) miss.push(t('core.checklist.gas.temperature'));
+    if (!(g.Z > 0)) miss.push(t('core.checklist.gas.Z'));
+    if (!PumpIt.fluids.gasById(g.gas)) {
+      if (!(g.MW > 0)) miss.push(t('core.checklist.gas.molarMass'));
+      if (!(g.k > 1)) miss.push(t('core.checklist.gas.kRatio'));
+      if (!pos(g.mu)) miss.push(t('core.checklist.gas.viscosity'));
+    }
+    if (!(sys.machLimit > 0)) miss.push(t('core.checklist.gas.machLimit'));
+    if (!pos(sys.gasVelLimit)) miss.push(t('core.checklist.gas.velocityLimit'));
     return miss;
   }
 
@@ -64,6 +84,7 @@
     const f = sys.fluid;
     const um = unitMiss(sys);
     if (um.length) return um;
+    if (sys.regime === 'compressivel') return checkGas(sys);
     if (PumpIt.fluids.LIBRARY[f.kind]) return fin(f.T) ? [] : [t('core.checklist.fluid.temperature')]; // library fluid: by temperature
     const miss = [];
     if (!pos(f.rho)) miss.push(t('core.checklist.fluid.density'));
@@ -80,9 +101,10 @@
     const solOk = s.tolRel > 0 && s.maxIter >= 1 && s.relax > 0 && s.relax <= 1;
     const pipesBad = [...undef.keys()].filter((k) => k[0] === 'p').length;
     const jBad = [...undef.keys()].filter((k) => k[0] === 'j').length;
+    // key: the object the item checks, where it has one (the solution control and the system)
     const items = [
-      { label: t('core.checklist.items.solution'), ok: solOk },
-      { label: t('core.checklist.items.system'), ok: fluidMiss.length === 0, detail: fluidMiss.join(', ') },
+      { key: 'sol', label: t('core.checklist.items.solution'), ok: solOk },
+      { key: 'sys', label: t('core.checklist.items.system'), ok: fluidMiss.length === 0, detail: fluidMiss.join(', ') },
       { label: t('core.checklist.items.pipes'), ok: eff.pipes.length > 0 && pipesBad === 0, detail: eff.pipes.length ? t('core.checklist.items.pipesIncomplete', { bad: pipesBad, n: eff.pipes.length }) : t('core.checklist.items.noPipes') },
       { label: t('core.checklist.items.junctions'), ok: eff.junctions.length > 0 && jBad === 0, detail: eff.junctions.length ? t('core.checklist.items.junctionsIncomplete', { bad: jBad, n: eff.junctions.length }) : t('core.checklist.items.noJunctions') },
     ];

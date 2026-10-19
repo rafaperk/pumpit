@@ -35,6 +35,10 @@ PumpIt.i18n.add('en', {
           title: 'Model title',
           body: 'Click to give the model a name. The name also becomes the file name when you download the model.',
         },
+        stamp: {
+          title: 'Calculation regime',
+          body: 'Shows whether the model is a liquid (incompressible) or a gas (compressible) and, for a gas, the thermal model and the gas. A click opens the window of the system properties, where the regime is changed.',
+        },
         scenario: {
           title: 'Scenarios',
           body: 'Pick the scenario on the screen. The <b>+</b> button creates a child of the current scenario (for example, the pump at 90% speed); the others rename and delete. Each scenario stores only what differs from its parent.',
@@ -46,6 +50,10 @@ PumpIt.i18n.add('en', {
         language: {
           title: 'Language',
           body: 'Switches the whole interface between Portuguese, English and Spanish, at once. The names you typed are not translated.',
+        },
+        theme: {
+          title: 'Light or dark mode',
+          body: 'The sun and the moon switch the screen between the light and the dark mode. Without a choice, the app follows the mode of the system; the choice is kept in this browser.',
         },
         tabs: {
           title: 'Tabs',
@@ -73,7 +81,11 @@ PumpIt.i18n.add('en', {
         },
         inspector: {
           title: 'Properties',
-          body: 'Shows and edits the selected object. With nothing selected, it shows the system: fluid, environment, solution control and the current scenario. Whatever an object still needs appears in a red box.',
+          body: 'Shows and edits the selected object. With nothing selected, it sums up the system and has the button that opens the window of the system properties. Whatever an object still needs appears in a red box; the <b>i</b> next to a field shows a note about it when the mouse rests on it.',
+        },
+        panel: {
+          title: 'Collapse the panel',
+          body: 'The arrow collapses the properties panel and gives its room to the drawing; another click brings the panel back. The choice is kept in this browser.',
         },
         help: {
           title: 'Help',
@@ -88,7 +100,7 @@ PumpIt.i18n.add('en', {
         sections: {
           welcome: {
             title: 'Welcome',
-            body: `<p><b>Pump It</b> calculates pipe networks in <b>steady state</b>, with incompressible flow (liquids). You draw the network — pipes and junctions such as reservoirs, pumps and valves —, fill in the data, and the program finds the flows and pressures everywhere.</p>
+            body: `<p><b>Pump It</b> calculates pipe networks in <b>steady state</b>, for liquids (incompressible flow) and gases (the [[go:gas.concept|compressible mode]]). You draw the network — pipes and junctions such as reservoirs, pumps and valves —, fill in the data, and the program finds the flows and pressures everywhere.</p>
 <p>There is no calculate button: <b>every change recalculates the model</b>, as long as the data it needs are complete. Results appear in tables, in charts, in the data card of each object (right click) and on the drawing itself.</p>
 <h4>How this help is organised</h4>
 <ul>
@@ -167,7 +179,7 @@ PumpIt.i18n.add('en', {
             title: 'Overview',
             body: `<p>The screen has five areas. Click the buttons to see each one lit up:</p>
 <ol>
-<li>[[show:menus|Top bar]]: menus, model title, scenarios, calculation status and language.</li>
+<li>[[show:menus|Top bar]]: menus, model title, scenarios, calculation status, language and light or dark mode.</li>
 <li>[[show:tabs|Tabs]]: [[t:app.tabs.net]], [[t:app.tabs.data]], [[t:app.tabs.out]] and [[t:app.tabs.charts]].</li>
 <li>[[show:palette|Palette]], on the left: the tools and the junction types.</li>
 <li>[[show:canvas|Drawing area]], in the middle: the network, the views, the results on the drawing and the zoom.</li>
@@ -185,6 +197,7 @@ PumpIt.i18n.add('en', {
 <li>[[t:app.scenario.label]]: the list picks the scenario on the screen; the buttons next to it create a child scenario, rename and delete. See [[go:scenarios.concept|Scenarios]].</li>
 <li><b>Calculation indicator</b>: pending items, convergence and errors. Click it to see the checklist.</li>
 <li><b>Language</b>: Portuguese, English or Spanish.</li>
+<li><b>Sun and moon</b>: switch between the light and the dark mode. Without a choice, the app follows the mode of the system.</li>
 </ul>`,
           },
           tabs: {
@@ -201,7 +214,7 @@ PumpIt.i18n.add('en', {
             title: 'Properties panel',
             body: `<p>The panel on the right follows the selection:</p>
 <ul>
-<li><b>Nothing selected</b>: [[t:inspector.system.title]] — fluid, environment, solution control and the current scenario.</li>
+<li><b>Nothing selected</b>: a summary of the system and the [[t:inspector.system.open]] button, which opens the [[t:inspector.system.title]] window — regime, fluid, environment, solution control and the current scenario. See [[go:system.fluid|System and solution]].</li>
 <li><b>A pipe</b>: quick results, name, geometry, friction, fittings and special condition.</li>
 <li><b>A junction</b>: quick results, name, [[t:inspector.junction.type]], [[t:inspector.junction.elevation]] and the data of its type.</li>
 <li><b>Several objects</b>: the count and the copy, paste and delete actions.</li>
@@ -212,7 +225,10 @@ PumpIt.i18n.add('en', {
 <li>Next to each quantity there is a list of units. <b>Changing the unit does not convert the number</b>: the value is read in the new unit. Pick the unit first and type the value in it.</li>
 <li>In a child scenario, a coloured dot next to the label marks a value changed in this scenario. Click the dot to inherit the parent's value again.</li>
 <li>The red <b>Undefined</b> box lists what the object still needs to enter the calculation.</li>
-</ul>`,
+<li>An <b>i</b> in a circle, next to a field or to the title of a section, holds a note: rest the mouse on it, or reach it with <kbd>Tab</kbd>, to read it.</li>
+</ul>
+<h4>Collapsing the panel</h4>
+<p>The [[show:panel|arrow]] on the left edge of the panel collapses it, and the drawing gets its room; another click brings it back. The choice is kept in this browser. Going to an object from the checklist, the tables or the warnings opens the panel again.</p>`,
           },
           units: {
             title: 'Units',
@@ -510,12 +526,12 @@ PumpIt.i18n.add('en', {
         sections: {
           fluid: {
             title: 'Fluid',
-            body: `<p>With nothing selected, the panel shows [[t:inspector.system.title]]. In the [[t:inspector.system.fluid]] section:</p>
+            body: `<p>The properties of the system are in the [[t:inspector.system.title]] window. It opens from the [[show:stamp|regime stamp]], next to the title of the model; from the [[t:app.menu.edit]] → [[t:app.menu.system]] menu; from the items of the system in the checklist; or from the [[t:inspector.system.open]] button of the panel, with nothing selected. Each change applies at once, as in the panel. At the top of the window is the [[t:inspector.system.regime]]; with [[t:inspector.system.regimes.incompressivel]], the [[t:inspector.system.fluid]] section has:</p>
 <ul>
 <li>[[t:core.fluids.water.label]]: give the [[t:inspector.system.temperature]] (0 to 150 °C); density, viscosity and vapour pressure come from public correlations.</li>
 <li>[[t:inspector.system.userDefined]]: give the density, the dynamic viscosity and, if you want the cavitation warnings, the vapour pressure.</li>
 </ul>
-<p>The values in use (ρ, μ and Pv) appear just below. The flow is always treated as incompressible and at a single temperature. The correlations are in [[go:tech.fluid|Water properties]].</p>`,
+<p>The values in use (ρ, μ and Pv) appear just below. In this regime the fluid has a constant density and a single temperature; for gases, see [[go:gas.concept|the compressible mode]]. The correlations are in [[go:tech.fluid|Water properties]].</p>`,
           },
           environment: {
             title: 'Environment and flow',
@@ -562,7 +578,7 @@ PumpIt.i18n.add('en', {
 <li>Switch scenarios in the list to compare the results.</li>
 </ol>
 <ul>
-<li>The [[t:inspector.system.scenario]] section (in the panel, with nothing selected) holds the notes of the scenario, the number of changed attributes and the [[t:inspector.system.showDiffs]] button, with the table "in this scenario × in the parent".</li>
+<li>The [[t:inspector.system.scenario]] section (in the [[t:inspector.system.title]] window) holds the notes of the scenario, the number of changed attributes and the [[t:inspector.system.showDiffs]] button, with the table "in this scenario × in the parent".</li>
 <li>In the [[t:app.tabs.data]] tab, the cells that differ from the parent are highlighted.</li>
 <li>The buttons next to the list rename and delete the current scenario, together with its children. The Base scenario cannot be deleted.</li>
 </ul>`,
@@ -764,7 +780,7 @@ PumpIt.i18n.add('en', {
         sections: {
           overview: {
             title: 'Assumptions and quantities',
-            body: `<p>Pump It solves the <b>steady-state</b> flow of an <b>incompressible liquid</b> in a network of pipes and components, under these assumptions:</p>
+            body: `<p>Pump It solves the <b>steady-state</b> flow of an <b>incompressible liquid</b> in a network of pipes and components (for gases, the compressible mode has its own [[go:gasTech.properties|technical reference]]), under these assumptions:</p>
 <ul>
 <li>constant fluid properties, evaluated at a single temperature, with no heat transfer;</li>
 <li>one-dimensional, fully developed flow in each pipe, with losses by Darcy-Weisbach (or Hazen-Williams);</li>
@@ -956,7 +972,7 @@ PumpIt.i18n.add('en', {
             body: `<h4>Validation</h4>
 <p>Automatic tests check the calculation against independent solutions: a single pipe (Colebrook solved analytically), Hazen-Williams, a pump operating point by bisection (also at 80% speed), the system curve, three reservoirs and a looped network (continuity and energy), a pressure-reducing valve holding its setting and opening at the peak, flow control, an exit valve with an analytical solution, a fixed-flow pump, sprinklers and every example. Compared with reference results of verification cases, the largest deviations were 5·10⁻⁵ for Darcy-Weisbach and 2.5·10⁻⁵ for Hazen-Williams.</p>
 <h4>Out of scope</h4>
-<p>Transients (water hammer), gases and compressible flow, heat transfer, non-Newtonian fluids, two-phase flow and costs.</p>
+<p>Transients (water hammer), heat transfer, non-Newtonian fluids, two-phase flow and costs.</p>
 <h4>References</h4>
 <ul>
 <li>Todini, E.; Pilati, S. (1988). A gradient algorithm for the analysis of pipe networks.</li>
@@ -975,12 +991,188 @@ PumpIt.i18n.add('en', {
         },
       },
 
+      gas: {
+        title: 'Gas (compressible mode)',
+        sections: {
+          concept: {
+            title: 'The compressible mode',
+            body: `<p>Pump It calculates networks of <b>liquid</b> and of <b>gas</b>. The choice is the <b>regime</b> of the model, at the top of the [[t:inspector.system.title]] window: [[t:inspector.system.regimes.incompressivel]] or [[t:inspector.system.regimes.compressivel]]. The stamp next to the title of the model [[show:stamp|always shows the regime in use]]; a click on it opens that window.</p>
+<h4>When a gas is compressible</h4>
+<p>In the compressible mode the density changes with pressure and temperature along every pipe, the gas speeds up as it expands, and it may reach the speed of sound. Use it when:</p>
+<ul>
+<li>the Mach number goes past 0.3 in some pipe; or</li>
+<li>the pressure drop goes past 10% of the absolute inlet pressure, even at a low Mach number.</li>
+</ul>
+<p>Below that, the incompressible mode with the density of the gas makes a small error. The app helps both ways: in the incompressible mode, a fluid as light as a gas that goes past those limits brings a warning that suggests the compressible mode; in the compressible mode, when everything stays below Mach 0.1 and a 2% drop, a note says that the incompressible mode would give practically the same.</p>
+<h4>Nothing is lost when you switch</h4>
+<p>Each regime keeps its own fluid: the liquid on one side, the gas on the other. Switching the regime recalculates at once and erases nothing. You can compare both, even with a [[go:scenarios.concept|scenario]] that changes only the regime or the thermal model. The drawing, the junctions, the pipes and the views are the same.</p>
+<p class="tip">To start, open [[act:example:air]], a compressed air line whose pressure falls by about 50%, or [[act:example:airPlant]], with a compressor, a reducing valve and a blow-off nozzle.</p>`,
+          },
+          setup: {
+            title: 'Gas, temperature and thermal model',
+            body: `<p>In the compressible regime, the system window shows the [[t:inspector.system.gas]] section:</p>
+<ul>
+<li>[[t:inspector.system.gasMode]]: <b>[[t:inspector.system.gasModes.isotermico]]</b> keeps the temperature constant in the whole network (long lines that exchange heat with the surroundings); <b>[[t:inspector.system.gasModes.adiabatico]]</b> exchanges no heat: the stagnation temperature is kept along every pipe and the gas cools as it speeds up (short or insulated lines).</li>
+<li>[[t:inspector.system.gasKind]]: air, nitrogen, oxygen, methane, natural gas (approximate), CO₂ and hydrogen, with molar mass and k from public values and viscosity by Sutherland’s law; or [[t:inspector.system.customGas]], with the molar mass, k and viscosity you give. When you go from a library gas to a custom one, its values become the starting point.</li>
+<li>[[t:inspector.system.Z]]: 1 for an ideal gas; for a real gas, the value at the operating conditions, constant in the model.</li>
+<li>Temperature: in the isothermal model, that of the gas in the whole network; in the adiabatic model, the stagnation temperature of the sources. Each source may have its own, as in [[go:gas.components]].</li>
+</ul>
+<p>Below them come the gas constant R, the speed of sound at the given temperature and the normal density.</p>
+<h4>Design limits</h4>
+<p>[[t:inspector.system.machLimit]] (0.7 by default) and [[t:inspector.system.velLimit]] (30 m/s by default) bring warnings when a pipe goes past them. Sonic choking is always reported.</p>
+<h4>Pressures and flows</h4>
+<p>Gas pressures are calculated as <b>absolute</b> values; gauge units add the [[t:inspector.system.patm]]. Flows may be given as a mass (kg/s, kg/h, t/h…), as a volume at the conditions of the point (m³/h, L/s…) or as a <b>normal</b> volume (Nm³/h, at 0 °C and 101.325 kPa).</p>`,
+          },
+          components: {
+            title: 'Boundaries and components with a gas',
+            body: `<p>The junctions are those of the incompressible mode. With a gas:</p>
+<ul>
+<li>[[icon:reservoir]] <b>Reservoir</b>: a vessel of gas at rest. The pressure given is a stagnation pressure and applies at the reference elevation; the column of gas down to each pipe is part of the calculation.</li>
+<li>[[icon:pressure]] <b>Assigned pressure</b>: static or stagnation, as you choose.</li>
+<li>[[icon:flow]] <b>Assigned flow</b> and [[icon:branch]] <b>node</b>: a mass flow, a volume at the conditions of the node or a normal volume.</li>
+<li>In the adiabatic model, the reservoir, the assigned pressure, an entering flow and the source of a node have the [[t:junctions.gasT.label]] field; empty, the temperature of the sources applies.</li>
+<li>[[icon:valve]] <b>Valve</b>, [[icon:generic]] <b>generic component</b> and [[icon:orifice]] <b>orifice</b>: local losses count as an equivalent length of friction. Cv and Kv become the equivalent K at the area of the inlet pipe. The orifice also caps the flow at the critical flow of its hole: a restriction orifice chokes long before the pipe does.</li>
+<li>[[icon:control]] <b>Control valve</b>: reducing, sustaining, flow and ΔP, with the states of the liquid.</li>
+<li>[[icon:spray]] <b>Nozzle</b>: isentropic flow through the effective area, which chokes when the outside pressure falls below the critical ratio (about 0.53 of the upstream pressure, for air).</li>
+<li>[[icon:exitvalve]] <b>Exit valve</b>: the loss of the valve down to the outside pressure, where the static pressure of the jet is the residual one.</li>
+<li>[[icon:pump]] <b>Pump</b>: with a gas, a compressor or a blower, as in [[go:gas.compressor]].</li>
+</ul>
+<p>The Hazen-Williams model has no meaning for a gas: such pipes are calculated with Darcy and the roughness stored in the pipe, and a warning lists them.</p>`,
+          },
+          compressor: {
+            title: 'Compressors and blowers',
+            body: `<p>In the compressible mode, the [[icon:pump]] pump is a compressor or a blower. In [[t:junctions.pump.form.mode]]:</p>
+<ul>
+<li>[[t:junctions.pump.form.modes.ratio]]: the outlet stagnation pressure is the inlet one times the ratio.</li>
+<li>[[t:junctions.pump.form.modes.curve]]: the head curve reads as the <b>isentropic head</b> of the gas against the volume flow at the suction, with the affinity laws (speed and machines in parallel). For small heads, as in a blower, this is ΔP = ρgH, the curve of a pump.</li>
+<li>[[t:junctions.pump.form.modes.fixedFlow]]: the flow is imposed and the calculation shows the ratio needed.</li>
+<li>The variable-speed modes control the flow, the static pressure at the discharge or at the suction, and the app shows the speed the curve asks for.</li>
+</ul>
+<p>The [[t:junctions.pump.form.etaGas]] (or the efficiency curve, when given) says how much the gas heats up. In the adiabatic model the gas leaves hotter and carries that temperature into the network; in the isothermal model an aftercooler is assumed to bring it back to the temperature of the network, and the discharge temperature is only reported. The results show the ratio, the isentropic head, the discharge temperature and the power given to the gas. The equations are in [[go:gasTech.machines]].</p>`,
+          },
+          results: {
+            title: 'Results with a gas',
+            body: `<p>The results of a gas show, beside those of a liquid:</p>
+<ul>
+<li>The <b>mass flow</b>, the same along the pipe; the volume flow at the inlet, at the local conditions; and the normal flow.</li>
+<li>At each end of the pipe: velocity, <b>Mach number</b>, <b>static</b> and <b>stagnation</b> pressures, temperature and density. "In" and "out" follow the reference direction of the pipe.</li>
+<li>The <b>choking</b> mark: the gas reached the speed of sound at the outlet of the pipe (Mach 1/√k isothermal, 1 adiabatic). The flow stays at the critical one however low the downstream pressure falls; the result shows the state at the outlet of the pipe, before the expansion down to the pressure of the node.</li>
+</ul>
+<p>[[show:overlay|Results on the drawing]] add the mass flow and the Mach number; the hydraulic grade line, a height of liquid, goes away. The velocity of a gas is coloured over the range of the model itself, since the fixed scale is that of water. The profile chart draws the static and stagnation pressures point by point inside each pipe, since the pressure of a gas does not fall in a straight line.</p>
+<h4>Warnings</h4>
+<ul>
+<li><b>Critical</b>: a choked pipe; a calculation that did not converge.</li>
+<li><b>Warning</b>: a choked junction (valve, orifice, nozzle); Mach above the design limit.</li>
+<li><b>Caution</b>: velocity above the limit; Hazen-Williams taken as Darcy.</li>
+<li><b>Information</b>: the incompressible mode would give practically the same result.</li>
+</ul>`,
+          },
+        },
+      },
+
+      gasTech: {
+        title: 'Technical reference for gases',
+        sections: {
+          properties: {
+            title: 'Gas properties',
+            body: `<p>The gas is ideal, with a constant compressibility factor <i>Z</i>. With the molar mass MW, the density and the gas constant are:</p>
+[[eq:gasLaw]]
+<p>The speed of sound, the mass flux <i>G</i> (mass flow per area, constant in a pipe of constant area) and the Mach number:</p>
+[[eq:machGas]]
+<p>The stagnation quantities, those of the gas slowed down to rest without losses, come from the isentropic relations:</p>
+[[eq:stagnationGas]]
+<p>For library gases the viscosity follows Sutherland’s law, with μ₀ and S from public values; it is evaluated at the temperature of the gas and stays constant in the network:</p>
+[[eq:sutherland]]
+<p>Normal flows use the density at 0 °C and 101.325 kPa, as an ideal gas:</p>
+[[eq:normalFlow]]`,
+          },
+          pipe: {
+            title: 'The pipe: closed form, Fanno and march',
+            body: `<p>In a pipe of constant area, in steady state, continuity (ρV = G), momentum and energy hold. The friction factor <i>f</i> is Darcy’s, by the correlation of the liquid, with Re = G·D<sub>h</sub>/μ, constant along the pipe since G and μ are.</p>
+<h4>Isothermal: closed form</h4>
+<p>In a horizontal isothermal pipe, the integration gives the exact relation between the static pressures of the ends; the logarithm is the acceleration of the expanding gas:</p>
+[[eq:isoClosed]]
+<h4>Adiabatic: Fanno</h4>
+<p>With no heat exchange, the stagnation temperature is kept and the Mach number grows towards 1. The relations referred to the sonic point (*):</p>
+[[eq:fannoRel]]
+[[eq:fannoLength]]
+<h4>March</h4>
+<p>The general method divides the pipe into 100 volumes and solves, in each one, momentum and energy for the new state by Newton (ρ̄ and V̄ are the averages of the volume):</p>
+[[eq:marchMomentum]]
+[[eq:marchEnergy]]
+<p>The march calculates the pipes of the adiabatic model and the pipes of the isothermal model that have a difference of elevation, where gravity comes in through ρ̄gΔz. A horizontal isothermal pipe uses the closed form, which the march reproduces. Near choking the step shrinks: each volume changes the Mach number by at most 0.005 and by at most 5% of what is left to the limit. The error against exact Fanno is 10⁻⁶ at an outlet Mach number of 0.4, about 2·10⁻⁴ at 0.77 and 10⁻³ at 0.94.</p>
+<h4>Local losses</h4>
+<p>The sum of the K values of the pipe, with the entrance and exit losses of the junctions, counts as an equivalent length of friction: added to f·L/D in the closed form and spread along the march. Valves, orifices and generic components are pieces of zero length with f·L/D = K, by the isothermal closed form or by Fanno. The laminar correction of the K values is that of the liquid.</p>
+[[eq:equivalentF]]`,
+          },
+          choking: {
+            title: 'Sonic choking',
+            body: `<p>The flow of a pipe has a maximum, reached when the gas gets to the limiting Mach number at the outlet:</p>
+[[eq:chokeLimits]]
+<p>If the downstream pressure asks for more flow than that, the pipe is <b>choked</b>: the flow is the critical one, the largest that does not choke before the end of the pipe; the downstream pressure no longer changes it, and the expansion down to the pressure of the node happens outside the pipe. The app finds the critical flow from the relation of the pipe itself.</p>
+<h4>Entrance from a vessel</h4>
+<p>Leaving a stagnation node, such as a reservoir, the gas speeds up from rest to the velocity of the pipe isentropically. In the adiabatic model:</p>
+[[eq:entranceGas]]
+<p>In the isothermal model the same relation holds with the exponent −k/(k−1) and the temperature of the gas.</p>
+<h4>Nozzles and orifices</h4>
+<p>A nozzle discharges isentropically through its effective area and chokes below the critical pressure ratio:</p>
+[[eq:nozzleGas]]
+<p>An orifice is a K element whose flow also stays below the critical flow of its vena contracta, of area C<sub>c</sub>·A<sub>o</sub>: C<sub>c</sub> = C<sub>d</sub> in the C<sub>d</sub> model, 0.61 for a sharp edge, and from 0.61 to 1 for a rounded edge.</p>
+[[eq:criticalFlux]]`,
+          },
+          network: {
+            title: 'The gas network',
+            body: `<p>The topology is that of the liquid. The unknowns are the pressures of the free nodes; each ordinary link (pipe, valve, orifice, nozzle) gives its mass flow from the pressures of its two nodes by solving its own relation, capped at the critical flow. Every free node closes its mass balance:</p>
+[[eq:continuity]]
+<p>Control valves, compressors and links without a loss have their flow as an unknown and an equation of their own: the set pressure, the pressure ratio, the pressure difference or the imposed flow.</p>
+<h4>Which pressure each node carries</h4>
+<p>In the isothermal model the junctions carry the <b>static pressure</b>, the classic method of gas networks, which neglects the kinetic energy at the junction; in the adiabatic model, the <b>stagnation pressure</b>. Boundaries keep their nature: a reservoir is a stagnation pressure, an assigned pressure is static or stagnation as chosen, and the outside pressure of a nozzle or an exit valve is static. Each pipe converts at its ends.</p>
+<h4>Solution</h4>
+<p>Newton-Raphson on the pressures, with the Jacobian built from the derivatives of each link, Gaussian elimination, a line search and pressures kept positive. The first pressures come from the linear theory of gas networks on P². The calculation converges when every node closes its balance within 10⁻⁸ of the flow through it. Control valves change state as with a liquid, with new calculations until the states settle.</p>
+<h4>Temperature in the adiabatic model</h4>
+<p>An outer loop updates the temperatures: with the flows, the stagnation temperature of each node is the mass-weighted mix of what reaches it. Sources keep their own, and a compressor raises that of the gas it carries. The loop repeats until the temperatures change by less than 10⁻⁶. The adiabatic calculation starts from the isothermal solution of the same network.</p>
+[[eq:gasMixing]]`,
+          },
+          machines: {
+            title: 'Compressors and valves',
+            body: `<p>With a fixed ratio:</p>
+[[eq:compRatio]]
+<p>With the curve, the head <i>H</i> read at the volume flow of the suction, with the affinity laws, is the isentropic head of the gas:</p>
+[[eq:compHead]]
+<p>The discharge temperature, with the polytropic efficiency η, and the power given to the gas:</p>
+[[eq:compHeat]]
+<p>With an imposed flow or a pressure control the ratio comes out of the calculation, and the speed the curve asks for is found by bisection, as for a liquid pump. Valves given by Cv or Kv become an equivalent K at the area of the inlet pipe, the same loss as for a liquid:</p>
+[[eq:gasValveK]]`,
+          },
+          validation: {
+            title: 'Validation and limits',
+            body: `<h4>Validation</h4>
+<p>Automatic tests check the physics and the network calculation: the properties of air; the isothermal closed form both ways; the march against the closed form and against Fanno, including the conservation of the stagnation temperature; choking in both models; the incompressible limit (with a small drop, the Darcy loss); networks in series and branched, with their mass balance; the compressed air example against an independent calculation; the critical flow against the closed form and against Fanno; the mixing of temperatures; choked nozzles and orifices; control valves; and the compressor.</p>
+<h4>Out of scope</h4>
+<ul>
+<li>gas mixtures and changes of composition;</li>
+<li>heat exchange with the surroundings (the model is isothermal or adiabatic);</li>
+<li>transients, shock waves and supersonic flow (the calculation goes up to choking);</li>
+<li>condensation and two-phase flow;</li>
+<li>real gas by an equation of state (a constant Z is used);</li>
+<li>the critical pressure ratio of a valve trim (a valve is a K element).</li>
+</ul>
+<h4>References</h4>
+<ul>
+<li>Shapiro, A. H. (1953). <i>The Dynamics and Thermodynamics of Compressible Fluid Flow</i>.</li>
+<li>Anderson, J. D. <i>Modern Compressible Flow</i>.</li>
+<li>White, F. M. <i>Viscous Fluid Flow</i> (Sutherland’s law).</li>
+</ul>`,
+          },
+        },
+      },
+
       about: {
         title: 'About',
         sections: {
           about: {
             title: 'About Pump It',
-            body: `<p><b>Pump It</b> is a steady-state pipe network simulator for incompressible flow that runs in the browser, with no installation and no server.</p>
+            body: `<p><b>Pump It</b> is a steady-state pipe network simulator for liquids (incompressible flow) and gases (compressible flow) that runs in the browser, with no installation and no server.</p>
 <ul>
 <li>Written from scratch, in a <i>clean room</i>, from public methods and data (see [[go:tech.references|Validation and references]]). It uses no trademarks, names, icons, texts or screens of commercial software.</li>
 <li>Interface in Portuguese, English and Spanish.</li>

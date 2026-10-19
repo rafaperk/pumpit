@@ -9,7 +9,9 @@
     const { nodes, links } = prep;
     const par = nodes.map((_, i) => i);
     const find = (i) => { while (par[i] !== i) { par[i] = par[par[i]]; i = par[i]; } return i; };
-    for (const lk of links) if (lk.mode === 'loss' || lk.mode === 'dP') par[find(lk.a)] = find(lk.b);
+    // links that tie the pressures of their two nodes (a compressor of fixed ratio of the compressible mode says so with `joins`)
+    const ties = (lk) => lk.mode === 'loss' || lk.mode === 'dP' || lk.joins;
+    for (const lk of links) if (ties(lk)) par[find(lk.a)] = find(lk.b);
     const ref = new Set(), active = new Set();
     nodes.forEach((n, i) => {
       if (n.kind !== 'free') ref.add(find(i));
@@ -32,7 +34,7 @@
       } else isoRoots.add(r);
     }
     nodes.forEach((n, i) => { n.isolated = isoRoots.has(find(i)); });
-    for (const lk of links) lk.isolated = (lk.mode === 'loss' || lk.mode === 'dP') && nodes[lk.a].isolated;
+    for (const lk of links) lk.isolated = ties(lk) && nodes[lk.a].isolated;
     return errors;
   }
 

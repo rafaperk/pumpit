@@ -2,6 +2,7 @@
 PumpIt.i18n.add('en', {
   app: {
     language: 'Language',
+    theme: { toDark: 'Switch to dark mode', toLight: 'Switch to light mode' },
     welcome: 'Example loaded: pumping between tanks. The calculation runs again after every change.',
     exampleLoaded: 'Example loaded: {name}.',
     page: {
@@ -28,6 +29,7 @@ PumpIt.i18n.add('en', {
       delete: 'Delete selection',
       fit: 'Fit drawing to screen',
       grid: 'Grid and snapping',
+      system: 'System properties…',
       shortcuts: 'Keyboard shortcuts…',
       help: 'Help',
       helpCenter: 'Help center',
@@ -51,6 +53,12 @@ PumpIt.i18n.add('en', {
       newTitle: 'New scenario',
       newLabel: 'Name of the child scenario of "{parent}"',
       created: 'Scenario "{name}" created. It inherits everything from its parent until you change a value.',
+    },
+    stamp: {
+      title: 'Calculation regime: click to open the system properties',
+      liquid: 'Liquid · {fluid}',
+      gas: 'Gas · {mode} · {gas}',
+      modes: { isotermico: 'isothermal', adiabatico: 'adiabatic' },
     },
     status: {
       pending: '{n} pending item(s)',

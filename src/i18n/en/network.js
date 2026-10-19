@@ -15,6 +15,8 @@ PumpIt.i18n.add('en', {
       place: 'Click the drawing to place: {label}. Shift keeps the tool.',
     },
     overlay: {
+      m: 'Mass flow',
+      M: 'Mach number',
       label: 'Results on the drawing',
       none: 'None',
       Q: 'Volumetric flow',
@@ -26,6 +28,8 @@ PumpIt.i18n.add('en', {
     overlayNeedsResults: 'Complete the checklist to colour the drawing with results.',
     zoom: { out: 'Zoom out', fit: 'Fit to screen', in: 'Zoom in' },
     legend: {
+      m: 'Mass flow',
+      M: 'Mach (the larger end)',
       Q: 'Volumetric flow',
       V: 'Velocity',
       dP0: 'Pressure drop',
@@ -89,6 +93,13 @@ PumpIt.i18n.add('en', {
       deleteMany: 'Delete {n} objects',
     },
     info: {
+      chokedPipe: 'choked (sonic at the outlet)',
+      chokedJunction: 'choked (sonic flow)',
+      massFlow: 'Mass flow',
+      flowInlet: 'Flow at the inlet',
+      machInOut: 'Mach in / out',
+      temperatureInOut: 'T in / out',
+      temperature: 'Temperature',
       pipeSub: 'Pipe · J{up} → J{down}',
       length: 'Length',
       nominalSize: 'Nominal size',

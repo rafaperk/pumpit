@@ -61,8 +61,7 @@
     }
     if (fm === 'relRoughness') s2.appendChild(num(key, 'friction.rel', 'ε/D'));
     if (fm === 'explicitF') s2.appendChild(num(key, 'friction.f', tx('darcyF')));
-    if (fm === 'hw') s2.appendChild(num(key, 'friction.C', tx('hwC')));
-    if (fm === 'hw') s2.appendChild(hint(tx('hwHint')));
+    if (fm === 'hw') s2.appendChild(num(key, 'friction.C', tx('hwC'), { info: tx('hwHint') }));
     host.appendChild(s2);
 
     host.appendChild(UI.fittingsEditor.build(key, p, gm));
@@ -78,11 +77,27 @@
     const r = res.pipes[id];
     const s = section(t('inspector.result'));
     if (r.isolated) { s.appendChild(hint(tx('isolated'))); host.appendChild(s); return; }
+    if (res.regime === 'compressivel') { gasQuickResults(s, r, res); host.appendChild(s); return; }
     s.appendChild(readout(tx('quick.flow'), I.out(r.Q, 'volFlow')));
     s.appendChild(readout(tx('quick.velocity'), `${I.out(r.V, 'velocity')} · ${D.velocityBand(r.V)}`));
     s.appendChild(readout(tx('quick.reynolds'), `${F.fmt(r.Re, 4)} · ${F.fmt(r.f, 4)}`));
     s.appendChild(readout(tx('quick.staticInOut'), `${I.out(r.Pin, 'pressure')} / ${F.fmt(F.conv(r.Pout, 'pressure', app.outUnit('insp', 'pressure'), { patm: res.patm }))}`));
     s.appendChild(readout(tx('quick.dP0'), I.out(r.dP0, 'dp')));
     host.appendChild(s);
+  }
+
+  // a gas (R-25): mass and volume flows, and at both ends velocity, Mach number, static and stagnation pressures and the
+  // temperature; the choking, when there is one
+  function gasQuickResults(s, r, res) {
+    const both = (a, b, cat) => `${I.out(a, cat)} / ${F.fmt(F.conv(b, cat, app.outUnit('insp', cat), { patm: res.patm }))}`;
+    if (r.choked) s.appendChild(el('div', { class: 'missing' }, F.esc(tx('quick.choked'))));
+    s.appendChild(readout(tx('quick.massFlow'), I.out(r.m, 'massFlow')));
+    s.appendChild(readout(tx('quick.gasFlow'), `${I.out(r.Q, 'volFlow')} · ${I.out(r.QN, 'normFlow')}`));
+    s.appendChild(readout(tx('quick.velocityInOut'), both(Math.abs(r.Vin), Math.abs(r.Vout), 'velocity')));
+    s.appendChild(readout(tx('quick.machInOut'), `${F.fmt(r.Min, 4)} / ${F.fmt(r.Mout, 4)}`));
+    s.appendChild(readout(tx('quick.staticInOut'), both(r.Pin, r.Pout, 'pressure')));
+    s.appendChild(readout(tx('quick.stagnationInOut'), both(r.P0in, r.P0out, 'pressure')));
+    s.appendChild(readout(tx('quick.temperatureInOut'), both(r.Tin, r.Tout, 'temperature')));
+    s.appendChild(readout(tx('quick.reynolds'), `${F.fmt(r.Re, 4)} · ${F.fmt(r.f, 4)}`));
   }
 })(typeof window !== 'undefined' ? window : globalThis);

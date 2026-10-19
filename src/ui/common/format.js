@@ -44,7 +44,7 @@
   const unit = (u) => U.label(u);
 
   const DEFAULT_OUT = {
-    pressure: 'kgf/cm²(g)', dp: 'kgf/cm²', head: 'm', massFlow: 'kg/s', volFlow: 'm³/h', velocity: 'm/s',
+    pressure: 'kgf/cm²(g)', dp: 'kgf/cm²', head: 'm', massFlow: 'kg/s', volFlow: 'm³/h', normFlow: 'Nm³/h', velocity: 'm/s',
     power: 'kW', length: 'm', density: 'kg/m³', viscosity: 'cP', temperature: '°C',
   };
 

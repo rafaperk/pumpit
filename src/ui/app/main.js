@@ -23,7 +23,9 @@
     UI.hud3d.bind();
     UI.keyboard.bind();
     UI.dialogs.bind();
+    UI.tips.bind();
     UI.language.bind();
+    UI.theme.bind();
     let m = app.storedModel();
     try { if (m) UI.files.normalize(m); } catch (e) { m = null; }
     app.loadModel(m || PumpIt.examples.get('pump').build());

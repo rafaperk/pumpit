@@ -2,6 +2,7 @@
 PumpIt.i18n.add('pt-BR', {
   app: {
     language: 'Idioma',
+    theme: { toDark: 'Mudar para o modo escuro', toLight: 'Mudar para o modo claro' },
     welcome: 'Exemplo carregado: bombeamento entre tanques. O cálculo é refeito a cada alteração.',
     exampleLoaded: 'Exemplo carregado: {name}.',
     page: {
@@ -28,6 +29,7 @@ PumpIt.i18n.add('pt-BR', {
       delete: 'Excluir seleção',
       fit: 'Ajustar desenho à tela',
       grid: 'Grade e encaixe',
+      system: 'Propriedades do sistema…',
       shortcuts: 'Atalhos de teclado…',
       help: 'Ajuda',
       helpCenter: 'Central de ajuda',
@@ -51,6 +53,12 @@ PumpIt.i18n.add('pt-BR', {
       newTitle: 'Novo cenário',
       newLabel: 'Nome do cenário filho de "{parent}"',
       created: 'Cenário "{name}" criado. Ele herda tudo do pai até você alterar algum valor.',
+    },
+    stamp: {
+      title: 'Regime do cálculo: clique para abrir as propriedades do sistema',
+      liquid: 'Líquido · {fluid}',
+      gas: 'Gás · {mode} · {gas}',
+      modes: { isotermico: 'isotérmico', adiabatico: 'adiabático' },
     },
     status: {
       pending: '{n} pendência(s)',

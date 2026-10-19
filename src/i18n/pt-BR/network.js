@@ -15,6 +15,8 @@ PumpIt.i18n.add('pt-BR', {
       place: 'Clique no desenho para posicionar: {label}. Shift mantém a ferramenta.',
     },
     overlay: {
+      m: 'Vazão mássica',
+      M: 'Número de Mach',
       label: 'Resultados no desenho',
       none: 'Nenhum',
       Q: 'Vazão volumétrica',
@@ -26,6 +28,8 @@ PumpIt.i18n.add('pt-BR', {
     overlayNeedsResults: 'Complete a lista de verificação para colorir o desenho com resultados.',
     zoom: { out: 'Diminuir zoom', fit: 'Ajustar à tela', in: 'Aumentar zoom' },
     legend: {
+      m: 'Vazão mássica',
+      M: 'Mach (o maior das pontas)',
       Q: 'Vazão volumétrica',
       V: 'Velocidade',
       dP0: 'Queda de pressão',
@@ -89,6 +93,13 @@ PumpIt.i18n.add('pt-BR', {
       deleteMany: 'Excluir {n} objetos',
     },
     info: {
+      chokedPipe: 'bloqueado (sônico na saída)',
+      chokedJunction: 'bloqueada (escoamento sônico)',
+      massFlow: 'Vazão mássica',
+      flowInlet: 'Vazão na entrada',
+      machInOut: 'Mach entrada / saída',
+      temperatureInOut: 'T entrada / saída',
+      temperature: 'Temperatura',
       pipeSub: 'Tubo · J{up} → J{down}',
       length: 'Comprimento',
       nominalSize: 'Diâmetro nominal',

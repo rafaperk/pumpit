@@ -13,9 +13,11 @@
     // 3D views: a sphere with its letter (D-29)
     solid: { parts: [S.ball([0, 0, 0], 10, 'press'), S.text([0, 0, 0], 'P')], reach: [S.ball([0, 0, 0], 10)] },
 
-    form(s, { key, f }) {
+    form(s, ctx) {
+      const { key, f } = ctx;
       s.appendChild(f.sel(key, 'ptype', tx('form.ptype'), [['stagnation', tx('form.stagnation')], ['static', tx('form.static')]]));
       s.appendChild(f.qty(key, 'P', tx('form.P'), 'pressure'));
+      JT.shared.sourceTemperature(s, ctx);
     },
 
     summary: (j, q) => tx('summary', { pressure: q(j.P), kind: kind(j) }),

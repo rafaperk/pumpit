@@ -27,12 +27,14 @@
     ['junctions', ['overview', 'reservoir', 'pressure', 'flow', 'spray', 'branch', 'pump', 'valve', 'control', 'exitvalve', 'orifice', 'generic']],
     ['pipes', ['geometry', 'friction', 'fittings', 'ends']],
     ['system', ['fluid', 'environment', 'solution']],
+    ['gas', ['concept', 'setup', 'components', 'compressor', 'results']],
     ['scenarios', ['concept', 'working']],
     ['results', ['overlay', 'tables', 'warnings', 'velocity', 'inputs']],
     ['charts', ['pump', 'profile']],
     ['views3d', ['concept', 'iso', 'free', 'symbols']],
     ['files', ['files', 'language', 'shortcuts']],
     ['tech', ['overview', 'network', 'newton', 'friction', 'minor', 'pumps', 'valves', 'boundaries', 'fluid', 'outputs', 'references']],
+    ['gasTech', ['properties', 'pipe', 'choking', 'network', 'machines', 'validation']],
     ['about', ['about']],
   ];
   const ORDER = CHAPTERS.flatMap(([ch, secs]) => secs.map((s) => `${ch}.${s}`));

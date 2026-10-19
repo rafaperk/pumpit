@@ -11,12 +11,15 @@
 //   closed(j)                   the junction stops the flow: its 3D symbol turns red
 //   elevationLabel              label of the elevation field (default: the common elevation label)
 //   connectionElevation         the per-pipe loss table also edits each pipe's connection elevation
-//   form(sec, ctx)              fills the inspector's data section; ctx = { key, j, f } (f = field builders)
+//   form(sec, ctx)              fills the inspector's data section; ctx = { key, j, f, gas } (f = field builders,
+//                               gas = the model is in the compressible regime)
 //   sections(ctx)               extra inspector sections after the data section (ctx also has curveEditor)
 //   summary(j, q)               one-line summary in the model data table (q formats an input quantity)
-//   infoInputs(j, add, inp)     input rows of the right-click card
-//   quickResults(row, r, c)     extra rows of the inspector's result section; c = { id, j, res, out }
-//   infoResults(add, r, c)      result rows of the right-click card, replacing the common ones (false = keep them)
+//   infoInputs(j, add, inp, gas) input rows of the right-click card (gas: the model is in the compressible regime)
+//   quickResults(row, r, c)     extra rows of the inspector's result section; c = { id, j, res, out, flow, gas }
+//                               (flow(m): a mass flow as the regime shows it, volume for a liquid, mass for a gas)
+//   infoResults(add, r, c)      result rows of the right-click card, replacing the common ones (false = keep them);
+//                               c = { id, j, res, vr, out, flow, gas }
 //   pressureRise                two-port: the inspector shows the pressure rise instead of the drop
 //   boundaryFlow(r)             net flow into the network listed among the system boundaries (null = not listed)
 (function (root) {

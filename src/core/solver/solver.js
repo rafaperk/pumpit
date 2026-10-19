@@ -4,10 +4,18 @@
 (function (root) {
   const PumpIt = root.PumpIt;
   const S = PumpIt.solver;
+  const { t } = PumpIt.i18n;
 
   function run(eff, opts = {}) {
     // R-10 of the 3D views: the calculation starts from a copy without the drawing fields
     eff = PumpIt.model.stripLayout(eff);
+    // compressible mode (gas): a calculation path of its own, chosen by the regime of the model; the incompressible
+    // path below does not change (appendix C of the compressible mode specification)
+    if (PumpIt.model.isCompressible(eff)) {
+      const Gas = PumpIt.gas;
+      if (!Gas || !Gas.solveModelGas) return { ok: false, errors: [t('core.gas.unavailable')], warnings: [] };
+      return Gas.solveModelGas(eff, opts);
+    }
     let prep;
     try { prep = S.prepare(eff); } catch (e) { return { ok: false, errors: [e.message], warnings: [] }; }
     if (prep.errors.length) return { ok: false, errors: prep.errors, warnings: prep.warnings };

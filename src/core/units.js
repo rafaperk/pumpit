@@ -33,6 +33,9 @@
       'm³/s': 1, 'm³/h': 1 / 3600, 'L/s': 1e-3, 'L/min': 1e-3 / 60,
       gpm: GAL / 60, 'ft³/s': FT ** 3, 'bbl/d': 0.158987294928 / 86400,
     },
+    // volume flow of a gas at the normal conditions (0 °C, 101.325 kPa; compressible mode §8.4): SI is Nm³/s, and a
+    // mass flow needs the normal density (ctx.rhoN)
+    normFlow: { 'Nm³/s': 1, 'Nm³/min': 1 / 60, 'Nm³/h': 1 / 3600, 'Nm³/d': 1 / 86400 },
     velocity: { 'm/s': 1, 'ft/s': FT },
     density: { 'kg/m³': 1, 'g/cm³': 1000, 'lbm/ft³': LBM / FT ** 3 },
     viscosity: { 'Pa·s': 1, cP: 1e-3, 'mPa·s': 1e-3, 'lbm/(ft·s)': LBM / FT },
@@ -41,8 +44,8 @@
     temperature: { '°C': 0, K: 0, '°F': 0, '°R': 0 }, // handled separately (offsets)
     none: { '': 1 },
   };
-  // flow: mass or volumetric (volumetric units need the density)
-  CATS.flow = Object.assign({}, CATS.massFlow, CATS.volFlow);
+  // flow: mass, volumetric (needs the density) or normal volumetric (needs the normal density; a liquid takes its density)
+  CATS.flow = Object.assign({}, CATS.massFlow, CATS.volFlow, CATS.normFlow);
 
   function spec(cat, unit) {
     const c = CATS[cat];
@@ -71,12 +74,17 @@
     throw new Error(t('core.units.unknownTemperature', { unit }));
   }
 
-  // ctx: { rho (kg/m³), patm (Pa) }
+  // ctx: { rho (kg/m³), patm (Pa), rhoN (kg/m³, normal density of a gas) }
+  const normalRho = (ctx) => (ctx.rhoN > 0 ? ctx.rhoN : ctx.rho);
   function toSI(v, unit, cat, ctx = {}) {
     if (cat === 'temperature') return tempToK(v, unit);
     if (cat === 'flow' && unit in CATS.volFlow) {
       if (!(ctx.rho > 0)) throw new Error(t('core.units.needsDensity'));
       return v * CATS.volFlow[unit] * ctx.rho;
+    }
+    if (cat === 'flow' && unit in CATS.normFlow) {
+      if (!(normalRho(ctx) > 0)) throw new Error(t('core.units.needsDensity'));
+      return v * CATS.normFlow[unit] * normalRho(ctx);
     }
     const s = spec(cat, unit);
     return v * s.f + (s.g ? (ctx.patm ?? PATM) : 0);
@@ -87,6 +95,10 @@
       if (!(ctx.rho > 0)) throw new Error(t('core.units.needsDensity'));
       return v / ctx.rho / CATS.volFlow[unit];
     }
+    if (cat === 'flow' && unit in CATS.normFlow) {
+      if (!(normalRho(ctx) > 0)) throw new Error(t('core.units.needsDensity'));
+      return v / normalRho(ctx) / CATS.normFlow[unit];
+    }
     const s = spec(cat, unit);
     return (v - (s.g ? (ctx.patm ?? PATM) : 0)) / s.f;
   }
@@ -94,8 +106,9 @@
   const list = (cat) => Object.keys(CATS[cat] || {});
   const has = (cat, unit) => !!CATS[cat] && unit in CATS[cat];
   const isVolumetric = (unit) => unit in CATS.volFlow;
+  const isNormal = (unit) => unit in CATS.normFlow;
   // text shown for a unit: the symbol itself, unless the language catalog gives another one (core.units.label)
   const label = (unit) => PumpIt.i18n.lookup('core.units.label.' + unit) ?? unit;
 
-  PumpIt.units = { CATS, G0, PATM, PSI, toSI, fromSI, list, has, isVolumetric, label, q: (value, unit) => ({ value, unit }) };
+  PumpIt.units = { CATS, G0, PATM, PSI, toSI, fromSI, list, has, isVolumetric, isNormal, label, q: (value, unit) => ({ value, unit }) };
 })(typeof window !== 'undefined' ? window : globalThis);

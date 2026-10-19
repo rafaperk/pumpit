@@ -1,20 +1,21 @@
 # Pump It
 
-Web simulator of steady-state pipe networks for incompressible flow. The user draws the network (pipes and junctions) and fills in the properties. The calculation runs again automatically after every change. Results appear in tables, charts, a data card per object (right click) and on the drawing itself.
+Web simulator of steady-state pipe networks for liquids (incompressible flow) and gases (compressible flow). The user draws the network (pipes and junctions) and fills in the properties. The calculation runs again automatically after every change. Results appear in tables, charts, a data card per object (right click) and on the drawing itself.
 
-The product uses no trademarks, names, icons, texts or screens of any commercial software. The interface is available in Portuguese, English and Spanish (selector at the top right); the code and its documentation are in English.
+The product uses no trademarks, names, icons, texts or screens of any commercial software. The interface is available in Portuguese, English and Spanish (selector at the top right), in a light and a dark mode (the sun and moon button next to it); the code and its documentation are in English.
 
 ## How to use
 
 - **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
-- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`), the language consistency check (`tests/check-i18n.js`) and the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`).
+- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help) and the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`).
+- **Help:** the Help menu (or F1) opens the guide to the whole app, the guided tour of the screen and the technical reference of the calculation, for liquids and for gases.
 - **Validation against stored reference results:** `node tests/validate-fth.js "<folder with .fth files>"` (see Verification).
 
 Workflow (interface names in English; the Portuguese and Spanish screens have the same layout):
 
 1. Drag a junction type from the palette onto the drawing (or click the type and then the drawing).
 2. **Pipe** tool, key `P`: click a junction and then another one. The reference direction goes from the first to the second. Clicking empty space creates a branch node. A new pipe copies length, material, section and friction from the selected pipe (or else from the last one created); the first pipe of a model gets 100 m. The drawn length never counts.
-3. Select an object to edit it in the inspector on the right. Whatever is still missing for it to be defined appears in red.
+3. Select an object to edit it in the inspector on the right. Whatever is still missing for it to be defined appears in red; an *i* in a circle next to a field shows its note when the mouse rests on it. The arrow on the left edge of the inspector collapses it to give the drawing more room. The fluid, the environment and the solution control are in the *System properties* window: the regime stamp at the top, *Edit → System properties…*, or the button of the inspector with nothing selected.
 4. When the checklist is complete, the indicator at the top changes to **Calculated** and the results appear. There is no Run button: every change recalculates the current scenario.
 5. See **Results** (pipes, junctions, pumps, valves, warnings), **Charts** (pump × system and profile), the right-click card, or pick a quantity in "Results on the drawing".
 
@@ -31,9 +32,22 @@ Shortcuts and selection:
 | Cancel the tool | `Esc` |
 | Zoom and view | mouse wheel; drag the background |
 
-Isometric and 3D views (see [docs/3D-VIEWS.md](docs/3D-VIEWS.md)): *Schematic · Isometric · 3D* at the top left of the drawing, or the keys 1, 2 and 3. The three views show one geometry: the schematic is the plan and the height of every junction is its elevation, so moving a junction in one view moves it in the others, and moving it up or down in a 3D view changes its elevation. Pipes are drawn as tubes, along the axes unless drawn freely in the 3D view, nearer ones over farther ones, with shadows on the floor; junctions are small shaded solids (tank, pump, valves, nozzle…) that lie along their pipes and turn with the camera. Both views draw and edit: in the isometric view junctions go on the grid and pipes follow route candidates along the axes; in the free 3D view pipes go in any direction (Shift up and down, Ctrl along an axis) and bends can be moved, inserted and deleted. *Edit → Keyboard shortcuts…* lists the keys of every view. No length ever comes from the drawing. Phones are not supported.
+Isometric and 3D views (see [docs/3D-VIEWS.md](docs/3D-VIEWS.md)): *Schematic · Isometric · 3D* at the top left of the drawing, or the keys 1, 2 and 3. The three views show one geometry: the schematic is the plan and the height of every junction is its elevation, so moving a junction in one view moves it in the others, and moving it up or down in a 3D view changes its elevation. Pipes are drawn as tubes, along the axes unless drawn freely in the 3D view, nearer ones over farther ones, with shadows on the floor; junctions are small shaded solids (tank, pump, valves, nozzle…) that lie along their pipes and turn with the camera. Both views draw and edit: in the isometric view junctions go on the grid and pipes follow route candidates along the axes; in the free 3D view pipes go in any direction (Shift up and down, Ctrl along an axis) and bends can be moved, inserted and deleted. *Help → Keyboard shortcuts…* lists the keys of every view. No length ever comes from the drawing. Phones are not supported.
 
 Default units: flow in m³/h, length and elevation in m, pressure in kgf/cm²(g), temperature in °C. Diameters and roughness are typed in mm. Each field keeps the unit it was typed in, and each result column can switch units without recalculating.
+
+## Compressible mode (gas)
+
+Pump It also calculates networks of a gas (see [docs/decisoes-gas.md](docs/decisoes-gas.md) and the Help, chapters *Gas (compressible mode)* and *Technical reference for gases*).
+
+- **Regime:** the *System properties* window starts with *Incompressible (liquid)* or *Compressible (gas)*. Each regime keeps its own fluid, so switching loses nothing. The stamp next to the model title always shows the regime in use (for a gas: the thermal model and the gas); a click on it opens that window.
+- **Gas:** air, nitrogen, oxygen, methane, natural gas (approximate), CO₂ and hydrogen from a small library (viscosity by Sutherland's law), or a custom gas with its molar mass, k and viscosity; the compressibility factor Z and the temperature are always given. Design limits for the warnings: Mach (0.7) and velocity (30 m/s).
+- **Thermal model:** isothermal (constant temperature; junctions carry static pressures, the classic gas network method) or adiabatic (no heat exchange; stagnation pressures, the stagnation temperature kept along every pipe and mixed at the nodes; each source may have its own temperature).
+- **Physics:** ideal gas with Z, the closed isothermal form for horizontal pipes and a finite-volume march (with gravity and finer steps near the sonic point) for the rest, Fanno for valves and fittings, isentropic entrances and nozzles, choking at M = 1/√k (isothermal) or 1 (adiabatic), the critical flow of an orifice's hole. The network is solved by Newton on the node pressures until every mass balance closes within 10⁻⁸.
+- **Flows:** mass (kg/s, kg/h…), volume at the local conditions (m³/h…) or normal volume (Nm³/h at 0 °C and 101.325 kPa).
+- **Compressor:** in the compressible mode a pump is a compressor or a blower: fixed pressure ratio, head curve (isentropic head against the suction flow), fixed flow or speed control; the polytropic efficiency gives the discharge temperature and the power to the gas.
+- **Results:** mass flow, volume flows (local and normal), velocity and Mach number at both ends, static and stagnation pressures and temperatures, density, choking; mass flow and Mach on the drawing; pressure profiles drawn point by point inside each pipe. The app also says when a light fluid in the incompressible mode should be compressible, or when a gas is slow enough for the incompressible mode.
+- **Examples:** *Compressed air line (gas)*, with an adiabatic scenario, and *Compressed air plant (gas)*, with a compressor, a pressure-reducing valve, consumers in Nm³/h and a choked blow-off nozzle.
 
 ## Languages
 
@@ -86,20 +100,21 @@ src/i18n/                  interface languages: the i18n engine and one folder o
   pt-BR/ en/ es/           one catalog per block (core, junctions, examples, app, network, inspector...)
 src/core/                  calculation core, no DOM (runs in Node)
   units.js                 units; SI inside the core, conversion only at input and output
-  fluids/                  fluid library (water from public correlations) and evaluation
+  fluids/                  fluid library (water from public correlations), the gases of the compressible mode, evaluation
   data/                    ASME B36.10M steel pipe, typical roughness, Crane fittings, water velocity bands
   hydraulics/              friction (original Colebrook, Hazen-Williams), curve fitting, orifice K
   model/                   model schema and factories, scenarios, checklist (validation), drawing-only fields
   solver/                  network building, connectivity, Newton, device states, results, system curve
+  gas/                     compressible mode: reference physics (gas.js), link relations, gas network, Newton, results
   junctions/               junction type registry + one file per type (defaults, checks, equations, results)
   examples/                example builder + one file per example model
   view3d/                  geometry of the 3D views: camera, navigation, grids, pipe routes, symbols, plan and elevation, free editing, solids
 src/ui/                    browser interface
-  common/                  formatting, DOM helpers, dialogs, downloads, .xlsx writer
+  common/                  formatting, DOM helpers, dialogs, the bubble of the notes, downloads, .xlsx writer
   junctions/               junction type views + one file per type (symbol, 3D solid, form, summaries, result rows)
   app/                     application state and commands (PumpIt.app), keyboard, start-up
-  topbar/                  menus, header status, scenarios, checklist, language selector
-  inspector/               field builders and one file per panel (system, pipe, junction, curves...)
+  topbar/                  menus, header status, scenarios, checklist, language selector, light and dark mode
+  inspector/               field builders, one file per panel (system, pipe, junction, curves...) and the system window
   network/                 drawing area, SVG drawing, colour scales, palette, right-click card
   view3d/                  isometric and 3D views: scene, commands, editing (isometric and free), solids, drawing and quick frames, navigation, controls, inspector sections
   model-data/              model data view
@@ -107,12 +122,14 @@ src/ui/                    browser interface
   charts/                  line chart, pump × system and profile charts
   styles/                  one stylesheet per block, loaded in cascade order (tokens first, responsive last)
 tests/load-core.js         loads the core (and the catalogs) into Node in the order listed by index.html
-tests/run-tests.js         verification against independent solutions
+tests/run-tests.js         verification against independent solutions (also `tests/motor.test.cjs`)
+tests/gas.test.cjs         compressible mode: the physics and the calculation of gas networks
 tests/check-i18n.js        every language has every text; every key used in the code exists
 tests/validate-fth.js      validation against stored reference results (specification section 10)
 tests/view3d.test.cjs      geometry of the 3D views; a drawing never changes a result
 docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
 docs/3D-VIEWS.md           3D views: progress, where each part lives, decisions
+docs/decisoes-gas.md       compressible mode: progress, where each part lives, decisions
 CONTRIBUTING.md            conventions and how to work in parallel
 ```
 
@@ -125,15 +142,18 @@ Reference: the clean-room specification (`Clean Room.md`), sections 0 to 8.
 | Drawing | Palette, pipes with a reference direction, moving (also as a group), multiple selection, copy and paste, delete, reverse direction, change the junction type keeping the compatible data, grid with snapping, zoom, pan, fit to screen, undo and redo; isometric and free 3D views of the same model, with the elevation as height (drawing and editing in both) |
 | Calculation | Automatic after every change and when switching scenarios; the checklist shows what is missing |
 | Scenarios | Scenario tree; a child stores only what differs from its parent; editing with the inherited value relinks to the parent; marker on changed fields; table of differences |
-| Fluid | Water (Kell 1975, Vogel, IAPWS-IF97 region 4) or the user's ρ, μ and Pv |
+| Fluid | Water (Kell 1975, Vogel, IAPWS-IF97 region 4) or the user's ρ, μ and Pv; in the compressible mode, a library gas or a custom one (MW, k, Z, μ, T) |
+| Gas (compressible mode) | Isothermal and adiabatic models; closed isothermal form, march and Fanno; choking; static and stagnation pressures and temperatures, Mach number; compressor and blower; flows in Nm³/h; advice on the choice of regime |
 | Pipes | ASME B36.10M steel (Sch 40, 80, STD, XS) as the default, or a given diameter; circular, annulus, rectangular and non-circular sections; fouling; N parallel pipes; closed pipe |
 | Friction | Absolute or relative roughness, smooth, given f, Hazen-Williams, frictionless; Colebrook in its original form (1.14 and 9.35); laminar 64/Re; linear transition between Re 2300 and 4000 |
 | Fittings | List with quantity; constant K or K/f<sub>T</sub> (Crane); laminar correction ATKF, improved ATKF or none |
 | Junctions | Reservoir, assigned pressure, assigned flow, nozzle/sprinkler, branch, pump, valve (K, Cv, Kv), control valve (PRV, PSV, FCV, PDCV), **exit valve** (elevation and residual outlet pressure, with an optional loss by K, Cv or Kv), orifice, generic component (K or a ΔP × Q curve) |
 | Pumps | H × Q curve by least squares or interpolation; affinity laws; pumps in parallel; variable speed controlling flow or pressure; efficiency, power, NPSH. In **fixed flow (sizing)** mode the pump reports the required head and the panel asks for no curve, efficiency or NPSH |
-| Output | Summary, boundaries, pipes (format above), junctions, pumps, valves and warnings in three levels; right-click card; values with units and colours on the drawing; pump × system; profile of HGL, EGL and elevation |
+| Output | Summary, boundaries, pipes (format above), junctions, pumps, valves and warnings in three levels (plus information); right-click card; values with units and colours on the drawing; pump × system; profile of HGL, EGL and elevation |
 | Files | Save and open `.json`; copy and paste the model; export pipes to `.xlsx`; automatic saving in the browser |
 | Languages | Portuguese, English and Spanish, switched live; numbers in the format of the language |
+| Properties | Inspector on the right for the selection, collapsed by the arrow on its edge (remembered by the browser); the system properties in a window of their own; the notes of the fields behind an *i* that shows them on hover |
+| Appearance | Light and dark mode, switched by the sun and moon button at the top right and remembered by the browser; without a choice, the mode of the system |
 
 Removed on request: area change, bend, check valve, dead end and the design factors. Older models are converted when opened: a check valve becomes a valve, a bend or an area change becomes a generic component with a K, a dead end becomes a zero assigned flow. Bend and check-valve losses are still available as pipe fittings (Crane).
 
@@ -143,7 +163,7 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 
 ## Clean-room record
 
-**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used.
+**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used. The compressible mode follows its own clean-room specification (public compressible flow physics only; see [docs/decisoes-gas.md](docs/decisoes-gas.md)).
 
 **Validation:** the `.fth` model files installed on the user's computer were read only as an output answer key, as section 10 allows (layout of Annex A). None of these files was copied into the project, and the validator only reads them when it runs. Two values were inferred from that comparison of results (marked as *inferred*, following the rule of section 0):
 
@@ -187,7 +207,7 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 
 ## Verification
 
-`node tests/run-tests.js` runs 46 checks against independent solutions. Among them:
+`node tests/run-tests.js` runs its checks against independent solutions. Among them:
 
 - single pipe: original Colebrook solved analytically, deviation < 10⁻⁷;
 - Hazen-Williams;
@@ -200,6 +220,8 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 - fixed-flow pump without a curve;
 - sprinkler;
 - every example.
+
+`node tests/gas.test.cjs` checks the compressible mode: the reference physics of its specification (air properties, the closed isothermal form, the march against it and against Fanno, choking, the incompressible limit, networks in series and branched) and the calculation of models — the compressed air example against an independent calculation, critical flows against the closed form and Fanno, a single adiabatic pipe against exact Fanno, the mixing of temperatures, nozzles, orifices, control valves and the compressor.
 
 `node tests/validate-fth.js` compares with the results stored in the reference verification models. Boundaries: at reservoirs, assigned pressures and discharge valves, the stagnation pressure stored at the pipe end; everything else is calculated. The measure is the worst deviation of the case: flow relative to the largest flow, and stagnation pressure at the pipe ends relative to the largest pressure drop in a pipe. Result:
 

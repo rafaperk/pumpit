@@ -21,6 +21,10 @@
 //   nodeResults(j, jr, rc)      multi, optional: adds type-specific results (before HGL and isolation masking)
 //   elementResults(j, jr, rc)   two-port, optional: adds pump/valve results and warnings
 //   reverseFlowCaution          two-port: caution when the flow runs against the reference direction (default true)
+//   gas                         compressible mode (src/core/gas/); without it the type is refused in that mode:
+//     node(j, net, z)           multi: creates the node of the gas network (and any discharge link)
+//     element(j, lk, net)       two-port: fills the element link of the gas network (relation, modes, device)
+//     results(j, jr, rc)        optional: type-specific results in the compressible mode
 //
 // Network links may carry, for the solver stages:
 //   phi(m), mref                pressure loss function and flow scale (mode 'loss')

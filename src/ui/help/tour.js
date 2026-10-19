@@ -12,13 +12,20 @@
 
   // areas of the screen, by name (the help's [[show:area]] links use them too)
   const AREAS = {
-    menus: '.menus', title: '#model-title', scenario: '.scenario', status: '.run', language: '.lang', tabs: '.tabs',
+    menus: '.menus', title: '#model-title', stamp: '#regime-stamp', scenario: '.scenario', status: '.run', language: '.lang', theme: '#theme-toggle', tabs: '.tabs',
     palette: '.palette', canvas: '#canvas-wrap', views: '.view-switch', overlay: '.overlay-pick', zoom: '.zoom',
-    inspector: '#inspector', statusLine: '#status-line', help: '#btn-menu-help',
+    inspector: '#inspector', panel: '#panel-toggle', statusLine: '#status-line', help: '#btn-menu-help',
   };
   // the steps of the tour, in order (texts: help.tour.steps.<area>.title / .body)
-  const STEPS = ['menus', 'title', 'scenario', 'status', 'language', 'tabs', 'palette', 'canvas', 'views', 'overlay', 'zoom', 'inspector', 'help'];
-  const IN_NETWORK = new Set(['palette', 'canvas', 'views', 'overlay', 'zoom', 'inspector']);
+  const STEPS = ['menus', 'title', 'stamp', 'scenario', 'status', 'language', 'theme', 'tabs', 'palette', 'canvas', 'views', 'overlay', 'zoom', 'inspector', 'panel', 'help'];
+  const IN_NETWORK = new Set(['palette', 'canvas', 'views', 'overlay', 'zoom', 'inspector', 'panel']);
+
+  // an area of the network view on the screen: that view, and the properties panel open when it is the one shown
+  function reveal(area) {
+    if (!IN_NETWORK.has(area)) return;
+    if (app.view !== 'net') app.setView('net');
+    if (area === 'inspector') UI.inspector.setCollapsed(false);
+  }
 
   const node = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; };
 
@@ -41,6 +48,7 @@
     dropOffer();
     app.hideMenus();
     if (UI.help) UI.help.close();
+    UI.systemWindow.close();
     if (UI.dialogs.isModalOpen()) UI.dialogs.closeModal();
     if (app.view !== 'net') app.setView('net');
     const layer = node('div', 'tour-layer');
@@ -74,7 +82,7 @@
     if (!tour) return;
     tour.at = i;
     const area = STEPS[i], last = i === STEPS.length - 1;
-    if (IN_NETWORK.has(area) && app.view !== 'net') app.setView('net');
+    reveal(area);
     tour.card.innerHTML = `<div class="tour-count">${F.esc(tx('step', { n: i + 1, total: STEPS.length }))}</div>`
       + `<h4>${F.esc(tx(`steps.${area}.title`))}</h4><p>${UI.help.renderInline(tx(`steps.${area}.body`))}</p>`
       + `<div class="tour-actions"><button type="button" class="btn ghost" data-tour="close">${F.esc(tx('close'))}</button><span class="grow"></span>`
@@ -149,7 +157,8 @@
   // ------------------------------------------------------------ the spotlight of a "show" link
   let ring = null;
   function spot(area) {
-    if (IN_NETWORK.has(area) && app.view !== 'net') app.setView('net');
+    UI.systemWindow.close();
+    reveal(area);
     if (ring) { ring.remove(); ring = null; }
     requestAnimationFrame(() => {
       const box = boxOf(area);

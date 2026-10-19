@@ -22,5 +22,11 @@
     },
 
     buildNode: (j, net) => net.addNode({ kind: 'fixed', value: net.si(j.surfP, 'pressure'), z: net.si(j.liquidElev, 'length'), jid: j.id, isRes: true }),
+
+    // compressible mode: a vessel of gas at rest, its pressure a stagnation pressure at the level of the reference
+    // (§10.4), its temperature that of the gas it supplies
+    gas: {
+      node: (j, net) => net.addNode({ kind: 'fixed', value: net.si(j.surfP, 'pressure'), pk: 'stagnation', z: net.si(j.liquidElev, 'length'), jid: j.id, isRes: true, T0: net.sourceT(j) }),
+    },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

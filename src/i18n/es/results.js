@@ -4,7 +4,7 @@ PumpIt.i18n.add('es', {
     title: 'Resultados',
     intro: 'Ejecute el modelo para ver los resultados.',
     tabs: { general: 'General', pipes: 'Tuberías', junctions: 'Uniones', pumps: 'Bombas', valves: 'Válvulas', warnings: 'Avisos' },
-    level: { critical: 'Crítico', warning: 'Aviso', caution: 'Precaución' },
+    level: { critical: 'Crítico', warning: 'Aviso', caution: 'Precaución', info: 'Información' },
     columns: {
       pipes: {
         id: 'Tubería',
@@ -57,6 +57,13 @@ PumpIt.i18n.add('es', {
         K: 'K efectivo',
       },
     },
+    gasColumns: {
+      pipes: { id: 'Tubería', dn: 'Diámetro nominal', m: 'Caudal másico', Q: 'Caudal a la entrada', QN: 'Caudal normal', Vin: 'V a la entrada', Vout: 'V a la salida', Min: 'Mach a la entrada', Mout: 'Mach a la salida', Pin: 'P estática a la entrada', Pout: 'P estática a la salida', P0in: 'P de estancamiento a la entrada', P0out: 'P de estancamiento a la salida', Tin: 'T estática a la entrada', Tout: 'T estática a la salida', rhoIn: 'Densidad a la entrada', rhoOut: 'Densidad a la salida', f: 'Factor de fricción', dP0: 'Caída de P0', chokedTxt: 'Bloqueo' },
+      junctions: { id: 'Unión', name: 'Nombre', typeLabel: 'Tipo', Pin: 'P estática entrada', Pout: 'P estática salida', P0in: 'P0 entrada', P0out: 'P0 salida', Tin: 'T estática', T0in: 'T de estancamiento', dP: 'ΔP0', m: 'Caudal másico', Q: 'Caudal (local)', massErr: 'Desbalance de masa', z: 'Cota' },
+      pumps: { id: 'Compresor', name: 'Nombre', m: 'Caudal másico', Q: 'Caudal de succión', ratio: 'Relación de compresión', dP: 'ΔP0', T0out: 'T0 en la descarga', Pgas: 'Potencia al gas', stateTxt: 'Estado' },
+      valves: { id: 'Válvula', name: 'Nombre', typeLabel: 'Tipo', state: 'Estado', m: 'Caudal másico', Q: 'Caudal a la entrada', dP: 'ΔP0', Pin: 'P estática entrada', K: 'K efectivo', chokedTxt: 'Bloqueo' },
+    },
+    gas: { choked: 'bloqueado' },
     unitOf: 'Unidad de {label}',
     innerDiameter: 'DI {d} mm',
     noItems: 'Ningún elemento de este tipo en el modelo.',
@@ -88,6 +95,10 @@ PumpIt.i18n.add('es', {
       viscosity: 'Viscosidad',
       vaporPressure: 'Presión de vapor',
       ambientPressure: 'Presión ambiente',
+      regime: 'Régimen',
+      gasConstants: 'Constantes del gas',
+      temperature: { isotermico: 'Temperatura del gas', adiabatico: 'Temperatura de las fuentes' },
+      normalDensity: 'Densidad normal',
       counts: 'Tuberías · uniones',
     },
     boundaries: {
@@ -96,6 +107,7 @@ PumpIt.i18n.add('es', {
       junction: 'Unión',
       type: 'Tipo',
       netFlow: 'Caudal neto',
+      netMass: 'Caudal másico neto',
       flowUnit: 'caudal',
       stagnation: 'P estancamiento',
       pressureUnit: 'presión',

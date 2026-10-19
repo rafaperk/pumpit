@@ -3,13 +3,13 @@
   const PumpIt = root.PumpIt;
   const D = PumpIt.data, H = PumpIt.hyd, UI = PumpIt.ui;
   const F = UI.format;
-  const { el, section, readout, hint } = UI.forms;
+  const { el, section, readout } = UI.forms;
   const app = PumpIt.app;
   const { t } = PumpIt.i18n;
   const tx = (key, params) => t('inspector.fittings.' + key, params);
 
   function build(key, p, gm) {
-    const s = section(tx('title'));
+    const s = section(tx('title'), { info: tx('hint') });
     const fT = gm ? H.craneFT(gm.Dh) : NaN;
     const list = (p.fittings || []).map((x) => Object.assign({}, x));
     const save = () => app.setVal(key, 'fittings', list);
@@ -50,7 +50,6 @@
     for (const it of list) Ksum += (it.qty ?? 1) * (it.model === 'KfT' ? it.value * fT : it.value);
     s.appendChild(readout(tx('sumK'), F.fmt(Ksum, 4)));
     s.appendChild(readout(tx('craneFT'), F.fmt(fT, 3)));
-    s.appendChild(hint(tx('hint')));
     return s;
   }
 

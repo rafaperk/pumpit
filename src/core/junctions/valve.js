@@ -22,5 +22,18 @@
       if (j.closed) vr.state = t('junctions.states.closed');
       rc.valves[j.id] = vr;
     },
+
+    // compressible mode: a K element referred to the pipe the flow comes from (Cv and Kv turned into that K)
+    gas: {
+      element(j, lk, net) {
+        net.kElement(JS.gasValveK(j, j.K, net.Ain), JS.gasValveK(j, j.K, net.Aout));
+        if (j.closed) { lk.mode = 'closed'; lk.fixedClosed = true; }
+      },
+      results(j, jr, rc) {
+        const vr = { type: j.type, m: rc.m, Q: jr.Q, QN: jr.QN, dP: rc.dP, Pin: jr.Pin, P0in: rc.P0in, K: jr.K, choked: jr.choked, state: t('junctions.states.' + (j.closed ? 'closed' : 'open')) };
+        vr.Cv = JS.gasEquivalentCv(jr.K, rc.el.d ? rc.el.d.A[0] : NaN);
+        rc.valves[j.id] = vr;
+      },
+    },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

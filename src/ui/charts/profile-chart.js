@@ -46,11 +46,13 @@
     const what = pf.what || 'heads';
     app.prefs.profile = { a, b, what };
     const opt = (sel) => js.map((j) => `<option value="${j.id}"${j.id === sel ? ' selected' : ''}>J${j.id} ${F.esc(j.name)}</option>`).join('');
-    const isHead = what === 'heads';
+    // a gas has no heads: its profile is always one of pressures
+    const gas = PumpIt.model.isCompressible(eff);
+    const isHead = what === 'heads' && !gas;
     const cat = isHead ? 'head' : 'pressure';
     const u = app.outUnit('profile.' + cat, cat);
     ctl.innerHTML = `<label>${tx('from')}<select id="pf-a">${opt(a)}</select></label><label>${tx('to')}<select id="pf-b">${opt(b)}</select></label>
-      <label>${tx('quantity')}<select id="pf-what"><option value="heads"${isHead ? ' selected' : ''}>${tx('heads')}</option><option value="pressure"${!isHead ? ' selected' : ''}>${tx('pressures')}</option></select></label>
+      <label>${tx('quantity')}<select id="pf-what">${gas ? '' : `<option value="heads"${isHead ? ' selected' : ''}>${tx('heads')}</option>`}<option value="pressure"${!isHead ? ' selected' : ''}>${tx('pressures')}</option></select></label>
       <label>${tx('unit')}<select class="unit-sel" data-t="profile" data-c="${cat}" data-cat="${cat}">${U.list(cat).map((x) => F.option(x, F.unit(x), x === u)).join('')}</select></label>`;
     const res = app.currentResults();
     if (!res || !res.ok) { box.innerHTML = `<div class="empty">${tx('needsResults')}</div>`; notes.textContent = ''; return; }
@@ -61,12 +63,21 @@
     const lu = app.outUnit('profile.x', 'length');
     const ser = { a: [], b: [], z: [] };
     let s = 0;
+    // stagnation pressure of a gas from its static pressure and Mach number
+    const k = res.fluid.k, p0 = (P, M) => P * Math.pow(1 + (k - 1) / 2 * M * M, k / (k - 1));
     for (const { pipe, fwd } of path) {
       const r = res.pipes[pipe.id];
       const L = r.L;
       const st = fwd ? 'in' : 'out', en = fwd ? 'out' : 'in';
       const x0 = U.fromSI(s, lu, 'length'), x1 = U.fromSI(s + L, lu, 'length');
-      if (isHead) {
+      if (gas && r.profile && r.profile.length > 1) {
+        // the points of the march along the pipe (its pressure is not a straight line), in the direction of the path
+        const pts = fwd ? r.profile : r.profile.slice().reverse();
+        for (const [x, P, , M] of pts) {
+          const xs = U.fromSI(s + (fwd ? x : L - x), lu, 'length');
+          ser.a.push([xs, cv(P)]); ser.b.push([xs, cv(p0(P, M))]);
+        }
+      } else if (isHead) {
         ser.a.push([x0, cv(r['HGL' + st])], [x1, cv(r['HGL' + en])]);
         ser.b.push([x0, cv(r['EGL' + st])], [x1, cv(r['EGL' + en])]);
         ser.z.push([x0, cv(r['z' + st])], [x1, cv(r['z' + en])]);
@@ -81,7 +92,7 @@
       : [{ name: tx('static'), pts: ser.a, color: 'var(--accent)' }, { name: tx('stagnation'), pts: ser.b, color: '#c0612b', dash: '6 4' }];
     if (!isHead && Number.isFinite(res.fluid.pv)) series.push({ name: tx('vapor'), pts: [[0, cv(res.fluid.pv)], [U.fromSI(s, lu, 'length'), cv(res.fluid.pv)]], color: 'var(--crit)', dash: '2 4', width: 1.6 });
     box.innerHTML = lineChart({ title: tx('title'), xLabel: tx('xLabel', { u: F.unit(lu) }), yLabel: tx(isHead ? 'yHead' : 'yPressure', { u: F.unit(u) }), series });
-    notes.innerHTML = tx('notes', { path: path.map(({ pipe }) => 'P' + pipe.id).join(' → '), length: F.fmt(U.fromSI(s, lu, 'length'), 5), u: F.unit(lu) });
+    notes.innerHTML = tx(gas ? 'notesGas' : 'notes', { path: path.map(({ pipe }) => 'P' + pipe.id).join(' → '), length: F.fmt(U.fromSI(s, lu, 'length'), 5), u: F.unit(lu) });
   }
 
   PumpIt.ui.profileChart = { render: profileChart, findPath };

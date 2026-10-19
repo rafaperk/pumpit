@@ -59,6 +59,12 @@
     return { length: L > 0 ? pick('length') : q(100, 'm'), material: pick('material'), geometry: pick('geometry'), friction: pick('friction') };
   }
 
+  // the gas of the compressible mode (R-10): a library gas by its id, or 'custom' with its own MW, k and μ; Z is always
+  // given. For a library gas the stored MW, k and μ are not used (they seed a custom gas)
+  function newGasFluid() {
+    return { kind: 'gas', gas: 'air', name: '', MW: 28.9647, k: 1.4, Z: 1, mu: q(0.01813, 'cP'), T: q(20, '°C') };
+  }
+
   // a new model; its default texts (title, fluid name, base scenario) are in the current language
   function newModel() {
     return {
@@ -71,6 +77,13 @@
         reLam: 2300,
         reTurb: 4000,
         laminarK: 'improvedAtkf',
+        // compressible mode (R-01..R-04, R-41): the regime, the thermal model, the gas (kept beside the liquid of
+        // `fluid`, so a change of regime loses nothing: decision G-05) and the design limits of the warnings
+        regime: 'incompressivel',
+        gasMode: 'isotermico',
+        fluidGas: newGasFluid(),
+        machLimit: 0.7,
+        gasVelLimit: q(30, 'm/s'),
       },
       solution: { tolRel: 1e-4, maxIter: 500, relax: 1, adaptive: true, checkMass: true },
       pipes: [],
@@ -112,6 +125,38 @@
 
   function pipesAt(m, jid) { return m.pipes.filter((p) => p.up === jid || p.down === jid); }
 
+  // regime of a model (compressible mode, R-02): 'compressivel' (gas) or 'incompressivel' (liquid, the default and the
+  // regime of every model saved before the field existed)
+  const REGIMES = ['incompressivel', 'compressivel'];
+  const GAS_MODES = ['isotermico', 'adiabatico'];
+  const isCompressible = (m) => !!(m && m.system && m.system.regime === 'compressivel');
+
+  // regime fields of a loaded model (§8.5): unknown values back to the defaults, missing gas fields filled in. A gas
+  // written as the active fluid (system.fluid.kind 'gas', the layout of §8.1) becomes the gas of the model, with
+  // its numbers in SI, and the liquid goes back to the default one.
+  const isQty = (v) => v && typeof v === 'object' && 'value' in v && 'unit' in v;
+  function normalizeRegime(m) {
+    const s = m.system;
+    if (s.fluid && s.fluid.kind === 'gas') {
+      const f = s.fluid;
+      s.fluidGas = Object.assign(newGasFluid(), {
+        gas: 'custom', name: typeof f.name === 'string' ? f.name : '', MW: f.MW, k: f.k, Z: f.Z ?? 1,
+        mu: isQty(f.mu) ? f.mu : q(f.mu, 'Pa·s'), T: isQty(f.T) ? f.T : q(f.T, 'K'),
+      });
+      s.fluid = newModel().system.fluid;
+      if (s.regime === undefined) s.regime = 'compressivel';
+    }
+    if (!REGIMES.includes(s.regime)) s.regime = 'incompressivel';
+    if (!GAS_MODES.includes(s.gasMode)) s.gasMode = 'isotermico';
+    const g = s.fluidGas && typeof s.fluidGas === 'object' && !Array.isArray(s.fluidGas) ? s.fluidGas : {};
+    s.fluidGas = Object.assign(newGasFluid(), g, { kind: 'gas' });
+    if (!isQty(s.fluidGas.T)) s.fluidGas.T = newGasFluid().T;
+    if (!isQty(s.fluidGas.mu)) s.fluidGas.mu = newGasFluid().mu;
+    if (!(typeof s.machLimit === 'number')) s.machLimit = 0.7;
+    if (!isQty(s.gasVelLimit)) s.gasVelLimit = q(30, 'm/s');
+    return m;
+  }
+
   // inlet and outlet pipes of a two-port junction, by reference direction
   function ports(m, j) {
     const ps = pipesAt(m, j.id);
@@ -123,9 +168,9 @@
   }
 
   PumpIt.model = Object.assign(PumpIt.model || {}, {
-    q, clone, newJunction, newPipe, pipeDefaults, newModel, migrate,
+    q, clone, newJunction, newPipe, pipeDefaults, newModel, newGasFluid, migrate,
     getPath, setPath, getObj, deepEqual,
-    pipesAt, ports,
+    pipesAt, ports, REGIMES, GAS_MODES, isCompressible, normalizeRegime,
   });
   // { type: definition } in display order, built from the junction type registry
   Object.defineProperty(PumpIt.model, 'JT', { get: () => types.table(), enumerable: true, configurable: true });
