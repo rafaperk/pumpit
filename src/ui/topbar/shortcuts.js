@@ -1,4 +1,4 @@
-// The keyboard shortcuts box of the Help menu: the keys of the drawing and of the 3D views (3D views specification
+// The keyboard shortcuts box of the Help menu: the keys of the drawing and of the 3D view (3D views specification
 // §6.3, §6.4). The help window lists the main ones too and opens this box.
 (function (root) {
   const PumpIt = root.PumpIt;
@@ -9,8 +9,7 @@
   // the rows of each group, in the order shown (texts in app.shortcuts.<group>.<row>.keys / .does)
   const GROUPS = {
     all: ['help', 'views', 'tools', 'cancel', 'delete', 'undo', 'copy', 'fit', 'zoom'],
-    iso: ['route', 'bend', 'level', 'pan'],
-    free: ['orbit', 'pan', 'level', 'vertical', 'lock', 'bend', 'route', 'delBend', 'mouse'],
+    free: ['orbit', 'pan', 'level', 'vertical', 'lock', 'bend', 'route', 'delBend', 'mouse', 'cube'],
   };
 
   function show() {

@@ -1,6 +1,6 @@
-// 3D views: camera navigation with the mouse, the keyboard and touch (3D views specification R-41, §8.13) and
-// selection by clicking (§8.16). The isometric camera pans, zooms and turns in steps of 90°; it never orbits freely.
-// Turns go about what the middle of the screen shows and a perspective zoom heads for what the cursor shows (D-31).
+// 3D view: camera navigation with the mouse, the keyboard, touch and the view cube (3D views specification R-41,
+// §8.13, decision D-35) and selection by clicking (§8.16). Turns go about what the middle of the screen shows and a
+// perspective zoom heads for what the cursor shows (D-31).
 // Camera moves are saved with the model but stay out of undo (R-61), and redraw at most once per frame, with quick
 // frames while they last (R-62). Camera changes that jump glide there in 250 ms, unless the system asks for reduced
 // motion (R-63).
@@ -19,7 +19,6 @@
 
   const svgEl = () => document.getElementById('canvas');
   function viewport() { const r = svgEl().getBoundingClientRect(); return { w: r.width, h: r.height, left: r.left, top: r.top }; }
-  const isIso = () => app.model.view3.mode === 'iso';
 
   // Redraws on the next frame. mode: true for a quick frame while something moves (quick.js), 'edit' for the marks of
   // the editors only (the scene has not changed), anything else for a full drawing. A fuller request wins.
@@ -111,7 +110,7 @@
       drag = { kind: 'none', x0: e.clientX, y0: e.clientY, moved: false };
       return;
     }
-    const pan = isIso() || e.button === 1 || e.button === 2 || e.shiftKey;
+    const pan = e.button === 1 || e.button === 2 || e.shiftKey;
     drag = { kind: pan ? 'pan' : 'orbit', x0: e.clientX, y0: e.clientY, cam0: S3.camera(), moved: false, clickEmpty: !hit && e.button === 0 };
   }
 
@@ -179,8 +178,12 @@
     if (p) glide({ ...base(), target: p });
   }
 
-  // ready-made views (R-42): the angles of the preset, then framed; Iso only places the camera
-  function preset(name) { glide(V.fit({ ...base(), ...V.PRESETS[name] }, viewport(), S3.points(), S3.FIT_PAD)); }
+  // ready-made views (R-42), from the view cube (D-35): the angles of the view, then framed
+  const look = (angles) => glide(V.fit({ ...base(), ...angles }, viewport(), S3.points(), S3.FIT_PAD));
+  // the view from a region of the cube (its key): a face, an edge or a corner
+  function lookFrom(key) { look(V.cubeView(key, base().azimuth)); }
+  // the arrow keys on the cube: the next region across (dx) or up and down (dy)
+  function cubeStep(dx, dy) { look(V.cubeStep(base(), dx, dy)); }
 
   // perspective or orthographic, keeping the size of the scene at the target (at once: there is nothing in between)
   function setProjection(proj) {
@@ -191,20 +194,24 @@
     apply(proj === 'ortho' ? { ...cam, projection: 'ortho', scale: V.clamp(f / cam.distance, 2, V.MAX_SCALE) } : { ...cam, projection: 'persp', distance: V.clamp(f / cam.scale, V.closestOf(cam, vp), 5000) });
   }
 
-  // the isometric view turns by 90° about what the middle of the screen shows: the azimuth stays in
-  // {-45, 45, 135, -135}
-  function rotateIso(dir) {
-    focusMiddle();
-    const cam = base();
-    glide({ ...cam, azimuth: ((cam.azimuth + dir * 90 + 540) % 360) - 180 });
-  }
-  // the turn buttons of the free 3D view (D-33): 15° about what the middle of the screen shows, the same way round as
-  // those of the isometric view (the arrow keys turn the other way, like a drag of the background)
-  function turnFree(dir) {
+  // the turn buttons of the menu (D-33): 15° about what the middle of the screen shows (the arrow keys turn the other
+  // way, like a drag of the background)
+  function turn(dir) {
     focusMiddle();
     const cam = base();
     glide({ ...cam, azimuth: cam.azimuth + dir * 15 });
   }
+
+  // A drag of the view cube turns the camera like a drag of the background, about what the middle of the screen
+  // shows, but 2.5 times as far for the same move, since the cube is small.
+  let spin = null; // the camera when the drag began
+  function spinStart() {
+    stopGlide(false);
+    const vp = viewport();
+    spin = focused(S3.camera(), vp, vp.w / 2, vp.h / 2);
+  }
+  function spinMove(dx, dy) { if (spin) apply(V.orbit(spin, dx * 2.5, dy * 2.5), true); }
+  function spinEnd() { if (spin) { spin = null; redraw(false); } }
 
   // keys of the 3D views (§6.4); true when the key was used. The editing keys come first.
   function key(e) {
@@ -217,11 +224,13 @@
     if (!dirs[k]) return false;
     const [ax, ay] = dirs[k];
     if (e.shiftKey) { glide(V.pan(base(), viewport(), -ax * 40, -ay * 40)); return true; }
-    if (isIso()) return false; // the arrows choose pipe routes while drawing in the isometric view
     focusMiddle();
     glide(V.orbit(base(), ax * 37.5, -ay * 37.5)); // 15° per press (0.4° per px); up raises the camera
     return true;
   }
 
-  PumpIt.ui.nav3d = { down, move, up, wheel, zoomBy, fit, dblclick, preset, setProjection, rotateIso, turnFree, key, redraw, drawn, consumedContext: () => movedLast };
+  PumpIt.ui.nav3d = {
+    down, move, up, wheel, zoomBy, fit, dblclick, lookFrom, cubeStep, setProjection, turn, spinStart, spinMove, spinEnd, key, redraw, drawn,
+    consumedContext: () => movedLast,
+  };
 })(window);

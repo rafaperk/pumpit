@@ -1,8 +1,8 @@
-// 3D views: editing in the free 3D view (3D views specification §5.4, §8.9, §8.10, Phase 3). Placing junctions on the
-// working plane; drawing pipes in any direction (across, on the plane of the last point; Shift up and down; Ctrl along
-// an axis; Alt+click or D for a bend); moving a junction across or, with Shift, up and down, which changes its
-// elevation; and the bends of the selected pipe: drag them, insert one with a double click, delete the marked one with
-// Delete. Grid snapping is optional (Snap, on the controls).
+// 3D view: editing (3D views specification §5.4, §8.9, §8.10, Phase 3). Placing junctions on the working plane;
+// drawing pipes in any direction (across, on the plane of the last point; Shift up and down; Ctrl along an axis;
+// Alt+click or D for a bend); moving a junction across or, with Shift, up and down, which changes its elevation; and
+// the bends of the selected pipe: drag them, insert one with a double click, delete the marked one with Delete. Grid
+// snapping is optional (Snap, in the menu of the view).
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui, V = PumpIt.view3d;
@@ -211,7 +211,7 @@
     return true;
   }
 
-  // keys of the free 3D view (§6.4): D makes a bend while drawing; ← → choose the route to the junction under the
+  // keys of the 3D view (§6.4): D makes a bend while drawing; ← → choose the route to the junction under the
   // cursor (elsewhere they turn the camera); Delete removes the marked bend
   function key(e) {
     const k = e.key;
@@ -307,13 +307,5 @@
     return o;
   }
 
-  // hint of the current tool in the free 3D view (§6.2)
-  function hintKey() {
-    const tl = E3.tool();
-    if (tl === 'pipe') return 'network.view3.hint.freePipe';
-    if (tl.startsWith('place:')) return 'network.view3.hint.freePlace';
-    return E3.selPipe() !== null ? 'network.view3.hint.freeBends' : 'network.view3.hint.free';
-  }
-
-  PumpIt.ui.freeEdit3d = { down, move, up, key, cancel, reset, dropAt, dblclick, cameraMoved, overlay, hintKey, preview: () => preview };
+  PumpIt.ui.freeEdit3d = { down, move, up, key, cancel, reset, dropAt, dblclick, cameraMoved, overlay, preview: () => preview };
 })(window);

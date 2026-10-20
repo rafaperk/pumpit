@@ -1,4 +1,4 @@
-// 3D views: the "3D drawing" sections of the inspector (3D views specification §6.3), once the 3D views were opened.
+// 3D view: the "3D drawing" sections of the inspector (3D views specification §6.3), once the 3D view was opened.
 // Nothing selected: the vertical scale (typed, or chosen for the model) and fitting every pipe to the grid. A pipe: its
 // drawn length, bends and grid snapping, fit to the grid, the next route and removing the bends. A junction: its place
 // in the plan (X and Y) and the roll of its symbol; its height is its elevation, a field of its own panel.
@@ -71,17 +71,15 @@
     host.appendChild(s);
   });
 
-  // a junction: its place in the plan, X and Y in du (the isometric view rounds them to the grid step), and the roll of
-  // an oriented symbol (R-29)
+  // a junction: its place in the plan, X and Y in du, and the roll of an oriented symbol (R-29)
   UI.inspector.addSection('junction', (host, id) => {
     const j = app.model.junctions.find((x) => x.id === id);
     const p = app.model.view3 && j && S3.scene().pos.get(id);
     if (!p) return;
     const s = section(tx('title'), { info: tx('heightNote') });
     const setPlan = (k, n) => {
-      const v = app.model.view3;
       const q = [...p];
-      q[k] = v.mode === 'iso' ? Math.round(n / v.step) * v.step : n;
+      q[k] = n;
       if (V.pointsEqual(q, p, 1e-9)) return false;
       if (S3.junctionAt(q, id) !== null) { app.toast(tx('occupied')); return false; } // two junctions never share a point
       C3.moveJunction(id, q);

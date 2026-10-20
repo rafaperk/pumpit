@@ -37,15 +37,15 @@ flowchart LR
 | Junction types | `src/core/junctions/` | `PumpIt.junctionTypes` | Registry and one file per type |
 | Examples | `src/core/examples/` | `PumpIt.examples` | Builder helpers and one file per example |
 | Import | `src/core/import/` | `PumpIt.importers` | Readers of model files of other formats, one per file extension: `.fth` (Annex A of the specification) → a model, the notes of the import (what needs input, was assumed or left out) and the comparison with the results stored in the file |
-| 3D views geometry | `src/core/view3d/` | `PumpIt.view3d` | Camera and projection, navigation, grids, pipe routes that follow their ends, symbol orientation, scene points from the plan and the elevation, editing in the free view, the junction symbols as solids (pure functions; see [3D-VIEWS.md](3D-VIEWS.md)) |
+| 3D view geometry | `src/core/view3d/` | `PumpIt.view3d` | Camera and projection, navigation, the grid, pipe routes that follow their ends, symbol orientation, scene points from the plan and the elevation, editing, the junction symbols as solids, the view cube (pure functions; see [3D-VIEWS.md](3D-VIEWS.md)) |
 | Common UI | `src/ui/common/` | `PumpIt.ui.format`, `.pipeLabels`, `.dom`, `.dialogs`, `.tips`, `.download`, `.xlsx` | Formatting, the designations of catalogue pipes, DOM helpers, dialogs, the bubble of the notes (the "i" of the fields), downloads, .xlsx writer |
 | Junction views | `src/ui/junctions/` | `PumpIt.ui.junctionTypes` | Registry and one view per type |
 | Application | `src/ui/app/` | `PumpIt.app` | State, selection, editing and undo, clipboard, calculation, files (open `.json`, or another format through the importer of its extension; files dropped on the window), the import report, layout, keyboard, start-up |
-| Top bar | `src/ui/topbar/` | `PumpIt.ui.menus`, `.shortcuts`, `.header`, `.scenarios`, `.checklist`, `.language`, `.theme` | Menus and commands, keyboard shortcuts box, header status and the stamp of the regime, scenarios, checklist, language selector, light and dark mode button |
+| Top bar | `src/ui/topbar/` | `PumpIt.ui.menus`, `.shortcuts`, `.header`, `.scenarios`, `.checklist`, `.language`, `.theme` | Menus and commands (the Options menu adds its own, `options.js`), keyboard shortcuts box, header status and the stamp of the regime, scenarios, checklist, language selector, light and dark mode button |
 | Help | `src/ui/help/` | `PumpIt.ui.help`, `.tour`, `.helpEquations` | The help window (chapters, search, links that light areas of the screen), the guided tour and the formulas of the technical reference |
 | Inspector | `src/ui/inspector/` | `PumpIt.ui.inspector`, `.forms`, `.systemForm`, `.systemWindow`, ... | Field builders (with their notes), one file per panel, the arrow that collapses the panel, and the system window: the properties of the system in a window over the page, with a summary in the panel when nothing is selected |
 | Network view | `src/ui/network/` | `PumpIt.ui.canvas`, `.drawing`, `.colorScales`, `.palette`, `.infoCard` | Interaction, SVG drawing, colour scales, palette, right-click card |
-| 3D views | `src/ui/view3d/` | `PumpIt.ui.scene3d`, `.commands3d`, `.edit3d` (with `.isoEdit3d`, `.freeEdit3d`), `.solids3d`, `.render3d`, `.quick3d`, `.nav3d`, `.hud3d` | Scene (plan and elevation), commands, editing in each view, the junction symbols as shaded solids, SVG drawing with depth cues and quick frames while something moves, camera navigation and glides, view switch with the menus of the views, inspector sections (see [3D-VIEWS.md](3D-VIEWS.md)) |
+| 3D view | `src/ui/view3d/` | `PumpIt.ui.scene3d`, `.commands3d`, `.edit3d` (with `.freeEdit3d`), `.solids3d`, `.render3d`, `.quick3d`, `.nav3d`, `.hud3d`, `.cube3d` | Scene (plan and elevation), commands, editing, the junction symbols as shaded solids, SVG drawing with depth cues and quick frames while something moves, camera navigation and glides, view switch with the menu of the view, the view cube, inspector sections (see [3D-VIEWS.md](3D-VIEWS.md)) |
 | Model data view | `src/ui/model-data/` | `PumpIt.ui.modelData` | Input tables |
 | Results view | `src/ui/results/` | `PumpIt.ui.results`, `.resultColumns`, `.resultExport` | Result tables, warnings, TSV and Excel export |
 | Charts view | `src/ui/charts/` | `PumpIt.ui.charts`, `.lineChart`, `.pumpChart`, `.profileChart` | Charts |
@@ -142,7 +142,7 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 - Charts: a new file in `src/ui/charts/`, an entry in `CHARTS` (`charts.js`) and a tab button in `index.html`.
 - Inspector panels: `PumpIt.ui.inspector.panels.<name>(host, ...)`, dispatched by `src/ui/inspector/inspector.js`. Another block adds a section after a panel with `PumpIt.ui.inspector.addSection('system' | 'pipe' | 'junction', fn)`, as the 3D views do.
 - Notes of a field or a section (an "i" that shows the text on hover or focus): `info` in the options of the field builders and of `section()` in `src/ui/inspector/forms.js`, or `forms.note(section, html)`. `forms.hint()` is for a line that must stay in sight: a state (an isolated pipe, the fitted curve) or an error.
-- Network drawing: in the isometric and 3D views, `src/ui/network/canvas.js` hands its pointer events and its drawing over to `src/ui/view3d/`; the schematic keeps its own code.
+- Network drawing: in the 3D view, `src/ui/network/canvas.js` hands its pointer events and its drawing over to `src/ui/view3d/`; the schematic keeps its own code.
 
 ## Tests
 
@@ -151,5 +151,5 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 - `tests/validate-fth.js`: the core against results stored in reference model files (answer key only; see the clean-room rules in `CONTRIBUTING.md`).
 - `tests/fth-import.test.cjs`: the `.fth` importer, with synthetic files written from Annex A by the test itself.
 - `tests/check-i18n.js`: same keys and placeholders in every language, every literal key of the code defined, the texts of every pipe catalogue, every example calculated in every language without missing texts, and every reference inside the help (labels, links, formulas, examples, areas of the screen, tour steps) resolved.
-- `tests/view3d.test.cjs`: the geometry of the 3D views against exact values, and the drawing/calculation contract (every example gives byte-identical results with a random drawing).
+- `tests/view3d.test.cjs`: the geometry of the 3D view and of the view cube against exact values, and the drawing/calculation contract (every example gives byte-identical results with a random drawing).
 - All of them load the core with `tests/load-core.js`, from the list in `index.html`.

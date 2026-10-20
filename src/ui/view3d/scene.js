@@ -1,13 +1,12 @@
-// 3D views: the scene of the model, the cameras and the view switch. A junction stands at its schematic position (the
-// plan) and at the height of its elevation in the current scenario, so the schematic and the 3D views always show one
-// geometry: moving a junction in one moves it in the others (decision D-20 of docs/3D-VIEWS.md). A pipe follows its
+// 3D view: the scene of the model, the camera and the view switch. A junction stands at its schematic position (the
+// plan) and at the height of its elevation in the current scenario, so the schematic and the 3D view always show one
+// geometry: moving a junction in one moves it in the other (decision D-20 of docs/3D-VIEWS.md). A pipe follows its
 // junctions: an automatic route along the axes, a route kept relative to its ends (bends3) or a straight line
 // (snap3 false).
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, V = PumpIt.view3d, U = PumpIt.units, UI = PumpIt.ui;
   const app = PumpIt.app;
-  const { t } = PumpIt.i18n;
 
   const FIT_PAD = 64; // framing margin (px): a little more than the specification's 48, clear of the controls on top
 
@@ -73,31 +72,24 @@
     return pts[0];
   }
 
-  // ------------------------------------------------------------ cameras (§8.2)
-  function camera() {
-    const v = app.model.view3;
-    return v.mode === 'iso' ? V.isoCamera(v.iso) : { ...v.free };
-  }
+  // ------------------------------------------------------------ the camera (§8.2)
+  const camera = () => ({ ...app.model.view3.free });
   let saveTimer = 0;
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(app.save, 400); }
-  // camera of the current view: saved with the model, outside undo (R-61)
+  // the camera: saved with the model, outside undo (R-61)
   function setCamera(c) {
-    const v = app.model.view3;
-    if (v.mode === 'iso') Object.assign(v.iso, { target: c.target, scale: c.scale, azimuth: c.azimuth });
-    else Object.assign(v.free, { projection: c.projection, target: c.target, azimuth: c.azimuth, elevation: c.elevation, distance: c.distance, scale: c.scale });
+    Object.assign(app.model.view3.free, { projection: c.projection, target: c.target, azimuth: c.azimuth, elevation: c.elevation, distance: c.distance, scale: c.scale });
     saveSoon();
   }
-  // frames both cameras on the whole scene; the free camera gets both its distance and its orthographic scale
+  // frames the camera on the whole scene, with both its distance and its orthographic scale
   function frameAll() {
     const pts = points(), vp = viewport(), v = app.model.view3;
-    const ci = V.fit(V.isoCamera(v.iso), vp, pts, FIT_PAD);
-    Object.assign(v.iso, { target: ci.target, scale: ci.scale });
     const cp = V.fit({ ...v.free, projection: 'persp' }, vp, pts, FIT_PAD);
     const co = V.fit({ ...v.free, projection: 'ortho' }, vp, pts, FIT_PAD);
     Object.assign(v.free, { target: v.free.projection === 'ortho' ? co.target : cp.target, distance: cp.distance, scale: co.scale });
   }
 
-  // frames the cameras again when the whole scene is out of sight (a camera saved for another scene)
+  // frames the camera again when the whole scene is out of sight (a camera saved for another scene)
   function ensureVisible() {
     if (!active() || !app.model.junctions.length) return;
     const vp = viewport(), cam = camera();
@@ -105,24 +97,28 @@
     if (!seen) { frameAll(); saveSoon(); }
   }
 
-  // view3 holds view settings only (the active view, the scales, the cameras): undo and redo leave them as they are
+  // view3 holds view settings only (the active view, the scales, the camera): undo and redo leave them as they are
   function carryView(prev, m) { if (prev) m.view3 = M.clone(prev); }
 
   // ------------------------------------------------------------ view switch (R-01)
-  // The first entry into a 3D view creates the settings: a vertical scale that suits the model and a working level at
-  // the lowest elevation. Settings are not undoable; switching views never moves anything.
+  // The settings of the 3D view, created when they are first needed (the first entry into the view, or a choice of the
+  // Options menu): a vertical scale that suits the model, a working level at the lowest elevation and the camera
+  // framing the network. Settings are not undoable; switching views never moves anything.
+  function ensure() {
+    if (app.model.view3) return app.model.view3;
+    const pts = app.eff().junctions.map((j) => ({ x: j.x, y: j.y, elev: elevationM(j) }));
+    const v = M.newView3();
+    v.zScale = V.autoZScale(pts);
+    v.level = pts.length ? Math.min(...pts.map((p) => p.elev)) : 0;
+    app.model.view3 = v;
+    frameAll();
+    saveSoon();
+    return v;
+  }
+  // next: '2d' (the schematic) or '3d'
   function setMode(next) {
     if (next === mode()) return;
-    if (next !== '2d' && !app.model.view3) {
-      const eff = app.eff();
-      const pts = eff.junctions.map((j) => ({ x: j.x, y: j.y, elev: elevationM(j) }));
-      const v = M.newView3();
-      v.zScale = V.autoZScale(pts);
-      v.level = pts.length ? Math.min(...pts.map((p) => p.elev)) : 0;
-      app.model.view3 = v;
-      frameAll();
-      app.toast(t('network.view3.firstEntry'));
-    }
+    if (next !== '2d') ensure();
     if (app.model.view3) {
       app.model.view3.mode = next;
       saveSoon();
@@ -134,6 +130,6 @@
 
   PumpIt.ui.scene3d = {
     FIT_PAD, mode, active, viewport, zScale, elevationM, scene, routeFor, points, junctionAt, anchorOf,
-    camera, setCamera, saveSoon, frameAll, ensureVisible, carryView, setMode,
+    camera, setCamera, saveSoon, frameAll, ensureVisible, carryView, ensure, setMode,
   };
 })(window);

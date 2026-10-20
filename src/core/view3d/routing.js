@@ -2,7 +2,7 @@
 // the position of its start junction to that of its end junction; its inner points are the bends (drawing only).
 (function (root) {
   const PumpIt = root.PumpIt;
-  const { AX, add, sub, mul, cross, len, project, screenVec } = PumpIt.view3d;
+  const { sub, cross, len } = PumpIt.view3d;
 
   const pointsEqual = (a, b, eps = 1e-9) => Math.abs(a[0] - b[0]) <= eps && Math.abs(a[1] - b[1]) <= eps && Math.abs(a[2] - b[2]) <= eps;
 
@@ -26,36 +26,6 @@
   }
   const drawnLength = (pts) => pts.slice(1).reduce((s, p, i) => s + len(sub(p, pts[i])), 0);
 
-  // Route candidates in the isometric view, from p0 to the screen point (sx, sy). For each pair of axes, solves
-  // α·Ea + β·Eb = D on the screen (D: from p0 to the cursor; Ea, Eb: screen directions of the axes), rounds α and
-  // β to the step and makes a route of up to two legs in each order. Each candidate: { legs: [{ axis, d }], pts,
-  // key, cost }, from the most to the least likely: fewer legs, shorter, no vertical leg, first leg continuing
-  // prevAxis, X before Y before Z.
-  function routeCandidatesScreen(cam, vp, p0, sx, sy, step, prevAxis = null) {
-    const s0 = project(cam, vp, p0);
-    const D = [sx - s0.x, sy - s0.y];
-    const E = { x: screenVec(cam, vp, p0, AX.x), y: screenVec(cam, vp, p0, AX.y), z: screenVec(cam, vp, p0, AX.z) };
-    const out = [];
-    const seen = new Set();
-    for (const [a, b] of [['x', 'y'], ['x', 'z'], ['y', 'z']]) {
-      const det = E[a][0] * E[b][1] - E[a][1] * E[b][0];
-      if (Math.abs(det) < 1e-9) continue;
-      const al = step * Math.round((D[0] * E[b][1] - D[1] * E[b][0]) / det / step);
-      const be = step * Math.round((E[a][0] * D[1] - E[a][1] * D[0]) / det / step);
-      for (const order of [[[a, al], [b, be]], [[b, be], [a, al]]]) {
-        const legs = order.filter(([, d]) => Math.abs(d) > 1e-9).map(([axis, d]) => ({ axis, d }));
-        const key = legs.map((l) => `${l.axis}${l.d}`).join('|');
-        if (!legs.length || seen.has(key)) continue;
-        seen.add(key);
-        const pts = [p0];
-        for (const l of legs) pts.push(add(pts[pts.length - 1], mul(AX[l.axis], l.d)));
-        out.push({ legs, pts, key, cost: legs.reduce((s, l) => s + Math.abs(l.d), 0) });
-      }
-    }
-    const rank = (c) => [c.legs.length, c.cost, c.legs.some((l) => l.axis === 'z') ? 1 : 0, c.legs[0].axis === prevAxis ? 0 : 1, 'xyz'.indexOf(c.legs[0].axis)];
-    return out.sort((m, n) => { const A = rank(m); const B = rank(n); for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return A[i] - B[i]; return 0; });
-  }
-
   // Orthogonal routes from p0 to p1 (known 3D points), one per order of the axes: first the one that continues
   // the previous leg, then the one that leaves the vertical leg last. Each candidate: { order, pts, key }.
   function routeCandidatesTo(p0, p1, prevAxis = null) {
@@ -69,20 +39,6 @@
     });
     const rank = (c) => [c.order[0] === prevAxis ? 0 : 1, c.order.includes('z') ? c.order.length - 1 - c.order.indexOf('z') : 0];
     return out.sort((m, n) => { const A = rank(m); const B = rank(n); for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return A[i] - B[i]; return 0; });
-  }
-
-  // moves segment i (pts[i] → pts[i + 1]) by t du along axis, inserting connecting segments where the neighbour is
-  // not parallel to axis; a parallel neighbour stretches instead. The end points (junctions) never move.
-  function moveSegment(pts, i, axis, t) {
-    const m = mul(AX[axis], t);
-    const out = pts.map((p) => [...p]);
-    const a = add(pts[i], m);
-    const b = add(pts[i + 1], m);
-    if (i + 1 === pts.length - 1 || axisOf(pts[i + 1], pts[i + 2]) !== axis) out.splice(i + 1, 0, b);
-    else out[i + 1] = b;
-    if (i === 0 || axisOf(pts[i - 1], pts[i]) !== axis) out.splice(i + 1, 0, a);
-    else out[i] = a;
-    return simplify(out);
   }
 
   // automatic route from a to b: along the axes, X before Y, the vertical leg last
@@ -132,7 +88,7 @@
   }
 
   Object.assign(PumpIt.view3d, {
-    pointsEqual, axisOf, simplify, drawnLength, routeCandidatesScreen, routeCandidatesTo, moveSegment,
+    pointsEqual, axisOf, simplify, drawnLength, routeCandidatesTo,
     autoRoute, anchorBends, resolveBends, orthogonalize,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

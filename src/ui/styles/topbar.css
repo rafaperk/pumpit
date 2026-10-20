@@ -71,6 +71,12 @@ select:hover, input[type="text"]:hover, textarea:hover { border-color: var(--ink
 }
 .menu-pop button:hover { background: var(--accent-soft); }
 .menu-sep { height: 1px; background: var(--line); margin: 4px 2px; }
+/* a choice of the Options menu (options.js), with a mark before the one in use */
+.menu-pop button[aria-pressed] { position: relative; padding-left: 28px; }
+.menu-pop button[aria-pressed="true"]::before {
+  content: ''; position: absolute; left: 11px; top: 50%; width: 9px; height: 5px; margin-top: -4px;
+  border: solid var(--accent); border-width: 0 0 2px 2px; transform: rotate(-45deg);
+}
 .menu-label { padding: 6px 10px 2px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .check-item { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; }
 /* an item edited in the system window: a link to it */

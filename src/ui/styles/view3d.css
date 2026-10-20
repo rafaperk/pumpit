@@ -1,15 +1,14 @@
-/* 3D views: the view switch with the menus of the 3D views on the drawing, the "visual only" seal and the 3D
-   drawing (grid, shadows, drop lines, tubes with their cut, solid symbols, labels). */
+/* 3D view: the view switch with the menu of the 3D view on the drawing, the view cube and the 3D drawing (grid,
+   shadows, drop lines, tubes with their cut, solid symbols, labels). */
 
-/* the view switch: one bar with Schematic, Isometric and 3D. The arrow beside a 3D view opens its menu to the right,
-   pushing what follows, and closes it again (D-33). The bar takes the room the seal leaves on its row, and an open
-   menu wraps its content when that is not enough. */
+/* the view switch: one bar with Schematic and 3D. The arrow beside 3D opens the menu of the view to its right and
+   closes it again (D-33, D-34); an open menu wraps its content when the bar has no room. */
 .view-hud {
   flex: 0 1 auto; display: flex; align-items: flex-start; padding: 2px; pointer-events: auto;
   background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
 }
 .hud-split { flex: none; display: flex; border-radius: 6px; }
-.hud-split + .hud-split, .hud-menu + .hud-split { margin-left: 2px; }
+.hud-split + .hud-split { margin-left: 2px; }
 .hud-split.on { background: var(--accent-soft); }
 .hud-split button { min-height: 26px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); cursor: pointer; }
 .hud-split [data-mode] { padding: 3px 10px; font-size: 12.5px; }
@@ -20,31 +19,47 @@
 .hud-split.on .hud-arrow:hover, .hud-arrow[aria-expanded="true"] { color: var(--accent); }
 .hud-arrow svg { display: block; }
 .hud-arrow[aria-expanded="true"] svg { transform: rotate(180deg); }
-/* A menu slides between nothing and its width (hud.js), while its content keeps the width it ends with. Its groups
+/* The menu slides between nothing and its width (hud.js), while its content keeps the width it ends with. Its groups
    wrap onto more lines when the bar has no room; each group draws the line before it, which falls on the edge of the
    menu where a group starts a line. */
 .hud-menu { flex: 0 1 auto; min-width: 0; overflow: hidden; }
 .hud-menu-in { display: flex; flex-wrap: wrap; align-items: center; row-gap: 2px; margin-left: 4px; border-left: 1px solid var(--line); }
-.hud-menu:not(:last-child) .hud-menu-in { margin-right: 2px; border-right: 1px solid var(--line); }
 .hud-grp { position: relative; flex: none; display: flex; align-items: center; gap: 3px; margin-left: -1px; padding: 0 6px; }
 .hud-grp::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 1px; background: var(--line); }
 .hud-menu .btn { min-height: 26px; padding: 2px 7px; font-size: 12.5px; white-space: nowrap; }
 .hud-menu .btn.icon { padding: 2px 5px; min-width: 26px; }
 .hud-menu .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
-.hud-menu .seg { flex-wrap: nowrap; padding: 0; border: 0; background: transparent; }
-.hud-menu .seg button { min-height: 26px; padding: 3px 8px; font-size: 12.5px; white-space: nowrap; }
 @media (prefers-reduced-motion: no-preference) {
   .hud-arrow svg { transition: transform .18s ease-out; }
-}
-/* the seal, at the right of the row of the view switch, or below the bar when an open menu needs the row
-   (network.css) */
-.seal3 {
-  flex: 0 0.01 auto; margin-left: auto; font-size: 11.5px; color: var(--ink-2); background: var(--panel);
-  border: 1px solid var(--line); border-radius: 13px; padding: 3px 10px; pointer-events: none;
 }
 .hud-level { display: flex; align-items: center; gap: 2px; font-size: 12.5px; color: var(--ink-2); }
 .hud-level input { width: 52px; min-height: 26px; padding: 2px 6px; font-family: var(--f-mono); font-size: 12.5px; text-align: right; }
 .hud-level .unit { color: var(--ink-3); }
+
+/* the view cube (D-35, cube.js), at the top right of the drawing: faint until the pointer comes over it. Each face
+   gets its shade (--k, 0.55 … 1) from the light; the region under the pointer is lit with the accent colour. */
+.view-cube {
+  position: absolute; top: 6px; right: 12px; z-index: 2; width: 112px; height: 112px; border-radius: 12px;
+  opacity: .85; touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.view-cube:hover, .view-cube:focus-visible, .view-cube.turning { opacity: 1; }
+.view-cube:focus { outline: none; }
+.view-cube:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.view-cube svg { display: block; overflow: visible; }
+@media (prefers-reduced-motion: no-preference) {
+  .view-cube { transition: opacity .15s ease-out; }
+}
+.view-cube .vc-r { fill: color-mix(in srgb, var(--cube3d) calc(var(--k) * 100%), var(--cube3d-dark)); cursor: pointer; }
+.view-cube .vc-r.hot { fill: color-mix(in srgb, var(--accent) 45%, var(--cube3d)); }
+.view-cube .vc-edge { fill: none; stroke: var(--cube3d-edge); stroke-width: 1; stroke-linejoin: round; pointer-events: none; }
+.view-cube .vc-label {
+  font-family: var(--f-display); font-weight: 600; fill: var(--ink-2); text-anchor: middle; dominant-baseline: central;
+  pointer-events: none;
+}
+.view-cube .vc-arrow { fill: var(--ink-3); cursor: pointer; }
+.view-cube .vc-arrow:hover { fill: var(--accent); }
+/* the bar of the views keeps clear of the cube */
+.cube-on .canvas-top { right: 134px; }
 
 /* the drawing */
 .g3-grid line { stroke: var(--grid); stroke-width: 1; }
@@ -80,7 +95,6 @@
 .g3-scene path.hit { fill: transparent; }
 .g3-shadows path { fill: var(--shade3d); }
 .g3-scene .flow-arrow { fill: var(--panel); pointer-events: none; }
-.g3-scene .offgrid { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 2 3; pointer-events: none; }
 /* junction symbols as solids (D-29, solids.js): a material sets --m, a shade (k0 … k15) mixes it with black or white,
    and the fog of a far symbol (--fog, 0 … 1) mixes the result with the background; a symbol near the camera in
    perspective fades out (--near, 1 … 0, D-31). The halo under the parts outlines the selection; the invisible disc

@@ -19,6 +19,10 @@ PumpIt.i18n.add('es', {
       pasteJson: 'Pegar modelo (JSON)…',
       exportXlsx: 'Exportar tuberías a Excel (.xlsx)',
       examples: 'Ejemplos',
+      options: 'Opciones',
+      grid3d: 'Cuadrícula 3D',
+      projection3d: 'Proyección 3D',
+      viewCube: 'Cubo de vistas',
       edit: 'Editar',
       undo: 'Deshacer',
       redo: 'Rehacer',
@@ -119,11 +123,11 @@ PumpIt.i18n.add('es', {
     },
     shortcuts: {
       title: 'Atajos de teclado',
-      intro: 'Valen fuera de los campos de texto. Las vistas 3D muestran el mismo modelo que el esquema: el esquema es la planta y la altura de cada unión es su cota.',
-      groups: { all: 'En todas las vistas', iso: 'Isométrica', free: '3D libre' },
+      intro: 'Valen fuera de los campos de texto. La vista 3D muestra el mismo modelo que el esquema: el esquema es la planta y la altura de cada unión es su cota.',
+      groups: { all: 'En todas las vistas', free: 'Vista 3D' },
       all: {
         help: { keys: 'F1', does: 'Abre el centro de ayuda' },
-        views: { keys: '1 · 2 · 3', does: 'Esquema, isométrica, 3D' },
+        views: { keys: '1 · 2', does: 'Esquema, 3D' },
         tools: { keys: 'V · P', does: 'Herramientas Seleccionar y Tubería' },
         cancel: { keys: 'Esc', does: 'Cancela la tubería en curso, luego la herramienta' },
         delete: { keys: 'Supr', does: 'Elimina la selección' },
@@ -131,12 +135,6 @@ PumpIt.i18n.add('es', {
         copy: { keys: 'Ctrl C · Ctrl V · Ctrl A', does: 'Copiar · pegar · seleccionar todo' },
         fit: { keys: 'Inicio', does: 'Encuadra el dibujo' },
         zoom: { keys: '+ · −', does: 'Acercar · alejar' },
-      },
-      iso: {
-        route: { keys: '← →', does: 'Trazado anterior o siguiente, dibujando una tubería o con una tubería seleccionada' },
-        bend: { keys: 'D · Alt+clic', does: 'Hace un quiebre en el punto actual de la tubería en curso' },
-        level: { keys: 'RePág · AvPág', does: 'Sube o baja la cota de trabajo un paso de la cuadrícula' },
-        pan: { keys: 'Mayús+flechas', does: 'Mueve la vista' },
       },
       free: {
         orbit: { keys: 'Flechas', does: 'Giran la cámara en pasos de 15°' },
@@ -148,6 +146,7 @@ PumpIt.i18n.add('es', {
         route: { keys: '← →', does: 'Dibujando cerca de una unión, elige el trazado hasta ella' },
         delBend: { keys: 'Supr', does: 'Borra el quiebre marcado de la tubería seleccionada' },
         mouse: { keys: 'Ratón', does: 'Arrastrar el vacío gira; botón derecho o Mayús+arrastrar mueve la vista; la rueda acerca; doble clic centra, o inserta un quiebre en la tubería seleccionada' },
+        cube: { keys: 'Flechas en el cubo', does: 'Con el cubo de vistas enfocado (Tab), pasan a la vista siguiente: alrededor, o arriba y abajo' },
       },
     },
     diffs: {

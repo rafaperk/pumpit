@@ -69,7 +69,7 @@ PumpIt.i18n.add('en', {
         },
         views: {
           title: 'Views',
-          body: 'Switch between the 2D schematic, the isometric view and the free 3D view (keys <kbd>1</kbd>, <kbd>2</kbd> and <kbd>3</kbd>). All three show the same model: the height of each junction is its elevation. The arrow beside Isometric and 3D opens the options of that view, and another click closes them.',
+          body: 'Switch between the 2D schematic and the 3D view (keys <kbd>1</kbd> and <kbd>2</kbd>). Both show the same model: the height of each junction is its elevation. The arrow beside 3D opens the options of that view, and another click closes them; in 3D, the cube at the top right chooses the side to look from.',
         },
         overlay: {
           title: 'Results on the drawing',
@@ -105,7 +105,7 @@ PumpIt.i18n.add('en', {
 <h4>How this help is organised</h4>
 <ul>
 <li><b>Getting started</b>: build a model from scratch and understand the automatic calculation.</li>
-<li><b>User guide</b>, chapters 2 to 11: the screen, drawing, each junction type, pipes, the system, scenarios, results, charts, the 3D views and files.</li>
+<li><b>User guide</b>, chapters 2 to 11: the screen, drawing, each junction type, pipes, the system, scenarios, results, charts, the 3D view and files.</li>
 <li><b>Technical reference</b>: the assumptions, the solution method and the equations of every component.</li>
 </ul>
 <p>Use the search box at the top to find a subject, and the <b>Previous</b> and <b>Next</b> buttons to read in sequence. Dashed buttons, such as [[show:palette|the palette]], light up the part of the screen the text talks about.</p>
@@ -123,7 +123,7 @@ PumpIt.i18n.add('en', {
 <li><b>Explore.</b> In [[show:overlay|Results on the drawing]], choose [[t:network.overlay.V]] to colour the pipes. Open the [[t:app.tabs.out]] tab for the tables and the [[t:app.tabs.charts]] tab to see the pump curve against the system curve.</li>
 </ol>
 <p class="tip"><b>Tip:</b> when something is missing, the indicator shows how many pending items there are. Click it: the list takes you straight to the incomplete object, and the panel shows in red what still has to be filled in.</p>
-<p>Next steps: try a [[go:start.examples|ready-made example]], create a [[go:scenarios.concept|scenario]] with the pump at 90% speed, or look at the network in the [[go:views3d.concept|3D views]].</p>`,
+<p>Next steps: try a [[go:start.examples|ready-made example]], create a [[go:scenarios.concept|scenario]] with the pump at 90% speed, or look at the network in the [[go:views3d.concept|3D view]].</p>`,
           },
           examples: {
             title: 'Ready-made examples',
@@ -164,7 +164,7 @@ PumpIt.i18n.add('en', {
             body: `<p>Every change is stored automatically in the browser: when you open Pump It again on the same computer and in the same browser, the last model comes back.</p>
 <p class="warn"><b>Note:</b> this automatic copy lives only in this browser, and clearing the browsing data erases it. To really keep your work, use [[t:app.menu.file]] → [[t:app.menu.save]] and keep the <code>.json</code> file.</p>
 <ul>
-<li><b>Undo and redo:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the [[t:app.menu.edit]] menu. The app keeps the last 80 changes. Moving the camera of the 3D views does not enter the undo history.</li>
+<li><b>Undo and redo:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the [[t:app.menu.edit]] menu. The app keeps the last 80 changes. Moving the camera of the 3D view does not enter the undo history.</li>
 <li><b>Open a file:</b> [[t:app.menu.file]] → [[t:app.menu.open]].</li>
 </ul>
 <p>More in [[go:files.files|Files]].</p>`,
@@ -417,7 +417,7 @@ PumpIt.i18n.add('en', {
             body: `<p>[[icon:valve]] A valve, or any in-line component with a known local loss.</p>
 <ul>
 <li>[[t:junctions.lossModel.label]]: [[t:junctions.lossModel.K]], [[t:junctions.lossModel.Cv]] or [[t:junctions.lossModel.Kv]].</li>
-<li>[[t:junctions.valve.form.closed]]: zero flow. In the 3D views, a closed valve is drawn in red.</li>
+<li>[[t:junctions.valve.form.closed]]: zero flow. In the 3D view, a closed valve is drawn in red.</li>
 </ul>
 <p>The results bring the pressure drop, the effective K and the equivalent Cv. For losses that travel with the pipe, such as bends and isolation valves that stay open, you can also use the list of [[go:pipes.fittings|pipe fittings]].</p>`,
           },
@@ -603,7 +603,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <li>[[t:network.overlay.P]] and [[t:network.overlay.HGL]]: the mean of the inlet and the outlet of each pipe; the junctions show their own value.</li>
 </ul>
 <p>A legend shows the scale. Velocity uses a fixed scale for water, explained in [[go:results.velocity|Velocity scale]]; the other quantities go from the minimum to the maximum of the model.</p>
-<p>It also works in the 3D views. There must be results: complete the checklist.</p>`,
+<p>It also works in the 3D view. There must be results: complete the checklist.</p>`,
           },
           tables: {
             title: 'Results tab',
@@ -688,47 +688,41 @@ Choosing a catalogue also sets the roughness of its material, which can still be
       },
 
       views3d: {
-        title: '3D views',
+        title: '3D view',
         sections: {
           concept: {
-            title: 'Schematic, isometric and 3D',
-            body: `<p>At the top of the drawing area, [[show:views|Schematic · Isometric · 3D]] (keys <kbd>1</kbd>, <kbd>2</kbd> and <kbd>3</kbd>) switches between three views of the <b>same model</b>:</p>
+            title: 'Schematic and 3D',
+            body: `<p>At the top of the drawing area, [[show:views|Schematic · 3D]] (keys <kbd>1</kbd> and <kbd>2</kbd>) switches between two views of the <b>same model</b>:</p>
 <ul>
 <li>the schematic is the <b>plan</b>: the position of each junction on the schematic is its position on the plane;</li>
 <li>the <b>height</b> of each junction is its elevation, multiplied by the [[t:inspector.view3.zScale]];</li>
-<li>moving a junction in one view moves it in the others, and raising or lowering a junction in a 3D view <b>changes its elevation</b> and recalculates;</li>
+<li>moving a junction in one view moves it in the other, and raising or lowering a junction in the 3D view <b>changes its elevation</b> and recalculates;</li>
 <li>routes, bends and plan positions are drawing only: <b>no length ever comes from the drawing</b>.</li>
 </ul>
 <p>On the first entry, the app picks a vertical scale that keeps the heights readable. Pipes appear as shaded tubes as thick as their bore, nearer ones over farther ones, and junctions as small 3D objects.</p>
-<p>Tubes and objects belong to the scene: zooming in or out makes them larger or smaller together with the network, in the proportions of the schematic, and in the free 3D view nearer ones look larger, until they come so close to the camera that they fade out and are cut away, so that nothing fills the screen. The labels keep their size on the screen.</p>`,
-          },
-          iso: {
-            title: 'Isometric',
-            body: `<h4>Navigating</h4>
-<p>Drag the background to move the view and use the wheel to zoom. The arrow beside [[t:network.view3.mode.iso]], at the top of the drawing, opens the options of this view to the right, and another click closes them: the turn buttons, which rotate the view by 90° about what the middle of the screen shows, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.shadows]], the style ([[t:network.view3.styleTrue]] or 2:1), the grid density and the working [[t:network.view3.level]].</p>
-<h4>Editing</h4>
-<ul>
-<li><b>Placing</b>: with a type of the palette, click the grid. The junction goes to the working [[t:network.view3.level]], which <kbd>PageUp</kbd> and <kbd>PageDown</kbd> raise and lower.</li>
-<li><b>Pipes</b>: with the [[t:network.palette.pipe]] tool, click a junction or the grid, move the cursor and choose the route with <kbd>←</kbd> and <kbd>→</kbd>; <kbd>Alt</kbd>+click or <kbd>D</kbd> makes a bend; near a junction, the route goes to it.</li>
-<li><b>Moving</b>: drag a junction along an axis (along the vertical, its elevation changes). Drag the handle in the middle of a segment of the selected pipe to move that segment.</li>
-</ul>`,
+<p>Tubes and objects belong to the scene: zooming in or out makes them larger or smaller together with the network, in the proportions of the schematic, and in perspective nearer ones look larger, until they come so close to the camera that they fade out and are cut away, so that nothing fills the screen. The labels keep their size on the screen.</p>`,
           },
           free: {
-            title: 'Free 3D',
+            title: '3D view',
             body: `<h4>Navigating</h4>
-<p>Drag the background to orbit about what the middle of the screen shows; the right button, the middle button or <kbd>Shift</kbd>+drag move the view; the wheel zooms at the cursor, towards what lies under it; a double click centres on an object. The arrow keys turn the camera by 15°, and <kbd>Shift</kbd>+arrows move the view. The arrow beside [[t:network.view3.mode.3d]] opens the options of this view, and another click closes them: buttons that turn the view by 15°, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]], [[t:network.view3.stems]], [[t:network.view3.persp]] or [[t:network.view3.ortho]], the ready-made views ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] and [[t:network.view3.presets.iso]]), the grid density and the working [[t:network.view3.level]].</p>
+<p>Drag the background to orbit about what the middle of the screen shows; the right button, the middle button or <kbd>Shift</kbd>+drag move the view; the wheel zooms at the cursor, towards what lies under it; a double click centres on an object. The arrow keys turn the camera by 15°, and <kbd>Shift</kbd>+arrows move the view.</p>
+<h4>The view cube</h4>
+<p>The cube at the top right turns with the camera and names the sides of the network: the top, the front (the bottom of the schematic), the right and their opposites. Click a face, an edge or a corner to look from that side, with the network framed: a face gives the view straight on, like the plan from the top, an edge the view between two faces, and a corner the isometric. Drag the cube to turn the camera. On a face seen straight on, the arrows around it go to the faces next to it. With the cube focused (<kbd>Tab</kbd>), the arrow keys go to the next view. [[t:app.menu.options]] → [[t:app.menu.viewCube]] hides it.</p>
+<h4>Options</h4>
+<p>The arrow beside [[t:network.view3.mode.3d]], at the top of the drawing, opens the options of this view, and another click closes them: buttons that turn the view by 15°, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]], [[t:network.view3.stems]] and the working [[t:network.view3.level]]. The [[t:app.menu.options]] menu, beside [[t:app.menu.file]], holds the density of the grid ([[t:network.view3.density.fine]], [[t:network.view3.density.medium]] or [[t:network.view3.density.coarse]]) and the projection ([[t:network.view3.persp]] or [[t:network.view3.ortho]]).</p>
 <h4>Editing</h4>
 <ul>
-<li><b>Pipes</b>: the pipe runs across, on the plane of its last point; hold <kbd>Shift</kbd> to go up or down and <kbd>Ctrl</kbd> to keep it on the nearest axis; <kbd>Alt</kbd>+click or <kbd>D</kbd> makes a bend; a click on empty space ends the pipe at a new node.</li>
+<li><b>Placing</b>: with a type of the palette, click the working plane. The junction goes to the working [[t:network.view3.level]], which <kbd>PageUp</kbd> and <kbd>PageDown</kbd> raise and lower; <kbd>Shift</kbd> keeps the tool.</li>
+<li><b>Pipes</b>: the pipe runs across, on the plane of its last point; hold <kbd>Shift</kbd> to go up or down and <kbd>Ctrl</kbd> to keep it on the nearest axis; <kbd>Alt</kbd>+click or <kbd>D</kbd> makes a bend; near a junction, <kbd>←</kbd> and <kbd>→</kbd> choose the route to it; a click on empty space ends the pipe at a new node.</li>
 <li><b>Moving</b>: drag a junction across; with <kbd>Shift</kbd>, up and down (its elevation changes).</li>
 <li><b>Bends</b>: with a pipe selected, drag a bend, double-click the pipe to insert another, or mark one and press <kbd>Del</kbd>.</li>
 </ul>
-<p>In the [[t:network.view3.presets.front]] and [[t:network.view3.presets.side]] views the floor is seen edge on, so placing, drawing and moving use the vertical plane facing the camera.</p>`,
+<p>Seen from the front, the back or a side, the floor is edge on, so placing, drawing and moving use the vertical plane facing the camera.</p>`,
           },
           symbols: {
             title: 'Symbols and the 3D panel',
-            body: `<p>In the 3D views each junction is a small solid: an open tank with its liquid, a pump with its motor and an arrow along the flow, a valve with its handwheel, a control valve under its actuator, an orifice between flanges, a nozzle with drops, a ball for a branch, a drum (Q), a sphere (P) and a block (K). They follow the direction of their pipes and turn red when the junction stops the flow, such as a closed valve or a pump off and closed.</p>
-<p>With the 3D views open, the panel gains the [[t:inspector.view3.title]] section:</p>
+            body: `<p>In the 3D view each junction is a small solid: an open tank with its liquid, a pump with its motor and an arrow along the flow, a valve with its handwheel, a control valve under its actuator, an orifice between flanges, a nozzle with drops, a ball for a branch, a drum (Q), a sphere (P) and a block (K). They follow the direction of their pipes and turn red when the junction stops the flow, such as a closed valve or a pump off and closed.</p>
+<p>With the 3D view open, the panel gains the [[t:inspector.view3.title]] section:</p>
 <ul>
 <li>with nothing selected: [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] and [[t:inspector.view3.fitAll]];</li>
 <li>on a pipe: the drawn length (which does not enter the calculation), the bends, [[t:inspector.view3.snap]], [[t:inspector.view3.fit]], [[t:inspector.view3.nextRoute]] and [[t:inspector.view3.removeBends]];</li>
@@ -778,14 +772,14 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <table>
 <tr><td><kbd>F1</kbd></td><td>Opens this help</td></tr>
 <tr><td><kbd>V</kbd> · <kbd>P</kbd></td><td>[[t:network.palette.select]] and [[t:network.palette.pipe]] tools</td></tr>
-<tr><td><kbd>1</kbd> · <kbd>2</kbd> · <kbd>3</kbd></td><td>[[t:network.view3.mode.2d]], [[t:network.view3.mode.iso]] and [[t:network.view3.mode.3d]] views</td></tr>
+<tr><td><kbd>1</kbd> · <kbd>2</kbd></td><td>[[t:network.view3.mode.2d]] and [[t:network.view3.mode.3d]] views</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>Lets go of the pipe being drawn, then leaves the tool</td></tr>
 <tr><td><kbd>Del</kbd></td><td>Deletes the selection</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Undo · redo</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd> · <kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Copy · paste · select all</td></tr>
 <tr><td><kbd>Home</kbd> · <kbd>+</kbd> · <kbd>−</kbd></td><td>Fit · zoom in · zoom out</td></tr>
 </table>
-<p>The complete list, with the keys of the 3D views: [[act:shortcuts|Keyboard shortcuts]].</p>`,
+<p>The complete list, with the keys of the 3D view: [[act:shortcuts|Keyboard shortcuts]].</p>`,
           },
         },
       },

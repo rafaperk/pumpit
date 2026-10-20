@@ -1,4 +1,5 @@
-// Top bar menus (File, Edit, Help), their commands and the list of examples.
+// Top bar menus (File, Options, Edit, Help), their commands and the list of examples. Other blocks add their own
+// commands to ACTIONS and, for a menu that shows a state, a function to ON_OPEN (src/ui/topbar/options.js).
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, UI = PumpIt.ui;
@@ -13,7 +14,7 @@
     $('#ctxmenu').hidden = true;
   };
 
-  // menu items, by their data-act attribute
+  // menu items, by their data-act attribute; each receives the item clicked
   const ACTIONS = {
     new: () => confirmBox(t('app.newModel.title'), t('app.newModel.text'), t('app.newModel.ok'), () => { app.pushUndo(); app.loadModel(M.newModel()); }),
     open: () => $('#file-input').click(),
@@ -49,6 +50,9 @@
     shortcuts: () => UI.shortcuts.show(),
   };
 
+  // what a menu brings up to date as it opens, by the name of the menu (data-menu): fn(pop)
+  const ON_OPEN = {};
+
   // opens an example in place of the current model (undo brings the model back)
   function openExample(id) {
     const ex = PumpIt.examples.get(id);
@@ -70,8 +74,9 @@
       const was = pop.hidden;
       app.hideMenus();
       pop.hidden = !was;
+      if (!pop.hidden && ON_OPEN[b.dataset.menu]) ON_OPEN[b.dataset.menu](pop);
     }));
-    $$('.menu-pop [data-act]').forEach((b) => b.addEventListener('click', () => { app.hideMenus(); ACTIONS[b.dataset.act](); }));
+    $$('.menu-pop [data-act]').forEach((b) => b.addEventListener('click', () => { app.hideMenus(); ACTIONS[b.dataset.act](b); }));
     renderExamples();
     $('#menu-examples').addEventListener('click', (e) => {
       const b = e.target.closest('[data-ex]');
@@ -85,5 +90,5 @@
     });
   }
 
-  PumpIt.ui.menus = { ACTIONS, bind, renderExamples, openExample };
+  PumpIt.ui.menus = { ACTIONS, ON_OPEN, bind, renderExamples, openExample };
 })(window);

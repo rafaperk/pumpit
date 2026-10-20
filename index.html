@@ -45,6 +45,21 @@
           <div id="menu-examples"></div>
         </div>
       </div>
+      <!-- how the drawing looks (D-36 of docs/3D-VIEWS.md); the marks of the choices: src/ui/topbar/options.js -->
+      <div class="menu">
+        <button class="btn ghost" data-menu="options" id="btn-menu-options" data-i18n="app.menu.options">Options</button>
+        <div class="menu-pop" id="menu-options" hidden>
+          <div class="menu-label" data-i18n="app.menu.grid3d">3D grid</div>
+          <button data-act="grid-step" data-value="0.5" aria-pressed="false" title="Fine grid: 0.5 du" data-i18n="network.view3.density.fine" data-i18n-title="network.view3.densityTitle.fine">Fine</button>
+          <button data-act="grid-step" data-value="1" aria-pressed="false" title="Medium grid: 1 du" data-i18n="network.view3.density.medium" data-i18n-title="network.view3.densityTitle.medium">Medium</button>
+          <button data-act="grid-step" data-value="2" aria-pressed="false" title="Coarse grid: 2 du" data-i18n="network.view3.density.coarse" data-i18n-title="network.view3.densityTitle.coarse">Coarse</button>
+          <div class="menu-label" data-i18n="app.menu.projection3d">3D projection</div>
+          <button data-act="projection" data-value="persp" aria-pressed="false" data-i18n="network.view3.persp">Perspective</button>
+          <button data-act="projection" data-value="ortho" aria-pressed="false" data-i18n="network.view3.ortho">Orthographic</button>
+          <div class="menu-sep"></div>
+          <button data-act="view-cube" aria-pressed="false" data-i18n="app.menu.viewCube">View cube</button>
+        </div>
+      </div>
       <div class="menu">
         <button class="btn ghost" data-menu="edit" id="btn-menu-edit" data-i18n="app.menu.edit">Edit</button>
         <div class="menu-pop" id="menu-edit" hidden>
@@ -138,119 +153,50 @@
       <div class="canvas-wrap" id="canvas-wrap">
         <svg id="canvas" tabindex="0" aria-label="Drawing area" data-i18n-aria-label="network.canvasAria"></svg>
         <div class="canvas-top">
-          <div class="canvas-top-row">
-            <!-- the views; the arrow beside Isometric and 3D opens the menu of that view to its right, pushing what
-                 follows, and closes it again (D-33 of docs/3D-VIEWS.md). Texts of the arrows and behaviour:
-                 src/ui/view3d/hud.js -->
-            <div class="view-hud" id="view-hud" role="group" aria-label="Drawing view" data-i18n-aria-label="network.view3.aria">
-              <span class="hud-split" data-view="2d">
-                <button type="button" data-mode="2d" aria-pressed="true" title="2D schematic (key 1)" data-i18n="network.view3.mode.2d" data-i18n-title="network.view3.modeTitle.2d">Schematic</button>
-              </span>
-              <span class="hud-split" data-view="iso">
-                <button type="button" data-mode="iso" aria-pressed="false" title="Isometric with a grid (key 2)" data-i18n="network.view3.mode.iso" data-i18n-title="network.view3.modeTitle.iso">Isometric</button>
-                <button type="button" class="hud-arrow" data-view-menu="iso" aria-controls="hud-menu-iso" aria-expanded="false">
-                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5L10.5 8L6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-              </span>
-              <div class="hud-menu" id="hud-menu-iso" data-for="iso" hidden>
-                <div class="hud-menu-in">
-                  <div class="hud-grp">
-                    <button type="button" class="btn ghost icon" data-rot="-1" title="Turn 90° to the left" aria-label="Turn 90° to the left" data-i18n-title="network.view3.rotateLeft" data-i18n-aria-label="network.view3.rotateLeft">
-                      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.6 6.2A5 5 0 1 1 3 9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2.6 2.6v3.9h3.9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-                    </button>
-                    <button type="button" class="btn ghost icon" data-rot="1" title="Turn 90° to the right" aria-label="Turn 90° to the right" data-i18n-title="network.view3.rotateRight" data-i18n-aria-label="network.view3.rotateRight">
-                      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M12.4 6.2A5 5 0 1 0 13 9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13.4 2.6v3.9H9.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-                    </button>
-                    <button type="button" class="btn ghost" data-camera="center" title="Frame the whole network in the middle of the view (Home)" data-i18n="network.view3.center" data-i18n-title="network.view3.centerTitle">Center</button>
-                  </div>
-                  <div class="hud-grp">
-                    <button type="button" class="btn ghost" data-toggle="grid" title="Show the grid" data-i18n="network.view3.grid" data-i18n-title="network.view3.gridTitle">Grid</button>
-                    <button type="button" class="btn ghost" data-toggle="shadows" title="Shadow of the pipes and junctions on the floor, to read the heights" data-i18n="network.view3.shadows" data-i18n-title="network.view3.shadowsTitle">Shadows</button>
-                  </div>
-                  <div class="hud-grp">
-                    <div class="seg" role="group" aria-label="Isometric style" data-i18n-aria-label="network.view3.styleAria">
-                      <button type="button" data-style="true" title="True isometric: axes at 30°" data-i18n="network.view3.styleTrue" data-i18n-title="network.view3.styleTrueTitle">True</button>
-                      <button type="button" data-style="2:1" title="2:1 style: lines at 26.57°" data-i18n-title="network.view3.style21Title">2:1</button>
-                    </div>
-                  </div>
-                  <div class="hud-grp">
-                    <div class="seg" role="group" aria-label="Grid density" data-i18n-aria-label="network.view3.densityAria">
-                      <button type="button" data-step="0.5" title="Fine grid: 0.5 du" data-i18n="network.view3.density.fine" data-i18n-title="network.view3.densityTitle.fine">Fine</button>
-                      <button type="button" data-step="1" title="Medium grid: 1 du" data-i18n="network.view3.density.medium" data-i18n-title="network.view3.densityTitle.medium">Medium</button>
-                      <button type="button" data-step="2" title="Coarse grid: 2 du" data-i18n="network.view3.density.coarse" data-i18n-title="network.view3.densityTitle.coarse">Coarse</button>
-                    </div>
-                  </div>
-                  <div class="hud-grp">
-                    <div class="hud-level" title="Working level: the elevation where new junctions go (PageUp and PageDown)" data-i18n-title="network.view3.levelTitle">
-                      <label for="level3-iso" data-i18n="network.view3.level">Level</label>
-                      <button type="button" class="btn ghost icon" data-level="-1" aria-label="Lower the working level" data-i18n-aria-label="network.view3.levelDown">−</button>
-                      <input type="text" id="level3-iso" inputmode="decimal" autocomplete="off">
-                      <span class="unit">m</span>
-                      <button type="button" class="btn ghost icon" data-level="1" aria-label="Raise the working level" data-i18n-aria-label="network.view3.levelUp">+</button>
-                    </div>
-                  </div>
+          <!-- the views; the arrow beside 3D opens the menu of the 3D view to its right and closes it again (D-33 and
+               D-34 of docs/3D-VIEWS.md). Texts of the arrow and behaviour: src/ui/view3d/hud.js -->
+          <div class="view-hud" id="view-hud" role="group" aria-label="Drawing view" data-i18n-aria-label="network.view3.aria">
+            <span class="hud-split" data-view="2d">
+              <button type="button" data-mode="2d" aria-pressed="true" title="2D schematic (key 1)" data-i18n="network.view3.mode.2d" data-i18n-title="network.view3.modeTitle.2d">Schematic</button>
+            </span>
+            <span class="hud-split" data-view="3d">
+              <button type="button" data-mode="3d" aria-pressed="false" title="3D view (key 2)" data-i18n="network.view3.mode.3d" data-i18n-title="network.view3.modeTitle.3d">3D</button>
+              <button type="button" class="hud-arrow" data-view-menu="3d" aria-controls="hud-menu-3d" aria-expanded="false">
+                <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5L10.5 8L6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </span>
+            <div class="hud-menu" id="hud-menu-3d" hidden>
+              <div class="hud-menu-in">
+                <div class="hud-grp">
+                  <button type="button" class="btn ghost icon" data-rot="-1" title="Turn 15° to the left" aria-label="Turn 15° to the left" data-i18n-title="network.view3.turnLeft" data-i18n-aria-label="network.view3.turnLeft">
+                    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.6 6.2A5 5 0 1 1 3 9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2.6 2.6v3.9h3.9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+                  </button>
+                  <button type="button" class="btn ghost icon" data-rot="1" title="Turn 15° to the right" aria-label="Turn 15° to the right" data-i18n-title="network.view3.turnRight" data-i18n-aria-label="network.view3.turnRight">
+                    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M12.4 6.2A5 5 0 1 0 13 9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13.4 2.6v3.9H9.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+                  </button>
+                  <button type="button" class="btn ghost" data-camera="center" title="Frame the whole network in the middle of the view (Home)" data-i18n="network.view3.center" data-i18n-title="network.view3.centerTitle">Center</button>
                 </div>
-              </div>
-              <span class="hud-split" data-view="3d">
-                <button type="button" data-mode="3d" aria-pressed="false" title="Free 3D (key 3)" data-i18n="network.view3.mode.3d" data-i18n-title="network.view3.modeTitle.3d">3D</button>
-                <button type="button" class="hud-arrow" data-view-menu="3d" aria-controls="hud-menu-3d" aria-expanded="false">
-                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5L10.5 8L6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-              </span>
-              <div class="hud-menu" id="hud-menu-3d" data-for="3d" hidden>
-                <div class="hud-menu-in">
-                  <div class="hud-grp">
-                    <button type="button" class="btn ghost icon" data-rot="-1" title="Turn 15° to the left" aria-label="Turn 15° to the left" data-i18n-title="network.view3.turnLeft" data-i18n-aria-label="network.view3.turnLeft">
-                      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.6 6.2A5 5 0 1 1 3 9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2.6 2.6v3.9h3.9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-                    </button>
-                    <button type="button" class="btn ghost icon" data-rot="1" title="Turn 15° to the right" aria-label="Turn 15° to the right" data-i18n-title="network.view3.turnRight" data-i18n-aria-label="network.view3.turnRight">
-                      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M12.4 6.2A5 5 0 1 0 13 9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13.4 2.6v3.9H9.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-                    </button>
-                    <button type="button" class="btn ghost" data-camera="center" title="Frame the whole network in the middle of the view (Home)" data-i18n="network.view3.center" data-i18n-title="network.view3.centerTitle">Center</button>
-                  </div>
-                  <div class="hud-grp">
-                    <button type="button" class="btn ghost" data-toggle="grid" title="Show the grid" data-i18n="network.view3.grid" data-i18n-title="network.view3.gridTitle">Grid</button>
-                    <button type="button" class="btn ghost" data-toggle="snap" title="Snap to the grid when placing, moving and drawing" data-i18n="network.view3.snap" data-i18n-title="network.view3.snapTitle">Snap</button>
-                    <button type="button" class="btn ghost" data-toggle="shadows" title="Shadow of the pipes and junctions on the floor, to read the heights" data-i18n="network.view3.shadows" data-i18n-title="network.view3.shadowsTitle">Shadows</button>
-                    <button type="button" class="btn ghost" data-toggle="stems" title="Dashed line from every junction down to the floor" data-i18n="network.view3.stems" data-i18n-title="network.view3.stemsTitle">Drop lines</button>
-                  </div>
-                  <div class="hud-grp">
-                    <div class="seg" role="group" aria-label="Projection" data-i18n-aria-label="network.view3.projectionAria">
-                      <button type="button" data-proj="persp" data-i18n="network.view3.persp">Perspective</button>
-                      <button type="button" data-proj="ortho" data-i18n="network.view3.ortho">Orthographic</button>
-                    </div>
-                  </div>
-                  <div class="hud-grp">
-                    <div class="seg" role="group" aria-label="Ready-made views" data-i18n-aria-label="network.view3.presetsAria">
-                      <button type="button" data-preset="top" data-i18n="network.view3.presets.top">Top</button>
-                      <button type="button" data-preset="front" data-i18n="network.view3.presets.front">Front</button>
-                      <button type="button" data-preset="side" data-i18n="network.view3.presets.side">Side</button>
-                      <button type="button" data-preset="iso" data-i18n="network.view3.presets.iso">Iso</button>
-                    </div>
-                  </div>
-                  <div class="hud-grp">
-                    <div class="seg" role="group" aria-label="Grid density" data-i18n-aria-label="network.view3.densityAria">
-                      <button type="button" data-step="0.5" title="Fine grid: 0.5 du" data-i18n="network.view3.density.fine" data-i18n-title="network.view3.densityTitle.fine">Fine</button>
-                      <button type="button" data-step="1" title="Medium grid: 1 du" data-i18n="network.view3.density.medium" data-i18n-title="network.view3.densityTitle.medium">Medium</button>
-                      <button type="button" data-step="2" title="Coarse grid: 2 du" data-i18n="network.view3.density.coarse" data-i18n-title="network.view3.densityTitle.coarse">Coarse</button>
-                    </div>
-                  </div>
-                  <div class="hud-grp">
-                    <div class="hud-level" title="Working level: the elevation where new junctions go (PageUp and PageDown)" data-i18n-title="network.view3.levelTitle">
-                      <label for="level3-3d" data-i18n="network.view3.level">Level</label>
-                      <button type="button" class="btn ghost icon" data-level="-1" aria-label="Lower the working level" data-i18n-aria-label="network.view3.levelDown">−</button>
-                      <input type="text" id="level3-3d" inputmode="decimal" autocomplete="off">
-                      <span class="unit">m</span>
-                      <button type="button" class="btn ghost icon" data-level="1" aria-label="Raise the working level" data-i18n-aria-label="network.view3.levelUp">+</button>
-                    </div>
+                <div class="hud-grp">
+                  <button type="button" class="btn ghost" data-toggle="grid" title="Show the grid" data-i18n="network.view3.grid" data-i18n-title="network.view3.gridTitle">Grid</button>
+                  <button type="button" class="btn ghost" data-toggle="snap" title="Snap to the grid when placing, moving and drawing" data-i18n="network.view3.snap" data-i18n-title="network.view3.snapTitle">Snap</button>
+                  <button type="button" class="btn ghost" data-toggle="shadows" title="Shadow of the pipes and junctions on the floor, to read the heights" data-i18n="network.view3.shadows" data-i18n-title="network.view3.shadowsTitle">Shadows</button>
+                  <button type="button" class="btn ghost" data-toggle="stems" title="Dashed line from every junction down to the floor" data-i18n="network.view3.stems" data-i18n-title="network.view3.stemsTitle">Drop lines</button>
+                </div>
+                <div class="hud-grp">
+                  <div class="hud-level" title="Working level: the elevation where new junctions go (PageUp and PageDown)" data-i18n-title="network.view3.levelTitle">
+                    <label for="level3" data-i18n="network.view3.level">Level</label>
+                    <button type="button" class="btn ghost icon" data-level="-1" aria-label="Lower the working level" data-i18n-aria-label="network.view3.levelDown">−</button>
+                    <input type="text" id="level3" inputmode="decimal" autocomplete="off">
+                    <span class="unit">m</span>
+                    <button type="button" class="btn ghost icon" data-level="1" aria-label="Raise the working level" data-i18n-aria-label="network.view3.levelUp">+</button>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="seal3" id="seal3" hidden data-i18n="network.view3.seal">Height = elevation · the drawing never sets lengths</div>
           </div>
-          <div class="canvas-hint" id="canvas-hint"></div>
         </div>
+        <!-- the view cube of the 3D view (D-35): drawn and handled by src/ui/view3d/cube.js -->
+        <div class="view-cube" id="view-cube" tabindex="0" role="group" aria-label="View cube" data-i18n-aria-label="network.view3.cube.aria" hidden></div>
         <div class="canvas-tools">
           <label class="overlay-pick"><span class="eyebrow" data-i18n="network.overlay.label">Results on the drawing</span>
             <select id="overlay-select">
@@ -437,7 +383,7 @@
 <script src="src/core/examples/air-plant.js" charset="utf-8"></script>
 <!-- Import of model files of other formats -->
 <script src="src/core/import/fth.js" charset="utf-8"></script>
-<!-- 3D views: geometry of the isometric and free 3D drawings (pure functions, no DOM) -->
+<!-- 3D view: geometry of the drawing and of the view cube (pure functions, no DOM) -->
 <script src="src/core/view3d/camera.js" charset="utf-8"></script>
 <script src="src/core/view3d/navigation.js" charset="utf-8"></script>
 <script src="src/core/view3d/grids.js" charset="utf-8"></script>
@@ -446,6 +392,7 @@
 <script src="src/core/view3d/plan.js" charset="utf-8"></script>
 <script src="src/core/view3d/free.js" charset="utf-8"></script>
 <script src="src/core/view3d/solids.js" charset="utf-8"></script>
+<script src="src/core/view3d/cube.js" charset="utf-8"></script>
 <!-- Interface: shared utilities -->
 <script src="src/ui/namespace.js" charset="utf-8"></script>
 <script src="src/ui/common/format.js" charset="utf-8"></script>
@@ -482,6 +429,7 @@
 <!-- Top bar -->
 <script src="src/ui/topbar/shortcuts.js" charset="utf-8"></script>
 <script src="src/ui/topbar/menus.js" charset="utf-8"></script>
+<script src="src/ui/topbar/options.js" charset="utf-8"></script>
 <script src="src/ui/topbar/header.js" charset="utf-8"></script>
 <script src="src/ui/topbar/scenarios.js" charset="utf-8"></script>
 <script src="src/ui/topbar/checklist.js" charset="utf-8"></script>
@@ -508,17 +456,17 @@
 <script src="src/ui/network/palette.js" charset="utf-8"></script>
 <script src="src/ui/network/info-card.js" charset="utf-8"></script>
 <script src="src/ui/network/context-menu.js" charset="utf-8"></script>
-<!-- 3D views: scene, drawing, navigation, controls on the drawing and inspector section -->
+<!-- 3D view: scene, drawing, navigation, controls on the drawing and inspector section -->
 <script src="src/ui/view3d/scene.js" charset="utf-8"></script>
 <script src="src/ui/view3d/commands.js" charset="utf-8"></script>
 <script src="src/ui/view3d/edit.js" charset="utf-8"></script>
-<script src="src/ui/view3d/edit-iso.js" charset="utf-8"></script>
 <script src="src/ui/view3d/edit-free.js" charset="utf-8"></script>
 <script src="src/ui/view3d/solids.js" charset="utf-8"></script>
 <script src="src/ui/view3d/render.js" charset="utf-8"></script>
 <script src="src/ui/view3d/quick.js" charset="utf-8"></script>
 <script src="src/ui/view3d/navigation.js" charset="utf-8"></script>
 <script src="src/ui/view3d/hud.js" charset="utf-8"></script>
+<script src="src/ui/view3d/cube.js" charset="utf-8"></script>
 <script src="src/ui/view3d/panel.js" charset="utf-8"></script>
 <!-- Model data view -->
 <script src="src/ui/model-data/model-data.js" charset="utf-8"></script>

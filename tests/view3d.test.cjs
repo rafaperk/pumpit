@@ -1,5 +1,5 @@
-// Tests of the 3D views (3D views specification §12, Appendix C adapted to Pump It). Usage: node tests/view3d.test.cjs
-// The geometry of src/core/view3d/ against exact values, and the contract between the drawing and the calculation
+// Tests of the 3D view (3D views specification §12, Appendix C adapted to Pump It). Usage: node tests/view3d.test.cjs
+// The geometry of src/core/view3d/ against exact values, the view cube (D-35), and the contract between the drawing and the calculation
 // (src/core/model/layout.js): a drawing never changes a result and a new pipe never takes its length from it.
 const { loadCore } = require('./load-core');
 
@@ -29,12 +29,6 @@ ok('T1 Y', nearPt(V.project(iso, vp, [0, 1, 0]), 470.71, 259.18));
 ok('T1 Z', nearPt(V.project(iso, vp, [0, 0, 1]), 400, 218.35));
 ok('T1 (1, -1, 1) at the centre', nearPt(V.project(iso, vp, [1, -1, 1]), 400, 300));
 
-// T2 2:1 style
-const iso21 = { ...iso, squash: V.SQUASH_2_1 };
-const x21 = V.project(iso21, vp, [1, 0, 0]);
-ok('T2 X in the 2:1 style', nearPt(x21, 470.71, 335.36), `slope ${((x21.y - 300) / (x21.x - 400)).toFixed(4)}`);
-ok('T2 (1, -1, 1) at the centre', nearPt(V.project(iso21, vp, [1, -1, 1]), 400, 300));
-
 // T3 ready-made views
 ok('T3 top X', nearPt(V.project(preset('top'), vp, [1, 0, 0]), 500, 300));
 ok('T3 top Y', nearPt(V.project(preset('top'), vp, [0, 1, 0]), 400, 200));
@@ -52,7 +46,7 @@ ok('T4 point behind the camera', V.project(per, vp, [12, 0, 0]) === null);
 
 // T5 round trip screen → ray
 let worst = 0;
-for (const c of [iso, iso21, per, { projection: 'persp', azimuth: 33, elevation: 21, distance: 40, fov: 35, target: [3, -2, 1] }]) {
+for (const c of [iso, per, { projection: 'persp', azimuth: 33, elevation: 21, distance: 40, fov: 35, target: [3, -2, 1] }]) {
   for (let k = 0; k < 300; k++) {
     const p = [rnd() * 20 - 10, rnd() * 20 - 10, rnd() * 6];
     const s = V.project(c, vp, p);
@@ -70,34 +64,12 @@ ok('T6 ray ∩ Z = 0', !!hit && near(hit[0], 1, 1e-3) && near(hit[1], 0, 1e-3) &
 const zv = V.closestOnVertical(V.unproject(per, vp, 430, 300), 0, 1);
 ok('T6 closest point on a vertical line', zv != null && near(zv, 0, 1e-9));
 
-console.log('\nRoutes, segments and symbols');
-// T7 route candidates from the screen (isometric)
-const s21 = V.project(iso, vp, [2, 1, 0]);
-const c7 = V.routeCandidatesScreen(iso, vp, [0, 0, 0], s21.x, s21.y, 1);
-ok('T7 order of the candidates', keyList(c7) === 'x2|y1 ; y1|x2 ; x3|z1 ; z1|x3 ; y3|z-2 ; z-2|y3', keyList(c7));
-ok('T7 3D end points', c7.map((c) => c.pts[c.pts.length - 1].join(',')).join(' ') === '2,1,0 2,1,0 3,0,1 3,0,1 0,3,-2 0,3,-2');
-ok('T7 every end point falls under the cursor', c7.every((c) => nearPt(V.project(iso, vp, c.pts[c.pts.length - 1]), s21.x, s21.y, 1e-6)));
-ok('T7 legs along the axes', c7.every((c) => c.pts.slice(1).every((p, i) => V.axisOf(c.pts[i], p))));
-
-// T8 cursor near an axis: the single leg comes first
-const s20 = V.project(iso, vp, [2, 0, 0]);
-const c8 = V.routeCandidatesScreen(iso, vp, [0, 0, 0], s20.x + 3, s20.y - 2, 1);
-ok('T8 single leg first', keyList(c8) === 'x2 ; y2|z-2 ; z-2|y2', keyList(c8));
-
+console.log('\nRoutes and symbols');
 // T9 route to an existing junction
 const c9 = V.routeCandidatesTo([0, 0, 0], [2, -1, 3], 'x');
 ok('T9 orders of the axes', c9.map((c) => c.key).join(' ') === 'xyz xzy yxz yzx zxy zyx', c9.map((c) => c.key).join(' '));
 ok('T9 three legs, length 6', c9.every((c) => near(V.drawnLength(c.pts), 6, 1e-12) && c.pts.length === 4));
 ok('T9 without a previous axis: x before y', V.routeCandidatesTo([0, 0, 0], [3, 2, 0])[0].key === 'xy');
-
-// T10 moving a segment
-const m1 = V.moveSegment([[0, 0, 0], [4, 0, 0], [4, 3, 0]], 0, 'z', 2);
-ok('T10 a', JSON.stringify(m1) === '[[0,0,0],[0,0,2],[4,0,2],[4,0,0],[4,3,0]]', JSON.stringify(m1));
-const m2 = V.moveSegment([[0, 0, 0], [4, 0, 0], [4, 3, 0], [4, 3, 5]], 1, 'x', 2);
-ok('T10 b', JSON.stringify(m2) === '[[0,0,0],[6,0,0],[6,3,0],[4,3,0],[4,3,5]]', JSON.stringify(m2));
-const m3 = V.moveSegment([[0, 0, 0], [4, 0, 0], [4, 3, 0], [4, 3, 5]], 1, 'z', 1);
-ok('T10 c', JSON.stringify(m3) === '[[0,0,0],[4,0,0],[4,0,1],[4,3,1],[4,3,5]]', JSON.stringify(m3));
-ok('T10 fixed end points and legs along the axes', [m1, m2, m3].every((m) => m.slice(1).every((p, i) => V.axisOf(m[i], p))));
 
 // T11 simplify
 ok('T11 simplify', JSON.stringify(V.simplify([[0, 0, 0], [1, 0, 0], [2, 0, 0], [2, 0, 0], [2, 1, 0]])) === '[[0,0,0],[2,0,0],[2,1,0]]');
@@ -116,29 +88,6 @@ ok('T12 vertical axis: horizontal up', near(vert.up[2], 0, 1e-12) && near(V.len(
 ok('T12 roll of 90° about X', near(V.iconAxes([1, 0, 0], iso, 90).up[1], -1, 1e-12));
 
 console.log('\nGrids, framing, zoom and pan');
-// T13 isometric screen grid
-const iso40 = { ...iso, scale: 40 };
-const g = V.isoGridLines(iso40, vp, 1, 5);
-const fam = (f) => g.filter((l) => l.family === f);
-ok('T13 three families', fam('x').length > 0 && fam('y').length > 0 && fam('z').length > 0, `${fam('x').length}/${fam('y').length}/${fam('z').length} lines`);
-ok('T13 lines inside the screen', g.every((l) => [l.x1, l.x2].every((x) => x >= -1e-6 && x <= 800 + 1e-6) && [l.y1, l.y2].every((y) => y >= -1e-6 && y <= 600 + 1e-6)));
-const pt = V.project(iso40, vp, [2, -1, 0]);
-const distTo = (l) => Math.abs((l.x2 - l.x1) * (l.y1 - pt.y) - (l.x1 - pt.x) * (l.y2 - l.y1)) / Math.hypot(l.x2 - l.x1, l.y2 - l.y1);
-ok('T13 integer world point on a line of each family', ['x', 'y', 'z'].every((f) => fam(f).some((l) => distTo(l) < 1e-6)));
-ok('T13 family z is vertical', fam('z').every((l) => near(l.x1, l.x2, 1e-6)));
-ok('T13 left out when too dense', V.isoGridLines({ ...iso, scale: 0.5 }, vp, 1, 5).length === 0);
-for (const azimuth of [45, 135, -135]) {
-  for (const style of ['true', '2:1']) {
-    const c = V.isoCamera({ azimuth, style, scale: 40, target: [0, 0, 0] });
-    const gl = V.isoGridLines(c, vp, 1, 5);
-    const qp = V.project(c, vp, [2, -1, 1]);
-    const dq = (l) => Math.abs((l.x2 - l.x1) * (l.y1 - qp.y) - (l.x1 - qp.x) * (l.y2 - l.y1)) / Math.hypot(l.x2 - l.x1, l.y2 - l.y1);
-    const fz = gl.filter((l) => l.family === 'z');
-    ok(`T13 azimuth ${azimuth}°, ${style}: vertical lines and integer point on the three families`,
-      fz.length > 0 && fz.every((l) => near(l.x1, l.x2, 1e-6)) && ['x', 'y', 'z'].every((f) => gl.filter((l) => l.family === f).some((l) => dq(l) < 1e-6)));
-  }
-}
-
 // T14 framing
 const pts = [[0, 0, 0], [10, 0, 0], [10, 6, 0], [10, 6, 4]];
 const fitted = V.fit(iso, vp, pts);
@@ -202,7 +151,7 @@ console.log('\nRoutes that follow their junctions');
   ok('T22 a chosen order of the axes is kept after a move', JSON.stringify(V.orthogonalize([[0, 0, 0], ...V.resolveBends(V.anchorBends(L), [0, 0, 0], [5, 4, 0]), [5, 4, 0]])) === '[[0,0,0],[0,4,0],[5,4,0]]');
 }
 
-console.log('\nEditing in the free 3D view');
+console.log('\nEditing in the 3D view');
 {
   const cam = { projection: 'persp', azimuth: -60, elevation: 30, distance: 20, fov: 35, target: [0, 0, 0] };
   const front = { ...cam, ...V.PRESETS.front };
@@ -248,13 +197,57 @@ console.log('\nEditing in the free 3D view');
   ok('T26 halfway: the azimuth turns the short way round, the distance by equal ratios', near(half.azimuth, 180, 1e-9) && near(half.elevation, 40, 1e-9) && near(half.distance, 20, 1e-9) && near(half.scale, 20, 1e-9) && same(half.target, [2, -1, 3]));
 }
 
+console.log('\nThe view cube (D-35)');
+{
+  const cam = (azimuth, elevation) => ({ projection: 'ortho', scale: 100, target: [0, 0, 0], azimuth, elevation });
+  const shows = (c) => V.cubeFaces(c).filter((f) => f.shows).map((f) => f.id).join(' ');
+  const sameView = (a, b) => near(((((a.azimuth - b.azimuth) % 360) + 540) % 360) - 180, 0, 1e-9) && near(a.elevation, b.elevation, 1e-9);
+  const keys = V.CUBE_KEYS;
+  // T33 the regions: a face holds its middle, the bands of its four edges and its four corners
+  ok('T33 26 regions: 6 faces, 12 edges, 8 corners', new Set(keys).size === 26
+    && [1, 2, 3].map((n) => keys.filter((k) => V.cubeParts(k).length === n).length).join() === '6,12,8');
+  const all = V.cubeFaces(cam(-60, 30));
+  ok('T33 a face holds its middle, four edges and four corners', all.every((f) => f.regions.length === 9
+    && f.regions.filter((r) => V.cubeParts(r.key).length === 1).length === 1 && f.regions.filter((r) => V.cubeParts(r.key).length === 3).length === 4));
+  ok('T33 an edge lies on two faces and a corner on three', keys.every((k) => all.filter((f) => f.regions.some((r) => r.key === k)).length === V.cubeParts(k).length));
+  ok('T33 seen from a corner, three faces show; straight on, one', shows(cam(-45, V.ISO_ELEVATION)) === 'top front right'
+    && shows(cam(-90, 0)) === 'front' && shows(cam(0, 90)) === 'top' && shows(cam(135, -20)) === 'bottom back left');
+  // T34 a region gives the view from its direction: the top, the front, the right and their corner are the named views
+  ok('T34 top, front, right and their corner are the named views', sameView(V.cubeView('0,0,1', -60), V.PRESETS.top)
+    && sameView(V.cubeView('0,-1,0', 0), V.PRESETS.front) && sameView(V.cubeView('1,0,0', 0), V.PRESETS.side) && sameView(V.cubeView('1,-1,1', 0), V.PRESETS.iso));
+  ok('T34 from every region the camera looks along it', keys.every((k) => V.len(V.sub(V.basis(V.cubeView(k, -60)).w, V.norm(k.split(',').map(Number)))) < 1e-9));
+  ok('T34 from above, the plan keeps the way round of the screen to a quarter turn, that of the schematic in a tie',
+    V.cubeView('0,0,1', -45).azimuth === -90 && V.cubeView('0,0,1', 30).azimuth === 0 && V.cubeView('0,0,1', 100).azimuth === 90 && V.cubeView('0,0,-1', 170).azimuth === 180);
+  // T35 the labels are never mirrored; the arrows of a face seen straight on
+  ok('T35 the label of every face that shows is not mirrored', [[-60, 30], [-45, V.ISO_ELEVATION], [135, -40], [10, 80], [-170, 5], [0, -90]]
+    .every(([a, e]) => V.cubeFaces(cam(a, e)).filter((f) => f.shows).every((f) => f.label[0] * f.label[3] - f.label[1] * f.label[2] > 0)));
+  const on = V.cubeFaceOn(cam(-90, 0));
+  const dirOf = (id) => on.next.find((n) => n.id === id).dir.map((v) => Math.round(v) || 0).join();
+  ok('T35 the front seen straight on: the top above, the bottom below, the right and the left at their sides',
+    !!on && on.id === 'front' && dirOf('top') === '0,-1' && dirOf('bottom') === '0,1' && dirOf('right') === '1,0' && dirOf('left') === '-1,0');
+  ok('T35 no arrows away from a face or with the plan turned part of a quarter turn', V.cubeFaceOn(cam(-60, 30)) === null
+    && V.cubeFaceOn(cam(-60, 90)) === null && V.cubeFaceOn(cam(-90, 90)).id === 'top');
+  // T36 the arrow keys on the cube
+  let c = cam(-90, 0);
+  const ring = new Set();
+  for (let i = 0; i < 8; i++) { c = { ...c, ...V.cubeStep(c, 1, 0) }; ring.add(`${Math.round(c.azimuth)}/${Math.round(c.elevation)}`); }
+  ok('T36 eight steps across go round the eight regions of the horizon and back', ring.size === 8 && [...ring].every((r) => r.endsWith('/0')) && sameView(c, cam(-90, 0)), [...ring].join(' '));
+  c = cam(-90, 0);
+  const up = [1, 2, 3].map(() => { c = { ...c, ...V.cubeStep(c, 0, 1) }; return Math.round(c.elevation); });
+  ok('T36 up: the edge, then the top, and no farther', up.join() === '45,90,90', up.join());
+  const turned = V.cubeStep(cam(-90, 90), 1, 0);
+  ok('T36 from the top a step across turns the plan by a quarter turn', turned.elevation === 90 && turned.azimuth === 0);
+  c = cam(-45, V.ISO_ELEVATION);
+  ok('T36 from a corner: across to an edge, down to the horizon', sameView(V.cubeStep(c, 1, 0), V.cubeView('1,0,1', 0)) && sameView(V.cubeStep(c, 0, -1), V.cubeView('1,-1,0', 0)));
+}
+
 console.log('\nDrawing and calculation (R-10, R-13, R-16)');
 // T18–T19 for every scenario of every example
 ok('T18 contract exported', typeof M.stripLayout === 'function' && !!M.LAYOUT_KEYS && typeof M.pipeDefaults === 'function');
 for (const ex of EX.EXAMPLES) {
   const base = ex.build();
   const noisy = JSON.parse(JSON.stringify(base));
-  noisy.view3 = { mode: 'iso', step: 1, major: 5, level: 3, zScale: 0.5 };
+  noisy.view3 = { mode: '3d', step: 1, major: 5, level: 3, zScale: 0.5 };
   for (const j of noisy.junctions) { j.x = rnd() * 900; j.y = rnd() * 600; j.icon3 = { roll: 90 }; }
   for (const p of noisy.pipes) { p.bends3 = [{ ref: 'aab', d: [rnd(), rnd(), rnd()] }, { ref: 'bbb', d: [rnd(), 0, 0] }]; p.snap3 = rnd() > 0.5; }
   const snapshot = JSON.stringify(noisy);
@@ -303,15 +296,17 @@ console.log('\nLoaded models (§7.5)');
   ok('T21 bends3: invalid bends dropped, an empty list removed', JSON.stringify(p1.bends3) === '[{"ref":"abb","d":[1,2,3]}]' && !('bends3' in p2));
   ok('T21 snap3: booleans only', !('snap3' in p1) && p2.snap3 === false);
   ok('T21 view3: mode, grid, working level, vertical scale reset; old conversion data dropped', v.mode === '2d' && v.step === 1 && v.major === 5 && v.level === 0 && v.zScale === 1 && !('map2d' in v));
-  ok('T21 view3: isometric camera', v.iso.azimuth === 135 && v.iso.style === 'true' && v.iso.scale === 400 && JSON.stringify(v.iso.target) === '[0,0,0]' && v.iso.grid === true && v.iso.shadows === true);
+  ok('T21 view3: the settings of the isometric view, gone (D-34), dropped', !('iso' in v));
   ok('T21 view3: free camera', v.free.projection === 'persp' && v.free.elevation === 90 && v.free.fov === 15 && v.free.distance === 5000 && v.free.scale === 2 && JSON.stringify(v.free.target) === '[1,2,3]' && v.free.snap === true && v.free.shadows === true);
   ok('T21 a model without drawing data stays without it', !('view3' in M.normalizeLayout(M.newModel())));
+  const was = M.normalizeLayout(Object.assign(M.newModel(), { view3: { mode: 'iso', iso: { azimuth: 45 } } }));
+  ok('T21 a model saved in the isometric view opens in the 3D view', was.view3.mode === '3d' && !('iso' in was.view3));
 }
 // T25 a model saved as JSON and opened again keeps its 3D drawing (§13, item 14)
 {
   const m = EX.EXAMPLES[0].build();
   m.view3 = M.newView3();
-  Object.assign(m.view3, { mode: 'iso', step: 0.5, level: 2, zScale: 0.5 });
+  Object.assign(m.view3, { mode: '3d', step: 0.5, level: 2, zScale: 0.5 });
   m.view3.free.snap = false;
   m.junctions[1].icon3 = { roll: 180 };
   m.pipes[0].bends3 = V.anchorBends([[0, 0, 0], [3, 0, 0], [3, 0, 2], [5, 1, 2]]);
@@ -348,7 +343,7 @@ console.log('\nJunction symbols as solids (D-29)');
   ok('T27 ... and from the front half of its 20 sides, without its ends', faces(draw(front, drum)).length === 10);
   const axes = V.solidAxes([1, 1, 0]);
   let worst = 0;
-  for (const c of [iso, { ...iso, squash: V.SQUASH_2_1 }, cam]) {
+  for (const c of [iso, cam]) {
     for (const at of [[0, 0, 0], [6, -4, 2]]) {
       const pl = V.solidPlacement(c, vp, at, axes), c0 = V.project(c, vp, at);
       for (const L of [[16, 0, 0], [0, -10, 5], [-8, 6, -12]]) {

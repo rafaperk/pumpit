@@ -12,7 +12,7 @@
   // v moved to v1 within [lo, hi], but never the other way: a camera beyond a limit stays where it is
   const toward = (v, v1, lo, hi) => (v1 > v ? Math.max(v, Math.min(v1, hi)) : Math.min(v, Math.max(v1, lo)));
 
-  // 0.4° per px; the elevation stays within ±89.9° (the isometric view turns in steps of 90° instead)
+  // 0.4° per px; the elevation stays within ±89.9°
   function orbit(cam, dx, dy) {
     return { ...cam, azimuth: cam.azimuth - dx * 0.4, elevation: clamp(cam.elevation + dy * 0.4, -89.9, 89.9) };
   }
@@ -21,8 +21,7 @@
   function pan(cam, vp, dx, dy) {
     const { r, u } = basis(cam);
     const s = cam.projection === 'ortho' ? cam.scale : focalPx(cam, vp) / cam.distance;
-    const q = cam.squash || 1;
-    return { ...cam, target: add(cam.target, add(mul(r, -dx / s), mul(u, dy / (s * q)))) };
+    return { ...cam, target: add(cam.target, add(mul(r, -dx / s), mul(u, dy / s))) };
   }
 
   // zoom that keeps the point under the cursor still (on the plane of the target); the scale stays within
@@ -30,7 +29,7 @@
   function zoomAt(cam, vp, sx, sy, factor) {
     const { r, u } = basis(cam);
     const a = sx - vp.w / 2;
-    const b = -(sy - vp.h / 2) / (cam.squash || 1);
+    const b = -(sy - vp.h / 2);
     if (cam.projection === 'ortho') {
       const s1 = toward(cam.scale, cam.scale * factor, 2, MAX_SCALE);
       const k = 1 / cam.scale - 1 / s1;
@@ -79,10 +78,9 @@
     if (cam.projection === 'ortho') {
       const xs = pts.map((p) => dot(sub(p, c), r));
       const ys = pts.map((p) => dot(sub(p, c), u));
-      const q = cam.squash || 1;
       const xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(...ys), ymax = Math.max(...ys);
       const target = add(c, add(mul(r, (xmin + xmax) / 2), mul(u, (ymin + ymax) / 2)));
-      const scale = Math.min((vp.w - 2 * pad) / Math.max(xmax - xmin, 1), (vp.h - 2 * pad) / Math.max(q * (ymax - ymin), 1));
+      const scale = Math.min((vp.w - 2 * pad) / Math.max(xmax - xmin, 1), (vp.h - 2 * pad) / Math.max(ymax - ymin, 1));
       return { ...cam, target, scale: clamp(scale, 2, MAX_SCALE) };
     }
     const R = Math.max(1, Math.hypot(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) / 2);
@@ -93,7 +91,7 @@
 
   // the camera at the fraction t of the way from a to b, for the transitions of R-63: the azimuth turns the short way
   // round, the scale and the distance change by equal ratios, the angles and the target in a straight line. The rest
-  // (projection, field of view, the squash of the 2:1 style) is b's: those changes are not animated.
+  // (projection, field of view) is b's: those changes are not animated.
   function lerpCamera(a, b, t) {
     if (t >= 1) return { ...b };
     const lin = (x, y) => x + (y - x) * t;

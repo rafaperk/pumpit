@@ -1,4 +1,4 @@
-// Transient messages and dialogs: toast, canvas hint, modal box, text prompt, confirmation and copy-to-clipboard.
+// Transient messages and dialogs: toast, modal box, text prompt, confirmation and copy-to-clipboard.
 (function (root) {
   const PumpIt = root.PumpIt;
   const F = PumpIt.ui.format;
@@ -12,9 +12,6 @@
     clearTimeout(toast.h);
     toast.h = setTimeout(() => { box.hidden = true; }, 3800);
   }
-
-  // one-line hint over the drawing (tool instructions)
-  const hint = (msg) => { const h = $('#canvas-hint'); if (h.textContent !== msg) h.textContent = msg; };
 
   // actions: [{ label, primary, onClick }]; onClick returning false keeps the box open
   function modal({ title, body, actions }) {
@@ -66,5 +63,5 @@
     $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
   }
 
-  PumpIt.ui.dialogs = { toast, hint, modal, closeModal, isModalOpen, askText, confirmBox, copyText, bind };
+  PumpIt.ui.dialogs = { toast, modal, closeModal, isModalOpen, askText, confirmBox, copyText, bind };
 })(typeof window !== 'undefined' ? window : globalThis);

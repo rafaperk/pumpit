@@ -22,6 +22,8 @@
   --override: #f6e7c8;
   --shadow: 0 6px 24px rgba(21, 33, 42, .14);
   --shade3d: #15212a; --shade3d-a: .15;
+  /* the view cube (view3d.css): a face in full light, in the dark, and its outline */
+  --cube3d: #f7f9fa; --cube3d-dark: #a3b3bd; --cube3d-edge: #8d9ca6;
   /* materials of the 3D symbols (view3d.css) */
   --m3-steel: #a9b6be; --m3-inside: #6a7a84; --m3-liquid: #3a8fb3; --m3-pump: #1f7d9a; --m3-motor: #59676f;
   --m3-valve: #8a99a2; --m3-wheel: #3c4a54; --m3-act: #3d82a8; --m3-brass: #b88c3e; --m3-flow: #5a90bd;
@@ -39,6 +41,7 @@
     --accent-soft: #163844; --sel: #f0a64a; --ok: #5cc28a; --warn: #e2b04e; --crit: #f0705f; --caution: #93a8b5;
     --pipe: #b9c7cf; --override: #3d3220; --shadow: 0 8px 28px rgba(0, 0, 0, .5);
     --shade3d: #000; --shade3d-a: .55;
+    --cube3d: #4a5a64; --cube3d-dark: #141c21; --cube3d-edge: #74868f;
     --m3-steel: #93a4ae; --m3-inside: #4f5e67; --m3-liquid: #3a8db0; --m3-pump: #2b94b4; --m3-motor: #6a7a85;
     --m3-valve: #8798a2; --m3-wheel: #4f606b; --m3-act: #4290b8; --m3-brass: #b8903f; --m3-flow: #5f97c4;
     --m3-press: #8f7fc0; --m3-block: #8e9ca4; --m3-node: #a6b6bf; --m3-mark: #f4f7f8; --m3-closed: #e0584a;
@@ -52,6 +55,7 @@
   --accent-soft: #163844; --sel: #f0a64a; --ok: #5cc28a; --warn: #e2b04e; --crit: #f0705f; --caution: #93a8b5;
   --pipe: #b9c7cf; --override: #3d3220; --shadow: 0 8px 28px rgba(0, 0, 0, .5);
   --shade3d: #000; --shade3d-a: .55;
+  --cube3d: #4a5a64; --cube3d-dark: #141c21; --cube3d-edge: #74868f;
   --m3-steel: #93a4ae; --m3-inside: #4f5e67; --m3-liquid: #3a8db0; --m3-pump: #2b94b4; --m3-motor: #6a7a85;
   --m3-valve: #8798a2; --m3-wheel: #4f606b; --m3-act: #4290b8; --m3-brass: #b8903f; --m3-flow: #5f97c4;
   --m3-press: #8f7fc0; --m3-block: #8e9ca4; --m3-node: #a6b6bf; --m3-mark: #f4f7f8; --m3-closed: #e0584a;

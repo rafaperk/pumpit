@@ -3,14 +3,13 @@
 // World: right-handed, Z up, in drawing units (du), unrelated to the metres of the calculation.
 // Screen: px, origin at the top left of the <svg>, y down; vp = { w, h } is the size of the <svg>.
 // cam = { projection: 'ortho' | 'persp', target: [x, y, z], azimuth, elevation (degrees), scale (px/du, orthographic),
-//         distance (du, perspective), fov (degrees, vertical, perspective), squash (2:1 isometric style only) }
+//         distance (du, perspective), fov (degrees, vertical, perspective) }
 // In perspective nothing nearer to the camera than NEAR du is drawn (D-31): the symbols and the tubes belong to the
 // scene (D-30), so a pipe passing right by the camera would fill the screen.
 (function (root) {
   const PumpIt = root.PumpIt;
   const DEG = Math.PI / 180;
-  const ISO_ELEVATION = Math.atan(1 / Math.SQRT2) / DEG; // 35.264°: true isometric
-  const SQUASH_2_1 = Math.sqrt(3) / 2; // vertical compression that turns the isometric into the 2:1 style
+  const ISO_ELEVATION = Math.atan(1 / Math.SQRT2) / DEG; // 35.264°: true isometric (the corners of the view cube)
   const AX = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] };
 
   const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
@@ -44,8 +43,7 @@
     const xv = dot(d, r);
     const yv = dot(d, u);
     const zv = dot(d, w);
-    const q = cam.squash || 1;
-    if (cam.projection === 'ortho') return { x: vp.w / 2 + cam.scale * xv, y: vp.h / 2 - q * cam.scale * yv, depth: -zv, k: cam.scale };
+    if (cam.projection === 'ortho') return { x: vp.w / 2 + cam.scale * xv, y: vp.h / 2 - cam.scale * yv, depth: -zv, k: cam.scale };
     const zc = cam.distance - zv;
     if (zc < nearOf(cam)) return null;
     const f = focalPx(cam, vp);
@@ -56,7 +54,7 @@
   function unproject(cam, vp, sx, sy) {
     const { r, u, w } = basis(cam);
     const a = sx - vp.w / 2;
-    const b = -(sy - vp.h / 2) / (cam.squash || 1);
+    const b = -(sy - vp.h / 2);
     if (cam.projection === 'ortho') {
       const o = add(add(add(cam.target, mul(r, a / cam.scale)), mul(u, b / cam.scale)), mul(w, 1e5));
       return { o, d: mul(w, -1) };
@@ -88,7 +86,7 @@
   // behind the near plane)
   function screenVec(cam, vp, p, v) {
     const { r, u, w } = basis(cam);
-    if (cam.projection === 'ortho') return [cam.scale * dot(v, r), -(cam.squash || 1) * cam.scale * dot(v, u)];
+    if (cam.projection === 'ortho') return [cam.scale * dot(v, r), -cam.scale * dot(v, u)];
     const d = sub(p, cam.target);
     const zc = cam.distance - dot(d, w);
     if (zc < nearOf(cam)) return [0, 0];
@@ -109,20 +107,18 @@
     return za < near ? [p, b] : [a, p];
   }
 
-  // ready-made views: the angles only; the target and the scale (or distance) come from the current camera
+  // named views, the angles only (the target and the scale or distance come from the current camera): the plan as in
+  // the schematic, the front of the plan (−Y), its right side (+X) and the true isometric from the front, right and
+  // top. The view cube (cube.js) gives these and the others.
   const PRESETS = {
     top: { azimuth: -90, elevation: 90 },
     front: { azimuth: -90, elevation: 0 },
     side: { azimuth: 0, elevation: 0 },
     iso: { azimuth: -45, elevation: ISO_ELEVATION },
   };
-  // camera of the isometric view: azimuth in {-45, 45, 135, -135}; style 'true' or '2:1'
-  function isoCamera(iso) {
-    return { projection: 'ortho', target: iso.target, scale: iso.scale, azimuth: iso.azimuth, elevation: ISO_ELEVATION, squash: iso.style === '2:1' ? SQUASH_2_1 : 1 };
-  }
 
   PumpIt.view3d = Object.assign(PumpIt.view3d || {}, {
-    DEG, ISO_ELEVATION, SQUASH_2_1, AX, add, sub, mul, dot, cross, len, norm, clamp,
-    basis, focalPx, NEAR, nearOf, project, unproject, rayPlaneZ, closestOnVertical, screenVec, clipNear, PRESETS, isoCamera,
+    DEG, ISO_ELEVATION, AX, add, sub, mul, dot, cross, len, norm, clamp,
+    basis, focalPx, NEAR, nearOf, project, unproject, rayPlaneZ, closestOnVertical, screenVec, clipNear, PRESETS,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

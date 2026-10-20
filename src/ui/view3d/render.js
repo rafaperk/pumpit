@@ -1,4 +1,4 @@
-// 3D views: SVG markup of the isometric and the free 3D drawings (3D views specification §10). Depth cues: items are
+// 3D view: SVG markup of the drawing (3D views specification §10). Depth cues: items are
 // painted from the farthest to the nearest (§8.12); a cut of the background colour runs under every pipe segment, so
 // a nearer pipe interrupts the one behind it (R-55); pipes are shaded tubes as thick as their bore; the junctions are
 // small shaded solids that turn with the camera (D-29, solids.js), and the pipes stop at their bodies; tubes and
@@ -128,7 +128,7 @@
     const box = svg.getBoundingClientRect();
     if (!box.width || !box.height) return null;
     const vp = { w: box.width, h: box.height };
-    const m = app.model, v = m.view3, isoView = v.mode === 'iso';
+    const m = app.model, v = m.view3;
     const cam = S3.camera();
     const res = app.okResults();
     const gas = PumpIt.model.isCompressible(app.eff());
@@ -139,7 +139,7 @@
     // positions and routes of the scene, with the preview of a drag in progress
     const sc = S3.scene(UI.edit3d.preview());
     const f = {
-      svg, vp, m, v, isoView, set: isoView ? v.iso : v.free, cam, res, ovKey, unitOf, gas,
+      svg, vp, m, v, set: v.free, cam, res, ovKey, unitOf, gas,
       sel: app.selSet, undef: app.undefSet(), ov: CS.overlayValues(res, ovKey),
       fmtOv: (x, cat) => F.fmt(F.conv(x, cat, unitOf(cat), conv), 3),
       sc, routes: sc.routes, posOf: (j) => sc.pos.get(j.id),
@@ -386,10 +386,7 @@
     const { p } = s;
     const look = pipeLook(f, p, s.eff);
     const tube = s.taper ? taperedTube(f, s, look) : evenTube(f, s, look);
-    let o = `<g class="${['pipe', ...look.cls].join(' ')}" data-p="${p.id}" data-i="${s.i}">${tube.body}`;
-    // in the isometric view, a straight pipe off the axes gets a thin dashed outline (R-30)
-    if (f.isoView && p.snap3 === false && !V.axisOf(s.p3[0], s.p3[1])) o += `<line class="offgrid" ${coords(s.a, s.b)}/>`;
-    return o + tube.hit + '</g>';
+    return `<g class="${['pipe', ...look.cls].join(' ')}" data-p="${p.id}" data-i="${s.i}">${tube.body}${tube.hit}</g>`;
   }
 
   // flow direction (R-51): in the middle of the longest segment, along the flow when there are results; on a thin tube
@@ -436,45 +433,30 @@
       if (s.len < 40) continue;
       const key = 'p:' + s.p.id, pri = f.sel.has(key) ? 0 : 2;
       if (pri && smallest(s.k)) continue; // D-30
-      // along the segment in the isometric view, never upside down; horizontal in 3D
-      let ang = 0;
-      if (f.isoView) {
-        ang = (Math.atan2(s.b.y - s.a.y, s.b.x - s.a.x) * 180) / Math.PI;
-        if (ang > 90) ang -= 180; else if (ang <= -90) ang += 180;
-      }
       const x = (s.a.x + s.b.x) / 2, y = (s.a.y + s.b.y) / 2;
-      cands.push({ pri, size: s.len, cls: 'p-label', text: 'P' + s.p.id, x, y, ang, dy: -(s.w / 2 + 5) });
+      cands.push({ pri, size: s.len, cls: 'p-label', text: 'P' + s.p.id, x, y, dy: -(s.w / 2 + 5) });
       if (f.ov && f.ov.vals.has(s.p.id)) {
-        cands.push({ pri, size: s.len, cls: 'p-val', text: CS.labelOf(f.fmtOv, f.unitOf, f.ov.vals.get(s.p.id), CS.OVERLAY[f.ovKey].cat), x, y, ang, dy: s.w / 2 + 13 });
+        cands.push({ pri, size: s.len, cls: 'p-val', text: CS.labelOf(f.fmtOv, f.unitOf, f.ov.vals.get(s.p.id), CS.OVERLAY[f.ovKey].cat), x, y, dy: s.w / 2 + 13 });
       }
     }
     // the selection first, then the junctions, then the pipes from the longest on the screen
     cands.sort((a, b) => a.pri - b.pri || (b.size || 0) - (a.size || 0));
     const placed = [], out = [];
     for (const cd of cands) {
-      const W = cd.text.length * CHAR_W, dy = cd.dy || 0, an = ((cd.ang || 0) * Math.PI) / 180;
-      const cs = Math.cos(an), sn = Math.sin(an);
-      const xs = [], ys = [];
-      for (const [u, z] of [[-W / 2, dy - LINE_UP], [W / 2, dy - LINE_UP], [-W / 2, dy + LINE_DOWN], [W / 2, dy + LINE_DOWN]]) {
-        xs.push(cd.x + u * cs - z * sn);
-        ys.push(cd.y + u * sn + z * cs);
-      }
-      const rc = { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+      const W = cd.text.length * CHAR_W, y = cd.y + (cd.dy || 0);
+      const rc = { x0: cd.x - W / 2, x1: cd.x + W / 2, y0: y - LINE_UP, y1: y + LINE_DOWN };
       if (rc.x1 < 0 || rc.y1 < 0 || rc.x0 > f.vp.w || rc.y0 > f.vp.h) continue;
       if (placed.some((q) => rc.x0 < q.x1 && rc.x1 > q.x0 && rc.y0 < q.y1 && rc.y1 > q.y0)) continue;
       placed.push(rc);
-      const at = cd.ang ? `transform="translate(${f1(cd.x)} ${f1(cd.y)}) rotate(${f1(cd.ang)})" x="0" y="${f1(dy)}"` : `x="${f1(cd.x)}" y="${f1(cd.y + dy)}"`;
-      out.push(`<text class="${cd.cls}" ${at} text-anchor="middle">${F.esc(cd.text)}</text>`);
+      out.push(`<text class="${cd.cls}" x="${f1(cd.x)}" y="${f1(y)}" text-anchor="middle">${F.esc(cd.text)}</text>`);
     }
     return `<g class="g3-labels">${out.join('')}</g>`;
   }
 
-  // the grid: three families of lines in the isometric view (§8.5), the working plane fading with the distance from
-  // the target in the free 3D view (§8.6)
+  // the grid: the working plane, fading with the distance from the target (§8.6)
   function grid(f) {
     const { cam, vp, v } = f;
     const line = (l) => `<line${l.major ? ' class="major"' : ''} x1="${f1(l.x1)}" y1="${f1(l.y1)}" x2="${f1(l.x2)}" y2="${f1(l.y2)}"/>`;
-    if (f.isoView) return `<g class="g3-grid">${V.isoGridLines(cam, vp, v.step, v.major).map(line).join('')}</g>`;
     const lines = V.planeGridLines(cam, vp, f.levelZ, v.step, v.major, 40);
     const c = V.project(cam, vp, cam.target) || { x: vp.w / 2, y: vp.h / 2 };
     const e = V.project(cam, vp, V.add(cam.target, V.mul(V.basis(cam).r, 30 * v.step)));
@@ -534,7 +516,7 @@
     let out = SO.defs();
     if (f.set.grid) out += grid(f);
     if (f.set.shadows) out += shadows(f);
-    if (!f.isoView && f.v.free.stems) out += stems(f);
+    if (f.set.stems) out += stems(f);
     out += `<g class="g3-scene">${f.items.map((it) => (it.kind === 'seg' ? segment(f, it.s) : it.kind === 'arrow' ? arrow(f, it.s) : junction(f, it))).join('')}</g>`;
     out += labels(f);
     out += `<g class="g3-edit">${UI.edit3d.overlay(editCtx(f))}</g>`;

@@ -69,7 +69,7 @@ PumpIt.i18n.add('pt-BR', {
         },
         views: {
           title: 'Vistas',
-          body: 'Alterne entre o esquema 2D, a isométrica e o 3D livre (teclas <kbd>1</kbd>, <kbd>2</kbd> e <kbd>3</kbd>). As três mostram o mesmo modelo: a altura de cada junção é a sua elevação. A seta ao lado de Isométrica e de 3D abre as opções dessa vista, e outro clique as recolhe.',
+          body: 'Alterne entre o esquema 2D e a vista 3D (teclas <kbd>1</kbd> e <kbd>2</kbd>). As duas mostram o mesmo modelo: a altura de cada junção é a sua elevação. A seta ao lado de 3D abre as opções dessa vista, e outro clique as recolhe; no 3D, o cubo no canto superior direito escolhe de que lado olhar.',
         },
         overlay: {
           title: 'Resultados no desenho',
@@ -105,7 +105,7 @@ PumpIt.i18n.add('pt-BR', {
 <h4>Como esta ajuda está organizada</h4>
 <ul>
 <li><b>Primeiros passos</b>: monte um modelo do zero e entenda o cálculo automático.</li>
-<li><b>Guia de uso</b>, do capítulo 2 ao 11: a tela, o desenho, cada tipo de junção, os tubos, o sistema, os cenários, os resultados, os gráficos, as vistas 3D e os arquivos.</li>
+<li><b>Guia de uso</b>, do capítulo 2 ao 11: a tela, o desenho, cada tipo de junção, os tubos, o sistema, os cenários, os resultados, os gráficos, a vista 3D e os arquivos.</li>
 <li><b>Referência técnica</b>: as hipóteses, o método de solução e as equações de cada componente.</li>
 </ul>
 <p>Use a busca no alto para achar um assunto, e os botões <b>Anterior</b> e <b>Próximo</b> para ler em sequência. Os botões tracejados, como [[show:palette|a paleta]], destacam a parte da tela de que o texto fala.</p>
@@ -123,7 +123,7 @@ PumpIt.i18n.add('pt-BR', {
 <li><b>Explore.</b> Em [[show:overlay|Resultados no desenho]], escolha [[t:network.overlay.V]] para colorir os tubos. Abra a aba [[t:app.tabs.out]] para as tabelas e a aba [[t:app.tabs.charts]] para ver a curva da bomba contra a do sistema.</li>
 </ol>
 <p class="tip"><b>Dica:</b> se algo falta, o indicador mostra quantas pendências existem. Clique nele: a lista leva direto ao objeto incompleto, e o painel mostra em vermelho o que precisa ser preenchido.</p>
-<p>Próximos passos: experimente um [[go:start.examples|exemplo pronto]], crie um [[go:scenarios.concept|cenário]] com a bomba a 90% da rotação, ou veja a rede nas [[go:views3d.concept|vistas 3D]].</p>`,
+<p>Próximos passos: experimente um [[go:start.examples|exemplo pronto]], crie um [[go:scenarios.concept|cenário]] com a bomba a 90% da rotação, ou veja a rede na [[go:views3d.concept|vista 3D]].</p>`,
           },
           examples: {
             title: 'Exemplos prontos',
@@ -164,7 +164,7 @@ PumpIt.i18n.add('pt-BR', {
             body: `<p>Cada alteração é gravada automaticamente no navegador: ao reabrir o Pump It no mesmo computador e no mesmo navegador, o último modelo volta à tela.</p>
 <p class="warn"><b>Atenção:</b> essa cópia automática fica só neste navegador, e limpar os dados de navegação a apaga. Para guardar o trabalho de verdade, use [[t:app.menu.file]] → [[t:app.menu.save]] e guarde o arquivo <code>.json</code>.</p>
 <ul>
-<li><b>Desfazer e refazer:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd> e <kbd>Ctrl</kbd>+<kbd>Y</kbd>, ou o menu [[t:app.menu.edit]]. O app guarda as últimas 80 alterações. Mexer na câmera das vistas 3D não entra no desfazer.</li>
+<li><b>Desfazer e refazer:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd> e <kbd>Ctrl</kbd>+<kbd>Y</kbd>, ou o menu [[t:app.menu.edit]]. O app guarda as últimas 80 alterações. Mexer na câmera da vista 3D não entra no desfazer.</li>
 <li><b>Abrir um arquivo:</b> [[t:app.menu.file]] → [[t:app.menu.open]].</li>
 </ul>
 <p>Mais detalhes em [[go:files.files|Arquivos]].</p>`,
@@ -417,7 +417,7 @@ PumpIt.i18n.add('pt-BR', {
             body: `<p>[[icon:valve]] Uma válvula, ou qualquer componente em linha com perda localizada conhecida.</p>
 <ul>
 <li>[[t:junctions.lossModel.label]]: [[t:junctions.lossModel.K]], [[t:junctions.lossModel.Cv]] ou [[t:junctions.lossModel.Kv]].</li>
-<li>[[t:junctions.valve.form.closed]]: vazão zero. Nas vistas 3D, a válvula fechada aparece em vermelho.</li>
+<li>[[t:junctions.valve.form.closed]]: vazão zero. Na vista 3D, a válvula fechada aparece em vermelho.</li>
 </ul>
 <p>Os resultados trazem a queda de pressão, o K efetivo e o Cv equivalente. Para perdas que acompanham o tubo, como curvas e válvulas de bloqueio sempre abertas, também dá para usar a lista de [[go:pipes.fittings|acessórios do tubo]].</p>`,
           },
@@ -603,7 +603,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <li>[[t:network.overlay.P]] e [[t:network.overlay.HGL]]: a média entre a entrada e a saída de cada tubo; as junções mostram o seu próprio valor.</li>
 </ul>
 <p>Uma legenda mostra a escala. A velocidade usa uma escala fixa para água, explicada em [[go:results.velocity|Escala de velocidade]]; as outras grandezas vão do mínimo ao máximo do modelo.</p>
-<p>Também funciona nas vistas 3D. É preciso ter resultados: complete a lista de verificação.</p>`,
+<p>Também funciona na vista 3D. É preciso ter resultados: complete a lista de verificação.</p>`,
           },
           tables: {
             title: 'Aba Resultados',
@@ -688,47 +688,41 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
       },
 
       views3d: {
-        title: 'Vistas 3D',
+        title: 'Vista 3D',
         sections: {
           concept: {
-            title: 'Esquema, isométrica e 3D',
-            body: `<p>No alto da área de desenho, [[show:views|Esquema · Isométrica · 3D]] (teclas <kbd>1</kbd>, <kbd>2</kbd> e <kbd>3</kbd>) alterna entre três vistas do <b>mesmo modelo</b>:</p>
+            title: 'Esquema e 3D',
+            body: `<p>No alto da área de desenho, [[show:views|Esquema · 3D]] (teclas <kbd>1</kbd> e <kbd>2</kbd>) alterna entre duas vistas do <b>mesmo modelo</b>:</p>
 <ul>
 <li>o esquema é a <b>planta</b>: a posição de cada junção no esquema é a sua posição no plano;</li>
 <li>a <b>altura</b> de cada junção é a sua elevação, multiplicada pela [[t:inspector.view3.zScale]];</li>
-<li>mover uma junção numa vista move nas outras, e subir ou descer uma junção numa vista 3D <b>muda a elevação</b> e recalcula;</li>
+<li>mover uma junção numa vista move na outra, e subir ou descer uma junção na vista 3D <b>muda a elevação</b> e recalcula;</li>
 <li>traçados, dobras e posições no plano são só desenho: <b>nenhum comprimento vem do desenho</b>.</li>
 </ul>
 <p>Na primeira entrada, o app escolhe uma escala vertical que deixa as alturas legíveis. Os tubos aparecem como tubos com sombreado e espessura pelo diâmetro, os mais próximos por cima dos de trás, e as junções como pequenos objetos 3D.</p>
-<p>Tubos e objetos fazem parte da cena: ao aproximar ou afastar, crescem e diminuem junto com a rede, nas proporções do esquema, e na vista 3D livre os mais próximos parecem maiores, até chegarem tão perto da câmera que esmaecem e são cortados, para que nada cubra a tela. Os rótulos mantêm o tamanho na tela.</p>`,
-          },
-          iso: {
-            title: 'Isométrica',
-            body: `<h4>Navegar</h4>
-<p>Arraste o fundo para mover a vista e use a roda para aproximar. A seta ao lado de [[t:network.view3.mode.iso]], no alto do desenho, abre as opções desta vista para a direita, e outro clique as recolhe: os botões de girar, que viram a vista em 90° em torno do que está no meio da tela, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.shadows]], o estilo ([[t:network.view3.styleTrue]] ou 2:1), a densidade da grade e a [[t:network.view3.level]] de trabalho.</p>
-<h4>Editar</h4>
-<ul>
-<li><b>Colocar</b>: com um tipo da paleta, clique na grade. A junção fica na [[t:network.view3.level]] de trabalho, que <kbd>PageUp</kbd> e <kbd>PageDown</kbd> sobem e descem.</li>
-<li><b>Tubos</b>: com a ferramenta [[t:network.palette.pipe]], clique numa junção ou na grade, mova o cursor e escolha o traçado com <kbd>←</kbd> e <kbd>→</kbd>; <kbd>Alt</kbd>+clique ou <kbd>D</kbd> faz uma dobra; perto de uma junção, o traçado vai até ela.</li>
-<li><b>Mover</b>: arraste uma junção ao longo de um eixo (na vertical, muda a elevação). Arraste a alça no meio de um trecho do tubo selecionado para mover aquele trecho.</li>
-</ul>`,
+<p>Tubos e objetos fazem parte da cena: ao aproximar ou afastar, crescem e diminuem junto com a rede, nas proporções do esquema, e em perspectiva os mais próximos parecem maiores, até chegarem tão perto da câmera que esmaecem e são cortados, para que nada cubra a tela. Os rótulos mantêm o tamanho na tela.</p>`,
           },
           free: {
-            title: '3D livre',
+            title: 'Vista 3D',
             body: `<h4>Navegar</h4>
-<p>Arraste o fundo para girar em torno do que está no meio da tela; o botão direito, o botão do meio ou <kbd>Shift</kbd>+arrastar movem a vista; a roda aproxima no ponto do cursor, em direção ao que está sob ele; o duplo clique centraliza num objeto. As teclas de seta giram a câmera em 15°, e <kbd>Shift</kbd>+setas movem a vista. A seta ao lado de [[t:network.view3.mode.3d]] abre as opções desta vista, e outro clique as recolhe: botões que giram a vista em 15°, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]], [[t:network.view3.stems]], [[t:network.view3.persp]] ou [[t:network.view3.ortho]], as vistas prontas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), a densidade da grade e a [[t:network.view3.level]] de trabalho.</p>
+<p>Arraste o fundo para girar em torno do que está no meio da tela; o botão direito, o botão do meio ou <kbd>Shift</kbd>+arrastar movem a vista; a roda aproxima no ponto do cursor, em direção ao que está sob ele; o duplo clique centraliza num objeto. As teclas de seta giram a câmera em 15°, e <kbd>Shift</kbd>+setas movem a vista.</p>
+<h4>O cubo de vistas</h4>
+<p>O cubo no canto superior direito gira com a câmera e mostra os lados da rede: o topo, a frente (a parte de baixo do esquema), a direita e os seus opostos. Clique numa face, numa aresta ou num vértice para olhar daquele lado, com a rede enquadrada: uma face dá a vista de frente, como a planta vista do topo, uma aresta dá a vista entre duas faces, e um vértice dá a isométrica. Arraste o cubo para girar a câmera. Com uma face vista de frente, as setas em volta dela passam para as faces vizinhas. Com o cubo em foco (<kbd>Tab</kbd>), as teclas de seta passam à vista seguinte. [[t:app.menu.options]] → [[t:app.menu.viewCube]] esconde o cubo.</p>
+<h4>Opções</h4>
+<p>A seta ao lado de [[t:network.view3.mode.3d]], no alto do desenho, abre as opções desta vista, e outro clique as recolhe: botões que giram a vista em 15°, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]], [[t:network.view3.stems]] e a [[t:network.view3.level]] de trabalho. O menu [[t:app.menu.options]], ao lado de [[t:app.menu.file]], tem a densidade da grade ([[t:network.view3.density.fine]], [[t:network.view3.density.medium]] ou [[t:network.view3.density.coarse]]) e a projeção ([[t:network.view3.persp]] ou [[t:network.view3.ortho]]).</p>
 <h4>Editar</h4>
 <ul>
-<li><b>Tubos</b>: o tubo segue na horizontal, no plano do último ponto; segure <kbd>Shift</kbd> para subir ou descer e <kbd>Ctrl</kbd> para travar no eixo mais próximo; <kbd>Alt</kbd>+clique ou <kbd>D</kbd> faz uma dobra; um clique no vazio termina o tubo num nó novo.</li>
+<li><b>Colocar</b>: com um tipo da paleta, clique no plano de trabalho. A junção fica na [[t:network.view3.level]] de trabalho, que <kbd>PageUp</kbd> e <kbd>PageDown</kbd> sobem e descem; <kbd>Shift</kbd> mantém a ferramenta.</li>
+<li><b>Tubos</b>: o tubo segue na horizontal, no plano do último ponto; segure <kbd>Shift</kbd> para subir ou descer e <kbd>Ctrl</kbd> para travar no eixo mais próximo; <kbd>Alt</kbd>+clique ou <kbd>D</kbd> faz uma dobra; perto de uma junção, <kbd>←</kbd> e <kbd>→</kbd> escolhem o traçado até ela; um clique no vazio termina o tubo num nó novo.</li>
 <li><b>Mover</b>: arraste uma junção na horizontal; com <kbd>Shift</kbd>, na vertical (muda a elevação).</li>
 <li><b>Dobras</b>: com um tubo selecionado, arraste uma dobra, dê um duplo clique no tubo para inserir outra, ou marque uma e pressione <kbd>Del</kbd>.</li>
 </ul>
-<p>Nas vistas [[t:network.view3.presets.front]] e [[t:network.view3.presets.side]], o piso fica de perfil; por isso colocar, desenhar e mover usam o plano vertical de frente para a câmera.</p>`,
+<p>Olhando de frente, de trás ou de lado, o piso fica de perfil; por isso colocar, desenhar e mover usam o plano vertical de frente para a câmera.</p>`,
           },
           symbols: {
             title: 'Símbolos e painel 3D',
-            body: `<p>Nas vistas 3D, cada junção é um pequeno sólido: um tanque aberto com o líquido, uma bomba com motor e uma seta no sentido do escoamento, uma válvula com volante, uma válvula de controle com atuador, um orifício entre flanges, um bocal com gotas, uma esfera para o nó, um tambor (Q), uma esfera (P) e um bloco (K). Eles acompanham a direção dos tubos e ficam vermelhos quando a junção bloqueia o fluxo, como uma válvula fechada ou uma bomba desligada e fechada.</p>
-<p>Com as vistas 3D abertas, o painel ganha a seção [[t:inspector.view3.title]]:</p>
+            body: `<p>Na vista 3D, cada junção é um pequeno sólido: um tanque aberto com o líquido, uma bomba com motor e uma seta no sentido do escoamento, uma válvula com volante, uma válvula de controle com atuador, um orifício entre flanges, um bocal com gotas, uma esfera para o nó, um tambor (Q), uma esfera (P) e um bloco (K). Eles acompanham a direção dos tubos e ficam vermelhos quando a junção bloqueia o fluxo, como uma válvula fechada ou uma bomba desligada e fechada.</p>
+<p>Com a vista 3D aberta, o painel ganha a seção [[t:inspector.view3.title]]:</p>
 <ul>
 <li>com nada selecionado: [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] e [[t:inspector.view3.fitAll]];</li>
 <li>num tubo: o comprimento desenhado (que não entra no cálculo), as dobras, [[t:inspector.view3.snap]], [[t:inspector.view3.fit]], [[t:inspector.view3.nextRoute]] e [[t:inspector.view3.removeBends]];</li>
@@ -778,14 +772,14 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <table>
 <tr><td><kbd>F1</kbd></td><td>Abre esta ajuda</td></tr>
 <tr><td><kbd>V</kbd> · <kbd>P</kbd></td><td>Ferramentas [[t:network.palette.select]] e [[t:network.palette.pipe]]</td></tr>
-<tr><td><kbd>1</kbd> · <kbd>2</kbd> · <kbd>3</kbd></td><td>Vistas [[t:network.view3.mode.2d]], [[t:network.view3.mode.iso]] e [[t:network.view3.mode.3d]]</td></tr>
+<tr><td><kbd>1</kbd> · <kbd>2</kbd></td><td>Vistas [[t:network.view3.mode.2d]] e [[t:network.view3.mode.3d]]</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>Solta o tubo em andamento e depois sai da ferramenta</td></tr>
 <tr><td><kbd>Del</kbd></td><td>Exclui a seleção</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Desfaz · refaz</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd> · <kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Copia · cola · seleciona tudo</td></tr>
 <tr><td><kbd>Home</kbd> · <kbd>+</kbd> · <kbd>−</kbd></td><td>Enquadra · aproxima · afasta</td></tr>
 </table>
-<p>A lista completa, com as teclas das vistas 3D: [[act:shortcuts|Atalhos de teclado]].</p>`,
+<p>A lista completa, com as teclas da vista 3D: [[act:shortcuts|Atalhos de teclado]].</p>`,
           },
         },
       },

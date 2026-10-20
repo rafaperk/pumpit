@@ -155,7 +155,7 @@
   // symbol px to screen px around c (the derivative of the projection at p, so that a small symbol meets the pipes
   // drawn through the true projection); view and light, unit vectors in the frame of the symbol (view points into
   // the scene); du, drawing units per symbol px; s, screen px per symbol px, which size(k) gives from the local scale
-  // k; q, the vertical squash of the 2:1 isometric style. null behind the near plane.
+  // k. null behind the near plane.
   // In perspective the reach of the symbol, radius (symbol px, solidRadius), decides two more things (D-31): persp,
   // the camera seen from the symbol, set when the linear map would miss the perspective of the scene by more than
   // EXACT_PX, so that the symbol is drawn through the true projection; and fade, which dims the symbol as its nearest
@@ -165,11 +165,10 @@
     const { r, u, w } = basis(cam);
     const d = sub(p, cam.target);
     const xv = dot(d, r), yv = dot(d, u), zv = dot(d, w);
-    const q = cam.projection === 'ortho' ? cam.squash || 1 : 1;
     let c, R0, R1, view, zc = 0, fo = 0;
     if (cam.projection === 'ortho') {
-      c = { x: vp.w / 2 + cam.scale * xv, y: vp.h / 2 - q * cam.scale * yv, depth: -zv, k: cam.scale };
-      R0 = r; R1 = mul(u, -q); view = mul(w, -1);
+      c = { x: vp.w / 2 + cam.scale * xv, y: vp.h / 2 - cam.scale * yv, depth: -zv, k: cam.scale };
+      R0 = r; R1 = mul(u, -1); view = mul(w, -1);
     } else {
       zc = cam.distance - zv;
       if (zc < nearOf(cam)) return null;
@@ -184,7 +183,7 @@
     const A = [[dot(R0, ex) * s, dot(R0, ey) * s, dot(R0, ez) * s], [dot(R1, ex) * s, dot(R1, ey) * s, dot(R1, ez) * s]];
     const local = (v) => [dot(v, ex), dot(v, ey), dot(v, ez)];
     const light = add(add(mul(r, LIGHT[0]), mul(u, LIGHT[1])), mul(w, LIGHT[2]));
-    const pl = { c, A, s, q, du: s / c.k, view: local(view), light: local(light), axes, fade: 1, persp: null };
+    const pl = { c, A, s, du: s / c.k, view: local(view), light: local(light), axes, fade: 1, persp: null };
     if (zc) {
       const R = radius * pl.du;
       pl.fade = clamp((zc - R - NEAR) / NEAR, 0, 1);
@@ -251,10 +250,10 @@
         }
         if (faces.length) out.push({ kind: 'faces', faces, hull: hull(all), fixed: !!pt.fixed });
       } else if (pt.kind === 'ball') {
-        // always round (squashed with the 2:1 style), without the slight stretch of a ball far off the axis in
-        // perspective, so that a ball keeps its shape while the camera moves
+        // always round, without the slight stretch of a ball far off the axis in perspective, so that a ball keeps
+        // its shape while the camera moves
         const [x, y] = P(pt.c);
-        const rx = pt.r * scaleAt(pt.c), ry = rx * pl.q;
+        const rx = pt.r * scaleAt(pt.c), ry = rx;
         out.push({ kind: 'ball', mat: pt.mat, x, y, rx, ry });
         grow(x - rx, y - ry); grow(x + rx, y + ry);
       } else if (pt.kind === 'text') {

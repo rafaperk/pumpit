@@ -1,7 +1,8 @@
 // Drawing area: the only place where the topology changes. SVG drawing with pan, zoom, grid, snapping,
 // multiple selection (Ctrl/Shift+click, Shift+drag on empty space) and group dragging. The SVG markup itself
-// is produced by drawing.js. In the isometric and 3D views (src/ui/view3d/) the same SVG element hands its
-// events and its drawing over to that block.
+// is produced by drawing.js. In the 3D view (src/ui/view3d/) the same SVG element hands its events and its
+// drawing over to that block. The tools explain themselves in their tooltips and in the help: no text is written
+// over the drawing (decision D-37 of docs/3D-VIEWS.md).
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui, app = PumpIt.app;
@@ -70,21 +71,8 @@
     state.tool = tool;
     state.pending = null;
     document.querySelectorAll('.palette .tool').forEach((b) => b.classList.toggle('active', b.dataset.tool === tool));
-    refreshHint();
     svg.style.cursor = tool === 'select' ? 'default' : 'crosshair';
     render();
-  }
-
-  // instructions of the current tool (in the 3D views, also of the selection), over the drawing
-  function refreshHint() {
-    if (in3d()) {
-      const place = state.tool.startsWith('place:') ? { label: PumpIt.junctionTypes.get(state.tool.slice(6)).label } : undefined;
-      app.hint(t(UI.edit3d.hintKey(), place));
-      return;
-    }
-    const tool = state.tool;
-    if (tool.startsWith('place:')) app.hint(t('network.hint.place', { label: PumpIt.junctionTypes.get(tool.slice(6)).label }));
-    else app.hint(tool === 'pipe' ? t('network.hint.pipe') : '');
   }
 
   // ---------- events ----------
@@ -260,13 +248,13 @@
   function render(opts) {
     if (!svg) return;
     if (UI.hud3d) UI.hud3d.sync();
+    if (UI.cube3d) UI.cube3d.sync();
     if (in3d()) {
       if (!(opts && opts.light)) UI.nav3d.drawn();
       UI.render3d.render(svg, opts);
-      refreshHint();
     }
     else UI.drawing.render(svg, view, state);
   }
 
-  PumpIt.ui.canvas = { init, render, fit, fitSchematic, zoomBy, setTool, refreshHint, cancel, get tool() { return state.tool; }, view, GRID };
+  PumpIt.ui.canvas = { init, render, fit, fitSchematic, zoomBy, setTool, cancel, get tool() { return state.tool; }, view, GRID };
 })(typeof window !== 'undefined' ? window : globalThis);

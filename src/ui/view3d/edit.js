@@ -1,6 +1,6 @@
-// 3D views: editing. The isometric view (edit-iso.js) and the free 3D view (edit-free.js) have their own tools; this
-// file holds what they share (the cursor, the working plane, the junction near the cursor, the marks drawn over the
-// scene, the working level keys) and hands every event to the editor of the active view.
+// 3D view: editing. This file holds what the tools of the 3D view need around them (the cursor, the working plane,
+// the junction near the cursor, the marks drawn over the scene, the working level keys) and hands every event to the
+// editor of the view (edit-free.js). The isometric view and its editor are gone (decision D-34 of docs/3D-VIEWS.md).
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui, V = PumpIt.view3d;
@@ -73,8 +73,8 @@
   // a signed offset along an axis: "+2 X", "−0,5 Z"
   const offset = (d, ax) => `${d > 0 ? '+' : '−'}${F.inputStr(round(Math.abs(d), 3))} ${ax.toUpperCase()}`;
 
-  // ------------------------------------------------------------ the editor of the active view
-  const editor = () => (S3.mode() === 'iso' ? UI.isoEdit3d : S3.mode() === '3d' ? UI.freeEdit3d : null);
+  // ------------------------------------------------------------ the editor of the 3D view
+  const editor = () => (S3.mode() === '3d' ? UI.freeEdit3d : null);
 
   // Whether the object under a double click was already the only selection when the first of its two clicks came: a
   // double click on the selected pipe inserts a bend (R-47), on anything else it centres the camera (R-41).
@@ -93,7 +93,7 @@
   }
   const move = (e) => { const ed = editor(); return !!ed && ed.move(e); };
   const up = (e) => { const ed = editor(); return !!ed && ed.up(e); };
-  // keys of the editors (§6.4); PageUp and PageDown move the working level by one grid step in both views
+  // keys of the editor (§6.4); PageUp and PageDown move the working level by one grid step
   function key(e) {
     const ed = editor();
     if (!ed) return false;
@@ -104,7 +104,7 @@
     return ed.key(e);
   }
   const cancel = () => { const ed = editor(); return !!ed && ed.cancel(); };
-  function reset() { UI.isoEdit3d.reset(); UI.freeEdit3d.reset(); }
+  function reset() { UI.freeEdit3d.reset(); }
   // a junction dropped from the palette onto a 3D view
   const dropAt = (type, e) => { const ed = editor(); if (ed) ed.dropAt(type, e); };
   // a double click: true when the editor used it (otherwise the camera centres on the object)
@@ -113,11 +113,10 @@
   const cameraMoved = () => { const ed = editor(); if (ed && ed.cameraMoved) ed.cameraMoved(); };
   // handles, the pipe being drawn and the markers: the content of the g3-edit layer, over the scene
   const overlay = (ctx) => { const ed = editor(); return ed ? ed.overlay(ctx) : ''; };
-  const hintKey = () => { const ed = editor(); return ed ? ed.hintKey() : ''; };
   const preview = () => { const ed = editor(); return ed ? ed.preview() : null; };
 
   PumpIt.ui.edit3d = {
     NEAR_PX, round, f1, v3, tool, levelZ, redraw, pointer, rayOf, freePoint, nearJunction, selPipe, marker, polyline, tipBox, offset, wasSelected,
-    down, move, up, key, cancel, reset, dropAt, dblclick, cameraMoved, overlay, hintKey, preview,
+    down, move, up, key, cancel, reset, dropAt, dblclick, cameraMoved, overlay, preview,
   };
 })(window);

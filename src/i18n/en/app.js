@@ -19,6 +19,10 @@ PumpIt.i18n.add('en', {
       pasteJson: 'Paste model (JSON)…',
       exportXlsx: 'Export pipes to Excel (.xlsx)',
       examples: 'Examples',
+      options: 'Options',
+      grid3d: '3D grid',
+      projection3d: '3D projection',
+      viewCube: 'View cube',
       edit: 'Edit',
       undo: 'Undo',
       redo: 'Redo',
@@ -119,11 +123,11 @@ PumpIt.i18n.add('en', {
     },
     shortcuts: {
       title: 'Keyboard shortcuts',
-      intro: 'They work outside text fields. The 3D views show the same model as the schematic: the schematic is the plan and the height of every junction is its elevation.',
-      groups: { all: 'In every view', iso: 'Isometric', free: 'Free 3D' },
+      intro: 'They work outside text fields. The 3D view shows the same model as the schematic: the schematic is the plan and the height of every junction is its elevation.',
+      groups: { all: 'In every view', free: '3D view' },
       all: {
         help: { keys: 'F1', does: 'Opens the help center' },
-        views: { keys: '1 · 2 · 3', does: 'Schematic, isometric, 3D' },
+        views: { keys: '1 · 2', does: 'Schematic, 3D' },
         tools: { keys: 'V · P', does: 'Select and Pipe tools' },
         cancel: { keys: 'Esc', does: 'Stops the pipe being drawn, then the tool' },
         delete: { keys: 'Del', does: 'Deletes the selection' },
@@ -131,12 +135,6 @@ PumpIt.i18n.add('en', {
         copy: { keys: 'Ctrl C · Ctrl V · Ctrl A', does: 'Copy · paste · select all' },
         fit: { keys: 'Home', does: 'Frames the drawing' },
         zoom: { keys: '+ · −', does: 'Zoom in · zoom out' },
-      },
-      iso: {
-        route: { keys: '← →', does: 'Previous or next route, while drawing a pipe or with a pipe selected' },
-        bend: { keys: 'D · Alt+click', does: 'Makes a bend at the current point of the pipe being drawn' },
-        level: { keys: 'PageUp · PageDown', does: 'Raises or lowers the working level by one grid step' },
-        pan: { keys: 'Shift+arrows', does: 'Moves the view' },
       },
       free: {
         orbit: { keys: 'Arrows', does: 'Turn the camera in steps of 15°' },
@@ -148,6 +146,7 @@ PumpIt.i18n.add('en', {
         route: { keys: '← →', does: 'While drawing near a junction, chooses the route to it' },
         delBend: { keys: 'Del', does: 'Deletes the marked bend of the selected pipe' },
         mouse: { keys: 'Mouse', does: 'Drag empty space to orbit; right button or Shift+drag moves the view; the wheel zooms; double click centres, or inserts a bend in the selected pipe' },
+        cube: { keys: 'Arrows on the cube', does: 'With the view cube focused (Tab), go to the next view: around, or up and down' },
       },
     },
     diffs: {

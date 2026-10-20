@@ -21,6 +21,7 @@
     UI.modelData.bind();
     UI.palette.bind();
     UI.hud3d.bind();
+    UI.cube3d.bind();
     UI.keyboard.bind();
     UI.dialogs.bind();
     UI.tips.bind();

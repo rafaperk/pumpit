@@ -1,6 +1,6 @@
 // Keyboard shortcuts: F1 (help), Esc, Ctrl+Z / Ctrl+Y (Ctrl+Shift+Z), and on the network view Ctrl+C, Ctrl+V, Ctrl+A,
-// Del / Backspace, P (pipe tool), V (select tool), 1 / 2 / 3 (schematic, isometric, 3D), Home (fit) and + / − (zoom);
-// the 3D views add their camera keys (src/ui/view3d/navigation.js).
+// Del / Backspace, P (pipe tool), V (select tool), 1 / 2 (schematic, 3D), Home (fit) and + / − (zoom); the 3D view
+// adds its camera keys (src/ui/view3d/navigation.js) and the view cube its own (src/ui/view3d/cube.js).
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui;
@@ -42,7 +42,7 @@
       if (mod && k === 'v') { e.preventDefault(); app.paste(); return; }
       if (mod && k === 'a') { e.preventDefault(); app.selectAll(); return; }
       if (mod) return;
-      const VIEW_KEYS = { 1: '2d', 2: 'iso', 3: '3d' };
+      const VIEW_KEYS = { 1: '2d', 2: '3d' };
       if (VIEW_KEYS[e.key] && !e.altKey) { UI.scene3d.setMode(VIEW_KEYS[e.key]); return; }
       if (UI.scene3d.active() ? UI.nav3d.key(e) : schematicKey(e.key)) { e.preventDefault(); return; }
       if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); app.deleteSelection(); }

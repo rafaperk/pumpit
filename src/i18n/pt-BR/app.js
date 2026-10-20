@@ -19,6 +19,10 @@ PumpIt.i18n.add('pt-BR', {
       pasteJson: 'Colar modelo (JSON)…',
       exportXlsx: 'Exportar tubos para Excel (.xlsx)',
       examples: 'Exemplos',
+      options: 'Opções',
+      grid3d: 'Grade 3D',
+      projection3d: 'Projeção 3D',
+      viewCube: 'Cubo de vistas',
       edit: 'Editar',
       undo: 'Desfazer',
       redo: 'Refazer',
@@ -119,11 +123,11 @@ PumpIt.i18n.add('pt-BR', {
     },
     shortcuts: {
       title: 'Atalhos de teclado',
-      intro: 'Valem fora dos campos de texto. As vistas 3D mostram o mesmo modelo do esquema: a planta é o esquema e a altura de cada junção é a sua elevação.',
-      groups: { all: 'Em todas as vistas', iso: 'Isométrica', free: '3D livre' },
+      intro: 'Valem fora dos campos de texto. A vista 3D mostra o mesmo modelo do esquema: a planta é o esquema e a altura de cada junção é a sua elevação.',
+      groups: { all: 'Em todas as vistas', free: 'Vista 3D' },
       all: {
         help: { keys: 'F1', does: 'Abre a central de ajuda' },
-        views: { keys: '1 · 2 · 3', does: 'Esquema, Isométrica, 3D' },
+        views: { keys: '1 · 2', does: 'Esquema, 3D' },
         tools: { keys: 'V · P', does: 'Ferramentas Selecionar e Tubo' },
         cancel: { keys: 'Esc', does: 'Cancela o tubo em andamento, depois a ferramenta' },
         delete: { keys: 'Del', does: 'Exclui a seleção' },
@@ -131,12 +135,6 @@ PumpIt.i18n.add('pt-BR', {
         copy: { keys: 'Ctrl C · Ctrl V · Ctrl A', does: 'Copia · cola · seleciona tudo' },
         fit: { keys: 'Home', does: 'Enquadra o desenho' },
         zoom: { keys: '+ · −', does: 'Aproxima · afasta' },
-      },
-      iso: {
-        route: { keys: '← →', does: 'Traçado anterior ou seguinte, desenhando um tubo ou com um tubo selecionado' },
-        bend: { keys: 'D · Alt+clique', does: 'Faz uma dobra no ponto atual do tubo em andamento' },
-        level: { keys: 'PageUp · PageDown', does: 'Sobe ou desce a cota de trabalho um passo da grade' },
-        pan: { keys: 'Shift+setas', does: 'Move a vista' },
       },
       free: {
         orbit: { keys: 'Setas', does: 'Giram a câmera em passos de 15°' },
@@ -148,6 +146,7 @@ PumpIt.i18n.add('pt-BR', {
         route: { keys: '← →', does: 'Desenhando perto de uma junção, escolhe o traçado até ela' },
         delBend: { keys: 'Del', does: 'Apaga a dobra marcada do tubo selecionado' },
         mouse: { keys: 'Mouse', does: 'Arrastar o vazio gira; botão direito ou Shift+arrastar move a vista; a roda aproxima; duplo clique centraliza, ou insere uma dobra no tubo selecionado' },
+        cube: { keys: 'Setas no cubo', does: 'Com o cubo de vistas em foco (Tab), passam à vista seguinte: ao redor, ou para cima e para baixo' },
       },
     },
     diffs: {

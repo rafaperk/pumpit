@@ -59,7 +59,6 @@
 
   // messages, used by every block
   app.toast = PumpIt.ui.dialogs.toast;
-  app.hint = PumpIt.ui.dialogs.hint;
 
   PumpIt.app = app;
 })(window);

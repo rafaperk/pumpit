@@ -23,18 +23,17 @@
     return c;
   }
 
-  // settings of the 3D views (§7.4): grid step and major lines (du), working level (m: the elevation of the plane where
-  // new junctions go), vertical scale (du per metre of elevation) and the camera of each view
+  // settings of the 3D view (§7.4): the view on the screen ('2d' or '3d'), grid step and major lines (du), working
+  // level (m: the elevation of the plane where new junctions go), vertical scale (du per metre of elevation) and the
+  // camera with what it shows. The isometric view of the specification is gone (decision D-34 of docs/3D-VIEWS.md).
   function newView3() {
     return {
       mode: '2d', step: 1, major: 5, level: 0, zScale: 1,
-      iso: { azimuth: -45, style: 'true', scale: 40, target: [0, 0, 0], grid: true, shadows: true },
       free: { projection: 'persp', azimuth: -60, elevation: 30, distance: 60, fov: 35, scale: 40, target: [0, 0, 0], grid: true, snap: true, stems: false, shadows: true },
     };
   }
 
   // ---------- validation of a loaded model (§7.5): an invalid drawing value is dropped or reset, never guessed
-  const ISO_AZIMUTHS = [-45, 45, 135, -135];
   const ROLLS = [0, 90, 180, 270];
   const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
   const isPoint = (p) => Array.isArray(p) && p.length === 3 && p.every(isNum);
@@ -44,9 +43,6 @@
   const range = (v, lo, hi, def) => (isNum(v) ? Math.min(hi, Math.max(lo, v)) : def);
   const oneOf = (v, list, def) => (list.includes(v) ? v : def);
   const bool = (v, def) => (typeof v === 'boolean' ? v : def);
-  const angleGap = (a, b) => Math.abs(((((a - b) % 360) + 540) % 360) - 180);
-  // nearest allowed azimuth of the isometric view, around the circle
-  const isoAzimuth = (v) => (isNum(v) ? ISO_AZIMUTHS.reduce((best, a) => (angleGap(a, v) < angleGap(best, v) ? a : best)) : -45);
 
   function normalizeLayout(m) {
     for (const j of m.junctions) {
@@ -63,21 +59,14 @@
     if (!('view3' in m)) return m;
     if (!isObj(m.view3)) { delete m.view3; return m; }
     const v = m.view3, d = newView3();
-    const iso = isObj(v.iso) ? v.iso : {}, free = isObj(v.free) ? v.free : {};
+    const free = isObj(v.free) ? v.free : {};
+    // a model saved in the isometric view opens in the 3D view, and the settings of that view are dropped (D-34)
     m.view3 = {
-      mode: oneOf(v.mode, ['2d', 'iso', '3d'], d.mode),
+      mode: v.mode === 'iso' ? '3d' : oneOf(v.mode, ['2d', '3d'], d.mode),
       step: isNum(v.step) && v.step > 0 && v.step <= 100 ? v.step : d.step,
       major: Number.isInteger(v.major) && v.major >= 2 && v.major <= 20 ? v.major : d.major,
       level: isNum(v.level) ? v.level : d.level,
       zScale: isNum(v.zScale) && v.zScale > 0 && v.zScale <= 1000 ? v.zScale : d.zScale,
-      iso: {
-        azimuth: isoAzimuth(iso.azimuth),
-        style: oneOf(iso.style, ['true', '2:1'], d.iso.style),
-        scale: range(iso.scale, 2, 400, d.iso.scale),
-        target: isPoint(iso.target) ? iso.target : d.iso.target,
-        grid: bool(iso.grid, d.iso.grid),
-        shadows: bool(iso.shadows, d.iso.shadows),
-      },
       free: {
         projection: oneOf(free.projection, ['persp', 'ortho'], d.free.projection),
         azimuth: isNum(free.azimuth) ? free.azimuth : d.free.azimuth,

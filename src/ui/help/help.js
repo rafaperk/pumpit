@@ -31,7 +31,7 @@
     ['scenarios', ['concept', 'working']],
     ['results', ['overlay', 'tables', 'warnings', 'velocity', 'inputs']],
     ['charts', ['pump', 'profile']],
-    ['views3d', ['concept', 'iso', 'free', 'symbols']],
+    ['views3d', ['concept', 'free', 'symbols']],
     ['files', ['files', 'language', 'shortcuts']],
     ['tech', ['overview', 'network', 'newton', 'friction', 'minor', 'pumps', 'valves', 'boundaries', 'fluid', 'outputs', 'references']],
     ['gasTech', ['properties', 'pipe', 'choking', 'network', 'machines', 'validation']],
