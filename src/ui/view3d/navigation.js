@@ -198,6 +198,13 @@
     const cam = base();
     glide({ ...cam, azimuth: ((cam.azimuth + dir * 90 + 540) % 360) - 180 });
   }
+  // the turn buttons of the free 3D view (D-33): 15° about what the middle of the screen shows, the same way round as
+  // those of the isometric view (the arrow keys turn the other way, like a drag of the background)
+  function turnFree(dir) {
+    focusMiddle();
+    const cam = base();
+    glide({ ...cam, azimuth: cam.azimuth + dir * 15 });
+  }
 
   // keys of the 3D views (§6.4); true when the key was used. The editing keys come first.
   function key(e) {
@@ -216,5 +223,5 @@
     return true;
   }
 
-  PumpIt.ui.nav3d = { down, move, up, wheel, zoomBy, fit, dblclick, preset, setProjection, rotateIso, key, redraw, drawn, consumedContext: () => movedLast };
+  PumpIt.ui.nav3d = { down, move, up, wheel, zoomBy, fit, dblclick, preset, setProjection, rotateIso, turnFree, key, redraw, drawn, consumedContext: () => movedLast };
 })(window);

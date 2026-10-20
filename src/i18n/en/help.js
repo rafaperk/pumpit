@@ -69,7 +69,7 @@ PumpIt.i18n.add('en', {
         },
         views: {
           title: 'Views',
-          body: 'Switch between the 2D schematic, the isometric view and the free 3D view (keys <kbd>1</kbd>, <kbd>2</kbd> and <kbd>3</kbd>). All three show the same model: the height of each junction is its elevation.',
+          body: 'Switch between the 2D schematic, the isometric view and the free 3D view (keys <kbd>1</kbd>, <kbd>2</kbd> and <kbd>3</kbd>). All three show the same model: the height of each junction is its elevation. The arrow beside Isometric and 3D opens the options of that view, and another click closes them.',
         },
         overlay: {
           title: 'Results on the drawing',
@@ -705,7 +705,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
           iso: {
             title: 'Isometric',
             body: `<h4>Navigating</h4>
-<p>Drag the background to move the view and use the wheel to zoom. The turn buttons rotate the view by 90° about what the middle of the screen shows. [[t:network.view3.grid]], [[t:network.view3.shadows]], the style ([[t:network.view3.styleTrue]] or 2:1) and the grid density are on the controls.</p>
+<p>Drag the background to move the view and use the wheel to zoom. The arrow beside [[t:network.view3.mode.iso]], at the top of the drawing, opens the options of this view to the right, and another click closes them: the turn buttons, which rotate the view by 90° about what the middle of the screen shows, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.shadows]], the style ([[t:network.view3.styleTrue]] or 2:1), the grid density and the working [[t:network.view3.level]].</p>
 <h4>Editing</h4>
 <ul>
 <li><b>Placing</b>: with a type of the palette, click the grid. The junction goes to the working [[t:network.view3.level]], which <kbd>PageUp</kbd> and <kbd>PageDown</kbd> raise and lower.</li>
@@ -716,7 +716,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
           free: {
             title: 'Free 3D',
             body: `<h4>Navigating</h4>
-<p>Drag the background to orbit about what the middle of the screen shows; the right button, the middle button or <kbd>Shift</kbd>+drag move the view; the wheel zooms at the cursor, towards what lies under it; a double click centres on an object. The arrow keys turn the camera by 15°, and <kbd>Shift</kbd>+arrows move the view. The controls hold [[t:network.view3.persp]] or [[t:network.view3.ortho]], the ready-made views ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] and [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] and [[t:network.view3.stems]].</p>
+<p>Drag the background to orbit about what the middle of the screen shows; the right button, the middle button or <kbd>Shift</kbd>+drag move the view; the wheel zooms at the cursor, towards what lies under it; a double click centres on an object. The arrow keys turn the camera by 15°, and <kbd>Shift</kbd>+arrows move the view. The arrow beside [[t:network.view3.mode.3d]] opens the options of this view, and another click closes them: buttons that turn the view by 15°, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]], [[t:network.view3.stems]], [[t:network.view3.persp]] or [[t:network.view3.ortho]], the ready-made views ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] and [[t:network.view3.presets.iso]]), the grid density and the working [[t:network.view3.level]].</p>
 <h4>Editing</h4>
 <ul>
 <li><b>Pipes</b>: the pipe runs across, on the plane of its last point; hold <kbd>Shift</kbd> to go up or down and <kbd>Ctrl</kbd> to keep it on the nearest axis; <kbd>Alt</kbd>+click or <kbd>D</kbd> makes a bend; a click on empty space ends the pipe at a new node.</li>

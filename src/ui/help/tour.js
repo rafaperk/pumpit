@@ -13,7 +13,7 @@
   // areas of the screen, by name (the help's [[show:area]] links use them too)
   const AREAS = {
     menus: '.menus', title: '#model-title', stamp: '#regime-stamp', scenario: '.scenario', status: '.run', language: '.lang', theme: '#theme-toggle', tabs: '.tabs',
-    palette: '.palette', canvas: '#canvas-wrap', views: '.view-switch', overlay: '.overlay-pick', zoom: '.zoom',
+    palette: '.palette', canvas: '#canvas-wrap', views: '#view-hud', overlay: '.overlay-pick', zoom: '.zoom',
     inspector: '#inspector', panel: '#panel-toggle', statusLine: '#status-line', help: '#btn-menu-help',
   };
   // the steps of the tour, in order (texts: help.tour.steps.<area>.title / .body)

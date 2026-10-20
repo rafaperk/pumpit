@@ -69,7 +69,7 @@ PumpIt.i18n.add('es', {
         },
         views: {
           title: 'Vistas',
-          body: 'Alterne entre el esquema 2D, la isométrica y el 3D libre (teclas <kbd>1</kbd>, <kbd>2</kbd> y <kbd>3</kbd>). Las tres muestran el mismo modelo: la altura de cada unión es su cota.',
+          body: 'Alterne entre el esquema 2D, la isométrica y el 3D libre (teclas <kbd>1</kbd>, <kbd>2</kbd> y <kbd>3</kbd>). Las tres muestran el mismo modelo: la altura de cada unión es su cota. La flecha junto a Isométrica y a 3D abre las opciones de esa vista, y otro clic las contrae.',
         },
         overlay: {
           title: 'Resultados en el dibujo',
@@ -705,7 +705,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
           iso: {
             title: 'Isométrica',
             body: `<h4>Navegar</h4>
-<p>Arrastre el fondo para mover la vista y use la rueda para acercar. Los botones de girar rotan la vista 90° alrededor de lo que está en el centro de la pantalla. [[t:network.view3.grid]], [[t:network.view3.shadows]], el estilo ([[t:network.view3.styleTrue]] o 2:1) y la densidad de la cuadrícula están en los controles.</p>
+<p>Arrastre el fondo para mover la vista y use la rueda para acercar. La flecha junto a [[t:network.view3.mode.iso]], arriba del dibujo, abre las opciones de esta vista hacia la derecha, y otro clic las contrae: los botones de girar, que rotan la vista 90° alrededor de lo que está en el centro de la pantalla, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.shadows]], el estilo ([[t:network.view3.styleTrue]] o 2:1), la densidad de la cuadrícula y la [[t:network.view3.level]] de trabajo.</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Colocar</b>: con un tipo de la paleta, haga clic en la cuadrícula. La unión queda en la [[t:network.view3.level]] de trabajo, que <kbd>RePág</kbd> y <kbd>AvPág</kbd> suben y bajan.</li>
@@ -716,7 +716,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
           free: {
             title: '3D libre',
             body: `<h4>Navegar</h4>
-<p>Arrastre el fondo para girar alrededor de lo que está en el centro de la pantalla; el botón derecho, el botón central o <kbd>Mayús</kbd>+arrastrar mueven la vista; la rueda acerca en el punto del cursor, hacia lo que está debajo; el doble clic centra en un objeto. Las flechas giran la cámara 15°, y <kbd>Mayús</kbd>+flechas mueven la vista. En los controles están [[t:network.view3.persp]] u [[t:network.view3.ortho]], las vistas listas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] y [[t:network.view3.stems]].</p>
+<p>Arrastre el fondo para girar alrededor de lo que está en el centro de la pantalla; el botón derecho, el botón central o <kbd>Mayús</kbd>+arrastrar mueven la vista; la rueda acerca en el punto del cursor, hacia lo que está debajo; el doble clic centra en un objeto. Las teclas de flecha giran la cámara 15°, y <kbd>Mayús</kbd>+flechas mueven la vista. La flecha junto a [[t:network.view3.mode.3d]] abre las opciones de esta vista, y otro clic las contrae: botones que giran la vista 15°, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]], [[t:network.view3.stems]], [[t:network.view3.persp]] u [[t:network.view3.ortho]], las vistas listas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), la densidad de la cuadrícula y la [[t:network.view3.level]] de trabajo.</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Tuberías</b>: la tubería sigue en horizontal, en el plano de su último punto; mantenga <kbd>Mayús</kbd> para subir o bajar y <kbd>Ctrl</kbd> para fijarla en el eje más cercano; <kbd>Alt</kbd>+clic o <kbd>D</kbd> hace un quiebre; un clic en el vacío termina la tubería en un nudo nuevo.</li>

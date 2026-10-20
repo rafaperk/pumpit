@@ -69,7 +69,7 @@ PumpIt.i18n.add('pt-BR', {
         },
         views: {
           title: 'Vistas',
-          body: 'Alterne entre o esquema 2D, a isométrica e o 3D livre (teclas <kbd>1</kbd>, <kbd>2</kbd> e <kbd>3</kbd>). As três mostram o mesmo modelo: a altura de cada junção é a sua elevação.',
+          body: 'Alterne entre o esquema 2D, a isométrica e o 3D livre (teclas <kbd>1</kbd>, <kbd>2</kbd> e <kbd>3</kbd>). As três mostram o mesmo modelo: a altura de cada junção é a sua elevação. A seta ao lado de Isométrica e de 3D abre as opções dessa vista, e outro clique as recolhe.',
         },
         overlay: {
           title: 'Resultados no desenho',
@@ -705,7 +705,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
           iso: {
             title: 'Isométrica',
             body: `<h4>Navegar</h4>
-<p>Arraste o fundo para mover a vista e use a roda para aproximar. Os botões de girar viram a vista em 90° em torno do que está no meio da tela. [[t:network.view3.grid]], [[t:network.view3.shadows]], o estilo ([[t:network.view3.styleTrue]] ou 2:1) e a densidade da grade ficam nos controles.</p>
+<p>Arraste o fundo para mover a vista e use a roda para aproximar. A seta ao lado de [[t:network.view3.mode.iso]], no alto do desenho, abre as opções desta vista para a direita, e outro clique as recolhe: os botões de girar, que viram a vista em 90° em torno do que está no meio da tela, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.shadows]], o estilo ([[t:network.view3.styleTrue]] ou 2:1), a densidade da grade e a [[t:network.view3.level]] de trabalho.</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Colocar</b>: com um tipo da paleta, clique na grade. A junção fica na [[t:network.view3.level]] de trabalho, que <kbd>PageUp</kbd> e <kbd>PageDown</kbd> sobem e descem.</li>
@@ -716,7 +716,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
           free: {
             title: '3D livre',
             body: `<h4>Navegar</h4>
-<p>Arraste o fundo para girar em torno do que está no meio da tela; o botão direito, o botão do meio ou <kbd>Shift</kbd>+arrastar movem a vista; a roda aproxima no ponto do cursor, em direção ao que está sob ele; o duplo clique centraliza num objeto. As setas giram a câmera em 15°, e <kbd>Shift</kbd>+setas movem a vista. Nos controles ficam [[t:network.view3.persp]] ou [[t:network.view3.ortho]], as vistas prontas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] e [[t:network.view3.stems]].</p>
+<p>Arraste o fundo para girar em torno do que está no meio da tela; o botão direito, o botão do meio ou <kbd>Shift</kbd>+arrastar movem a vista; a roda aproxima no ponto do cursor, em direção ao que está sob ele; o duplo clique centraliza num objeto. As teclas de seta giram a câmera em 15°, e <kbd>Shift</kbd>+setas movem a vista. A seta ao lado de [[t:network.view3.mode.3d]] abre as opções desta vista, e outro clique as recolhe: botões que giram a vista em 15°, [[t:network.view3.center]], [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]], [[t:network.view3.stems]], [[t:network.view3.persp]] ou [[t:network.view3.ortho]], as vistas prontas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), a densidade da grade e a [[t:network.view3.level]] de trabalho.</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Tubos</b>: o tubo segue na horizontal, no plano do último ponto; segure <kbd>Shift</kbd> para subir ou descer e <kbd>Ctrl</kbd> para travar no eixo mais próximo; <kbd>Alt</kbd>+clique ou <kbd>D</kbd> faz uma dobra; um clique no vazio termina o tubo num nó novo.</li>

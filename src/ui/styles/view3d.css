@@ -1,20 +1,49 @@
-/* 3D views: the view switch and the controls of each view on the drawing, the "visual only" seal and the 3D
+/* 3D views: the view switch with the menus of the 3D views on the drawing, the "visual only" seal and the 3D
    drawing (grid, shadows, drop lines, tubes with their cut, solid symbols, labels). */
-.view-hud { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; pointer-events: auto; max-width: calc(100% - 230px); }
-.view-hud .seg { padding: 2px; }
-.view-hud .seg button { padding: 3px 10px; font-size: 12.5px; }
-.hud-group { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 2px 4px; }
-.hud-group .btn { min-height: 26px; padding: 2px 8px; font-size: 12.5px; }
-.hud-group .btn.icon { padding: 2px 6px; min-width: 28px; }
-.hud-group .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
-.hud-group .seg { border: 0; background: transparent; padding: 0; }
-.hud-sep { width: 1px; align-self: stretch; background: var(--line); margin: 3px 2px; }
-.seal3 {
-  position: absolute; right: 12px; top: 10px; font-size: 11.5px; color: var(--ink-2); background: var(--panel);
-  border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; pointer-events: none;
+
+/* the view switch: one bar with Schematic, Isometric and 3D. The arrow beside a 3D view opens its menu to the right,
+   pushing what follows, and closes it again (D-33). The bar takes the room the seal leaves on its row, and an open
+   menu wraps its content when that is not enough. */
+.view-hud {
+  flex: 0 1 auto; display: flex; align-items: flex-start; padding: 2px; pointer-events: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
 }
-.hud-level { display: flex; align-items: center; gap: 2px; font-size: 12.5px; color: var(--ink-2); padding-left: 4px; }
-.hud-level input { width: 58px; padding: 2px 6px; font-family: var(--f-mono); font-size: 12.5px; text-align: right; }
+.hud-split { flex: none; display: flex; border-radius: 6px; }
+.hud-split + .hud-split, .hud-menu + .hud-split { margin-left: 2px; }
+.hud-split.on { background: var(--accent-soft); }
+.hud-split button { min-height: 26px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); cursor: pointer; }
+.hud-split [data-mode] { padding: 3px 10px; font-size: 12.5px; }
+.hud-split [data-mode]:not(:last-child) { padding-right: 3px; }
+.hud-split.on [data-mode] { color: var(--ink); font-weight: 500; }
+.hud-split:not(.on) button:hover { background: var(--sunk); color: var(--ink); }
+.hud-arrow { display: grid; place-items: center; width: 22px; padding: 0; }
+.hud-split.on .hud-arrow:hover, .hud-arrow[aria-expanded="true"] { color: var(--accent); }
+.hud-arrow svg { display: block; }
+.hud-arrow[aria-expanded="true"] svg { transform: rotate(180deg); }
+/* A menu slides between nothing and its width (hud.js), while its content keeps the width it ends with. Its groups
+   wrap onto more lines when the bar has no room; each group draws the line before it, which falls on the edge of the
+   menu where a group starts a line. */
+.hud-menu { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+.hud-menu-in { display: flex; flex-wrap: wrap; align-items: center; row-gap: 2px; margin-left: 4px; border-left: 1px solid var(--line); }
+.hud-menu:not(:last-child) .hud-menu-in { margin-right: 2px; border-right: 1px solid var(--line); }
+.hud-grp { position: relative; flex: none; display: flex; align-items: center; gap: 3px; margin-left: -1px; padding: 0 6px; }
+.hud-grp::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 1px; background: var(--line); }
+.hud-menu .btn { min-height: 26px; padding: 2px 7px; font-size: 12.5px; white-space: nowrap; }
+.hud-menu .btn.icon { padding: 2px 5px; min-width: 26px; }
+.hud-menu .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.hud-menu .seg { flex-wrap: nowrap; padding: 0; border: 0; background: transparent; }
+.hud-menu .seg button { min-height: 26px; padding: 3px 8px; font-size: 12.5px; white-space: nowrap; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-arrow svg { transition: transform .18s ease-out; }
+}
+/* the seal, at the right of the row of the view switch, or below the bar when an open menu needs the row
+   (network.css) */
+.seal3 {
+  flex: 0 0.01 auto; margin-left: auto; font-size: 11.5px; color: var(--ink-2); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 13px; padding: 3px 10px; pointer-events: none;
+}
+.hud-level { display: flex; align-items: center; gap: 2px; font-size: 12.5px; color: var(--ink-2); }
+.hud-level input { width: 52px; min-height: 26px; padding: 2px 6px; font-family: var(--f-mono); font-size: 12.5px; text-align: right; }
 .hud-level .unit { color: var(--ink-3); }
 
 /* the drawing */
