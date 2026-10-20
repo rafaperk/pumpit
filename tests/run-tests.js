@@ -136,7 +136,7 @@ console.log('\nPressure-reducing valve and scenarios');
   check('State: controlling', r.valves[2].state === 'controlling');
   const r2 = solveOk(m, 's1');
   check('Peak: the PRV goes fully open', r2.valves[2].state === 'fully open', r2.valves[2].state);
-  check('Peak: assigned flow respected', rel(r2.pipes[2].Q * 3600, 300) < 1e-9);
+  check('Peak: imposed flow respected', rel(r2.pipes[2].Q * 3600, 300) < 1e-9);
   // inheritance rule: editing with the inherited value relinks the attribute to the parent
   M.setField(m, 's1', 'j:3', 'Q', q(80, 'm³/h'));
   check('A value equal to the inherited one removes the override', !M.isOverridden(m, 's1', 'j:3', 'Q'));
@@ -184,6 +184,76 @@ console.log('\nSprinklers');
   // Q = K·√ΔP for water (reference density 1000 kg/m³)
   const Qexp = k * Math.sqrt(j.dP) * Math.sqrt(1000 / r.fluid.rho);
   check('Sprinkler flow = K·√ΔP', rel(j.Q, Qexp) < 1e-9, `${(j.Q * 60000).toFixed(2)} L/min`);
+}
+
+console.log('\nLaminar correction of K in older models');
+{
+  // the names held by models saved until 19 October 2026 open as the current ones, also in a child scenario; an
+  // unknown name goes back to the default
+  const m = PumpIt.examples.get('pump').build();
+  m.system.laminarK = 'improvedAtkf';
+  m.scenarios.list.push({ id: 'old', name: 'Old', parent: 'base', overrides: { 'sys|laminarK': 'atkf' }, notes: '' });
+  M.normalizeRegime(m);
+  check('Old names read as craneFt and pipeFt', m.system.laminarK === 'craneFt' && m.scenarios.list.find((s) => s.id === 'old').overrides['sys|laminarK'] === 'pipeFt');
+  m.system.laminarK = 'other';
+  M.normalizeRegime(m);
+  check('An unknown laminar correction goes back to the default', m.system.laminarK === 'craneFt');
+}
+
+console.log('\nPipe catalogues (docs/pipe-library.md)');
+{
+  const D = PumpIt.data;
+  const dims = (kind, nps, sch) => D.pipeDims({ kind, nps: String(nps), sch });
+  // the bore of carbon steel, (OD − 2·wall)·25.4 to 0.0001 mm
+  const steelOk = D.B3610.every((r) => D.SCHEDULES.every((s, k) => Math.abs(dims('steel', r[0], s).id - (r[1] - 2 * r[2 + k]) * 25.4) < 5e-5));
+  check('Carbon steel: bores of ASME B36.10M (4" Sch 40 102.26 mm as before, 8" Sch 80 193.68 mm)', steelOk && dims('steel', '4', '40').id === 102.2604
+    && +dims('steel', '8', '80').id.toFixed(2) === 193.68);
+  // inside diameters (in) of table 4.B.1 of the Hydraulic Institute, ASME B36.19M-2018
+  const ss = [['1/8', '10S', 0.307], ['1/2', '5S', 0.71], ['2', '40S', 2.067], ['3 1/2', '80S', 3.364], ['4', '10S', 4.26], ['8', '10S', 8.329], ['12', '5S', 12.438], ['24', '80S', 23], ['30', '10S', 29.376]];
+  check('Stainless steel: inside diameters of ASME B36.19M', ss.every(([n, s, id]) => Math.abs(dims('stainless', n, s).id - id * 25.4) < 1e-9));
+  check('Stainless steel: schedules the standard does not have', dims('stainless', '1/4', '5S') === null && dims('stainless', '30', '80S') === null && D.pipeSeries('stainless', '22').join() === '5S,10S');
+  // published walls: ISO 4437 and EN 12201-2 tables, SINAPI items of NBR 15561, PE 100 datasheets
+  const pe = [[20, '11', 2], [32, '11', 3], [32, '17', 2], [75, '11', 6.8], [90, '17', 5.4], [110, '17', 6.6], [110, '11', 10], [125, '17', 7.4], [200, '17', 11.9], [250, '17', 14.8], [250, '11', 22.7], [280, '11', 25.4], [450, '11', 40.9], [560, '11', 50.8], [710, '11', 64.5]];
+  check('HDPE: published walls', pe.every(([d, s, w]) => dims('hdpe', d, s).wall === w));
+  // the universal wall table of ISO 4065: exact S of the R10 series, e rounded to 0.01 mm and then up to 0.1 mm, 2.0 mm
+  // at least, 3.0 mm for 32 mm SDR 11; a series starts at 1.8 mm
+  const R10 = { 41: 13, 33: 12, 26: 11, 21: 10, 17: 9, 13.6: 8, 11: 7, 9: 6, 7.4: 5 };
+  const iso4065 = (d, sdr) => {
+    const raw = d / (2 * 10 ** (R10[sdr] / 10) + 1);
+    return raw < 1.8 ? null : d === 32 && sdr === '11' ? 3 : Math.max(Math.ceil(Math.round(raw * 100) / 10) / 10, 2);
+  };
+  const cells = D.HDPE.flatMap((row) => D.HDPE_SDRS.map((s, i) => [row[0], s, row[1 + i]]));
+  const off = cells.filter(([d, s, w]) => w !== iso4065(d, s));
+  check('HDPE: every wall follows ISO 4065', off.length === 0, `${cells.length} cells` + (off.length ? `, differ: ${off.map((c) => c.join(' ')).join('; ')}` : ''));
+  check('HDPE: bore OD − 2e, nominal pressures of PE 100 and PE 80', dims('hdpe', 110, '11').id === 90 && dims('hdpe', 20, '17') === null
+    && D.pipePN({ kind: 'hdpe', sch: '11', grade: 'PE100' }) === 16 && D.pipePN({ kind: 'hdpe', sch: '11', grade: 'PE80' }) === 12.5);
+  // ductile iron: e = K(0.5 + 0.001 DN) with 5 mm (K7) and 6 mm (K9) at least, lining of NBR 7675:2022
+  const di = (dn, cls) => dims('ductile', dn, cls);
+  check('Ductile iron K9: 6.0, 6.3, 6.8, 7.2 and 15.3 mm', [[80, 6], [200, 6.3], [250, 6.8], [300, 7.2], [1200, 15.3]].every(([dn, e]) => di(dn, 'K9').wall === e));
+  check('Ductile iron K7: 5.0 mm at least, 5.6 at DN 300, 6.0 at DN 350', di(150, 'K7').wall === 5 && di(300, 'K7').wall === 5.6 && di(350, 'K7').wall === 6);
+  check('Ductile iron: bore DE − 2e − 2·lining (DN 100: 100.0, DN 400: 402.8, DN 1200: 1212.4 mm)', di(100, 'K9').id === 100 && di(400, 'K9').id === 402.8 && di(1200, 'K9').id === 1212.4);
+  // every definition is complete, with a default pipe the catalogue has; larger sizes have larger outside diameters;
+  // heavier series (in the order of each catalogue but carbon steel's) have smaller bores
+  let ok = true;
+  for (const kind of D.PIPE_KINDS) {
+    const c = D.pipeCatalog(kind), dft = c.defaults;
+    if (!(c.eps > 0) || !c.system || !c.seriesKind || !c.digits || !dims(kind, dft.nps, dft.sch) || (c.grades && !c.grades[dft.grade])) ok = false;
+    let od = 0;
+    for (const n of D.pipeSizes(kind)) {
+      const ds = D.pipeSeries(kind, n).map((s) => dims(kind, n, s));
+      if (!ds.length || !(ds[0].od > od) || ds.some((d) => !(d.id > 0 && d.wall > 0))) ok = false;
+      if (kind !== 'steel' && ds.some((d, i) => i && !(d.id < ds[i - 1].id))) ok = false;
+      od = ds[0].od;
+    }
+  }
+  check('Every catalogue: a complete definition, sizes in order, positive walls and bores', ok);
+  // a new material: the size whose bore is nearest, or the same NPS; a series the size lacks becomes the nearest one
+  const fit = (m, o) => JSON.stringify(D.fitMaterial(m, o));
+  check('Changing the material keeps a similar bore', fit({ kind: 'hdpe', nps: '4', sch: '40' }, { refId: 102.26, resize: true }) === '{"kind":"hdpe","nps":"125","sch":"11","grade":"PE100"}'
+    && fit({ kind: 'ductile', nps: '4', sch: '40' }, { refId: 102.26, resize: true }) === '{"kind":"ductile","nps":"100","sch":"K9"}'
+    && fit({ kind: 'stainless', nps: '4', sch: '40' }, { refId: 102.26 }) === '{"kind":"stainless","nps":"4","sch":"10S"}');
+  check('A series the size lacks becomes the nearest one', fit({ kind: 'stainless', nps: '1/4', sch: '5S' }) === '{"kind":"stainless","nps":"1/4","sch":"10S"}'
+    && fit({ kind: 'hdpe', nps: '20', sch: '17', grade: 'PE80' }) === '{"kind":"hdpe","nps":"20","sch":"11","grade":"PE80"}');
 }
 
 console.log('\nEvery example');

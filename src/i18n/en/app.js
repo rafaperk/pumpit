@@ -13,7 +13,7 @@ PumpIt.i18n.add('en', {
     menu: {
       file: 'File',
       new: 'New model',
-      open: 'Open .json file…',
+      open: 'Open file (.json, .fth)…',
       save: 'Download .json',
       copyJson: 'Copy model (JSON)',
       pasteJson: 'Paste model (JSON)…',
@@ -90,6 +90,18 @@ PumpIt.i18n.add('en', {
       ok: 'Open',
       opened: 'Model opened.',
       cannotRead: 'Could not read: {message}',
+    },
+    importReport: {
+      title: 'Imported: {name}',
+      summary: '{pipes} pipes and {junctions} junctions of the scenario “{scenario}”.',
+      match: 'The results match those stored in the file.',
+      compared: 'Compared with the results stored in the file ({n} pipes): largest difference of flow {flow} of the largest flow ({flowPipe}); largest difference of stagnation pressure {pressure} of the largest pressure drop in a pipe ({pressurePipe}).',
+      noStored: 'The file has no stored results to compare with.',
+      incomplete: 'The model is not calculated yet: complete the items in red in the checklist.',
+      refused: 'The calculation was refused: {message}',
+      levels: { missing: 'Needs your input', assumed: 'Assumed', ignored: 'Left out', info: 'Read from the file' },
+      clean: 'Everything the file holds for the base scenario was read.',
+      cannotRead: 'Could not import: {message}',
     },
     edit: {
       nothingToUndo: 'Nothing to undo.',

@@ -9,7 +9,7 @@ PumpIt.i18n.add('en', {
       pipes: {
         id: 'Pipe',
         dn: 'Nominal size',
-        schTxt: 'Schedule',
+        schTxt: 'Schedule / class',
         zin: 'Start elevation',
         zout: 'End elevation',
         Q: 'Flow',

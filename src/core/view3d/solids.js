@@ -6,7 +6,12 @@
 // constructors of PumpIt.view3d.solid.
 (function (root) {
   const PumpIt = root.PumpIt;
-  const { DEG, AX, add, sub, mul, dot, cross, len, norm, clamp, basis, focalPx, nearOf } = PumpIt.view3d;
+  const { DEG, AX, add, sub, mul, dot, cross, len, norm, clamp, basis, focalPx, nearOf, NEAR, PLAN_PX } = PumpIt.view3d;
+
+  // Symbols and tubes belong to the scene (D-30): they keep the proportions of the schematic, where one du takes
+  // PLAN_PX px, so n px of the schematic take n · k / PLAN_PX px on the screen at the local scale k (px per du).
+  // Zooming, or coming nearer in perspective, magnifies them like the rest of the network.
+  const scenePx = (n, k) => (n * k) / PLAN_PX;
 
   // ------------------------------------------------------------ parts
   //   rev    solid of revolution from the point a to the point b, radius r0 at a and r1 at b (a cone when one is 0);
@@ -100,20 +105,36 @@
 
   const centroid = (pts) => mul(pts.reduce(add, [0, 0, 0]), 1 / pts.length);
 
-  // the parts cut into faces, once per model: { kind, faces, ctr, fixed (faces painted in their order) }
+  // the parts cut into faces, once per model: { kind, faces (each with its centre c), ctr, fixed (faces painted in
+  // their order) }
   const cutCache = new WeakMap();
   function cut(model) {
     let parts = cutCache.get(model);
     if (parts) return parts;
+    const centred = (faces) => faces.map((f) => ({ ...f, c: centroid(f.pts) }));
     parts = model.parts.map((p) => {
-      if (p.kind === 'rev') return { kind: 'faces', faces: revFaces(p), ctr: mul(add(p.a, p.b), 0.5) };
-      if (p.kind === 'box') return { kind: 'faces', faces: boxFaces(p), ctr: p.c };
-      if (p.kind === 'tank') return { kind: 'faces', faces: tankFaces(p), ctr: [0, 0, (p.z0 + p.z1) / 2], fixed: true };
-      if (p.kind === 'plate') return { kind: 'faces', faces: [{ pts: p.pts, n: norm(p.n), mat: p.mat }], ctr: centroid(p.pts) };
+      if (p.kind === 'rev') return { kind: 'faces', faces: centred(revFaces(p)), ctr: mul(add(p.a, p.b), 0.5) };
+      if (p.kind === 'box') return { kind: 'faces', faces: centred(boxFaces(p)), ctr: p.c };
+      if (p.kind === 'tank') return { kind: 'faces', faces: centred(tankFaces(p)), ctr: [0, 0, (p.z0 + p.z1) / 2], fixed: true };
+      if (p.kind === 'plate') return { kind: 'faces', faces: centred([{ pts: p.pts, n: norm(p.n), mat: p.mat }]), ctr: centroid(p.pts) };
       return { ...p, ctr: p.c };
     });
     cutCache.set(model, parts);
     return parts;
+  }
+
+  // distance (symbol px) from the centre of a symbol to its farthest point
+  const radii = new WeakMap();
+  function solidRadius(model) {
+    if (!radii.has(model)) {
+      let r = 0;
+      for (const pt of cut(model)) {
+        if (pt.kind === 'faces') for (const f of pt.faces) for (const q of f.pts) r = Math.max(r, len(q));
+        else r = Math.max(r, len(pt.c) + (pt.r || 0));
+      }
+      radii.set(model, r);
+    }
+    return radii.get(model);
   }
 
   // ------------------------------------------------------------ orientation and place on the screen
@@ -131,23 +152,29 @@
   }
 
   // Where a symbol goes on the screen: c, the projection of the centre p (as project gives it); A, the linear map from
-  // symbol px to screen px around c (the derivative of the projection at p, so the symbol meets the pipes drawn
-  // through the true projection); view and light, unit vectors in the frame of the symbol (view points into the
-  // scene); du, drawing units per symbol px; s, screen px per symbol px, which size(k) gives from the local scale k;
-  // q, the vertical squash of the 2:1 isometric style. null behind the near plane.
-  function solidPlacement(cam, vp, p, axes, size = () => 1) {
+  // symbol px to screen px around c (the derivative of the projection at p, so that a small symbol meets the pipes
+  // drawn through the true projection); view and light, unit vectors in the frame of the symbol (view points into
+  // the scene); du, drawing units per symbol px; s, screen px per symbol px, which size(k) gives from the local scale
+  // k; q, the vertical squash of the 2:1 isometric style. null behind the near plane.
+  // In perspective the reach of the symbol, radius (symbol px, solidRadius), decides two more things (D-31): persp,
+  // the camera seen from the symbol, set when the linear map would miss the perspective of the scene by more than
+  // EXACT_PX, so that the symbol is drawn through the true projection; and fade, which dims the symbol as its nearest
+  // point comes within 2·NEAR du of the camera, from 1 down to 0 (not drawn) at NEAR, before it reaches the near plane.
+  const EXACT_PX = 0.25;
+  function solidPlacement(cam, vp, p, axes, size = () => 1, radius = 0) {
     const { r, u, w } = basis(cam);
     const d = sub(p, cam.target);
     const xv = dot(d, r), yv = dot(d, u), zv = dot(d, w);
     const q = cam.projection === 'ortho' ? cam.squash || 1 : 1;
-    let c, R0, R1, view;
+    let c, R0, R1, view, zc = 0, fo = 0;
     if (cam.projection === 'ortho') {
       c = { x: vp.w / 2 + cam.scale * xv, y: vp.h / 2 - q * cam.scale * yv, depth: -zv, k: cam.scale };
       R0 = r; R1 = mul(u, -q); view = mul(w, -1);
     } else {
-      const zc = cam.distance - zv;
+      zc = cam.distance - zv;
       if (zc < nearOf(cam)) return null;
-      const k = focalPx(cam, vp) / zc;
+      fo = focalPx(cam, vp);
+      const k = fo / zc;
       c = { x: vp.w / 2 + k * xv, y: vp.h / 2 - k * yv, depth: zc, k };
       R0 = add(r, mul(w, xv / zc)); R1 = mul(add(u, mul(w, yv / zc)), -1);
       view = norm(add(add(mul(r, xv), mul(u, yv)), mul(w, -zc)));
@@ -157,7 +184,17 @@
     const A = [[dot(R0, ex) * s, dot(R0, ey) * s, dot(R0, ez) * s], [dot(R1, ex) * s, dot(R1, ey) * s, dot(R1, ez) * s]];
     const local = (v) => [dot(v, ex), dot(v, ey), dot(v, ez)];
     const light = add(add(mul(r, LIGHT[0]), mul(u, LIGHT[1])), mul(w, LIGHT[2]));
-    return { c, A, s, q, du: s / c.k, view: local(view), light: local(light), axes };
+    const pl = { c, A, s, q, du: s / c.k, view: local(view), light: local(light), axes, fade: 1, persp: null };
+    if (zc) {
+      const R = radius * pl.du;
+      pl.fade = clamp((zc - R - NEAR) / NEAR, 0, 1);
+      // the stretch that the linear map misses at the reach R, at most
+      if ((fo * R * R * (1 + Math.hypot(xv, yv) / zc)) / (zc * zc) > EXACT_PX) {
+        const M = [ex, ey, ez].map((e) => [dot(e, r) * pl.du, dot(e, u) * pl.du, -dot(e, w) * pl.du]);
+        pl.persp = { f: fo, xv, yv, zc, M, eye: local(sub(mul(w, cam.distance), d)).map((v) => v / pl.du) };
+      }
+    }
+    return pl;
   }
 
   // ------------------------------------------------------------ drawing
@@ -176,13 +213,29 @@
   // shade of a face from its normal: a dim light everywhere, the rest from the light
   const shadeOf = (n, light) => clamp(Math.round((LEVELS - 1) * (0.38 + 0.62 * Math.max(0, dot(n, light)))), 0, LEVELS - 1);
 
-  // The symbol on the screen, around the projected centre (0, 0): { parts, box } where parts, from the farthest to
-  // the nearest, are { kind: 'faces', faces: [{ mat, shade, pts: [[x, y]…] }], hull, fixed }, { kind: 'ball', mat,
-  // x, y, rx, ry } and { kind: 'text', str, x, y, size }, and box = { x0, y0, x1, y1 } bounds them.
-  function drawSolid(model, pl) {
-    const { A, view, light } = pl;
-    const P = (q) => [A[0][0] * q[0] + A[0][1] * q[1] + A[0][2] * q[2], A[1][0] * q[0] + A[1][1] * q[1] + A[1][2] * q[2]];
-    const parts = cut(model).map((pt, i) => ({ pt, i, d: dot(pt.ctr, view) }));
+  // The symbol on the screen, around the projected centre (0, 0), in units of per screen px: { parts, box } where
+  // parts, from the farthest to the nearest, are { kind: 'faces', faces: [{ mat, shade, pts: [[x, y]…] }], hull,
+  // fixed }, { kind: 'ball', mat, x, y, rx, ry } and { kind: 'text', str, x, y, size }, and box = { x0, y0, x1, y1 }
+  // bounds them. Through the linear map A, or through the true projection when the placement has persp (D-31): then a
+  // face shows when it faces the camera itself and the parts go by their distance from it.
+  function drawSolid(model, pl, per = 1) {
+    const { A, view, light, persp } = pl;
+    let P, scaleAt, shows, far;
+    if (persp) {
+      const { f: fo, xv, yv, zc, M, eye } = persp;
+      const off = (q) => [0, 1, 2].map((i) => q[0] * M[0][i] + q[1] * M[1][i] + q[2] * M[2][i]); // camera frame, du
+      const x0 = (fo * xv) / zc, y0 = (fo * yv) / zc;
+      P = (q) => { const [X, Y, Z] = off(q), z = zc + Z; return [((fo * (xv + X)) / z - x0) / per, (y0 - (fo * (yv + Y)) / z) / per]; };
+      scaleAt = (q) => (pl.s * zc) / (zc + off(q)[2]) / per;
+      shows = (fc) => { const v = sub(eye, fc.c); return dot(fc.n, v) > 1e-6 * len(v); };
+      far = (pt) => len(sub(pt.ctr, eye));
+    } else {
+      P = (q) => [(A[0][0] * q[0] + A[0][1] * q[1] + A[0][2] * q[2]) / per, (A[1][0] * q[0] + A[1][1] * q[1] + A[1][2] * q[2]) / per];
+      scaleAt = () => pl.s / per;
+      shows = (fc) => dot(fc.n, view) < -1e-6;
+      far = (pt) => dot(pt.ctr, view);
+    }
+    const parts = cut(model).map((pt, i) => ({ pt, i, d: far(pt) }));
     parts.sort((a, b) => (a.pt.kind === 'text') - (b.pt.kind === 'text') || b.d - a.d || a.i - b.i);
     const out = [];
     const box = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
@@ -191,7 +244,7 @@
       if (pt.kind === 'faces') {
         const faces = [], all = [];
         for (const f of pt.faces) {
-          if (dot(f.n, view) > -1e-6) continue; // turned away, or seen edge on
+          if (!shows(f)) continue; // turned away, or seen edge on
           const pts = f.pts.map(P);
           faces.push({ mat: f.mat, shade: shadeOf(f.n, light), pts });
           for (const q of pts) { all.push(q); grow(q[0], q[1]); }
@@ -201,15 +254,15 @@
         // always round (squashed with the 2:1 style), without the slight stretch of a ball far off the axis in
         // perspective, so that a ball keeps its shape while the camera moves
         const [x, y] = P(pt.c);
-        const rx = pt.r * pl.s, ry = rx * pl.q;
+        const rx = pt.r * scaleAt(pt.c), ry = rx * pl.q;
         out.push({ kind: 'ball', mat: pt.mat, x, y, rx, ry });
         grow(x - rx, y - ry); grow(x + rx, y + ry);
       } else if (pt.kind === 'text') {
         const [x, y] = P(pt.c);
-        out.push({ kind: 'text', str: pt.str, x, y, size: 12 * pl.s });
+        out.push({ kind: 'text', str: pt.str, x, y, size: (12 * pl.s) / per });
       }
     }
-    if (!Number.isFinite(box.x0)) { box.x0 = box.y0 = -8 * pl.s; box.x1 = box.y1 = 8 * pl.s; }
+    if (!Number.isFinite(box.x0)) { box.x0 = box.y0 = (-8 * pl.s) / per; box.x1 = box.y1 = (8 * pl.s) / per; }
     return { parts: out, box };
   }
 
@@ -256,6 +309,6 @@
 
   Object.assign(PumpIt.view3d, {
     solid: { rev, cyl, box, ball, tank, plate, text },
-    SOLID_LEVELS: LEVELS, solidAxes, solidPlacement, drawSolid, solidReach, convexHull: hull,
+    SOLID_LEVELS: LEVELS, scenePx, solidAxes, solidRadius, solidPlacement, drawSolid, solidReach, convexHull: hull,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -478,7 +478,13 @@ PumpIt.i18n.add('es', {
             title: 'Geometría y material',
             body: `<ul>
 <li>[[t:inspector.pipe.length]]: la longitud hidráulica real. El dibujo no interviene.</li>
-<li>[[t:inspector.pipe.material]]: [[t:inspector.pipe.steel]] — elija el [[t:inspector.pipe.nps]] y el [[t:inspector.pipe.schedule]] (40, 80, STD o XS), y el diámetro interior sale de la norma —, o [[t:inspector.pipe.userDefined]], para escribir el diámetro.</li>
+<li>[[t:inspector.pipe.material]]: [[t:inspector.pipe.userDefined]], para escribir el diámetro, o un catálogo, cuya norma da el diámetro interior:
+<ul>
+<li>[[t:inspector.pipe.materials.steel]] (cédulas 40, 80, STD y XS) y [[t:inspector.pipe.materials.stainless]] (5S, 10S, 40S y 80S): el tamaño nominal en pulgadas y la cédula;</li>
+<li>[[t:inspector.pipe.materials.hdpe]]: el diámetro exterior en milímetros, el SDR y el compuesto (PE 100 o PE 80), que fija la presión nominal PN; la pared es la mínima de la norma;</li>
+<li>[[t:inspector.pipe.materials.ductile]]: el DN y la clase de espesor (K7 o K9); el diámetro interior descuenta el revestimiento de mortero de cemento.</li>
+</ul>
+Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se puede cambiar.</li>
 <li>[[t:inspector.pipe.section]]: [[t:inspector.pipe.sections.circular]], [[t:inspector.pipe.sections.annulus]] (diámetros exterior e interior), [[t:inspector.pipe.sections.rectangular]] (ancho y alto) o [[t:inspector.pipe.sections.noncircular]] (área y perímetro mojado). El panel muestra el [[t:inspector.pipe.hydraulicDiameter]].</li>
 <li>[[t:inspector.pipe.idReduction]]: reduce el diámetro hidráulico en un porcentaje, para simular depósitos en las paredes.</li>
 <li>[[t:inspector.pipe.nParallel]]: N tuberías iguales lado a lado; el caudal se reparte por igual entre ellas.</li>
@@ -489,7 +495,7 @@ PumpIt.i18n.add('es', {
             title: 'Fricción',
             body: `<p>Elija el [[t:inspector.pipe.model]] de fricción:</p>
 <ul>
-<li>[[t:inspector.pipe.models.roughness]] (predeterminado): indique ε, o elija un [[t:inspector.pipe.typicalValue]] — acero comercial 0,046 mm, hierro galvanizado 0,15 mm, PVC 0,0015 mm y otros.</li>
+<li>[[t:inspector.pipe.models.roughness]] (predeterminado): indique ε, o elija un [[t:inspector.pipe.typicalValue]] — acero comercial 0,046 mm, acero inoxidable 0,015 mm, hierro galvanizado 0,15 mm, hierro dúctil revestido de mortero de cemento 0,1 mm (proyecto) o 0,03 mm (tubo nuevo), PVC y PEAD 0,0015 mm y otros.</li>
 <li>[[t:inspector.pipe.models.relRoughness]]: el valor de ε/D directo.</li>
 <li>[[t:inspector.pipe.models.smooth]]: ε = 0.</li>
 <li>[[t:inspector.pipe.models.explicitF]]: un factor de fricción de Darcy constante.</li>
@@ -539,7 +545,7 @@ PumpIt.i18n.add('es', {
 <li>[[t:inspector.system.patm]]: convierte presiones manométricas en absolutas y entra en el NPSH disponible. El valor predeterminado, 1,03323 kgf/cm²(a), es el nivel del mar.</li>
 <li>[[t:inspector.system.gravity]]: múltiplo de la gravedad estándar, g₀ = 9,80665 m/s².</li>
 <li>[[t:inspector.system.reLam]] y [[t:inspector.system.reTurb]]: los límites del régimen (2300 y 4000, por defecto). Entre ellos, el factor de fricción se interpola linealmente.</li>
-<li>[[t:inspector.system.laminarK]]: en flujo laminar, las pérdidas de los accesorios crecen. [[t:inspector.system.improvedAtkf]] (predeterminado) y ATKF multiplican el K por la razón entre el factor de fricción laminar y un factor turbulento de referencia; [[t:inspector.system.noCorrection]] usa el K tal como se indicó. Detalles en [[go:tech.minor|Pérdidas localizadas]].</li>
+<li>[[t:inspector.system.laminarK]]: en flujo laminar, las pérdidas de los accesorios crecen. [[t:inspector.system.craneFt]] (predeterminado) y [[t:inspector.system.pipeFt]] multiplican el K por la razón entre el factor de fricción laminar y un factor turbulento de referencia; [[t:inspector.system.noCorrection]] usa el K tal como se indicó. Detalles en [[go:tech.minor|Pérdidas localizadas]].</li>
 </ul>`,
           },
           solution: {
@@ -693,12 +699,13 @@ PumpIt.i18n.add('es', {
 <li>mover una unión en una vista la mueve en las demás, y subir o bajar una unión en una vista 3D <b>cambia su cota</b> y recalcula;</li>
 <li>los trazados, los quiebres y las posiciones en el plano son solo dibujo: <b>ninguna longitud sale del dibujo</b>.</li>
 </ul>
-<p>En la primera entrada, la aplicación elige una escala vertical que deja legibles las alturas. Las tuberías aparecen como tubos sombreados con espesor según su diámetro, las más cercanas por encima de las de atrás, y las uniones como pequeños objetos 3D.</p>`,
+<p>En la primera entrada, la aplicación elige una escala vertical que deja legibles las alturas. Las tuberías aparecen como tubos sombreados con espesor según su diámetro, las más cercanas por encima de las de atrás, y las uniones como pequeños objetos 3D.</p>
+<p>Los tubos y los objetos forman parte de la escena: al acercar o alejar, crecen y se reducen junto con la red, en las proporciones del esquema, y en la vista 3D libre los más cercanos se ven más grandes, hasta que llegan tan cerca de la cámara que se desvanecen y se recortan, para que nada cubra la pantalla. Las etiquetas mantienen su tamaño en la pantalla.</p>`,
           },
           iso: {
             title: 'Isométrica',
             body: `<h4>Navegar</h4>
-<p>Arrastre el fondo para mover la vista y use la rueda para acercar. Los botones de girar rotan la vista 90°. [[t:network.view3.grid]], [[t:network.view3.shadows]], el estilo ([[t:network.view3.styleTrue]] o 2:1) y la densidad de la cuadrícula están en los controles.</p>
+<p>Arrastre el fondo para mover la vista y use la rueda para acercar. Los botones de girar rotan la vista 90° alrededor de lo que está en el centro de la pantalla. [[t:network.view3.grid]], [[t:network.view3.shadows]], el estilo ([[t:network.view3.styleTrue]] o 2:1) y la densidad de la cuadrícula están en los controles.</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Colocar</b>: con un tipo de la paleta, haga clic en la cuadrícula. La unión queda en la [[t:network.view3.level]] de trabajo, que <kbd>RePág</kbd> y <kbd>AvPág</kbd> suben y bajan.</li>
@@ -709,7 +716,7 @@ PumpIt.i18n.add('es', {
           free: {
             title: '3D libre',
             body: `<h4>Navegar</h4>
-<p>Arrastre el fondo para girar; el botón derecho, el botón central o <kbd>Mayús</kbd>+arrastrar mueven la vista; la rueda acerca en el punto del cursor; el doble clic centra en un objeto. Las flechas giran la cámara 15°, y <kbd>Mayús</kbd>+flechas mueven la vista. En los controles están [[t:network.view3.persp]] u [[t:network.view3.ortho]], las vistas listas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] y [[t:network.view3.stems]].</p>
+<p>Arrastre el fondo para girar alrededor de lo que está en el centro de la pantalla; el botón derecho, el botón central o <kbd>Mayús</kbd>+arrastrar mueven la vista; la rueda acerca en el punto del cursor, hacia lo que está debajo; el doble clic centra en un objeto. Las flechas giran la cámara 15°, y <kbd>Mayús</kbd>+flechas mueven la vista. En los controles están [[t:network.view3.persp]] u [[t:network.view3.ortho]], las vistas listas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] y [[t:network.view3.stems]].</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Tuberías</b>: la tubería sigue en horizontal, en el plano de su último punto; mantenga <kbd>Mayús</kbd> para subir o bajar y <kbd>Ctrl</kbd> para fijarla en el eje más cercano; <kbd>Alt</kbd>+clic o <kbd>D</kbd> hace un quiebre; un clic en el vacío termina la tubería en un nudo nuevo.</li>
@@ -740,13 +747,21 @@ PumpIt.i18n.add('es', {
             body: `<table>
 <tr><th>Comando en [[t:app.menu.file]]</th><th>Qué hace</th></tr>
 <tr><td>[[t:app.menu.new]]</td><td>Empieza un modelo vacío (se puede deshacer).</td></tr>
-<tr><td>[[t:app.menu.open]]</td><td>Abre un modelo guardado en .json.</td></tr>
+<tr><td>[[t:app.menu.open]]</td><td>Abre un modelo guardado en .json, o importa un modelo en el formato .fth (abajo). Arrastrar el archivo a la ventana hace lo mismo.</td></tr>
 <tr><td>[[t:app.menu.save]]</td><td>Descarga el modelo como <code>título.pumpit.json</code>, con todos sus escenarios y su dibujo.</td></tr>
 <tr><td>[[t:app.menu.copyJson]] y [[t:app.menu.pasteJson]]</td><td>Copia el modelo como texto, o abre un modelo pegado como texto — útil para enviarlo en un mensaje.</td></tr>
 <tr><td>[[t:app.menu.exportXlsx]]</td><td>Genera la planilla con la tabla de resultados de las tuberías.</td></tr>
 <tr><td>[[t:app.menu.examples]]</td><td>Abre los modelos de ejemplo.</td></tr>
 </table>
-<p>El modelo también se guarda automáticamente en el navegador en cada cambio. Los modelos de versiones anteriores se convierten al abrirlos: los tipos de unión eliminados pasan al equivalente más cercano, y un mensaje informa lo que cambió.</p>`,
+<p>El modelo también se guarda automáticamente en el navegador en cada cambio. Los modelos de versiones anteriores se convierten al abrirlos: los tipos de unión eliminados pasan al equivalente más cercano, y un mensaje informa lo que cambió.</p>
+<h4>Modelos en el formato .fth</h4>
+<p>[[t:app.menu.open]] también lee archivos <code>.fth</code>, un formato de texto de modelos de redes de tuberías. El escenario base entra con sus tuberías, uniones, cotas, unidades y dibujo; el fluido viene de los resultados guardados en el archivo. Después, un informe muestra:</p>
+<ul>
+<li>cómo se compara el primer cálculo con los resultados guardados en el archivo;</li>
+<li>lo que necesita su intervención: datos que el formato no describe, dejados en blanco y marcados en rojo en la lista de verificación;</li>
+<li>lo que se asumió (por ejemplo, el nivel del líquido de un reservorio tomado como la cota de la unión) y lo que quedó fuera (otros escenarios, módulos adicionales).</li>
+</ul>
+<p>Los componentes que Pump It no tiene entran como el tipo más cercano o como un nudo simple. Use la importación para sus propios modelos.</p>`,
           },
           language: {
             title: 'Idioma y números',
@@ -873,10 +888,10 @@ PumpIt.i18n.add('es', {
 <li><b>Componentes de dos puertos</b>: el K se refiere a la tubería aguas arriba, según el sentido del flujo.</li>
 </ul>
 <h4>Corrección laminar de los K</h4>
-<p>Los K de catálogo valen para flujo turbulento. Por debajo de Re<sub>turb</sub>, la corrección ([[t:inspector.system.improvedAtkf]] por defecto) aumenta el K en proporción al factor de fricción laminar:</p>
-[[eq:atkf]]
-[[eq:atkfTransition]]
-<p>f<sub>ref</sub> es el f<sub>T</sub> del Crane en el diámetro de la tubería (ATKF mejorado) o el factor de fricción totalmente turbulento de la propia tubería, según su rugosidad (ATKF). La interpolación mantiene la pérdida continua en Re<sub>lam</sub> y en Re<sub>turb</sub>. Con la opción [[t:inspector.system.noCorrection]], el K se usa tal como se indicó.</p>`,
+<p>Los K de catálogo valen para flujo turbulento. Por debajo de Re<sub>turb</sub>, la corrección ([[t:inspector.system.craneFt]] por defecto) aumenta el K en proporción al factor de fricción laminar:</p>
+[[eq:laminarK]]
+[[eq:laminarKTransition]]
+<p>f<sub>ref</sub> es el f<sub>T</sub> del Crane en el diámetro de la tubería ([[t:inspector.system.craneFt]]) o el factor de fricción totalmente turbulento de la propia tubería, según su rugosidad ([[t:inspector.system.pipeFt]]). La interpolación mantiene la pérdida continua en Re<sub>lam</sub> y en Re<sub>turb</sub>. Con la opción [[t:inspector.system.noCorrection]], el K se usa tal como se indicó.</p>`,
           },
           pumps: {
             title: 'Bombas',
@@ -986,6 +1001,11 @@ PumpIt.i18n.add('es', {
 <li>Vogel, H. (1921). Ecuación de temperatura de la viscosidad de los líquidos.</li>
 <li>IAPWS-IF97, región 4 (presión de saturación del agua).</li>
 <li>ASME B36.10M (dimensiones de tubos de acero).</li>
+<li>ASME B36.19M-2018 (dimensiones de tubos de acero inoxidable), en la tabla del Hydraulic Institute.</li>
+<li>ISO 4427-2 y ABNT NBR 15561 (dimensiones de tubos de PEAD); ISO 4065 (tabla universal de espesores de pared).</li>
+<li>ISO 2531 y ABNT NBR 7675 (dimensiones de tubos de hierro dúctil y revestimiento de mortero de cemento).</li>
+<li>Hydraulic Institute. <i>Engineering Data Book</i> (rugosidad del acero inoxidable).</li>
+<li>Saint-Gobain PAM, datos técnicos del revestimiento de mortero de cemento (rugosidad del hierro dúctil revestido).</li>
 </ul>`,
           },
         },
@@ -1173,6 +1193,7 @@ PumpIt.i18n.add('es', {
           about: {
             title: 'Acerca de Pump It',
             body: `<p><b>Pump It</b> es un simulador de redes de tuberías en régimen permanente, de líquidos (flujo incompresible) y de gases (flujo compresible), que funciona en el navegador, sin instalación y sin servidor.</p>
+<p class="credit">Ideado por <b>Rafael Perktold</b>.</p>
 <ul>
 <li>Escrito desde cero, en <i>clean room</i>, a partir de métodos y datos públicos (vea [[go:tech.references|Validación y referencias]]). No usa marcas, nombres, íconos, textos ni pantallas de programas comerciales.</li>
 <li>Interfaz en portugués, inglés y español.</li>

@@ -2,7 +2,7 @@
 // reversing and retyping objects. Every edit pushes an undo snapshot and ends in app.changed().
 (function (root) {
   const PumpIt = root.PumpIt;
-  const M = PumpIt.model, D = PumpIt.data;
+  const M = PumpIt.model, D = PumpIt.data, U = PumpIt.units;
   const app = PumpIt.app;
   const { toast } = PumpIt.ui.dialogs;
   const { t } = PumpIt.i18n;
@@ -28,19 +28,27 @@
   app.setVal = (key, path, value) => {
     app.pushUndo();
     const sid = app.model.scenarios.current;
+    const before = key.startsWith('p:') && path.startsWith('material') ? M.getObj(M.effective(app.model, sid), key) : null;
     M.setField(app.model, sid, key, path, value);
-    // ASME B36.10M steel: the nominal size and the schedule define the inner diameter
-    if (key.startsWith('p:') && path.startsWith('material')) {
-      const p = M.getObj(M.effective(app.model, sid), key);
-      if (p.material.kind === 'steel') {
-        const d = D.steelID(p.material.nps, p.material.sch);
-        M.setField(app.model, sid, key, 'geometry.kind', 'circular');
-        M.setField(app.model, sid, key, 'geometry.d', { value: +d.toFixed(2), unit: 'mm' });
-        if (path === 'material.kind') M.setField(app.model, sid, key, 'friction', { model: 'roughness', eps: { value: 0.046, unit: 'mm' }, rel: 0.0001, f: 0.02, C: 120 });
-      }
-    }
+    if (before) fitPipe(sid, key, path, before);
     app.changed();
   };
+  // A pipe of a catalogue (src/core/data/pipe-library.js): its nominal size and series define the inner diameter. A new
+  // material keeps the size when both catalogues mean the same sizes (carbon and stainless steel) and otherwise takes the
+  // size whose bore is closest to the pipe's, with the roughness of the material; a series that the size lacks becomes
+  // the nearest one (decision P-07 of docs/pipe-library.md).
+  function fitPipe(sid, key, path, before) {
+    const mat = M.getObj(M.effective(app.model, sid), key).material;
+    if (!D.PIPE_KINDS.includes(mat.kind)) return;
+    const newKind = path === 'material.kind' && before.material.kind !== mat.kind;
+    const g = before.geometry;
+    const refId = g.kind === 'circular' && g.d && Number.isFinite(g.d.value) ? U.toSI(g.d.value, g.d.unit, 'length') * 1000 : NaN;
+    const fit = D.fitMaterial(mat, { refId, resize: newKind && !D.sameSizes(before.material.kind, mat.kind) });
+    for (const f of ['nps', 'sch', 'grade']) if (fit[f] !== undefined && fit[f] !== mat[f]) M.setField(app.model, sid, key, 'material.' + f, fit[f]);
+    M.setField(app.model, sid, key, 'geometry.kind', 'circular');
+    M.setField(app.model, sid, key, 'geometry.d', { value: +D.pipeDims(fit).id.toFixed(2), unit: 'mm' });
+    if (newKind) M.setField(app.model, sid, key, 'friction', { model: 'roughness', eps: { value: D.pipeEps(mat.kind), unit: 'mm' }, rel: 0.0001, f: 0.02, C: 120 });
+  }
   // several fields of one object in a single step (one undo snapshot, one recalculation): [[path, value], ...]
   app.setVals = (key, pairs) => {
     app.pushUndo();

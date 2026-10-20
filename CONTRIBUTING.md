@@ -5,7 +5,7 @@
 The code is split into blocks (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)). To avoid conflicts:
 
 - Work inside your block's folder. Prefer adding a file to growing a shared one.
-- Junction types, fluids and examples are one file each and register themselves; do not add type-specific branches to generic code. Use the hooks of the junction type contracts instead (`src/core/junctions/registry.js`, `src/ui/junctions/registry.js`).
+- Junction types, fluids, examples, pipe catalogues and importers are one file each and register themselves; do not add type- or material-specific branches to generic code. Use the hooks of the contracts instead (`src/core/junctions/registry.js`, `src/ui/junctions/registry.js`, `src/core/data/pipe-library.js`).
 - The only file everybody touches is `index.html` (the script list). Add your `<script>` tag inside its block's group, keep one tag per line, and do not reorder other lines.
 - Texts live in the message catalogs, one file per block in each language folder (`src/i18n/<language>/<block>.js`). Add the keys of your block in its own file, in every language.
 - Keep the stylesheet of a block in `src/ui/styles/<block>.css`. `tokens.css` holds the theme variables; `responsive.css` stays last.
@@ -33,6 +33,7 @@ This project is a clean-room implementation. These rules are not optional:
 - Never use executables, help files, `.dat` databases, screens or texts of the reference software.
 - Trademarks of the reference software must not appear in the product, the code or the documentation.
 - Reference model files (`.fth`) serve only as an output answer key. Never copy them, or data taken from them, into the repository (`*.fth` is in `.gitignore`). A value inferred from such a comparison must be marked as *inferred* and documented in the README.
+- The `.fth` importer (`src/core/import/fth.js`) follows only Annex A of the specification. Do not study files of other programs to extend it: a gap in Annex A is left blank or assumed, reported to the user and recorded in `docs/fth-import.md`. Its tests write synthetic files in code.
 - Engineering data must come from public primary sources (standards, published papers, textbooks), cited in the README.
 
 ## Conventions

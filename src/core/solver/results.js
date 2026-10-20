@@ -43,8 +43,6 @@
         P0in, P0out, Pin: P0in - dyn, Pout: P0out - dyn,
         dP0: P0in - P0out, dPfric: lo.dpF, dPfit: lo.dpK, dPgrav: rho * g * (P.zDown - P.zUp),
         zin: P.zUp, zout: P.zDown, L: P.L, Dh: P.Dh, A: P.A, N: P.N, K: P.Ksum,
-        nps: p.material && p.material.kind === 'steel' ? p.material.nps : null,
-        sch: p.material && p.material.kind === 'steel' ? p.material.sch : null,
         hL: (lo.dpF + lo.dpK + lo.dpE) / rg,
         isolated: !!(l.isolated || (nA.isolated && nB.isolated)), closed: P.closed,
       };

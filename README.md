@@ -1,5 +1,7 @@
 # Pump It
 
+Conceived by **Rafael Perktold**.
+
 Web simulator of steady-state pipe networks for liquids (incompressible flow) and gases (compressible flow). The user draws the network (pipes and junctions) and fills in the properties. The calculation runs again automatically after every change. Results appear in tables, charts, a data card per object (right click) and on the drawing itself.
 
 The product uses no trademarks, names, icons, texts or screens of any commercial software. The interface is available in Portuguese, English and Spanish (selector at the top right), in a light and a dark mode (the sun and moon button next to it); the code and its documentation are in English.
@@ -7,7 +9,8 @@ The product uses no trademarks, names, icons, texts or screens of any commercial
 ## How to use
 
 - **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
-- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help) and the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`).
+- **Open a model:** *File → Open* reads a model saved as `.json`, or imports a `.fth` model (see [Importing .fth files](#importing-fth-files)). Dropping the file on the window does the same.
+- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help), the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`) and the checks of the `.fth` import (`tests/fth-import.test.cjs`).
 - **Help:** the Help menu (or F1) opens the guide to the whole app, the guided tour of the screen and the technical reference of the calculation, for liquids and for gases.
 - **Validation against stored reference results:** `node tests/validate-fth.js "<folder with .fth files>"` (see Verification).
 
@@ -32,7 +35,7 @@ Shortcuts and selection:
 | Cancel the tool | `Esc` |
 | Zoom and view | mouse wheel; drag the background |
 
-Isometric and 3D views (see [docs/3D-VIEWS.md](docs/3D-VIEWS.md)): *Schematic · Isometric · 3D* at the top left of the drawing, or the keys 1, 2 and 3. The three views show one geometry: the schematic is the plan and the height of every junction is its elevation, so moving a junction in one view moves it in the others, and moving it up or down in a 3D view changes its elevation. Pipes are drawn as tubes, along the axes unless drawn freely in the 3D view, nearer ones over farther ones, with shadows on the floor; junctions are small shaded solids (tank, pump, valves, nozzle…) that lie along their pipes and turn with the camera. Both views draw and edit: in the isometric view junctions go on the grid and pipes follow route candidates along the axes; in the free 3D view pipes go in any direction (Shift up and down, Ctrl along an axis) and bends can be moved, inserted and deleted. *Help → Keyboard shortcuts…* lists the keys of every view. No length ever comes from the drawing. Phones are not supported.
+Isometric and 3D views (see [docs/3D-VIEWS.md](docs/3D-VIEWS.md)): *Schematic · Isometric · 3D* at the top left of the drawing, or the keys 1, 2 and 3. The three views show one geometry: the schematic is the plan and the height of every junction is its elevation, so moving a junction in one view moves it in the others, and moving it up or down in a 3D view changes its elevation. Pipes are drawn as tubes, along the axes unless drawn freely in the 3D view, nearer ones over farther ones, with shadows on the floor; junctions are small shaded solids (tank, pump, valves, nozzle…) that lie along their pipes and turn with the camera. Tubes and solids belong to the scene: they grow and shrink with the zoom, in the proportions of the schematic. The camera turns about what the middle of the screen shows, and in perspective the wheel zooms towards what lies under the cursor. Both views draw and edit: in the isometric view junctions go on the grid and pipes follow route candidates along the axes; in the free 3D view pipes go in any direction (Shift up and down, Ctrl along an axis) and bends can be moved, inserted and deleted. *Help → Keyboard shortcuts…* lists the keys of every view. No length ever comes from the drawing. Phones are not supported.
 
 Default units: flow in m³/h, length and elevation in m, pressure in kgf/cm²(g), temperature in °C. Diameters and roughness are typed in mm. Each field keeps the unit it was typed in, and each result column can switch units without recalculating.
 
@@ -49,6 +52,15 @@ Pump It also calculates networks of a gas (see [docs/gas-decisions.md](docs/gas-
 - **Results:** mass flow, volume flows (local and normal), velocity and Mach number at both ends, static and stagnation pressures and temperatures, density, choking; mass flow and Mach on the drawing; pressure profiles drawn point by point inside each pipe. The app also says when a light fluid in the incompressible mode should be compressible, or when a gas is slow enough for the incompressible mode.
 - **Examples:** *Compressed air line (gas)*, with an adiabatic scenario, and *Compressed air plant (gas)*, with a compressor, a pressure-reducing valve, consumers in Nm³/h and a choked blow-off nozzle.
 
+## Importing .fth files
+
+*File → Open* also reads `.fth` model files, a text format of pipe network models, following Annex A of the specification (decisions in [docs/fth-import.md](docs/fth-import.md)). The base scenario comes in with its pipes (length, section, friction, the sum of the fitting K values), junctions (reservoir, imposed pressure and flow, branch with its source and per-pipe K, pump by its polynomial curve, valve, exit valve, bend, dead end), elevations, units and drawing. The fluid comes from the results stored in the file.
+
+- **Report:** after the import, a window compares the first calculation with the results stored in the file and lists what needs input, what was assumed and what was left out.
+- **Left blank for the user:** what Annex A does not describe. Control valves, check valves, orifices, area changes, spray nozzles and pump curves in other forms come in as the nearest type of Pump It with those fields blank, marked in red in the checklist.
+- **Assumed:** the liquid level of a reservoir is the elevation of its junction; a valve at the end of a single pipe discharges to the atmosphere; a pressure unit without a gauge mark is absolute.
+- **Left out:** the child scenarios, the data of add-on modules, and the components Pump It does not have (they become plain nodes).
+
 ## Languages
 
 The selector at the top right switches the whole interface between **Português**, **English** and **Español** at once: menus, panels, tables, charts, warnings and the checklist, without reloading the page. The choice is remembered by the browser; on the first visit the app follows the browser's language (English when it is none of the three).
@@ -62,7 +74,7 @@ Adding a language is a matter of copying a folder of message catalogs; see [docs
 
 ## Pipe results and Excel export
 
-The **Results › Pipes** table shows, in this order: pipe, nominal size, schedule, start and end elevation (m), flow (m³/h), velocity (m/s), stagnation pressure at the inlet and at the outlet (kgf/cm²(g)) and K (sum of the pipe's fitting K values, on the pipe area).
+The **Results › Pipes** table shows, in this order: pipe, nominal size, schedule or class (Sch. 40, SDR 11, K9), start and end elevation (m), flow (m³/h), velocity (m/s), stagnation pressure at the inlet and at the outlet (kgf/cm²(g)) and K (sum of the pipe's fitting K values, on the pipe area).
 
 - **Export to Excel** creates an `.xlsx` file with these columns in the same order: formatted header, numbers stored as numeric values with fixed decimals, row 1 frozen and a filter. The writer is our own and depends on no external library. Headers and sheet name follow the interface language.
 - **Copy for Excel** copies the same table to paste straight into a spreadsheet (with the decimal separator of the interface language).
@@ -101,18 +113,19 @@ src/i18n/                  interface languages: the i18n engine and one folder o
 src/core/                  calculation core, no DOM (runs in Node)
   units.js                 units; SI inside the core, conversion only at input and output
   fluids/                  fluid library (water from public correlations), the gases of the compressible mode, evaluation
-  data/                    ASME B36.10M steel pipe, typical roughness, Crane fittings, water velocity bands
+  data/                    pipe catalogues (carbon and stainless steel, HDPE, ductile iron; one file each, registered in pipe-library.js), typical roughness, Crane fittings, water velocity bands
   hydraulics/              friction (original Colebrook, Hazen-Williams), curve fitting, orifice K
   model/                   model schema and factories, scenarios, checklist (validation), drawing-only fields
   solver/                  network building, connectivity, Newton, device states, results, system curve
   gas/                     compressible mode: reference physics (gas.js), link relations, gas network, Newton, results
   junctions/               junction type registry + one file per type (defaults, checks, equations, results)
   examples/                example builder + one file per example model
+  import/                  import of model files of other formats, one per extension: .fth (Annex A), the notes of the import, the comparison with stored results
   view3d/                  geometry of the 3D views: camera, navigation, grids, pipe routes, symbols, plan and elevation, free editing, solids
 src/ui/                    browser interface
   common/                  formatting, DOM helpers, dialogs, the bubble of the notes, downloads, .xlsx writer
   junctions/               junction type views + one file per type (symbol, 3D solid, form, summaries, result rows)
-  app/                     application state and commands (PumpIt.app), keyboard, start-up
+  app/                     application state and commands (PumpIt.app), files and the import report, keyboard, start-up
   topbar/                  menus, header status, scenarios, checklist, language selector, light and dark mode
   inspector/               field builders, one file per panel (system, pipe, junction, curves...) and the system window
   network/                 drawing area, SVG drawing, colour scales, palette, right-click card
@@ -127,9 +140,12 @@ tests/gas.test.cjs         compressible mode: the physics and the calculation of
 tests/check-i18n.js        every language has every text; every key used in the code exists
 tests/validate-fth.js      validation against stored reference results (specification section 10)
 tests/view3d.test.cjs      geometry of the 3D views; a drawing never changes a result
+tests/fth-import.test.cjs  import of .fth files, with synthetic files written by the test
 docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
 docs/3D-VIEWS.md           3D views: progress, where each part lives, decisions
 docs/gas-decisions.md      compressible mode: progress, where each part lives, decisions
+docs/fth-import.md         import of .fth files: what is read, assumed and left out (decisions F-xx)
+docs/pipe-library.md       pipe catalogues: sources, rules and decisions (P-xx)
 CONTRIBUTING.md            conventions and how to work in parallel
 ```
 
@@ -144,42 +160,45 @@ Reference: the clean-room specification (`Clean Room.md`), sections 0 to 8.
 | Scenarios | Scenario tree; a child stores only what differs from its parent; editing with the inherited value relinks to the parent; marker on changed fields; table of differences |
 | Fluid | Water (Kell 1975, Vogel, IAPWS-IF97 region 4) or the user's ρ, μ and Pv; in the compressible mode, a library gas or a custom one (MW, k, Z, μ, T) |
 | Gas (compressible mode) | Isothermal and adiabatic models; closed isothermal form, march and Fanno; choking; static and stagnation pressures and temperatures, Mach number; compressor and blower; flows in Nm³/h; advice on the choice of regime |
-| Pipes | ASME B36.10M steel (Sch 40, 80, STD, XS) as the default, or a given diameter; circular, annulus, rectangular and non-circular sections; fouling; N parallel pipes; closed pipe |
+| Pipes | Catalogues of carbon steel (ASME B36.10M: Sch 40, 80, STD, XS; the default), stainless steel (ASME B36.19M: 5S, 10S, 40S, 80S), HDPE (ISO 4427-2 and NBR 15561: OD 20 to 1600 mm, SDR 41 to 7.4, PE 100 and PE 80) and ductile iron with cement mortar lining (NBR 7675 and ISO 2531: DN 80 to 1200, K7 and K9), each with the roughness of its material ([docs/pipe-library.md](docs/pipe-library.md)), or a given diameter; circular, annulus, rectangular and non-circular sections; fouling; N parallel pipes; closed pipe |
 | Friction | Absolute or relative roughness, smooth, given f, Hazen-Williams, frictionless; Colebrook in its original form (1.14 and 9.35); laminar 64/Re; linear transition between Re 2300 and 4000 |
-| Fittings | List with quantity; constant K or K/f<sub>T</sub> (Crane); laminar correction ATKF, improved ATKF or none |
-| Junctions | Reservoir, assigned pressure, assigned flow, nozzle/sprinkler, branch, pump, valve (K, Cv, Kv), control valve (PRV, PSV, FCV, PDCV), **exit valve** (elevation and residual outlet pressure, with an optional loss by K, Cv or Kv), orifice, generic component (K or a ΔP × Q curve) |
+| Fittings | List with quantity; constant K or K/f<sub>T</sub> (Crane); laminar correction of K against the Crane f<sub>T</sub>, against the turbulent f of the pipe, or none |
+| Junctions | Reservoir, imposed pressure, imposed flow, nozzle/sprinkler, branch, pump, valve (K, Cv, Kv), control valve (PRV, PSV, FCV, PDCV), **exit valve** (elevation and residual outlet pressure, with an optional loss by K, Cv or Kv), orifice, generic component (K or a ΔP × Q curve) |
 | Pumps | H × Q curve by least squares or interpolation; affinity laws; pumps in parallel; variable speed controlling flow or pressure; efficiency, power, NPSH. In **fixed flow (sizing)** mode the pump reports the required head and the panel asks for no curve, efficiency or NPSH |
 | Output | Summary, boundaries, pipes (format above), junctions, pumps, valves and warnings in three levels (plus information); right-click card; values with units and colours on the drawing; pump × system; profile of HGL, EGL and elevation |
-| Files | Save and open `.json`; copy and paste the model; export pipes to `.xlsx`; automatic saving in the browser |
+| Files | Save and open `.json`; import `.fth` models (base scenario, with a report); open a file dropped on the window; copy and paste the model; export pipes to `.xlsx`; automatic saving in the browser |
 | Languages | Portuguese, English and Spanish, switched live; numbers in the format of the language |
 | Properties | Inspector on the right for the selection, collapsed by the arrow on its edge (remembered by the browser); the system properties in a window of their own; the notes of the fields behind an *i* that shows them on hover |
 | Appearance | Light and dark mode, switched by the sun and moon button at the top right and remembered by the browser; without a choice, the mode of the system |
 
-Removed on request: area change, bend, check valve, dead end and the design factors. Older models are converted when opened: a check valve becomes a valve, a bend or an area change becomes a generic component with a K, a dead end becomes a zero assigned flow. Bend and check-valve losses are still available as pipe fittings (Crane).
+Removed on request: area change, bend, check valve, dead end and the design factors. Older models are converted when opened: a check valve becomes a valve, a bend or an area change becomes a generic component with a K, a dead end becomes a zero imposed flow. Bend and check-valve losses are still available as pipe fittings (Crane).
 
 ### Not in this version
 
-The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newtonian fluids (specification sections 4, 5 and 9). Also left out: detailed tee/wye, relief valve, three-way valve, heat exchanger, ejector, weir, volume balance, intermediate elevations, design alerts, NFPA report and importing files from other programs.
+Time simulation, goal seek and control, automatic sizing and settling slurries, cost calculation, heat transfer and non-Newtonian fluids (specification sections 4, 5 and 9). Also left out: detailed tee/wye, relief valve, three-way valve, heat exchanger, ejector, weir, volume balance, intermediate elevations, design alerts, NFPA report, the child scenarios of `.fth` files and the import of other formats.
 
 ## Clean-room record
 
-**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used. The compressible mode follows its own clean-room specification (public compressible flow physics only; see [docs/gas-decisions.md](docs/gas-decisions.md)).
+**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used. The compressible mode follows its own clean-room specification (public compressible flow physics only; see [docs/gas-decisions.md](docs/gas-decisions.md)). The import of `.fth` files follows only Annex A of the specification and this repository: no file of another program was opened during that work, and its tests write synthetic files (see [docs/fth-import.md](docs/fth-import.md), F-01).
 
 **Validation:** the `.fth` model files installed on the user's computer were read only as an output answer key, as section 10 allows (layout of Annex A). None of these files was copied into the project, and the validator only reads them when it runs. Two values were inferred from that comparison of results (marked as *inferred*, following the rule of section 0):
 
 | Item | What the comparison showed | Decision |
 | --- | --- | --- |
 | Hazen-Williams constant | In 6 models and more than 50 pipes, with diameters from 102 to 2591 mm and velocities from 0.06 to 3.6 m/s, the constant implied by V = k·C·R<sub>h</sub><sup>0.63</sup>·S<sup>0.54</sup> is always 0.848684 (SI). The classic exponents match; only the coefficient differs from 0.8492 | Adopted k = 0.848684. The HW deviation fell from up to 1.1·10⁻² to 2.5·10⁻⁵ |
-| Laminar correction of the K values in the verification models | In laminar flow (Re ≈ 700 and 1100), the effective K computed from the stored pressures equals the turbulent K given. 143 of 145 files use the same option | Those models use "no correction". The app default remains improved ATKF, as the specification says |
+| Laminar correction of the K values in the verification models | In laminar flow (Re ≈ 700 and 1100), the effective K computed from the stored pressures equals the turbulent K given. 143 of 145 files use the same option | Those models use "no correction" (code 0 of the file, which the importer reads as such). The app default remains the correction against the Crane f<sub>T</sub>, as the specification says |
 
 **Engineering data and their primary sources:**
 
 | Data | Source |
 | --- | --- |
 | Steel pipe dimensions | ASME B36.10M (nominal outside diameter and wall thickness) |
+| Stainless steel pipe dimensions | ASME B36.19M-2018, as tabulated by the Hydraulic Institute (HI Data Tool, table 4.B.1) |
+| HDPE pipe dimensions | ISO 4427-2 and ABNT NBR 15561 (outside diameters); ISO 4065 (minimum walls by SDR) |
+| Ductile iron pipe dimensions | ABNT NBR 7675 and ISO 2531 (outside diameters, walls of the K classes); NBR 7675:2022 (cement mortar lining) |
 | K/f<sub>T</sub> of fittings | Crane, Technical Paper 410 |
 | f<sub>T</sub> by diameter | Fully turbulent Colebrook with ε = 0.0018 in, at the actual inner diameter |
-| Typical roughness | Moody (1944); White, *Fluid Mechanics*, table 6.1 |
+| Typical roughness | Moody (1944); White, *Fluid Mechanics*, table 6.1; Hydraulic Institute, *Engineering Data Book* (stainless steel, plastics); Saint-Gobain PAM, cement mortar lining data (lined ductile iron) |
 | Orifice | Idelchik, *Handbook of Hydraulic Resistance* |
 | Water density | Kell, G. S. (1975), *J. Chem. Eng. Data* 20(1) |
 | Water viscosity | Vogel equation |
@@ -197,12 +216,13 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 | Convergence criterion | Relative change ≤ tolerance (default 10⁻⁴) in two consecutive iterations, with an absolute floor for flows and pressures near zero |
 | Hazen-Williams | Classic exponents with k = 0.848684 (inferred, see above) |
 | Laminar-turbulent transition | Linear between f<sub>lam</sub>(Re<sub>lam</sub>) and f<sub>turb</sub>(Re<sub>turb</sub>) |
-| Laminar correction of K (ATKF) | Factor max(1, f<sub>lam</sub>/f<sub>ref</sub>) below Re<sub>lam</sub>, interpolated to 1 at Re<sub>turb</sub> so the loss stays continuous |
+| Laminar correction of K | Factor max(1, f<sub>lam</sub>/f<sub>ref</sub>) below Re<sub>lam</sub>, interpolated to 1 at Re<sub>turb</sub> so the loss stays continuous |
 | SG in Cv and Kv | Water at 60 °F (999.0 kg/m³) for Cv; 1000 kg/m³ for Kv and for the sprinkler K factor |
 | Exit valve | P<sub>0</sub> at the pipe end = residual pressure + valve loss (K on the pipe area, or Cv/Kv). With K = 0, P<sub>0</sub> at the pipe end = residual |
 | Orifice by Cd | K = (1 − β⁴)/Cd² referred to the velocity in the orifice |
 | HGL and EGL | Computed with absolute pressure, as in section 0 |
 | Pipe K in the results table | Sum of the pipe's fitting K values (constant K + n·f<sub>T</sub>), on the pipe area, without laminar correction |
+| Inner diameter of a catalogue pipe | Outside diameter less two walls (and two linings) from the table of the standard, taken by the field rounded to 0.01 mm from its exact value: 8" Sch 80 and XS give 193.68 mm, where the code before the catalogues gave 193.67 through binary rounding ([docs/pipe-library.md](docs/pipe-library.md), P-05) |
 | Scenarios | Topology common to all scenarios; scenarios override properties |
 
 ## Verification
@@ -223,7 +243,9 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 
 `node tests/gas.test.cjs` checks the compressible mode: the reference physics of its specification (air properties, the closed isothermal form, the march against it and against Fanno, choking, the incompressible limit, networks in series and branched) and the calculation of models — the compressed air example against an independent calculation, critical flows against the closed form and Fanno, a single adiabatic pipe against exact Fanno, the mixing of temperatures, nozzles, orifices, control valves and the compressor.
 
-`node tests/validate-fth.js` compares with the results stored in the reference verification models. Boundaries: at reservoirs, assigned pressures and discharge valves, the stagnation pressure stored at the pipe end; everything else is calculated. The measure is the worst deviation of the case: flow relative to the largest flow, and stagnation pressure at the pipe ends relative to the largest pressure drop in a pipe. Result:
+`node tests/fth-import.test.cjs` writes synthetic `.fth` files from Annex A, imports them and checks every value read, the calculation against the same network built in Pump It (identical to 10⁻⁹), the comparison with stored results, what is left blank, assumed or left out, the drawing positions, Windows-1252 names and `tests/validate-fth.js` itself.
+
+`node tests/validate-fth.js` compares with the results stored in the reference verification models. Boundaries: at reservoirs, imposed pressures and discharge valves, the stagnation pressure stored at the pipe end; everything else is calculated. The measure is the worst deviation of the case: flow relative to the largest flow, and stagnation pressure at the pipe ends relative to the largest pressure drop in a pipe. Result, measured on 15 October 2026:
 
 | Set | Cases compared | Median deviation | Maximum deviation | Section 10 criterion |
 | --- | --- | --- | --- | --- |
@@ -232,10 +254,10 @@ The XTS, GSC, ANS and SSL modules, cost calculation, heat transfer and non-Newto
 
 The 39 verification models left out of the comparison are:
 - pumps with another curve form (14);
-- SSL and ANS modules (13);
+- add-on modules for slurries and for sizing (13);
 - area change (5), removed from the app;
 - control valves whose file layout is not documented (4);
 - per-pipe K at branches (2);
 - one model without results.
 
-The examples folder has no comparable answer key: 23 files were saved without results and the others use the XTS, GSC, ANS or SSL modules.
+The examples folder has no comparable answer key: 23 files were saved without results and the others use add-on modules (time simulation, goal seek, sizing or slurries).

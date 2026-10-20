@@ -1,5 +1,6 @@
 // Models in and out of the editor: normalization of loaded files (missing defaults, ids, migration of removed
-// junction types), loading into the editor, saving as .json and the hidden file input.
+// junction types), loading into the editor, saving as .json, and opening a file — .json, or another format through the
+// importer of its extension (PumpIt.importers: .fth) — from the hidden file input or dropped on the page.
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, UI = PumpIt.ui;
@@ -42,18 +43,54 @@
 
   app.downloadModel = () => UI.download.saveFile(`${UI.download.safeName(app.model.title)}.pumpit.json`, new Blob([JSON.stringify(app.model, null, 1)], { type: 'application/json' }));
 
+  // the importers by extension (src/core/import/): each reads the text of its files, in their encoding, into a model
+  const importers = () => PumpIt.importers || {};
+  function importerOf(name) {
+    const m = /\.(\w+)$/.exec(name);
+    const ext = m && m[1].toLowerCase();
+    return ext && Object.prototype.hasOwnProperty.call(importers(), ext) ? importers()[ext] : null;
+  }
+
+  // a file of another format becomes a model, and the import report tells what was read
+  function importFile(f, imp) {
+    const rd = new FileReader();
+    rd.onload = () => {
+      let res;
+      try { res = imp.read(new TextDecoder(imp.encoding || 'utf-8').decode(rd.result), { name: f.name }); }
+      catch (err) { toast(t('app.importReport.cannotRead', { message: err.message })); return; }
+      app.pushUndo();
+      app.loadModel(res.model);
+      UI.importReport.show(f.name, res, app.results[app.model.scenarios.current] || null, imp);
+    };
+    rd.readAsArrayBuffer(f);
+  }
+
+  function openFile(f) {
+    if (!f) return;
+    const imp = importerOf(f.name);
+    if (imp) { importFile(f, imp); return; }
+    const rd = new FileReader();
+    rd.onload = () => {
+      try { app.pushUndo(); app.loadModel(JSON.parse(rd.result)); toast(t('app.files.opened', { name: f.name })); } catch (err) { toast(t('app.files.cannotOpen', { message: err.message })); }
+    };
+    rd.readAsText(f);
+  }
+
   function bind() {
+    $('#file-input').accept = ['.json', ...Object.keys(importers()).map((ext) => '.' + ext), 'application/json'].join(',');
     $('#file-input').addEventListener('change', (e) => {
-      const f = e.target.files[0];
-      if (!f) return;
-      const rd = new FileReader();
-      rd.onload = () => {
-        try { app.pushUndo(); app.loadModel(JSON.parse(rd.result)); toast(t('app.files.opened', { name: f.name })); } catch (err) { toast(t('app.files.cannotOpen', { message: err.message })); }
-      };
-      rd.readAsText(f);
+      openFile(e.target.files[0]);
       e.target.value = '';
+    });
+    // a file dragged onto the page opens like File → Open (the drawing lets file drops through to here)
+    const hasFiles = (e) => !!e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+    document.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
+    document.addEventListener('drop', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      openFile(e.dataTransfer.files[0]);
     });
   }
 
-  PumpIt.ui.files = { normalize, bind };
+  PumpIt.ui.files = { normalize, bind, openFile };
 })(window);

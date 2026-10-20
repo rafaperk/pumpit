@@ -2,9 +2,11 @@
 // a lean copy of the scene: each pipe segment as its cut and its tube (and its halo when selected), each junction as
 // its solid, without labels, shading of the tubes, fading, shadows, flow arrows and drop lines. The next ones only
 // move those elements and put them back in depth order, moving as few as possible: far cheaper than drawing the scene
-// again. A solid is drawn again only when its shape on the screen changes (as it turns with the camera), not when it
-// only moves, grows or shrinks. The grid and the marks of the editors are drawn again every time. Any full drawing
-// replaces it (render.js).
+// again. A tube wider at one end in perspective has the outline of the full drawing (D-32), and its elements change
+// from lines to shapes and back as it turns tapered or even. A solid is drawn again only when its shape on the screen
+// changes (as it turns with the camera, or as it moves near the camera in perspective, D-31), not when it only moves,
+// grows or shrinks. The grid and the marks of the editors are drawn again every time. Any full drawing replaces it
+// (render.js).
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui;
@@ -13,18 +15,20 @@
   const f1 = (v) => Math.round(v * 10) / 10;
 
   // the lean scene on the screen: { svg, floor, scene, edit, items: Map(key → item) }; an item is
-  // { nodes, kind, look, at (its place in the scene), hidden }
+  // { nodes, kind, look, taper (its tube is drawn with shapes), at (its place in the scene), hidden }
   let q = null;
   const drop = () => { q = null; };
 
   const keyOf = (it) => (it.kind === 'jct' ? 'j' + it.j.id : `s${it.s.p.id}:${it.s.i}`);
 
-  // markup of an item without its geometry, and the number of elements it makes
+  // markup of an item without its geometry, and the number of elements it makes: lines for a tube of one width,
+  // shapes for a tapered one
   function markup(f, it) {
     if (it.kind === 'jct') return { html: `<g class="${R3.junctionLook(f, it.j).join(' ')}" data-j="${it.j.id}"></g>`, count: 1 };
     const s = it.s, look = R3.pipeLook(f, s.p, s.eff);
-    const tube = `<line class="tube ${look.cls.join(' ')}" data-p="${s.p.id}" data-i="${s.i}"${look.color ? ` style="stroke:${look.color}"` : ''}/>`;
-    return { html: `<line class="cut"/>${look.isSel ? '<line class="halo"/>' : ''}${tube}`, count: look.isSel ? 3 : 2, look };
+    const [tag, tp, paint] = s.taper ? ['path', ' tp', 'fill'] : ['line', '', 'stroke'];
+    const tube = `<${tag} class="tube${tp} ${look.cls.join(' ')}" data-p="${s.p.id}" data-i="${s.i}"${look.color ? ` style="${paint}:${look.color}"` : ''}/>`;
+    return { html: `<${tag} class="cut${tp}"/>${look.isSel ? `<${tag} class="halo${tp}"/>` : ''}${tube}`, count: look.isSel ? 3 : 2, look, taper: s.taper };
   }
 
   // widths in steps of half a pixel, so that most frames leave them alone
@@ -40,10 +44,21 @@
       const g = item.nodes[0], icon = R3.junctionIcon(f, it);
       g.setAttribute('transform', icon.transform);
       if (item.qh !== icon.html) { item.qh = icon.html; g.innerHTML = icon.html; }
+      if ((item.qn || 1) !== icon.fade) { item.qn = icon.fade; if (icon.fade < 1) g.style.setProperty('--near', icon.fade); else g.style.removeProperty('--near'); }
       return;
     }
-    const s = it.s, [ca, cb] = R3.cutEnds(s), n = item.nodes;
-    line(n[0], ca, cb, s.w + 6);
+    const s = it.s;
+    if (item.taper !== s.taper) reform(item, f, it);
+    const n = item.nodes;
+    if (s.taper) {
+      const sh = R3.taperedShapes(s, item.look);
+      n[0].setAttribute('d', sh.cut);
+      if (n.length === 3) n[1].setAttribute('d', sh.halo());
+      n[n.length - 1].setAttribute('d', sh.tube);
+      return;
+    }
+    const [ca, cb] = R3.cutEnds(s);
+    line(n[0], ca, cb, R3.cutWidth(s.w));
     if (n.length === 3) line(n[1], ca, cb, s.w + 7);
     const tube = n[n.length - 1];
     line(tube, s.a, s.b, s.w);
@@ -65,10 +80,23 @@
     g.innerHTML = mk.html;
     const nodes = [...g.children];
     for (const n of nodes) q.scene.appendChild(n);
-    const item = { kind: it.kind, nodes, look: mk.look, at: Infinity, hidden: false };
+    const item = { kind: it.kind, nodes, look: mk.look, taper: mk.taper, at: Infinity, hidden: false };
     nodes[0].qRef = item;
     q.items.set(key, item);
     return item;
+  }
+  // a segment whose tube turned tapered or even: new elements of the other kind in the place of the old ones
+  function reform(item, f, it) {
+    const mk = markup(f, it), g = tpl();
+    g.innerHTML = mk.html;
+    const nodes = [...g.children];
+    for (const n of nodes) {
+      if (item.hidden) n.style.display = 'none';
+      q.scene.insertBefore(n, item.nodes[0]);
+    }
+    for (const n of item.nodes) n.remove();
+    nodes[0].qRef = item;
+    Object.assign(item, { nodes, look: mk.look, taper: mk.taper });
   }
 
   function build(f, list) {
@@ -81,7 +109,7 @@
     list.forEach((it, k) => {
       const nodes = [];
       for (let c = 0; c < parts[k].count; c++) nodes.push(els[e++]);
-      const item = { kind: it.kind, nodes, look: parts[k].look, at: k, hidden: false };
+      const item = { kind: it.kind, nodes, look: parts[k].look, taper: parts[k].taper, at: k, hidden: false };
       nodes[0].qRef = item;
       q.items.set(keyOf(it), item);
       place(item, f, it);

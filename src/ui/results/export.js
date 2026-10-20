@@ -28,7 +28,7 @@
   function pipeSheet(res, eff) {
     const cols = C.colsFor('pipes', res);
     const ctx = { rho: res.fluid.rho, patm: res.patm };
-    const widths = { id: 8, dn: 16, schTxt: 11, zin: 14, zout: 14, Q: 13, V: 13, P0in: 22, P0out: 22, K: 9 };
+    const widths = { id: 8, dn: 16, schTxt: 16, zin: 14, zout: 14, Q: 13, V: 13, P0in: 22, P0out: 22, K: 9 };
     const columns = cols.map((c) => ({
       header: c.c ? `${C.colLabel('pipes', c)} (${F.unit(app.outUnit('pipes.' + c.k, c.c))})` : C.colLabel('pipes', c),
       width: widths[c.k] || 14,

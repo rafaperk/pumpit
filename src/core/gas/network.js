@@ -4,7 +4,7 @@
 // of the type definitions (src/core/junctions/*.js); a type without them is refused in this mode.
 //   node  { ix, kind: 'free' | 'fixed', value (Pa, absolute), pk: 'static' | 'stagnation', z, jid, role, isRes, T0, ext }
 //         pk: what the pressure of the node is — static at the junctions of the isothermal model, stagnation at those of
-//         the adiabatic model (R-31, R-32), and the nature of the boundary at reservoirs and assigned pressures;
+//         the adiabatic model (R-31, R-32), and the nature of the boundary at reservoirs and imposed pressures;
 //         T0: stagnation temperature of a source (adiabatic model; the gas temperature by default);
 //         ext: flow from outside into a free node, { m } [kg/s] or { Q } [m³/s at the conditions of the node], + enters
 //   link  { kind: 'pipe' | 'elem' | 'ext', a, b, mode, rel: 'duct' | 'nozzle' | 'curve', d, ... }

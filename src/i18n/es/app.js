@@ -13,7 +13,7 @@ PumpIt.i18n.add('es', {
     menu: {
       file: 'Archivo',
       new: 'Nuevo modelo',
-      open: 'Abrir archivo .json…',
+      open: 'Abrir archivo (.json, .fth)…',
       save: 'Descargar .json',
       copyJson: 'Copiar modelo (JSON)',
       pasteJson: 'Pegar modelo (JSON)…',
@@ -90,6 +90,18 @@ PumpIt.i18n.add('es', {
       ok: 'Abrir',
       opened: 'Modelo abierto.',
       cannotRead: 'No fue posible leer: {message}',
+    },
+    importReport: {
+      title: 'Importado: {name}',
+      summary: '{pipes} tuberías y {junctions} uniones del escenario “{scenario}”.',
+      match: 'Los resultados coinciden con los guardados en el archivo.',
+      compared: 'Comparación con los resultados guardados en el archivo ({n} tuberías): mayor diferencia de caudal {flow} del mayor caudal ({flowPipe}); mayor diferencia de presión de estancamiento {pressure} de la mayor pérdida de presión en una tubería ({pressurePipe}).',
+      noStored: 'El archivo no tiene resultados guardados para comparar.',
+      incomplete: 'El modelo aún no se calculó: complete los ítems en rojo de la lista de verificación.',
+      refused: 'El cálculo fue rechazado: {message}',
+      levels: { missing: 'Necesita su intervención', assumed: 'Asumido', ignored: 'Quedó fuera', info: 'Leído del archivo' },
+      clean: 'Se leyó todo lo que el archivo trae del escenario base.',
+      cannotRead: 'No fue posible importar: {message}',
     },
     edit: {
       nothingToUndo: 'Nada que deshacer.',

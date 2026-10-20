@@ -15,7 +15,6 @@ PumpIt.i18n.add('es', {
     annulus: 'anillo {outer} × {inner}',
     smooth: 'lisa',
     frictionless: 'sin fricción',
-    steel: 'Acero {nps}" sch {sch}',
     userMaterial: 'Usuario',
     col: {
       pipe: 'Tubería',

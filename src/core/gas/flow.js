@@ -180,7 +180,7 @@
   // laminar correction of the K values (the factor of the incompressible kTerm, network.js)
   function kFactor(lam, Re) {
     if (!lam || lam.mode === 'none' || Re >= lam.reTurb) return 1;
-    const fref = lam.mode === 'improvedAtkf' ? lam.fT : lam.fTurb;
+    const fref = lam.mode === 'craneFt' ? lam.fT : lam.fTurb;
     if (Re < lam.reLam) return max(1, (64 / Re) / fref);
     const cl = max(1, (64 / lam.reLam) / fref), w = (Re - lam.reLam) / (lam.reTurb - lam.reLam);
     return (1 - w) * cl + w;

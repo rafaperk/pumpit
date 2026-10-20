@@ -2,8 +2,9 @@
 //   1. every language has exactly the keys of the base language (en), with the same {placeholders};
 //   2. every key written literally in the code (t('…'), tx('…') with its file prefix, need('…'), data-i18n
 //      attributes in index.html) exists in the base language;
-//   3. every example and scenario calculates in every language without missing texts or unfilled placeholders.
-// Keys built at run time (for example 'junctions.' + type + '.label') are covered by points 1 and 3.
+//   3. every example and scenario calculates in every language without missing texts or unfilled placeholders;
+//   4. every pipe catalogue has the texts the interface reads by its material and its kinds of size, series and grade.
+// Keys built at run time (for example 'junctions.' + type + '.label') are covered by points 1, 3 and 4.
 const fs = require('fs');
 const path = require('path');
 const { ROOT, loadCore } = require('./load-core');
@@ -69,6 +70,21 @@ console.log('\nKeys used in the code');
   console.log(`  ${bad ? 'FAIL' : 'ok  '} ${used.size} literal keys checked`);
 }
 
+console.log('\nPipe catalogues');
+{
+  const D = PumpIt.data;
+  let bad = 0;
+  for (const kind of D.PIPE_KINDS) {
+    const c = D.pipeCatalog(kind);
+    const keys = [`core.data.pipes.materials.${kind}`, `inspector.pipe.materials.${kind}`,
+      `core.data.pipes.size.${c.system}`, `core.data.pipes.nominal.${c.system}`, `inspector.pipe.sizes.${c.system}`,
+      `core.data.pipes.series.${c.seriesKind}`, `inspector.pipe.series.${c.seriesKind}`];
+    if (c.grades) keys.push('core.data.pipes.pn', ...Object.keys(c.grades).map((g) => `core.data.pipes.grades.${g}`));
+    for (const key of keys) if (!base.has(key)) { bad++; fail(`pipe catalogue ${kind}: missing ${key}`); }
+  }
+  console.log(`  ${bad ? 'FAIL' : 'ok  '} ${D.PIPE_KINDS.length} catalogues with their texts`);
+}
+
 console.log('\nExamples in every language');
 for (const { code } of i18n.languages()) {
   const warnings = [];
@@ -119,6 +135,7 @@ console.log('\nHelp');
   const E = ectx.PumpIt.ui.helpEquations;
   let bad = 0, n = 0;
   const err = (msg) => { bad++; fail(msg); };
+  const AUTHOR = 'Rafael Perktold';
   for (const { code } of i18n.languages()) {
     const cat = i18n.catalog(code);
     for (const id of sections) {
@@ -137,6 +154,8 @@ console.log('\nHelp');
       }
     }
     for (const st of steps) if (!cat.has(`help.tour.steps.${st}.title`) || !cat.has(`help.tour.steps.${st}.body`)) err(`${code}: tour step ${st} without its texts`);
+    // the About section credits the person who conceived the app, in every language
+    if (!String(cat.get('help.chapters.about.sections.about.body')).includes(AUTHOR)) err(`${code}: the About section lost the credit to ${AUTHOR}`);
   }
   console.log(`  ${bad ? 'FAIL' : 'ok  '} ${sections.size} sections, ${n} tokens and ${steps.length} tour steps checked in every language`);
 }

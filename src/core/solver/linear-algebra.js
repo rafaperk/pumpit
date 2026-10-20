@@ -1,9 +1,14 @@
 // Dense Gaussian elimination with row equilibration and partial pivoting. A is n×n, row-major.
 // Returns null when the matrix is singular.
+//
+// The matrices of a network are sparse (a row holds a link and its two nodes, or a node and its links) and fill in
+// only within the band of the elimination, so each pivot row updates the rows below only at its own non-zero columns:
+// the same arithmetic as updating the whole row (x − f·0 = x), without the work on the zeros.
 (function (root) {
   const PumpIt = root.PumpIt;
 
   function solveDense(A, b, n) {
+    const cols = new Int32Array(n);
     for (let i = 0; i < n; i++) {
       let s = 0;
       for (let k = 0; k < n; k++) s = Math.max(s, Math.abs(A[i * n + k]));
@@ -20,10 +25,12 @@
         const t = b[c]; b[c] = b[piv]; b[piv] = t;
       }
       const d = A[c * n + c];
+      let nz = 0;
+      for (let k = c; k < n; k++) if (A[c * n + k] !== 0) cols[nz++] = k;
       for (let r = c + 1; r < n; r++) {
         const f = A[r * n + c] / d;
         if (f === 0) continue;
-        for (let k = c; k < n; k++) A[r * n + k] -= f * A[c * n + k];
+        for (let j = 0; j < nz; j++) { const k = cols[j]; A[r * n + k] -= f * A[c * n + k]; }
         b[r] -= f * b[c];
       }
     }

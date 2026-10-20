@@ -102,6 +102,7 @@ PumpIt.i18n.add('en', {
       temperature: 'Temperature',
       pipeSub: 'Pipe · J{up} → J{down}',
       length: 'Length',
+      material: 'Material',
       nominalSize: 'Nominal size',
       innerDiameter: 'Inner diameter',
       elevations: 'Start / end elevation',

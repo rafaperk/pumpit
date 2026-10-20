@@ -76,7 +76,7 @@
         gravity: 1,
         reLam: 2300,
         reTurb: 4000,
-        laminarK: 'improvedAtkf',
+        laminarK: 'craneFt',
         // compressible mode (R-01..R-04, R-41): the regime, the thermal model, the gas (kept beside the liquid of
         // `fluid`, so a change of regime loses nothing: decision G-05) and the design limits of the warnings
         regime: 'incompressible',
@@ -129,24 +129,30 @@
   // regime of every model saved before the field existed)
   const REGIMES = ['incompressible', 'compressible'];
   const GAS_MODES = ['isothermal', 'adiabatic'];
+  // laminar correction of the K values: against the Crane fT (the default), against the pipe's own turbulent f, or none
+  const LAMINAR_K = ['craneFt', 'pipeFt', 'none'];
   const isCompressible = (m) => !!(m && m.system && m.system.regime === 'compressible');
-  // the values of the specification, in Portuguese, which models saved before 19 October 2026 hold
-  const OLD_VALUES = { incompressivel: 'incompressible', compressivel: 'compressible', isotermico: 'isothermal', adiabatico: 'adiabatic' };
+  // old values that saved models may hold: the Portuguese values of the specification (before 19 October 2026) and the
+  // former names of the laminar corrections of K (until 19 October 2026)
+  const OLD_VALUES = {
+    incompressivel: 'incompressible', compressivel: 'compressible', isotermico: 'isothermal', adiabatico: 'adiabatic',
+    improvedAtkf: 'craneFt', atkf: 'pipeFt',
+  };
+  const RENAMED = ['regime', 'gasMode', 'laminarK'];
   const renamed = (v) => (typeof v === 'string' && Object.prototype.hasOwnProperty.call(OLD_VALUES, v) ? OLD_VALUES[v] : v);
 
-  // regime fields of a loaded model (§8.5): old values renamed (in the system and in the scenarios), unknown values
-  // back to the defaults, missing gas fields filled in. A gas written as the active fluid (system.fluid.kind 'gas',
-  // the layout of §8.1) becomes the gas of the model, with its numbers in SI, and the liquid goes back to the default
-  // one.
+  // regime fields of a loaded model (§8.5), and its laminar correction of K: old values renamed (in the system and in
+  // the scenarios), unknown values back to the defaults, missing gas fields filled in. A gas written as the active
+  // fluid (system.fluid.kind 'gas', the layout of §8.1) becomes the gas of the model, with its numbers in SI, and the
+  // liquid goes back to the default one.
   const isQty = (v) => v && typeof v === 'object' && 'value' in v && 'unit' in v;
   function normalizeRegime(m) {
     const s = m.system;
-    s.regime = renamed(s.regime);
-    s.gasMode = renamed(s.gasMode);
+    for (const k of RENAMED) if (k in s) s[k] = renamed(s[k]);
     for (const scn of (m.scenarios && m.scenarios.list) || []) {
       const ov = scn && scn.overrides;
       if (!ov) continue;
-      for (const k of ['sys|regime', 'sys|gasMode']) if (k in ov) ov[k] = renamed(ov[k]);
+      for (const k of RENAMED) if ('sys|' + k in ov) ov['sys|' + k] = renamed(ov['sys|' + k]);
     }
     if (s.fluid && s.fluid.kind === 'gas') {
       const f = s.fluid;
@@ -159,6 +165,7 @@
     }
     if (!REGIMES.includes(s.regime)) s.regime = 'incompressible';
     if (!GAS_MODES.includes(s.gasMode)) s.gasMode = 'isothermal';
+    if (!LAMINAR_K.includes(s.laminarK)) s.laminarK = 'craneFt';
     const g = s.fluidGas && typeof s.fluidGas === 'object' && !Array.isArray(s.fluidGas) ? s.fluidGas : {};
     s.fluidGas = Object.assign(newGasFluid(), g, { kind: 'gas' });
     if (!isQty(s.fluidGas.T)) s.fluidGas.T = newGasFluid().T;
@@ -181,7 +188,7 @@
   PumpIt.model = Object.assign(PumpIt.model || {}, {
     q, clone, newJunction, newPipe, pipeDefaults, newModel, newGasFluid, migrate,
     getPath, setPath, getObj, deepEqual,
-    pipesAt, ports, REGIMES, GAS_MODES, isCompressible, normalizeRegime,
+    pipesAt, ports, REGIMES, GAS_MODES, LAMINAR_K, isCompressible, normalizeRegime,
   });
   // { type: definition } in display order, built from the junction type registry
   Object.defineProperty(PumpIt.model, 'JT', { get: () => types.table(), enumerable: true, configurable: true });

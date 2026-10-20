@@ -29,14 +29,14 @@
     while (S3.junctionAt(q, null, sc) !== null) q = [q[0] + v3().step, q[1], q[2]];
     return q;
   }
-  // the junction drawn within NEAR_PX of the cursor (other than exceptId)
+  // the junction drawn within NEAR_PX of the cursor, or within its symbol when that is larger (other than exceptId)
   function nearJunction(p, sc, exceptId) {
     const cam = S3.camera();
-    let best = null, bestD = NEAR_PX;
+    let best = null, bestD = Infinity;
     for (const [id, q] of sc.pos) {
       const s = id !== exceptId && V.project(cam, p.vp, q);
       const d = s ? Math.hypot(s.x - p.sx, s.y - p.sy) : Infinity;
-      if (d < bestD) { best = id; bestD = d; }
+      if (d < bestD && d < Math.max(NEAR_PX, UI.render3d.symbolRadius(s.k))) { best = id; bestD = d; }
     }
     return best;
   }

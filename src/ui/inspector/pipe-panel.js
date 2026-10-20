@@ -25,15 +25,12 @@
 
     const s1 = section(tx('geometry'));
     s1.appendChild(qty(key, 'length', tx('length'), 'length'));
-    s1.appendChild(sel(key, 'material.kind', tx('material'), [['user', tx('userDefined')], ['steel', tx('steel')]]));
-    const steel = p.material.kind === 'steel';
-    if (steel) {
-      s1.appendChild(sel(key, 'material.nps', tx('nps'), D.STEEL_NPS.map((n) => [n, n + '"'])));
-      s1.appendChild(sel(key, 'material.sch', tx('schedule'), D.SCHEDULES.map((x) => [x, x])));
-    }
-    s1.appendChild(sel(key, 'geometry.kind', tx('section'), ['circular', 'annulus', 'rectangular', 'noncircular'].map((g) => [g, tx('sections.' + g)]), { disabled: steel }));
+    s1.appendChild(sel(key, 'material.kind', tx('material'), [['user', tx('userDefined')]].concat(D.PIPE_KINDS.map((k) => [k, tx('materials.' + k)])), { info: tx('materialInfo') }));
+    const cat = D.PIPE_KINDS.includes(p.material.kind);
+    if (cat) catalogFields(s1, key, p.material);
+    s1.appendChild(sel(key, 'geometry.kind', tx('section'), ['circular', 'annulus', 'rectangular', 'noncircular'].map((g) => [g, tx('sections.' + g)]), { disabled: cat }));
     const g = p.geometry.kind;
-    if (g === 'circular') s1.appendChild(qty(key, 'geometry.d', tx('innerDiameter'), 'length', { disabled: steel }));
+    if (g === 'circular') s1.appendChild(qty(key, 'geometry.d', tx('innerDiameter'), 'length', { disabled: cat }));
     if (g === 'annulus') { s1.appendChild(qty(key, 'geometry.dOuter', tx('outerDiameter'), 'length')); s1.appendChild(qty(key, 'geometry.dInner', tx('innerDiameter'), 'length')); }
     if (g === 'rectangular') { s1.appendChild(qty(key, 'geometry.width', tx('width'), 'length')); s1.appendChild(qty(key, 'geometry.height', tx('height'), 'length')); }
     if (g === 'noncircular') { s1.appendChild(qty(key, 'geometry.area', tx('area'), 'area')); s1.appendChild(qty(key, 'geometry.perim', tx('perimeter'), 'length')); }
@@ -70,6 +67,24 @@
     s4.appendChild(chk(key, 'closed', tx('closed')));
     host.appendChild(s4);
   };
+
+  // a pipe of a catalogue: its nominal size, its grade when the catalogue has grades (the compound of HDPE, which sets
+  // the nominal pressure of each series) and its series, with the outside diameter, the wall and the lining that the
+  // standard gives them. The fields follow the kinds of size and series of the catalogue (pipe-library.js).
+  function catalogFields(s, key, mat) {
+    const L = UI.pipeLabels, kind = mat.kind, c = D.pipeCatalog(kind);
+    s.appendChild(sel(key, 'material.nps', tx('sizes.' + c.system), D.pipeSizes(kind).map((n) => [n, L.size(kind, n)])));
+    const grades = D.pipeGrades(kind);
+    if (grades.length) s.appendChild(sel(key, 'material.grade', tx('grade'), grades.map((g) => [g, L.grade(g)])));
+    // a series, with its nominal pressure in a catalogue with grades (SDR 11 · PN 16)
+    const pn = (x) => D.pipePN(Object.assign({}, mat, { sch: x }));
+    const seriesText = (x) => (grades.length ? L.series({ kind, sch: x }) + (Number.isFinite(pn(x)) ? ' · ' + L.pn(pn(x)) : '') : L.num(x));
+    s.appendChild(sel(key, 'material.sch', tx('series.' + c.seriesKind), D.pipeSeries(kind, mat.nps).map((x) => [x, seriesText(x)])));
+    const d = D.pipeDims(mat);
+    if (!d) return;
+    s.appendChild(readout(tx('outsideWall'), `${L.dim(d.od, c.digits.od)} × ${L.dim(d.wall, c.digits.wall)} mm`));
+    if (d.lining) s.appendChild(readout(tx('lining'), `${L.num(d.lining)} mm`));
+  }
 
   function quickResults(host, id) {
     const res = app.okResults();

@@ -136,7 +136,7 @@ PumpIt.i18n.add('en', {
 <tr><td>[[act:example:threeRes]]</td><td>The classic problem of three reservoirs joined at one node.</td></tr>
 <tr><td>[[act:example:loop]]</td><td>A looped distribution network with demands at the nodes and Hazen-Williams friction.</td></tr>
 <tr><td>[[act:example:prv]]</td><td>A pressure-reducing valve feeding a demand. In the peak scenario the upstream pressure is not enough and the valve opens fully.</td></tr>
-<tr><td>[[act:example:sprinkler]]</td><td>A sprinkler branch line fed at an assigned pressure.</td></tr>
+<tr><td>[[act:example:sprinkler]]</td><td>A sprinkler branch line fed at an imposed pressure.</td></tr>
 </table>
 <p>An example you have not changed yet is rebuilt in the new language when you switch the interface language.</p>`,
           },
@@ -361,22 +361,22 @@ PumpIt.i18n.add('en', {
 <p>In the results, each reservoir appears under [[t:results.boundaries.title]], with the flow that enters or leaves the network through it.</p>`,
           },
           pressure: {
-            title: 'Assigned pressure',
+            title: 'Imposed pressure',
             body: `<p>[[icon:pressure]] A point of known pressure, such as the connection to a public network or a header held at constant pressure.</p>
 <ul>
 <li>[[t:junctions.pressure.form.ptype]]: [[t:junctions.pressure.form.stagnation]] (the total pressure at the node, the usual choice) or [[t:junctions.pressure.form.static]], which applies to the single connected pipe: the static pressure is the stagnation pressure minus ½ρV² of that pipe.</li>
-<li>[[t:junctions.pressure.form.P]]: the assigned value.</li>
+<li>[[t:junctions.pressure.form.P]]: the imposed value.</li>
 </ul>
 <p>It takes up to 25 pipes (only 1 with the static type) and has the per-pipe loss table. It works as a pressure reference.</p>`,
           },
           flow: {
-            title: 'Assigned flow',
+            title: 'Imposed flow',
             body: `<p>[[icon:flow]] A known flow that <b>leaves</b> the system (a demand) or <b>enters</b> it (a supply), at the end of a single pipe.</p>
 <ul>
 <li>[[t:junctions.flow.form.Q]]: a positive value, by mass or by volume.</li>
 <li>[[t:junctions.flow.form.dir]]: [[t:junctions.flow.form.out]] or [[t:junctions.flow.form.in]].</li>
 </ul>
-<p>An assigned flow does not fix the pressure: the network needs a pressure reference somewhere else. With zero flow, the junction works as a closed end.</p>`,
+<p>An imposed flow does not fix the pressure: the network needs a pressure reference somewhere else. With zero flow, the junction works as a closed end.</p>`,
           },
           spray: {
             title: 'Nozzle / sprinkler',
@@ -478,7 +478,13 @@ PumpIt.i18n.add('en', {
             title: 'Geometry and material',
             body: `<ul>
 <li>[[t:inspector.pipe.length]]: the real hydraulic length. The drawing plays no part.</li>
-<li>[[t:inspector.pipe.material]]: [[t:inspector.pipe.steel]] — choose the [[t:inspector.pipe.nps]] and the [[t:inspector.pipe.schedule]] (40, 80, STD or XS), and the inner diameter comes from the standard —, or [[t:inspector.pipe.userDefined]], to type the diameter.</li>
+<li>[[t:inspector.pipe.material]]: [[t:inspector.pipe.userDefined]], to type the diameter, or a catalogue, whose standard gives the inner diameter:
+<ul>
+<li>[[t:inspector.pipe.materials.steel]] (schedules 40, 80, STD and XS) and [[t:inspector.pipe.materials.stainless]] (5S, 10S, 40S and 80S): the nominal size in inches and the schedule;</li>
+<li>[[t:inspector.pipe.materials.hdpe]]: the outside diameter in millimetres, the SDR and the compound (PE 100 or PE 80), which sets the nominal pressure PN; the wall is the minimum of the standard;</li>
+<li>[[t:inspector.pipe.materials.ductile]]: the DN and the thickness class (K7 or K9); the inner diameter discounts the cement mortar lining.</li>
+</ul>
+Choosing a catalogue also sets the roughness of its material, which can still be changed.</li>
 <li>[[t:inspector.pipe.section]]: [[t:inspector.pipe.sections.circular]], [[t:inspector.pipe.sections.annulus]] (outer and inner diameters), [[t:inspector.pipe.sections.rectangular]] (width and height) or [[t:inspector.pipe.sections.noncircular]] (area and wetted perimeter). The panel shows the [[t:inspector.pipe.hydraulicDiameter]].</li>
 <li>[[t:inspector.pipe.idReduction]]: reduces the hydraulic diameter by a percentage, to simulate deposits on the walls.</li>
 <li>[[t:inspector.pipe.nParallel]]: N equal pipes side by side; the flow splits equally among them.</li>
@@ -489,7 +495,7 @@ PumpIt.i18n.add('en', {
             title: 'Friction',
             body: `<p>Choose the friction [[t:inspector.pipe.model]]:</p>
 <ul>
-<li>[[t:inspector.pipe.models.roughness]] (default): give ε, or choose a [[t:inspector.pipe.typicalValue]] — commercial steel 0.046 mm, galvanised iron 0.15 mm, PVC 0.0015 mm and others.</li>
+<li>[[t:inspector.pipe.models.roughness]] (default): give ε, or choose a [[t:inspector.pipe.typicalValue]] — commercial steel 0.046 mm, stainless steel 0.015 mm, galvanised iron 0.15 mm, ductile iron lined with cement mortar 0.1 mm (design) or 0.03 mm (new pipe), PVC and HDPE 0.0015 mm and others.</li>
 <li>[[t:inspector.pipe.models.relRoughness]]: the value of ε/D directly.</li>
 <li>[[t:inspector.pipe.models.smooth]]: ε = 0.</li>
 <li>[[t:inspector.pipe.models.explicitF]]: a constant Darcy friction factor.</li>
@@ -539,7 +545,7 @@ PumpIt.i18n.add('en', {
 <li>[[t:inspector.system.patm]]: converts gauge pressures into absolute ones and enters the available NPSH. The default, 1.03323 kgf/cm²(a), is sea level.</li>
 <li>[[t:inspector.system.gravity]]: a multiple of the standard gravity, g₀ = 9.80665 m/s².</li>
 <li>[[t:inspector.system.reLam]] and [[t:inspector.system.reTurb]]: the limits of the flow regime (2300 and 4000 by default). Between them, the friction factor is interpolated linearly.</li>
-<li>[[t:inspector.system.laminarK]]: in laminar flow, the losses of fittings grow. [[t:inspector.system.improvedAtkf]] (default) and ATKF multiply the K by the ratio of the laminar friction factor to a turbulent reference factor; [[t:inspector.system.noCorrection]] uses the K as given. Details in [[go:tech.minor|Local losses]].</li>
+<li>[[t:inspector.system.laminarK]]: in laminar flow, the losses of fittings grow. [[t:inspector.system.craneFt]] (default) and [[t:inspector.system.pipeFt]] multiply the K by the ratio of the laminar friction factor to a turbulent reference factor; [[t:inspector.system.noCorrection]] uses the K as given. Details in [[go:tech.minor|Local losses]].</li>
 </ul>`,
           },
           solution: {
@@ -626,7 +632,7 @@ PumpIt.i18n.add('en', {
 <tr><td>Control valve adding pressure, or not controlling</td><td>The setting cannot be reached with the available pressure: review the setting or the system.</td></tr>
 <tr><td>Flow against the reference direction</td><td>Check that the component is connected the right way.</td></tr>
 <tr><td>Mass imbalance at a junction</td><td>Continuity did not close: reduce the tolerance.</td></tr>
-<tr><td>Part with no pressure reference</td><td>Connect a reservoir, an assigned pressure or a nozzle to that part.</td></tr>
+<tr><td>Part with no pressure reference</td><td>Connect a reservoir, an imposed pressure or a nozzle to that part.</td></tr>
 </table>
 <p>The number on the [[t:app.tabs.out]] tab counts the warnings and turns red when one is critical. Click a warning to find the object.</p>`,
           },
@@ -693,12 +699,13 @@ PumpIt.i18n.add('en', {
 <li>moving a junction in one view moves it in the others, and raising or lowering a junction in a 3D view <b>changes its elevation</b> and recalculates;</li>
 <li>routes, bends and plan positions are drawing only: <b>no length ever comes from the drawing</b>.</li>
 </ul>
-<p>On the first entry, the app picks a vertical scale that keeps the heights readable. Pipes appear as shaded tubes as thick as their bore, nearer ones over farther ones, and junctions as small 3D objects.</p>`,
+<p>On the first entry, the app picks a vertical scale that keeps the heights readable. Pipes appear as shaded tubes as thick as their bore, nearer ones over farther ones, and junctions as small 3D objects.</p>
+<p>Tubes and objects belong to the scene: zooming in or out makes them larger or smaller together with the network, in the proportions of the schematic, and in the free 3D view nearer ones look larger, until they come so close to the camera that they fade out and are cut away, so that nothing fills the screen. The labels keep their size on the screen.</p>`,
           },
           iso: {
             title: 'Isometric',
             body: `<h4>Navigating</h4>
-<p>Drag the background to move the view and use the wheel to zoom. The turn buttons rotate the view by 90°. [[t:network.view3.grid]], [[t:network.view3.shadows]], the style ([[t:network.view3.styleTrue]] or 2:1) and the grid density are on the controls.</p>
+<p>Drag the background to move the view and use the wheel to zoom. The turn buttons rotate the view by 90° about what the middle of the screen shows. [[t:network.view3.grid]], [[t:network.view3.shadows]], the style ([[t:network.view3.styleTrue]] or 2:1) and the grid density are on the controls.</p>
 <h4>Editing</h4>
 <ul>
 <li><b>Placing</b>: with a type of the palette, click the grid. The junction goes to the working [[t:network.view3.level]], which <kbd>PageUp</kbd> and <kbd>PageDown</kbd> raise and lower.</li>
@@ -709,7 +716,7 @@ PumpIt.i18n.add('en', {
           free: {
             title: 'Free 3D',
             body: `<h4>Navigating</h4>
-<p>Drag the background to orbit; the right button, the middle button or <kbd>Shift</kbd>+drag move the view; the wheel zooms at the cursor; a double click centres on an object. The arrow keys turn the camera by 15°, and <kbd>Shift</kbd>+arrows move the view. The controls hold [[t:network.view3.persp]] or [[t:network.view3.ortho]], the ready-made views ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] and [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] and [[t:network.view3.stems]].</p>
+<p>Drag the background to orbit about what the middle of the screen shows; the right button, the middle button or <kbd>Shift</kbd>+drag move the view; the wheel zooms at the cursor, towards what lies under it; a double click centres on an object. The arrow keys turn the camera by 15°, and <kbd>Shift</kbd>+arrows move the view. The controls hold [[t:network.view3.persp]] or [[t:network.view3.ortho]], the ready-made views ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] and [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] and [[t:network.view3.stems]].</p>
 <h4>Editing</h4>
 <ul>
 <li><b>Pipes</b>: the pipe runs across, on the plane of its last point; hold <kbd>Shift</kbd> to go up or down and <kbd>Ctrl</kbd> to keep it on the nearest axis; <kbd>Alt</kbd>+click or <kbd>D</kbd> makes a bend; a click on empty space ends the pipe at a new node.</li>
@@ -740,13 +747,21 @@ PumpIt.i18n.add('en', {
             body: `<table>
 <tr><th>Command in [[t:app.menu.file]]</th><th>What it does</th></tr>
 <tr><td>[[t:app.menu.new]]</td><td>Starts an empty model (it can be undone).</td></tr>
-<tr><td>[[t:app.menu.open]]</td><td>Opens a model saved as .json.</td></tr>
+<tr><td>[[t:app.menu.open]]</td><td>Opens a model saved as .json, or imports a model in the .fth format (below). Dragging the file onto the window does the same.</td></tr>
 <tr><td>[[t:app.menu.save]]</td><td>Downloads the model as <code>title.pumpit.json</code>, with all its scenarios and its drawing.</td></tr>
 <tr><td>[[t:app.menu.copyJson]] and [[t:app.menu.pasteJson]]</td><td>Copies the model as text, or opens a model pasted as text — handy for sending it in a message.</td></tr>
 <tr><td>[[t:app.menu.exportXlsx]]</td><td>Creates the spreadsheet with the results table of the pipes.</td></tr>
 <tr><td>[[t:app.menu.examples]]</td><td>Opens the example models.</td></tr>
 </table>
-<p>The model is also saved automatically in the browser after every change. Models of older versions are converted when opened: junction types that were removed become the closest equivalent, and a message tells what changed.</p>`,
+<p>The model is also saved automatically in the browser after every change. Models of older versions are converted when opened: junction types that were removed become the closest equivalent, and a message tells what changed.</p>
+<h4>Models in the .fth format</h4>
+<p>[[t:app.menu.open]] also reads <code>.fth</code> files, a text format of pipe network models. The base scenario comes in with its pipes, junctions, elevations, units and drawing; the fluid comes from the results stored in the file. A report then shows:</p>
+<ul>
+<li>how the first calculation compares with the results stored in the file;</li>
+<li>what needs your input: data the format does not describe, left blank and marked in red in the checklist;</li>
+<li>what was assumed (for example, the liquid level of a reservoir taken as the elevation of the junction) and what was left out (other scenarios, add-on modules).</li>
+</ul>
+<p>Components that Pump It does not have come in as the nearest type or as a plain node. Use the import for your own models.</p>`,
           },
           language: {
             title: 'Language and numbers',
@@ -798,15 +813,15 @@ PumpIt.i18n.add('en', {
             title: 'Network model',
             body: `<p>The model becomes a graph of <b>nodes</b> and <b>links</b>:</p>
 <ul>
-<li>Single-node junctions (reservoir, assigned pressure, assigned flow, nozzle, branch, exit valve) are one node. The nozzle and the exit valve also get an external node, of fixed pressure, and a discharge link to it.</li>
+<li>Single-node junctions (reservoir, imposed pressure, imposed flow, nozzle, branch, exit valve) are one node. The nozzle and the exit valve also get an external node, of fixed pressure, and a discharge link to it.</li>
 <li>Two-port components (pump, valves, orifice, generic component) become an inlet node, an outlet node and a link between them.</li>
 <li>Each pipe is a link between the nodes of its ends.</li>
 </ul>
 <p>The unknowns are the mass flow of each link and the stagnation pressure of each node.</p>
 <h4>Node equations</h4>
-<p>At a free node continuity holds, where ṁ<sub>dem</sub> is the node's demand (an assigned flow or the source of a branch, with its sign):</p>
+<p>At a free node continuity holds, where ṁ<sub>dem</sub> is the node's demand (an imposed flow or the source of a branch, with its sign):</p>
 [[eq:continuity]]
-<p>At a fixed-pressure node (reservoir, assigned pressure, external node), the pressure is known — the stagnation pressure, or the static pressure of the connected pipe:</p>
+<p>At a fixed-pressure node (reservoir, imposed pressure, external node), the pressure is known — the stagnation pressure, or the static pressure of the connected pipe:</p>
 [[eq:fixedNode]]
 <h4>Link equations</h4>
 <p>On a link with a loss (pipe, valve, orifice, pump, discharge), the energy between the ends <i>a</i> and <i>b</i> is:</p>
@@ -873,10 +888,10 @@ PumpIt.i18n.add('en', {
 <li><b>Two-port components</b>: the K refers to the upstream pipe, according to the flow direction.</li>
 </ul>
 <h4>Laminar correction of the K values</h4>
-<p>Catalogue K values hold for turbulent flow. Below Re<sub>turb</sub>, the correction ([[t:inspector.system.improvedAtkf]] by default) raises the K in proportion to the laminar friction factor:</p>
-[[eq:atkf]]
-[[eq:atkfTransition]]
-<p>f<sub>ref</sub> is the Crane f<sub>T</sub> at the pipe diameter (improved ATKF) or the fully turbulent friction factor of the pipe itself, from its roughness (ATKF). The interpolation keeps the loss continuous at Re<sub>lam</sub> and at Re<sub>turb</sub>. With the [[t:inspector.system.noCorrection]] option, the K is used as given.</p>`,
+<p>Catalogue K values hold for turbulent flow. Below Re<sub>turb</sub>, the correction ([[t:inspector.system.craneFt]] by default) raises the K in proportion to the laminar friction factor:</p>
+[[eq:laminarK]]
+[[eq:laminarKTransition]]
+<p>f<sub>ref</sub> is the Crane f<sub>T</sub> at the pipe diameter ([[t:inspector.system.craneFt]]) or the fully turbulent friction factor of the pipe itself, from its roughness ([[t:inspector.system.pipeFt]]). The interpolation keeps the loss continuous at Re<sub>lam</sub> and at Re<sub>turb</sub>. With the [[t:inspector.system.noCorrection]] option, the K is used as given.</p>`,
           },
           pumps: {
             title: 'Pumps',
@@ -935,8 +950,8 @@ PumpIt.i18n.add('en', {
             title: 'Boundaries',
             body: `<ul>
 <li><b>Reservoir</b>: a fixed-pressure node equal to the surface pressure, at the elevation of the liquid level. Each pipe connects at the bottom elevation or at its own connection elevation; if that elevation is above the level, the pipe discharges in free fall, and the boundary pressure applies at the end of the pipe.</li>
-<li><b>Assigned pressure</b>: a node of fixed stagnation pressure; with the static type, p = P<sub>0</sub> − ½ρV² of the single pipe is fixed.</li>
-<li><b>Assigned flow</b> and the <b>source of a branch</b>: they enter continuity as a demand (positive leaves, negative enters).</li>
+<li><b>Imposed pressure</b>: a node of fixed stagnation pressure; with the static type, p = P<sub>0</sub> − ½ρV² of the single pipe is fixed.</li>
+<li><b>Imposed flow</b> and the <b>source of a branch</b>: they enter continuity as a demand (positive leaves, negative enters).</li>
 <li><b>Nozzle</b> and <b>exit valve</b>: an external node of fixed pressure (the external or the residual pressure), joined by a discharge link.</li>
 </ul>
 <p>The net flow of each boundary appears in [[t:app.tabs.out]] → [[t:results.tabs.general]] → [[t:results.boundaries.title]], positive when it enters the network.</p>`,
@@ -986,6 +1001,11 @@ PumpIt.i18n.add('en', {
 <li>Vogel, H. (1921). Temperature equation for the viscosity of liquids.</li>
 <li>IAPWS-IF97, region 4 (saturation pressure of water).</li>
 <li>ASME B36.10M (steel pipe dimensions).</li>
+<li>ASME B36.19M-2018 (stainless steel pipe dimensions), as tabulated by the Hydraulic Institute.</li>
+<li>ISO 4427-2 and ABNT NBR 15561 (HDPE pipe dimensions); ISO 4065 (universal wall thickness table).</li>
+<li>ISO 2531 and ABNT NBR 7675 (ductile iron pipe dimensions and cement mortar lining).</li>
+<li>Hydraulic Institute. <i>Engineering Data Book</i> (roughness of stainless steel).</li>
+<li>Saint-Gobain PAM, technical data on cement mortar linings (roughness of lined ductile iron).</li>
 </ul>`,
           },
         },
@@ -1028,9 +1048,9 @@ PumpIt.i18n.add('en', {
             body: `<p>The junctions are those of the incompressible mode. With a gas:</p>
 <ul>
 <li>[[icon:reservoir]] <b>Reservoir</b>: a vessel of gas at rest. The pressure given is a stagnation pressure and applies at the reference elevation; the column of gas down to each pipe is part of the calculation.</li>
-<li>[[icon:pressure]] <b>Assigned pressure</b>: static or stagnation, as you choose.</li>
-<li>[[icon:flow]] <b>Assigned flow</b> and [[icon:branch]] <b>node</b>: a mass flow, a volume at the conditions of the node or a normal volume.</li>
-<li>In the adiabatic model, the reservoir, the assigned pressure, an entering flow and the source of a node have the [[t:junctions.gasT.label]] field; empty, the temperature of the sources applies.</li>
+<li>[[icon:pressure]] <b>Imposed pressure</b>: static or stagnation, as you choose.</li>
+<li>[[icon:flow]] <b>Imposed flow</b> and [[icon:branch]] <b>node</b>: a mass flow, a volume at the conditions of the node or a normal volume.</li>
+<li>In the adiabatic model, the reservoir, the imposed pressure, an entering flow and the source of a node have the [[t:junctions.gasT.label]] field; empty, the temperature of the sources applies.</li>
 <li>[[icon:valve]] <b>Valve</b>, [[icon:generic]] <b>generic component</b> and [[icon:orifice]] <b>orifice</b>: local losses count as an equivalent length of friction. Cv and Kv become the equivalent K at the area of the inlet pipe. The orifice also caps the flow at the critical flow of its hole: a restriction orifice chokes long before the pipe does.</li>
 <li>[[icon:control]] <b>Control valve</b>: reducing, sustaining, flow and ΔP, with the states of the liquid.</li>
 <li>[[icon:spray]] <b>Nozzle</b>: isentropic flow through the effective area, which chokes when the outside pressure falls below the critical ratio (about 0.53 of the upstream pressure, for air).</li>
@@ -1126,7 +1146,7 @@ PumpIt.i18n.add('en', {
 [[eq:continuity]]
 <p>Control valves, compressors and links without a loss have their flow as an unknown and an equation of their own: the set pressure, the pressure ratio, the pressure difference or the imposed flow.</p>
 <h4>Which pressure each node carries</h4>
-<p>In the isothermal model the junctions carry the <b>static pressure</b>, the classic method of gas networks, which neglects the kinetic energy at the junction; in the adiabatic model, the <b>stagnation pressure</b>. Boundaries keep their nature: a reservoir is a stagnation pressure, an assigned pressure is static or stagnation as chosen, and the outside pressure of a nozzle or an exit valve is static. Each pipe converts at its ends.</p>
+<p>In the isothermal model the junctions carry the <b>static pressure</b>, the classic method of gas networks, which neglects the kinetic energy at the junction; in the adiabatic model, the <b>stagnation pressure</b>. Boundaries keep their nature: a reservoir is a stagnation pressure, an imposed pressure is static or stagnation as chosen, and the outside pressure of a nozzle or an exit valve is static. Each pipe converts at its ends.</p>
 <h4>Solution</h4>
 <p>Newton-Raphson on the pressures, with the Jacobian built from the derivatives of each link, Gaussian elimination, a line search and pressures kept positive. The first pressures come from the linear theory of gas networks on P². The calculation converges when every node closes its balance within 10⁻⁸ of the flow through it. Control valves change state as with a liquid, with new calculations until the states settle.</p>
 <h4>Temperature in the adiabatic model</h4>
@@ -1173,6 +1193,7 @@ PumpIt.i18n.add('en', {
           about: {
             title: 'About Pump It',
             body: `<p><b>Pump It</b> is a steady-state pipe network simulator for liquids (incompressible flow) and gases (compressible flow) that runs in the browser, with no installation and no server.</p>
+<p class="credit">Conceived by <b>Rafael Perktold</b>.</p>
 <ul>
 <li>Written from scratch, in a <i>clean room</i>, from public methods and data (see [[go:tech.references|Validation and references]]). It uses no trademarks, names, icons, texts or screens of commercial software.</li>
 <li>Interface in Portuguese, English and Spanish.</li>

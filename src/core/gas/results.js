@@ -39,8 +39,6 @@
       const isolated = !!(l.isolated || (nodes[l.a].isolated && nodes[l.b].isolated));
       const r = {
         m, QN: m / env.rhoN, L: P.L, Dh: P.Dh, A: P.A, N: P.N, K: P.Ksum, zin: P.zUp, zout: P.zDown,
-        nps: p.material && p.material.kind === 'steel' ? p.material.nps : null,
-        sch: p.material && p.material.kind === 'steel' ? p.material.sch : null,
         isolated, closed: P.closed, choked: false, xChoke: null,
         HGLin: NaN, HGLout: NaN, EGLin: NaN, EGLout: NaN, hL: NaN,
       };

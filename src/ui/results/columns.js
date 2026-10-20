@@ -90,10 +90,14 @@
   function rowsFor(table, res, eff) {
     const name = (k) => (M.getObj(eff, k) || {}).name || '';
     const choked = (r) => (r.choked ? t('results.gas.choked') : '');
+    // a pipe of a catalogue shows its nominal size and series (4" and Sch. 40, OD 110 and SDR 11, DN 200 and K9); any
+    // other pipe shows its inner diameter
+    const L = UI.pipeLabels;
     if (table === 'pipes') return eff.pipes.map((p) => {
       const r = res.pipes[p.id] || {};
-      const dn = r.nps ? `${r.nps}"` : Number.isFinite(r.Dh) ? t('results.innerDiameter', { d: F.fmt(r.Dh * 1000, 4) }) : '—';
-      return Object.assign({ id: p.id, name: p.name, key: 'p:' + p.id }, r, { dn, schTxt: r.sch ? `Sch. ${r.sch}` : '—', chokedTxt: choked(r) });
+      const cat = L.isCatalog(p.material);
+      const dn = cat ? L.nominal(p.material) : Number.isFinite(r.Dh) ? t('results.innerDiameter', { d: F.fmt(r.Dh * 1000, 4) }) : '—';
+      return Object.assign({ id: p.id, name: p.name, key: 'p:' + p.id }, r, { dn, schTxt: cat ? L.series(p.material) : '—', chokedTxt: choked(r) });
     });
     if (table === 'junctions') return eff.junctions.map((j) => {
       const r = res.junctions[j.id] || {};

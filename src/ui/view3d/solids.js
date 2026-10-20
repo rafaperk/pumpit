@@ -34,10 +34,11 @@
   const ellipse = (b) => `M${f1(b.x - b.rx)} ${f1(b.y)}a${f1(b.rx)} ${f1(b.ry)} 0 1 0 ${f1(2 * b.rx)} 0a${f1(b.rx)} ${f1(b.ry)} 0 1 0 ${f1(-2 * b.rx)} 0Z`;
   const byLook = (a, b) => (a.mat < b.mat ? -1 : a.mat > b.mat ? 1 : a.shade - b.shade);
 
-  // Markup of a drawn symbol (drawSolid) around (0, 0): an invisible disc of radius hitR that takes the clicks, the
-  // halo of the selection (the outlines of all the parts, under them), the parts from the farthest to the nearest
-  // and the letters. The faces of a convex part never overlap, so they are grouped freely; a tank keeps its order.
-  function markup(drawn, hitR) {
+  // Markup of a drawn symbol (drawSolid) around (0, 0): the halo of the selection (the outlines of all the parts,
+  // under them), the parts from the farthest to the nearest and the letters. The faces of a convex part never
+  // overlap, so they are grouped freely; a tank keeps its order. The full drawing puts an invisible disc that takes
+  // the clicks under it (render.js).
+  function markup(drawn) {
     let halo = '', body = '';
     for (const p of drawn.parts) {
       if (p.kind === 'faces') {
@@ -58,7 +59,7 @@
         body += `<text class="st" x="${f1(p.x)}" y="${f1(p.y)}" style="font-size:${f1(p.size)}px">${p.str}</text>`;
       }
     }
-    return `<circle class="shit" r="${f1(hitR)}"/>${halo ? `<path class="sh" d="${halo}"/>` : ''}${body}`;
+    return `${halo ? `<path class="sh" d="${halo}"/>` : ''}${body}`;
   }
 
   // the shading of the balls, one gradient per material, lit from the top left like the faces

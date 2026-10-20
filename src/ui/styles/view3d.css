@@ -37,13 +37,27 @@
 .g3-scene .hit { stroke: transparent; cursor: pointer; }
 .g3-scene .pipe.undef .tube, .g3-quick .tube.undef { stroke: var(--crit); }
 .g3-scene .pipe.iso .tube, .g3-quick .tube.iso { stroke: var(--ink-3); opacity: .6; }
+/* a tube wider at one end (perspective, D-30) is drawn with shapes instead of lines, each filled with the colour
+   of its line, in the quick frames too (D-32) */
+.g3-scene path.tp { stroke: none; }
+.g3-scene path.cut, .g3-scene path.fog { fill: var(--bg); }
+.g3-scene path.halo { fill: var(--sel); }
+.g3-scene path.tube-edge { fill: var(--ink); }
+.g3-scene path.tube { fill: var(--pipe); }
+.g3-scene .pipe.undef path.tube, .g3-quick path.tube.undef { fill: var(--crit); stroke: none; }
+.g3-scene .pipe.iso path.tube, .g3-quick path.tube.iso { fill: var(--ink-3); stroke: none; }
+.g3-scene path.tube-shade { fill: #000; }
+.g3-scene path.tube-gloss { fill: #fff; }
+.g3-scene path.hit { fill: transparent; }
+.g3-shadows path { fill: var(--shade3d); }
 .g3-scene .flow-arrow { fill: var(--panel); pointer-events: none; }
 .g3-scene .offgrid { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 2 3; pointer-events: none; }
 /* junction symbols as solids (D-29, solids.js): a material sets --m, a shade (k0 … k15) mixes it with black or white,
-   and the fog of a far symbol (--fog, 0 … 1) mixes the result with the background. The halo under the parts outlines
-   the selection; the invisible disc takes the clicks. */
-.g3-scene .junction { --fog: 0; cursor: pointer; }
-.g3-scene .junction.iso { opacity: .5; }
+   and the fog of a far symbol (--fog, 0 … 1) mixes the result with the background; a symbol near the camera in
+   perspective fades out (--near, 1 … 0, D-31). The halo under the parts outlines the selection; the invisible disc
+   takes the clicks. */
+.g3-scene .junction { --fog: 0; --near: 1; cursor: pointer; opacity: var(--near); }
+.g3-scene .junction.iso { opacity: calc(.5 * var(--near)); }
 .g3-scene .shit { fill: transparent; }
 .g3-scene .sh { fill: none; stroke: transparent; stroke-width: 6; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .g3-scene .junction.sel .sh { stroke: var(--sel); }

@@ -18,7 +18,8 @@
     const geo = g.kind === 'circular' ? `⌀ ${q(g.d)}` : g.kind === 'annulus' ? tx('annulus', { outer: q(g.dOuter), inner: q(g.dInner) }) : g.kind === 'rectangular' ? `${q(g.width)} × ${q(g.height)}` : `A ${q(g.area)}`;
     const f = p.friction;
     const fr = { roughness: `ε ${q(f.eps)}`, relRoughness: `ε/D ${F.fmt(f.rel, 3)}`, smooth: tx('smooth'), explicitF: `f ${F.fmt(f.f, 4)}`, hw: `HW C ${F.fmt(f.C, 4)}`, frictionless: tx('frictionless') }[f.model];
-    return { geo, fr, mat: p.material.kind === 'steel' ? tx('steel', { nps: p.material.nps, sch: p.material.sch }) : tx('userMaterial') };
+    const L = UI.pipeLabels;
+    return { geo, fr, mat: L.isCatalog(p.material) ? `${L.material(p.material.kind)} ${L.full(p.material)}` : tx('userMaterial') };
   }
 
   // one-line summary of a junction's own data, from its junction view

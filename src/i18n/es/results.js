@@ -9,7 +9,7 @@ PumpIt.i18n.add('es', {
       pipes: {
         id: 'Tubería',
         dn: 'Diámetro nominal',
-        schTxt: 'Cédula',
+        schTxt: 'Cédula / clase',
         zin: 'Cota inicial',
         zout: 'Cota final',
         Q: 'Caudal',

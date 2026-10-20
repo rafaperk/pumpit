@@ -41,8 +41,8 @@
     minor: row(`${dp('K')} = ${K} ${frac(vv(V), '2')}`),
     fittingsSum: row(`${sub(K, '«pipe»')} = Σ ${sub(v('n'), v('i'))} ${sub(K, v('i'))}`, gap, `${sub(K, v('i'))} = (${K}/${sub(f, 'T')})<sub>${v('i')}</sub> · ${sub(f, 'T')}`),
     craneFT: row(`${sub(f, 'T')} = [ 1,14 − 2 log<sub>10</sub>(${sub(v('ε'), 'c')} / ${Dh}) ]<sup>−2</sup>`, gap, `${sub(v('ε'), 'c')} = 0,0018 in = 0,04572 mm`),
-    atkf: row(`${sub(K, 'lam')} = ${K} · max ( 1 ; ${frac(`64 / ${Re}`, sub(f, 'ref'))} )`, gap, `${Re} < ${sub(Re, 'lam')}`),
-    atkfTransition: row(`${sub(K, '«eff»')} = ${K} · [ (1 − ${v('w')}) · max ( 1 ; ${frac(`64 / ${sub(Re, 'lam')}`, sub(f, 'ref'))} ) + ${v('w')} ]`, gap, `${sub(Re, 'lam')} ≤ ${Re} < ${sub(Re, 'turb')}`),
+    laminarK: row(`${sub(K, 'lam')} = ${K} · max ( 1 ; ${frac(`64 / ${Re}`, sub(f, 'ref'))} )`, gap, `${Re} < ${sub(Re, 'lam')}`),
+    laminarKTransition: row(`${sub(K, '«eff»')} = ${K} · [ (1 − ${v('w')}) · max ( 1 ; ${frac(`64 / ${sub(Re, 'lam')}`, sub(f, 'ref'))} ) + ${v('w')} ]`, gap, `${sub(Re, 'lam')} ≤ ${Re} < ${sub(Re, 'turb')}`),
     // pumps
     pumpCurve: row(`${v('H')}(${Q}) = ${sup(s, 2)} · ${sub(v('H'), '1')} ( ${frac(Q, `${N} ${s}`)} )`, gap, `${s} = ${frac('«speed»', '«ratedSpeed»')}`),
     pumpLink: row(`${dp()}(${m}) = −${rho} ${g} ${v('H')}(${m} / ${rho})`),

@@ -7,7 +7,7 @@ Pump It is a static web app: plain HTML, CSS and JavaScript with no build step a
 - **One global namespace.** Every file is a classic script wrapped in an IIFE that attaches its module to `PumpIt` (core) or `PumpIt.ui` (interface). The application controller is `PumpIt.app`.
 - **`index.html` is the manifest.** It lists every script and stylesheet in load order, grouped by block. The Node tests read the core part of that list (`tests/load-core.js`), so a new core file only has to be added there.
 - **The core has no DOM.** Everything under `src/core/` runs in Node and in the browser. Values are SI inside the core; units are converted only at input and output.
-- **Registries instead of switches.** Junction types, fluids and examples register themselves. Generic code never tests for a specific junction type: it reads the type's definition (core) or view (interface).
+- **Registries instead of switches.** Junction types, fluids, examples, pipe catalogues and file importers register themselves. Generic code never tests for a specific junction type or pipe material: it reads the type's definition (core) or view (interface), or the catalogue's definition.
 - **No text in the code.** Everything the user reads comes from the message catalogs (`src/i18n/<language>/`), by key; the code, its comments and the keys are in English.
 
 ## Blocks and load order
@@ -16,7 +16,7 @@ Pump It is a static web app: plain HTML, CSS and JavaScript with no build step a
 flowchart LR
   i18n["src/i18n (engine + catalogs)"] --> core
   subgraph core["src/core (no DOM)"]
-    units --> fluids --> data --> hydraulics --> registry["junctions/registry"] --> model --> solver --> gas --> jtypes["junctions/*"] --> examples --> view3d
+    units --> fluids --> data --> hydraulics --> registry["junctions/registry"] --> model --> solver --> gas --> jtypes["junctions/*"] --> examples --> imports["import"] --> view3d
   end
   subgraph ui["src/ui"]
     common --> jviews["junctions/* (views)"] --> app --> topbar --> help --> inspector --> network --> view3dui["view3d"] --> modeldata["model-data"] --> results --> charts --> main["app/main.js"]
@@ -29,17 +29,18 @@ flowchart LR
 | Languages | `src/i18n/` | `PumpIt.i18n` | Message catalogs per language and block, `t(key, params)`, current language, number locale |
 | Units | `src/core/units.js` | `PumpIt.units` | Unit categories, conversion to and from SI, unit labels |
 | Fluids | `src/core/fluids/` | `PumpIt.fluids` | Fluid library (`register`, `evaluate`); water from public correlations; the gases of the compressible mode (`GASES`, `evaluateGas`, Sutherland, normal density) |
-| Engineering data | `src/core/data/` | `PumpIt.data` | Steel pipe (ASME B36.10M), roughness, fittings (Crane), water velocity bands |
+| Engineering data | `src/core/data/` | `PumpIt.data` | Pipe catalogues (carbon and stainless steel, HDPE, ductile iron), one file each, registered in `pipe-library.js` (`registerPipes`, `pipeDims`, `fitMaterial`; see [pipe-library.md](pipe-library.md)), roughness, fittings (Crane), water velocity bands |
 | Hydraulics | `src/core/hydraulics/` | `PumpIt.hyd` | Friction factors, curve fitting, local loss coefficients |
 | Model | `src/core/model/` | `PumpIt.model` | Factories (`newModel`, `newPipe`, `newJunction`, `pipeDefaults`), scenarios, checklist (`validate`), drawing-only fields (`LAYOUT_KEYS`, `stripLayout`, `normalizeLayout`) |
 | Solver | `src/core/solver/` | `PumpIt.solver` | `run`, `prepare`, `systemCurve` and the internal stages |
 | Compressible mode | `src/core/gas/` | `PumpIt.gas` | The reference physics of gas flow (`gas.js`, appendix A of its specification), the flow relations of the links (`flow.js`), the gas network of a model (`network.js`), Newton on the node pressures (`newton.js`), results (`results.js`) and `solveModelGas` (`solver.js`); see [gas-decisions.md](gas-decisions.md) |
 | Junction types | `src/core/junctions/` | `PumpIt.junctionTypes` | Registry and one file per type |
 | Examples | `src/core/examples/` | `PumpIt.examples` | Builder helpers and one file per example |
+| Import | `src/core/import/` | `PumpIt.importers` | Readers of model files of other formats, one per file extension: `.fth` (Annex A of the specification) → a model, the notes of the import (what needs input, was assumed or left out) and the comparison with the results stored in the file |
 | 3D views geometry | `src/core/view3d/` | `PumpIt.view3d` | Camera and projection, navigation, grids, pipe routes that follow their ends, symbol orientation, scene points from the plan and the elevation, editing in the free view, the junction symbols as solids (pure functions; see [3D-VIEWS.md](3D-VIEWS.md)) |
-| Common UI | `src/ui/common/` | `PumpIt.ui.format`, `.dom`, `.dialogs`, `.tips`, `.download`, `.xlsx` | Formatting, DOM helpers, dialogs, the bubble of the notes (the "i" of the fields), downloads, .xlsx writer |
+| Common UI | `src/ui/common/` | `PumpIt.ui.format`, `.pipeLabels`, `.dom`, `.dialogs`, `.tips`, `.download`, `.xlsx` | Formatting, the designations of catalogue pipes, DOM helpers, dialogs, the bubble of the notes (the "i" of the fields), downloads, .xlsx writer |
 | Junction views | `src/ui/junctions/` | `PumpIt.ui.junctionTypes` | Registry and one view per type |
-| Application | `src/ui/app/` | `PumpIt.app` | State, selection, editing and undo, clipboard, calculation, files, layout, keyboard, start-up |
+| Application | `src/ui/app/` | `PumpIt.app` | State, selection, editing and undo, clipboard, calculation, files (open `.json`, or another format through the importer of its extension; files dropped on the window), the import report, layout, keyboard, start-up |
 | Top bar | `src/ui/topbar/` | `PumpIt.ui.menus`, `.shortcuts`, `.header`, `.scenarios`, `.checklist`, `.language`, `.theme` | Menus and commands, keyboard shortcuts box, header status and the stamp of the regime, scenarios, checklist, language selector, light and dark mode button |
 | Help | `src/ui/help/` | `PumpIt.ui.help`, `.tour`, `.helpEquations` | The help window (chapters, search, links that light areas of the screen), the guided tour and the formulas of the technical reference |
 | Inspector | `src/ui/inspector/` | `PumpIt.ui.inspector`, `.forms`, `.systemForm`, `.systemWindow`, ... | Field builders (with their notes), one file per panel, the arrow that collapses the panel, and the system window: the properties of the system in a window over the page, with a summary in the panel when nothing is selected |
@@ -123,6 +124,14 @@ Never write a user-facing text in the code: add a key to the block's catalog in 
 
 Add `src/core/fluids/<fluid>.js` calling `PumpIt.fluids.register(kind, { label, range, sources, rho, mu, pv })` (functions of the temperature in °C, SI results; `label` and `sources` as getters reading the catalogs, like `water.js`), its texts in every language under `core.fluids.<kind>`, and its `<script>` tag after `fluids.js`. The fluid selector and the checklist list library fluids automatically. Use public correlations only.
 
+### A new pipe catalogue
+
+Add `src/core/data/<material>-pipe.js` with the table of its standard, calling `PumpIt.data.registerPipes(kind, { ... })` following the contract at the top of `src/core/data/pipe-library.js` (sizes, series, dimensions, the decimals of the standard, roughness, the kinds of nominal size and of series, grades, defaults), and its `<script>` tag after `pipe-library.js`. Its texts go under `core.data.pipes.materials.<kind>` and `inspector.pipe.materials.<kind>` in every language; a new kind of nominal size, series or grade also needs its designations (`core.data.pipes.size`, `.nominal`, `.series`, `.grades`) and field labels (`inspector.pipe.sizes`, `.series`). The material list, the pipe panel, the designations of the tables and cards, and the change of material pick it up; `npm test` checks its tables and its texts. Cite the standard and the roughness in [pipe-library.md](pipe-library.md) and the README.
+
+### A new import format
+
+Add `src/core/import/<ext>.js` registering `PumpIt.importers.<ext>` (the file extension, in lower case) with `encoding`, `read(text, { name })` → `{ model, notes, counts, stored }`, `compare(results, stored)`, `noteText(note)` and `LEVELS`, as `fth.js` does, and its `<script>` tag. File → Open, the file input and file drops choose the importer by the extension, and the import report shows what it read. Its texts go in every language; list the extension in `app.menu.open`.
+
 ### A new example
 
 Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order, build })`, using the helpers in `PumpIt.examples.builder`, its texts under `examples.<id>` in every language (`name`, `title` and the object names), and its `<script>` tag.
@@ -140,6 +149,7 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 - `tests/run-tests.js` (also run by `tests/motor.test.cjs`): the core against independent solutions (analytical or by bisection).
 - `tests/gas.test.cjs`: the reference physics of the compressible mode (appendix B of its specification, as given) and the calculation of gas networks against independent solutions.
 - `tests/validate-fth.js`: the core against results stored in reference model files (answer key only; see the clean-room rules in `CONTRIBUTING.md`).
-- `tests/check-i18n.js`: same keys and placeholders in every language, every literal key of the code defined, every example calculated in every language without missing texts, and every reference inside the help (labels, links, formulas, examples, areas of the screen, tour steps) resolved.
+- `tests/fth-import.test.cjs`: the `.fth` importer, with synthetic files written from Annex A by the test itself.
+- `tests/check-i18n.js`: same keys and placeholders in every language, every literal key of the code defined, the texts of every pipe catalogue, every example calculated in every language without missing texts, and every reference inside the help (labels, links, formulas, examples, areas of the screen, tour steps) resolved.
 - `tests/view3d.test.cjs`: the geometry of the 3D views against exact values, and the drawing/calculation contract (every example gives byte-identical results with a random drawing).
 - All of them load the core with `tests/load-core.js`, from the list in `index.html`.

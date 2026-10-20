@@ -4,6 +4,8 @@
 // Screen: px, origin at the top left of the <svg>, y down; vp = { w, h } is the size of the <svg>.
 // cam = { projection: 'ortho' | 'persp', target: [x, y, z], azimuth, elevation (degrees), scale (px/du, orthographic),
 //         distance (du, perspective), fov (degrees, vertical, perspective), squash (2:1 isometric style only) }
+// In perspective nothing nearer to the camera than NEAR du is drawn (D-31): the symbols and the tubes belong to the
+// scene (D-30), so a pipe passing right by the camera would fill the screen.
 (function (root) {
   const PumpIt = root.PumpIt;
   const DEG = Math.PI / 180;
@@ -31,7 +33,8 @@
     return { r, u, w };
   }
   const focalPx = (cam, vp) => (vp.h / 2) / Math.tan((cam.fov * DEG) / 2);
-  const nearOf = (cam) => cam.distance * 0.02;
+  const NEAR = 1.5; // du: a little more than the half size of the largest solid (D-29)
+  const nearOf = () => NEAR;
 
   // screen position { x, y, depth, k } of the world point p, or null behind the near plane. depth grows away from
   // the camera; k is the local scale in px per du (it sizes the symbols in perspective).
@@ -81,13 +84,16 @@
     return (b * e - c * d) / den;
   }
 
-  // screen vector (px) of the world vector v applied at the point p
+  // screen vector (px) of the world vector v applied at the point p: the derivative of the projection there ([0, 0]
+  // behind the near plane)
   function screenVec(cam, vp, p, v) {
-    const eps = cam.projection === 'ortho' ? 1 : nearOf(cam);
-    const a = project(cam, vp, p);
-    const b = project(cam, vp, add(p, mul(v, eps)));
-    if (!a || !b) return [0, 0];
-    return [(b.x - a.x) / eps, (b.y - a.y) / eps];
+    const { r, u, w } = basis(cam);
+    if (cam.projection === 'ortho') return [cam.scale * dot(v, r), -(cam.squash || 1) * cam.scale * dot(v, u)];
+    const d = sub(p, cam.target);
+    const zc = cam.distance - dot(d, w);
+    if (zc < nearOf(cam)) return [0, 0];
+    const k = focalPx(cam, vp) / zc, vw = dot(v, w) / zc;
+    return [k * (dot(v, r) + dot(d, r) * vw), -k * (dot(v, u) + dot(d, u) * vw)];
   }
 
   // the segment a–b cut at the near plane (perspective only): [a', b'], or null when it lies wholly behind it
@@ -117,6 +123,6 @@
 
   PumpIt.view3d = Object.assign(PumpIt.view3d || {}, {
     DEG, ISO_ELEVATION, SQUASH_2_1, AX, add, sub, mul, dot, cross, len, norm, clamp,
-    basis, focalPx, nearOf, project, unproject, rayPlaneZ, closestOnVertical, screenVec, clipNear, PRESETS, isoCamera,
+    basis, focalPx, NEAR, nearOf, project, unproject, rayPlaneZ, closestOnVertical, screenVec, clipNear, PRESETS, isoCamera,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

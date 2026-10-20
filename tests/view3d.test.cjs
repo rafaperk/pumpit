@@ -395,6 +395,132 @@ console.log('\nJunction symbols as solids (D-29)');
   const tank = JT.get('reservoir').solid;
   const liquid = (c) => faces(draw(c, tank)).some((fc) => fc.mat === 'liquid');
   ok('T29 the liquid of a reservoir shows from above, not from below', liquid(iso) && liquid(top) && !liquid(below));
+
+  // T30 sizes in the scene (D-30): symbols and tubes keep the proportions of the schematic at every zoom
+  console.log('\nSizes in the scene (D-30)');
+  const size = (k) => V.scenePx(1.3, k);
+  const placed = (c, at = [0, 0, 0]) => V.solidPlacement(c, vp, at, W, size);
+  const dus = [10, 40, 160].map((scale) => placed({ ...iso, scale }).du);
+  ok('T30 a symbol keeps its size in the scene at every zoom', dus.every((d) => near(d, 1.3 / V.PLAN_PX, 1e-12)), dus.join(' '));
+  const ball = { parts: [S.ball([0, 0, 0], 7, 'a')] };
+  const across = (c) => { const b = V.drawSolid(ball, placed(c)).box; return b.x1 - b.x0; };
+  ok('T30 ... and on the screen it grows and shrinks with the zoom', near(across({ ...iso, scale: 80 }) / across({ ...iso, scale: 20 }), 4, 1e-9) && near(across({ ...iso, scale: 20 }), 2 * 7 * 1.3, 1e-9));
+  ok('T30 n px of the schematic take n px at the scale of the schematic', near(V.scenePx(12, V.PLAN_PX), 12, 1e-12) && near(V.scenePx(12, 2 * V.PLAN_PX), 24, 1e-12));
+  const ahead = { projection: 'persp', azimuth: 0, elevation: 0, distance: 20, fov: 35, target: [0, 0, 0] };
+  const nearer = placed(ahead, [10, 0, 0]), farther = placed(ahead, [-10, 0, 0]);
+  ok('T30 perspective: a symbol three times nearer is three times larger, and as large in the scene', near(nearer.s / farther.s, 3, 1e-9) && near(nearer.du, farther.du, 1e-12));
+  // a tube as wide as the local scale has straight sides: the local scale runs linearly along a segment on the screen
+  const A = [6, -3, 2], B = [-14, 5, -1], pa = V.project(ahead, vp, A), pb = V.project(ahead, vp, B);
+  let off = 0;
+  for (let t = 0.1; t < 1; t += 0.1) {
+    const q = V.project(ahead, vp, V.add(A, V.mul(V.sub(B, A), t)));
+    const u = Math.hypot(q.x - pa.x, q.y - pa.y) / Math.hypot(pb.x - pa.x, pb.y - pa.y);
+    off = Math.max(off, Math.abs(q.k - (pa.k + (pb.k - pa.k) * u)) / pa.k);
+  }
+  ok('T30 perspective: the local scale runs linearly along a segment on the screen (tapered tubes have straight sides)', off < 1e-9, `${off.toExponential(1)} at most`);
+
+  // T31 high zoom (D-31): the near plane, the closest zoom, turns and zooms about what the screen shows, solids in the
+  // true perspective near the camera, the outline of a tapered tube
+  console.log('\nHigh zoom (D-31)');
+  const look = { projection: 'persp', azimuth: -60, elevation: 30, distance: 40, fov: 35, target: [0, 0, 0] };
+  const eyeOf = (c) => V.add(c.target, V.mul(V.basis(c).w, c.distance));
+  const ahead2 = (c, t) => V.sub(eyeOf(c), V.mul(V.basis(c).w, t)); // t du ahead of the camera, in the middle
+  const through = V.clipNear(look, ahead2(look, -4), ahead2(look, 9)); // a pipe that runs through the camera
+  ok('T31 nothing nearer to the camera than NEAR du is drawn, so one du never takes more than f / NEAR px',
+    V.project(look, vp, ahead2(look, V.NEAR * 0.99)) === null && near((V.project(look, vp, through[0]).k * V.NEAR) / V.focalPx(look, vp), 1, 0.01));
+  let zp = { ...look }, zo = { ...iso };
+  for (let i = 0; i < 60; i++) { zp = V.zoomAt(zp, vp, 500, 260, 1.3); zo = V.zoomAt(zo, vp, 500, 260, 1.3); }
+  ok('T31 the closest zoom: CLOSEST du from the target in perspective (MAX_SCALE px per du there at most), MAX_SCALE px per du in orthographic',
+    near(zp.distance, Math.max(V.CLOSEST, V.focalPx(look, vp) / V.MAX_SCALE), 1e-9) && zo.scale === V.MAX_SCALE && V.fit(look, vp, [[1, 2, 3]]).distance >= V.CLOSEST);
+  const tooNear = { ...look, distance: 2 };
+  ok('T31 ... a camera already nearer is not pushed back by zooming in, and zooms out', V.zoomAt(tooNear, vp, 400, 300, 1.3).distance === 2 && near(V.zoomAt(tooNear, vp, 400, 300, 0.5).distance, 4, 1e-12));
+  const probes = [[3, -2, 1], [-4, 6, 2], [10, 1, -3]];
+  const sameView = (c1, c2) => probes.every((p) => { const a = V.project(c1, vp, p), b = V.project(c2, vp, p); return a && b && near(a.x, b.x, 1e-9) && near(a.y, b.y, 1e-9); });
+  const rp = V.refocus(look, 25), ro = V.refocus(iso, -3);
+  ok('T31 refocus: the same view, with the target at the depth asked for',
+    sameView(look, rp) && sameView(iso, ro) && near(V.project(look, vp, rp.target).depth, 25, 1e-9) && near(V.project(iso, vp, ro.target).depth, -3, 1e-9) && same3(eyeOf(rp), eyeOf(look)));
+  // what the screen shows: a junction J, another one K hidden behind it, a third one L elsewhere
+  const J = [2, 1, 0], K = V.add(eyeOf(look), V.mul(V.sub(J, eyeOf(look)), 1.5)), L = [-9, 7, 3];
+  const sJ = V.project(look, vp, J), pt = (p, r = 0.7) => ({ a: p, b: p, r });
+  ok('T31 focus: of two junctions under the cursor, the nearer one', near(V.focusDepth(look, vp, sJ.x, sJ.y, [pt(K), pt(J), pt(L)]), sJ.depth, 1e-9));
+  ok('T31 ... over empty space, what is drawn closest to the cursor', near(V.focusDepth(look, vp, sJ.x + 90, sJ.y, [pt(L), pt(J)]), sJ.depth, 1e-9));
+  ok('T31 ... and nothing when all lies behind the camera', V.focusDepth(look, vp, 400, 300, [pt(ahead2(look, -3))]) === null);
+  // a pipe crosses the middle of the screen 12 du in front of the target: an orbit about the target swings it away
+  const Mid = ahead2(look, look.distance - 12), across3 = [{ a: V.add(Mid, [-3, 0, 0]), b: V.add(Mid, [3, 0, 0]), r: 0.3 }];
+  const swing = (c) => { const s = V.project(V.orbit(c, 50, 20), vp, Mid); return Math.hypot(s.x - 400, s.y - 300); };
+  ok('T31 an orbit turns about what the middle of the screen shows', swing(V.refocus(look, V.focusDepth(look, vp, 400, 300, across3))) < 1e-6 && swing(look) > 100, `${swing(look).toFixed(0)} px off about the old target`);
+  const isoNear = { ...iso, scale: 200 }, Mi = V.add(isoNear.target, V.mul(V.basis(isoNear).w, 5));
+  const turned = (c) => { const s = V.project({ ...c, azimuth: c.azimuth + 90 }, vp, Mi); return Math.hypot(s.x - 400, s.y - 300); };
+  ok('T31 ... and so does a turn of the isometric view', turned(V.refocus(isoNear, V.focusDepth(isoNear, vp, 400, 300, [pt(Mi)]))) < 1e-6 && turned(isoNear) > 100, `${turned(isoNear).toFixed(0)} px off about the old target`);
+  // a box 1.3 du a side, 5 du from the camera: the linear map misses the perspective of its corners
+  const box3 = { parts: [S.box([0, 0, 0], [10, 10, 10], 'a')] }, Rbox = V.solidRadius(box3);
+  const C5 = V.add(ahead2(look, 5), [0.8, -0.5, 0.3]);
+  const plN = V.solidPlacement(look, vp, C5, W, size, Rbox);
+  const corners = [];
+  for (const cx of [-10, 10]) for (const cy of [-10, 10]) for (const cz of [-10, 10]) corners.push(V.project(look, vp, V.add(C5, V.mul([cx, cy, cz], plN.du))));
+  const bx = (k, f) => f(...corners.map((c) => c[k])) - plN.c[k];
+  const miss = (pl) => { const b = V.drawSolid(box3, pl).box; return Math.max(Math.abs(b.x0 - bx('x', Math.min)), Math.abs(b.x1 - bx('x', Math.max)), Math.abs(b.y0 - bx('y', Math.min)), Math.abs(b.y1 - bx('y', Math.max))); };
+  ok('T31 near the camera a solid follows the true projection', !!plN.persp && miss(plN) < 1e-6 && miss({ ...plN, persp: null }) > 10, `${miss({ ...plN, persp: null }).toFixed(0)} px off through the linear map`);
+  ok('T31 ... far away the linear map, which keeps the markup of a solid that only moves (D-29)', V.solidPlacement(look, vp, ahead2(look, 400), W, size, Rbox).persp === null);
+  const fadeAt = (t) => V.solidPlacement(look, vp, ahead2(look, t), W, size, Rbox).fade, Rdu = (Rbox * 1.3) / V.PLAN_PX;
+  ok('T31 a solid fades out as its nearest point comes within 2·NEAR du of the camera, before it reaches NEAR', fadeAt(Rdu + 2 * V.NEAR + 0.01) === 1 && near(fadeAt(Rdu + 1.5 * V.NEAR), 0.5, 1e-9) && near(fadeAt(Rdu + V.NEAR), 0, 1e-9));
+  const sv = V.screenVec(look, vp, [3, -2, 1], [0.3, -0.5, 0.8]), s0 = V.project(look, vp, [3, -2, 1]), s1 = V.project(look, vp, V.add([3, -2, 1], V.mul([0.3, -0.5, 0.8], 1e-6)));
+  ok('T31 screen vectors: the derivative of the projection', near(sv[0], (s1.x - s0.x) / 1e-6, 1e-3) && near(sv[1], (s1.y - s0.y) / 1e-6, 1e-3));
+  // the outline of a tapered tube (render.js): straight lines that touch both round ends, and arcs drawn on those ends
+  const rctx = vm.createContext({ console });
+  rctx.window = { PumpIt };
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'src/ui/view3d/render.js'), 'utf8'), rctx, { filename: 'src/ui/view3d/render.js' });
+  const outline = (a, b, ra, rb) => {
+    const n = PumpIt.ui.render3d.capsule(a, b, ra, rb).match(/-?[\d.]+/g).map(Number);
+    const P = (i) => ({ x: n[i], y: n[i + 1] });
+    const p1 = P(0), p2 = P(2), p3 = P(9), p4 = P(11), large = [n[7], n[16]]; // M p1 L p2 A rb rb 0 large 0 p3 L p4 A …
+    const dist = (c, u, v) => Math.abs((v.x - u.x) * (u.y - c.y) - (u.x - c.x) * (v.y - u.y)) / Math.hypot(v.x - u.x, v.y - u.y);
+    const ang = (c, p) => Math.atan2(p.y - c.y, p.x - c.x);
+    // span of the arc from u to v about c in the direction of a sweep flag of 0, and whether its middle faces away from o
+    const arc = (c, u, v, o) => { const span = (((ang(c, u) - ang(c, v)) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI), m = ang(c, u) - span / 2; return { big: span > Math.PI, out: Math.cos(m) * (c.x - o.x) + Math.sin(m) * (c.y - o.y) > 0 }; };
+    const atB = arc(b, p2, p3, a), atA = arc(a, p4, p1, b);
+    return [dist(a, p1, p2) - ra, dist(b, p1, p2) - rb, dist(a, p3, p4) - ra, dist(b, p3, p4) - rb].every((e) => Math.abs(e) < 0.15)
+      && atB.out && atA.out && atB.big === (large[0] === 1) && atA.big === (large[1] === 1);
+  };
+  ok('T31 a tapered tube: its sides touch both round ends, which show their outer arcs', outline({ x: 100, y: 100 }, { x: 400, y: 250 }, 60, 15) && outline({ x: 100, y: 100 }, { x: 400, y: 250 }, 15, 60) && outline({ x: 50, y: 300 }, { x: 60, y: 40 }, 30, 26));
+
+  // T32 moving at a high zoom (D-32): the quick frames draw the tubes near the camera as the full drawing does, a tube
+  // is tapered wherever a line would miss its outline, and a zoom that cannot go on changes nothing
+  console.log('\nMoving at a high zoom (D-32)');
+  const R = PumpIt.ui.render3d;
+  ok('T32 a tube is tapered when a line as wide as the mean of its ends would be more than half a pixel off at an end',
+    !R.tapered(10, 12) && R.tapered(10, 12.1) && !R.tapered(600, 601.9) && R.tapered(600, 680));
+  // the frame of a pipe that runs from near the camera into the distance, with stand-ins for the application
+  const pipe1 = { id: 1, up: 1, down: 2, geometry: { kind: 'circular', d: { value: 200, unit: 'mm' } } };
+  const camF = { projection: 'persp', target: [0, 0, 0], azimuth: -90, elevation: 10, distance: 6, fov: 35 };
+  const ui = {
+    format: {}, solids3d: {}, edit3d: { preview: () => null },
+    colorScales: { syncPicker() {}, offered: () => false, overlayValues: () => null },
+    scene3d: { camera: () => camF, scene: () => ({ pos: new Map(), routes: new Map([[1, [[-1, -4, 0], [1, 30, 0]]]]) }) },
+  };
+  const appF = {
+    model: { pipes: [pipe1], junctions: [], view3: { mode: '3d', level: 0, zScale: 1, free: {} } }, eff: () => ({ pipes: [pipe1], junctions: [] }),
+    okResults: () => null, prefs: { overlay: 'none' }, outUnit: () => 'm', selSet: new Set(), undefSet: () => new Set(),
+  };
+  const fctx = vm.createContext({ console, document: { getElementById: () => null } });
+  fctx.window = { PumpIt: { ...PumpIt, ui, app: appF } };
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'src/ui/view3d/render.js'), 'utf8'), fctx, { filename: 'src/ui/view3d/render.js' });
+  const tubeOf = (light) => ui.render3d.frameOf({ getBoundingClientRect: () => ({ width: 800, height: 600 }) }, light).items.find((it) => it.kind === 'seg').s;
+  const qt = tubeOf(true), ft = tubeOf(false);
+  ok('T32 a quick frame draws a tube near the camera tapered, with the ends of the full drawing',
+    qt.taper && ft.taper && qt.wa === ft.wa && qt.wb === ft.wb && qt.wa > 5 * qt.wb, `${qt.wa.toFixed(0)} and ${qt.wb.toFixed(0)} px at its ends`);
+  ok('T32 ... both draw two straight lines between round ends as wide as the tube there', R.taperedShapes(qt, { solid: true }).tube === R.capsule(qt.a, qt.b, qt.wa / 2, qt.wb / 2));
+  // the dashes of a closed pipe (2.5 widths long), each [radius at its end, radius at its start], on a long tube: they
+  // narrow along it like the tube
+  const long = { a: { x: 0, y: 300 }, b: { x: 2000, y: 300 }, wa: 60, wb: 12, len: 2000, inA: false, inB: false };
+  const dashes = R.taperedShapes(long, { solid: false }).tube.split('M').slice(1).map((d) => d.match(/A-?[\d.]+/g).map((a) => Number(a.slice(1))));
+  const radii = dashes.flatMap(([end, start]) => [start, end]);
+  ok('T32 ... and so do the dashes of a closed pipe, which narrow along it like the tube', dashes.length > 2 && radii.every((r, i) => !i || r <= radii[i - 1] + 0.05)
+    && near(radii[0], long.wa / 2, 0.05) && radii[radii.length - 1] >= long.wb / 2 - 0.05, `${dashes.length} dashes`);
+  const closest = { ...look, distance: V.closestOf(look, vp) }, zIn = V.zoomAt(closest, vp, 120, 80, 1.3);
+  const isoMax = { ...iso, scale: V.MAX_SCALE }, oIn = V.zoomAt(isoMax, vp, 120, 80, 1.3);
+  ok('T32 at the closest zoom a zoom in changes nothing, so nothing is drawn', zIn.distance === closest.distance && same3(zIn.target, closest.target)
+    && oIn.scale === isoMax.scale && same3(oIn.target, isoMax.target));
 }
 
 console.log(`\n${pass} checks passed, ${fail} failed`);

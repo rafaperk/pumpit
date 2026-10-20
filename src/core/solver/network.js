@@ -39,7 +39,7 @@
       const ju = jById.get(p.up), jd = jById.get(p.down);
       pp.set(p.id, {
         id: p.id, p, A, Dh, L: si(p.length, 'length'), fm, eD, fx, C, Ksum, fT,
-        fTurb: H.colebrook(1e8, eD), // same pipe at a very high Re (ATKF)
+        fTurb: H.colebrook(1e8, eD), // same pipe at a very high Re (reference of the 'pipeFt' laminar correction)
         N: p.nParallel || 1,
         zUp: endElev(ju, p.id), zDown: endElev(jd, p.id), closed: !!p.closed,
       });
@@ -74,7 +74,8 @@
     const jById = new Map(eff.junctions.map((j) => [j.id, j]));
     const pp = pipeData(eff, si, errors); // pipe data in SI
 
-    // laminar correction factor of the K values (ATKF); continuous at Re_lam and Re_turb
+    // laminar correction factor of the K values, against the Crane fT or the pipe's own turbulent f; continuous at Re_lam
+    // and Re_turb
     function kTerm(K, P, V) {
       if (!K) return 0;
       const aV = Math.abs(V);
@@ -82,7 +83,7 @@
       if (lamMode === 'none') return base;
       const Re = rho * aV * P.Dh / mu;
       if (Re >= reTurb) return base;
-      const fref = lamMode === 'improvedAtkf' ? P.fT : P.fTurb;
+      const fref = lamMode === 'craneFt' ? P.fT : P.fTurb;
       if (Re < reLam) {
         const lam = K * 32 * mu * V / (P.Dh * fref); // = K·(64/Re)/f_ref·ρV|V|/2, finite as V → 0
         return Math.abs(lam) > Math.abs(base) ? lam : base;

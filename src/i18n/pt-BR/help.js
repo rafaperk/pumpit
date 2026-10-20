@@ -478,7 +478,13 @@ PumpIt.i18n.add('pt-BR', {
             title: 'Geometria e material',
             body: `<ul>
 <li>[[t:inspector.pipe.length]]: o comprimento hidráulico real. O desenho não interfere.</li>
-<li>[[t:inspector.pipe.material]]: [[t:inspector.pipe.steel]] — escolha [[t:inspector.pipe.nps]] e [[t:inspector.pipe.schedule]] (40, 80, STD ou XS), e o diâmetro interno vem da norma —, ou [[t:inspector.pipe.userDefined]], para informar o diâmetro.</li>
+<li>[[t:inspector.pipe.material]]: [[t:inspector.pipe.userDefined]], para informar o diâmetro, ou um catálogo, cuja norma dá o diâmetro interno:
+<ul>
+<li>[[t:inspector.pipe.materials.steel]] (schedules 40, 80, STD e XS) e [[t:inspector.pipe.materials.stainless]] (5S, 10S, 40S e 80S): o tamanho nominal em polegadas e o schedule;</li>
+<li>[[t:inspector.pipe.materials.hdpe]]: o diâmetro externo em milímetros, o SDR e o composto (PE 100 ou PE 80), que define a pressão nominal PN; a parede é a mínima da norma;</li>
+<li>[[t:inspector.pipe.materials.ductile]]: o DN e a classe de espessura (K7 ou K9); o diâmetro interno desconta o revestimento de argamassa de cimento.</li>
+</ul>
+Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode ser alterada.</li>
 <li>[[t:inspector.pipe.section]]: [[t:inspector.pipe.sections.circular]], [[t:inspector.pipe.sections.annulus]] (diâmetros externo e interno), [[t:inspector.pipe.sections.rectangular]] (largura e altura) ou [[t:inspector.pipe.sections.noncircular]] (área e perímetro molhado). O painel mostra o [[t:inspector.pipe.hydraulicDiameter]].</li>
 <li>[[t:inspector.pipe.idReduction]]: reduz o diâmetro hidráulico em porcentagem, para simular depósitos nas paredes.</li>
 <li>[[t:inspector.pipe.nParallel]]: N tubos iguais lado a lado; a vazão se divide igualmente entre eles.</li>
@@ -489,7 +495,7 @@ PumpIt.i18n.add('pt-BR', {
             title: 'Atrito',
             body: `<p>Escolha o [[t:inspector.pipe.model]] de atrito:</p>
 <ul>
-<li>[[t:inspector.pipe.models.roughness]] (padrão): informe ε, ou escolha um [[t:inspector.pipe.typicalValue]] — aço comercial 0,046 mm, ferro galvanizado 0,15 mm, PVC 0,0015 mm e outros.</li>
+<li>[[t:inspector.pipe.models.roughness]] (padrão): informe ε, ou escolha um [[t:inspector.pipe.typicalValue]] — aço comercial 0,046 mm, aço inoxidável 0,015 mm, ferro galvanizado 0,15 mm, ferro dúctil revestido de argamassa de cimento 0,1 mm (projeto) ou 0,03 mm (tubo novo), PVC e PEAD 0,0015 mm e outros.</li>
 <li>[[t:inspector.pipe.models.relRoughness]]: o valor de ε/D direto.</li>
 <li>[[t:inspector.pipe.models.smooth]]: ε = 0.</li>
 <li>[[t:inspector.pipe.models.explicitF]]: um fator de atrito de Darcy constante.</li>
@@ -539,7 +545,7 @@ PumpIt.i18n.add('pt-BR', {
 <li>[[t:inspector.system.patm]]: converte pressões manométricas em absolutas e entra no NPSH disponível. O padrão, 1,03323 kgf/cm²(a), é o nível do mar.</li>
 <li>[[t:inspector.system.gravity]]: múltiplo da gravidade padrão, g₀ = 9,80665 m/s².</li>
 <li>[[t:inspector.system.reLam]] e [[t:inspector.system.reTurb]]: os limites do regime (2300 e 4000, por padrão). Entre eles, o fator de atrito é interpolado linearmente.</li>
-<li>[[t:inspector.system.laminarK]]: em escoamento laminar, as perdas dos acessórios crescem. [[t:inspector.system.improvedAtkf]] (padrão) e ATKF multiplicam o K pela razão entre o fator de atrito laminar e um fator turbulento de referência; [[t:inspector.system.noCorrection]] usa o K como foi informado. Detalhes em [[go:tech.minor|Perdas localizadas]].</li>
+<li>[[t:inspector.system.laminarK]]: em escoamento laminar, as perdas dos acessórios crescem. [[t:inspector.system.craneFt]] (padrão) e [[t:inspector.system.pipeFt]] multiplicam o K pela razão entre o fator de atrito laminar e um fator turbulento de referência; [[t:inspector.system.noCorrection]] usa o K como foi informado. Detalhes em [[go:tech.minor|Perdas localizadas]].</li>
 </ul>`,
           },
           solution: {
@@ -693,12 +699,13 @@ PumpIt.i18n.add('pt-BR', {
 <li>mover uma junção numa vista move nas outras, e subir ou descer uma junção numa vista 3D <b>muda a elevação</b> e recalcula;</li>
 <li>traçados, dobras e posições no plano são só desenho: <b>nenhum comprimento vem do desenho</b>.</li>
 </ul>
-<p>Na primeira entrada, o app escolhe uma escala vertical que deixa as alturas legíveis. Os tubos aparecem como tubos com sombreado e espessura pelo diâmetro, os mais próximos por cima dos de trás, e as junções como pequenos objetos 3D.</p>`,
+<p>Na primeira entrada, o app escolhe uma escala vertical que deixa as alturas legíveis. Os tubos aparecem como tubos com sombreado e espessura pelo diâmetro, os mais próximos por cima dos de trás, e as junções como pequenos objetos 3D.</p>
+<p>Tubos e objetos fazem parte da cena: ao aproximar ou afastar, crescem e diminuem junto com a rede, nas proporções do esquema, e na vista 3D livre os mais próximos parecem maiores, até chegarem tão perto da câmera que esmaecem e são cortados, para que nada cubra a tela. Os rótulos mantêm o tamanho na tela.</p>`,
           },
           iso: {
             title: 'Isométrica',
             body: `<h4>Navegar</h4>
-<p>Arraste o fundo para mover a vista e use a roda para aproximar. Os botões de girar viram a vista em 90°. [[t:network.view3.grid]], [[t:network.view3.shadows]], o estilo ([[t:network.view3.styleTrue]] ou 2:1) e a densidade da grade ficam nos controles.</p>
+<p>Arraste o fundo para mover a vista e use a roda para aproximar. Os botões de girar viram a vista em 90° em torno do que está no meio da tela. [[t:network.view3.grid]], [[t:network.view3.shadows]], o estilo ([[t:network.view3.styleTrue]] ou 2:1) e a densidade da grade ficam nos controles.</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Colocar</b>: com um tipo da paleta, clique na grade. A junção fica na [[t:network.view3.level]] de trabalho, que <kbd>PageUp</kbd> e <kbd>PageDown</kbd> sobem e descem.</li>
@@ -709,7 +716,7 @@ PumpIt.i18n.add('pt-BR', {
           free: {
             title: '3D livre',
             body: `<h4>Navegar</h4>
-<p>Arraste o fundo para girar; o botão direito, o botão do meio ou <kbd>Shift</kbd>+arrastar movem a vista; a roda aproxima no ponto do cursor; o duplo clique centraliza num objeto. As setas giram a câmera em 15°, e <kbd>Shift</kbd>+setas movem a vista. Nos controles ficam [[t:network.view3.persp]] ou [[t:network.view3.ortho]], as vistas prontas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] e [[t:network.view3.stems]].</p>
+<p>Arraste o fundo para girar em torno do que está no meio da tela; o botão direito, o botão do meio ou <kbd>Shift</kbd>+arrastar movem a vista; a roda aproxima no ponto do cursor, em direção ao que está sob ele; o duplo clique centraliza num objeto. As setas giram a câmera em 15°, e <kbd>Shift</kbd>+setas movem a vista. Nos controles ficam [[t:network.view3.persp]] ou [[t:network.view3.ortho]], as vistas prontas ([[t:network.view3.presets.top]], [[t:network.view3.presets.front]], [[t:network.view3.presets.side]] e [[t:network.view3.presets.iso]]), [[t:network.view3.grid]], [[t:network.view3.snap]], [[t:network.view3.shadows]] e [[t:network.view3.stems]].</p>
 <h4>Editar</h4>
 <ul>
 <li><b>Tubos</b>: o tubo segue na horizontal, no plano do último ponto; segure <kbd>Shift</kbd> para subir ou descer e <kbd>Ctrl</kbd> para travar no eixo mais próximo; <kbd>Alt</kbd>+clique ou <kbd>D</kbd> faz uma dobra; um clique no vazio termina o tubo num nó novo.</li>
@@ -740,13 +747,21 @@ PumpIt.i18n.add('pt-BR', {
             body: `<table>
 <tr><th>Comando em [[t:app.menu.file]]</th><th>O que faz</th></tr>
 <tr><td>[[t:app.menu.new]]</td><td>Começa um modelo vazio (dá para desfazer).</td></tr>
-<tr><td>[[t:app.menu.open]]</td><td>Abre um modelo salvo em .json.</td></tr>
+<tr><td>[[t:app.menu.open]]</td><td>Abre um modelo salvo em .json, ou importa um modelo no formato .fth (abaixo). Arrastar o arquivo para a janela faz o mesmo.</td></tr>
 <tr><td>[[t:app.menu.save]]</td><td>Baixa o modelo como <code>título.pumpit.json</code>, com todos os cenários e o desenho.</td></tr>
 <tr><td>[[t:app.menu.copyJson]] e [[t:app.menu.pasteJson]]</td><td>Copia o modelo como texto, ou abre um modelo colado como texto — útil para mandar por mensagem.</td></tr>
 <tr><td>[[t:app.menu.exportXlsx]]</td><td>Gera a planilha com a tabela de resultados dos tubos.</td></tr>
 <tr><td>[[t:app.menu.examples]]</td><td>Abre os modelos de exemplo.</td></tr>
 </table>
-<p>O modelo também é salvo automaticamente no navegador a cada alteração. Modelos de versões antigas são convertidos ao abrir: tipos de junção removidos viram o equivalente mais próximo, e uma mensagem informa o que mudou.</p>`,
+<p>O modelo também é salvo automaticamente no navegador a cada alteração. Modelos de versões antigas são convertidos ao abrir: tipos de junção removidos viram o equivalente mais próximo, e uma mensagem informa o que mudou.</p>
+<h4>Modelos no formato .fth</h4>
+<p>[[t:app.menu.open]] também lê arquivos <code>.fth</code>, um formato de texto de modelos de redes de tubulação. O cenário base entra com tubos, junções, cotas, unidades e desenho; o fluido vem dos resultados gravados no arquivo. Em seguida, um relatório mostra:</p>
+<ul>
+<li>como o primeiro cálculo se compara com os resultados gravados no arquivo;</li>
+<li>o que precisa de você: dados que o formato não descreve, deixados em branco e marcados em vermelho na lista de verificação;</li>
+<li>o que foi assumido (por exemplo, o nível do líquido de um reservatório tomado como a cota da junção) e o que ficou de fora (outros cenários, módulos adicionais).</li>
+</ul>
+<p>Componentes que o Pump It não tem entram como o tipo mais próximo ou como um nó simples. Use a importação para os seus próprios modelos.</p>`,
           },
           language: {
             title: 'Idioma e números',
@@ -873,10 +888,10 @@ PumpIt.i18n.add('pt-BR', {
 <li><b>Componentes de duas portas</b>: o K se refere ao tubo de montante, conforme o sentido do escoamento.</li>
 </ul>
 <h4>Correção laminar dos K</h4>
-<p>Os K de catálogo valem para escoamento turbulento. Abaixo de Re<sub>turb</sub>, a correção (por padrão, [[t:inspector.system.improvedAtkf]]) aumenta o K na proporção do fator de atrito laminar:</p>
-[[eq:atkf]]
-[[eq:atkfTransition]]
-<p>f<sub>ref</sub> é o f<sub>T</sub> do Crane no diâmetro do tubo (ATKF aprimorado) ou o fator de atrito totalmente turbulento do próprio tubo, pela rugosidade dele (ATKF). A interpolação mantém a perda contínua em Re<sub>lam</sub> e em Re<sub>turb</sub>. Com a opção [[t:inspector.system.noCorrection]], o K é usado como foi informado.</p>`,
+<p>Os K de catálogo valem para escoamento turbulento. Abaixo de Re<sub>turb</sub>, a correção (por padrão, [[t:inspector.system.craneFt]]) aumenta o K na proporção do fator de atrito laminar:</p>
+[[eq:laminarK]]
+[[eq:laminarKTransition]]
+<p>f<sub>ref</sub> é o f<sub>T</sub> do Crane no diâmetro do tubo ([[t:inspector.system.craneFt]]) ou o fator de atrito totalmente turbulento do próprio tubo, pela rugosidade dele ([[t:inspector.system.pipeFt]]). A interpolação mantém a perda contínua em Re<sub>lam</sub> e em Re<sub>turb</sub>. Com a opção [[t:inspector.system.noCorrection]], o K é usado como foi informado.</p>`,
           },
           pumps: {
             title: 'Bombas',
@@ -986,6 +1001,11 @@ PumpIt.i18n.add('pt-BR', {
 <li>Vogel, H. (1921). Equação de temperatura da viscosidade de líquidos.</li>
 <li>IAPWS-IF97, região 4 (pressão de saturação da água).</li>
 <li>ASME B36.10M (dimensões de tubos de aço).</li>
+<li>ASME B36.19M-2018 (dimensões de tubos de aço inoxidável), na tabela do Hydraulic Institute.</li>
+<li>ISO 4427-2 e ABNT NBR 15561 (dimensões de tubos de PEAD); ISO 4065 (tabela universal de espessuras de parede).</li>
+<li>ISO 2531 e ABNT NBR 7675 (dimensões de tubos de ferro dúctil e revestimento de argamassa de cimento).</li>
+<li>Hydraulic Institute. <i>Engineering Data Book</i> (rugosidade do aço inoxidável).</li>
+<li>Saint-Gobain PAM, dados técnicos do revestimento de argamassa de cimento (rugosidade do ferro dúctil revestido).</li>
 </ul>`,
           },
         },
@@ -1173,6 +1193,7 @@ PumpIt.i18n.add('pt-BR', {
           about: {
             title: 'Sobre o Pump It',
             body: `<p><b>Pump It</b> é um simulador de redes de tubulação em regime permanente, de líquidos (escoamento incompressível) e de gases (escoamento compressível), que roda no navegador, sem instalação e sem servidor.</p>
+<p class="credit">Idealizado por <b>Rafael Perktold</b>.</p>
 <ul>
 <li>Escrito do zero, em <i>clean room</i>, a partir de métodos e dados públicos (veja [[go:tech.references|Validação e referências]]). Não usa marcas, nomes, ícones, textos ou telas de programas comerciais.</li>
 <li>Interface em português, inglês e espanhol.</li>

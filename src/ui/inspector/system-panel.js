@@ -86,7 +86,7 @@
     s2.appendChild(num(k, 'gravity', tx('gravity'), { suffix: '× g₀' }));
     s2.appendChild(num(k, 'reLam', tx('reLam'), { int: true }));
     s2.appendChild(num(k, 'reTurb', tx('reTurb'), { int: true }));
-    s2.appendChild(sel(k, 'laminarK', tx('laminarK'), [['improvedAtkf', tx('improvedAtkf')], ['atkf', 'ATKF'], ['none', tx('noCorrection')]]));
+    s2.appendChild(sel(k, 'laminarK', tx('laminarK'), [['craneFt', tx('craneFt')], ['pipeFt', tx('pipeFt')], ['none', tx('noCorrection')]]));
     right.appendChild(s2);
 
     const s3 = section(tx('solution'));

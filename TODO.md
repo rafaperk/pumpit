@@ -8,8 +8,8 @@
 - [ ] Add goal seek support.
 - [ ] Upgrade the 3D model.
 - [ ] Import .xlsx files.
-- [ ] Import .fth files.
+- [x] Import .fth files.
 - [ ] Import .aro files.
-- [ ] Add HDPE piping library.
+- [x] Add HDPE piping library.
 - [ ] Add fluids.
 - [ ] Make the interface look cleaner.

@@ -1,4 +1,4 @@
-// Assigned flow view.
+// Imposed flow view.
 (function (root) {
   const PumpIt = root.PumpIt;
   const JT = PumpIt.ui.junctionTypes;

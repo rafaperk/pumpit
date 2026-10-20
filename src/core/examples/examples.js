@@ -42,8 +42,8 @@
   const steel = (nps, L, sch = '40', fittings = []) => (p) => {
     p.material = { kind: 'steel', nps, sch };
     p.geometry.kind = 'circular';
-    p.geometry.d = q(+D.steelID(nps, sch).toFixed(2), 'mm');
-    p.friction = { model: 'roughness', eps: q(0.046, 'mm'), rel: 0.0001, f: 0.02, C: 120 };
+    p.geometry.d = q(+D.pipeDims(p.material).id.toFixed(2), 'mm');
+    p.friction = { model: 'roughness', eps: q(D.pipeEps('steel'), 'mm'), rel: 0.0001, f: 0.02, C: 120 };
     p.length = q(L, 'm');
     p.fittings = fittings;
   };

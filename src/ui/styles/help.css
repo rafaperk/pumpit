@@ -59,6 +59,8 @@
 .help-body code { font: 12.5px var(--f-mono); background: var(--sunk); padding: 1px 4px; border-radius: 4px; }
 .help-body b.ui { font-weight: 600; color: var(--ink); background: var(--accent-soft); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
 .help-body mark { background: color-mix(in srgb, var(--warn) 35%, transparent); color: inherit; border-radius: 2px; }
+.help-body .credit { margin: 2px 0 14px; color: var(--ink-2); }
+.help-body .credit b { color: var(--ink); font-weight: 600; }
 .help-body .tip, .help-body .warn { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); }
 .help-body .tip { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
 .help-body .warn { background: color-mix(in srgb, var(--warn) 14%, var(--panel)); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }

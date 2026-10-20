@@ -42,21 +42,21 @@ PumpIt.i18n.add('en', {
     },
 
     pressure: {
-      label: 'Assigned pressure',
+      label: 'Imposed pressure',
       check: { P: 'pressure', staticOnePipe: 'static pressure accepts only 1 pipe' },
       form: { ptype: 'Pressure type', stagnation: 'Stagnation', static: 'Static (1 pipe)', P: 'Pressure' },
       kind: { static: 'static', stagnation: 'stagnation' },
       summary: '{pressure} ({kind})',
-      info: { P: 'Assigned pressure' },
+      info: { P: 'Imposed pressure' },
     },
 
     flow: {
-      label: 'Assigned flow',
+      label: 'Imposed flow',
       check: { Q: 'flow (positive value)' },
       form: { Q: 'Flow', dir: 'Direction', in: 'Into the system', out: 'Out of the system' },
       dir: { in: 'entering', out: 'leaving' },
       summary: '{flow} {dir}',
-      info: { Q: 'Assigned flow' },
+      info: { Q: 'Imposed flow' },
     },
 
     spray: {

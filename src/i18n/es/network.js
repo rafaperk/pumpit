@@ -102,6 +102,7 @@ PumpIt.i18n.add('es', {
       temperature: 'Temperatura',
       pipeSub: 'Tubería · J{up} → J{down}',
       length: 'Longitud',
+      material: 'Material',
       nominalSize: 'Diámetro nominal',
       innerDiameter: 'Diámetro interno',
       elevations: 'Cota inicial / final',

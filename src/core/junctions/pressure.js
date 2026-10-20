@@ -1,4 +1,4 @@
-// Assigned pressure: stagnation pressure at the junction, or static pressure in its single pipe.
+// Imposed pressure: stagnation pressure at the junction, or static pressure in its single pipe.
 (function (root) {
   const PumpIt = root.PumpIt;
   const { t } = PumpIt.i18n;

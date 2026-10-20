@@ -1,4 +1,4 @@
-// Assigned pressure view.
+// Imposed pressure view.
 (function (root) {
   const PumpIt = root.PumpIt;
   const JT = PumpIt.ui.junctionTypes;

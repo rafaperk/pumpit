@@ -1,17 +1,20 @@
-// Validation against results stored in .fth files of the reference software (specification section 10).
+// Validation of the calculation core against the results stored in .fth model files (specification section 10).
 // Usage: node tests/validate-fth.js <folder> [<folder> ...]
 //
-// The files serve only as an output answer key and are never copied into the project. The reader follows the
-// layout of Annex A. Boundaries: at reservoirs and assigned pressures, the stagnation pressure stored at the
-// end of each pipe; everything else is calculated. Comparison: mass flow of each pipe (relative to the largest
-// flow) and stagnation pressure at both ends (relative to the largest pressure drop in a pipe).
+// The files serve only as an output answer key and are never copied into the project. They are read with the parsing
+// helpers of the importer (src/core/import/fth.js, layout of Annex A), but the method is that of section 10: at
+// reservoirs, imposed pressures and exit valves the boundary is the stagnation pressure stored at the end of each
+// pipe, so that only the solver is under test; everything else is calculated. Comparison: mass flow of each pipe
+// (relative to the largest flow) and stagnation pressure at both ends (relative to the largest pressure drop in a
+// pipe). Models with add-on modules, or with data this method does not read, are skipped.
 const fs = require('fs');
 const path = require('path');
 
 const { loadCore } = require('./load-core');
 
-const { model: M, solver: S, units: U } = loadCore();
+const { model: M, solver: S, units: U, importers } = loadCore();
 const q = M.q;
+const { readSections, records, keyValues: kv, scenarioSection: sec, addOns } = importers.fth.parse;
 
 const PSI = 6894.757293168, LBM = 0.45359237, FT = 0.3048;
 const UNIT = {
@@ -36,23 +39,9 @@ function u(cat, name) {
   return v;
 }
 
-function readSections(text) {
-  const out = {};
-  let cur = '';
-  for (const line of text.split(/\r?\n/)) {
-    const h = line.match(/^\s*\[(.+)\]\s*$/);
-    if (h) { cur = h[1].trim(); out[cur] = []; } else if (cur) out[cur].push(line);
-  }
-  return out;
-}
-const records = (lines) => (lines || []).filter((l) => /^-?\d+,/.test(l)).map((l) => l.split(','));
-const kv = (lines) => Object.fromEntries((lines || []).filter((l) => l.includes('=')).map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim()]));
-const sec = (S, prefix) => { const k = Object.keys(S).find((x) => x.startsWith(prefix + ' -- SCENARIO #1 ')); return k ? S[k] : null; };
-
 function buildCase(file) {
   const S = readSections(fs.readFileSync(file, 'latin1'));
-  const app = kv(S.APPLICATION);
-  for (const mod of ['ANS', 'SSL', 'GSC', 'XTS']) if (app[mod + ' Use'] === '-1') return { skip: 'module ' + mod };
+  if (addOns(S).length) return { skip: 'add-on module' };
   const pa = records(sec(S, 'PIPE ARCHIVE DATA'));
   if (!pa.length) return { skip: 'no stored results' };
   const fd = kv(S['FLUID DATA']);
@@ -107,7 +96,7 @@ function buildCase(file) {
     const add = (t, props) => { const j = Object.assign(M.newJunction(t, id, 0, 0), { elevation: elev }, props); m.junctions.push(j); return j; };
     switch (type) {
       case 2: case 4: {
-        // boundary: stored P0 at the end of each pipe, through its own assigned pressure
+        // boundary: stored P0 at the end of each pipe, through its own imposed pressure
         for (const pid of pids) {
           const P = pipes.get(pid), r = rec.get(pid);
           if (!P || !r) return { skip: 'pipe without results' };

@@ -1,4 +1,4 @@
-// Assigned flow: a flow leaving (or entering) the system at the end of a single pipe.
+// Imposed flow: a flow leaving (or entering) the system at the end of a single pipe.
 (function (root) {
   const PumpIt = root.PumpIt;
   const { t } = PumpIt.i18n;

@@ -25,15 +25,10 @@
     ['24', 24.000, 0.688, 1.219, 0.375, 0.500],
   ];
   const SCHEDULES = ['40', '80', 'STD', 'XS'];
-  const STEEL_NPS = B3610.map((r) => r[0]);
 
-  // inside diameter in mm
-  function steelID(nps, sch) {
-    const row = B3610.find((r) => r[0] === nps);
-    const k = SCHEDULES.indexOf(sch);
-    if (!row || k < 0) return NaN;
-    return (row[1] - 2 * row[2 + k]) * 25.4;
-  }
-
-  PumpIt.data = Object.assign(PumpIt.data || {}, { B3610, SCHEDULES, STEEL_NPS, steelID });
+  PumpIt.data = Object.assign(PumpIt.data || {}, { B3610, SCHEDULES });
+  // the roughness of new commercial steel (Moody 1944)
+  PumpIt.data.registerPipes('steel', Object.assign(PumpIt.data.inchCatalog(B3610, SCHEDULES), {
+    eps: 0.046, system: 'nps', seriesKind: 'schedule', defaults: { nps: '4', sch: '40' },
+  }));
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,5 +1,6 @@
 // 3D views: camera navigation with the mouse, the keyboard and touch (3D views specification R-41, §8.13) and
 // selection by clicking (§8.16). The isometric camera pans, zooms and turns in steps of 90°; it never orbits freely.
+// Turns go about what the middle of the screen shows and a perspective zoom heads for what the cursor shows (D-31).
 // Camera moves are saved with the model but stay out of undo (R-61), and redraw at most once per frame, with quick
 // frames while they last (R-62). Camera changes that jump glide there in 250 ms, unless the system asks for reduced
 // motion (R-63).
@@ -65,6 +66,25 @@
     if (draw) redraw(false);
   }
 
+  // ------------------------------------------------------------ the point the camera turns about (D-31)
+  // The camera with its target moved along the line of sight to what the screen point (sx, sy) shows, the view
+  // unchanged: a turn then keeps the network there in place instead of swinging it about a point in empty space, and
+  // a perspective zoom heads for it instead of running through it.
+  function focused(cam, vp, sx, sy) {
+    const D = V.focusDepth(cam, vp, sx, sy, UI.render3d.pieces());
+    return D === null ? cam : V.refocus(cam, D);
+  }
+  const zoomFocus = (cam, vp, sx, sy) => (cam.projection === 'persp' ? focused(cam, vp, sx, sy) : cam);
+  // before a turn: the middle of the screen (unless a glide is under way, whose end already has its point)
+  function focusMiddle() {
+    if (anim) return;
+    const vp = viewport();
+    S3.setCamera(focused(S3.camera(), vp, vp.w / 2, vp.h / 2));
+  }
+  // whether a zoom changed the view: at the closest and the farthest zoom it does not, and then nothing is drawn,
+  // since a quick frame would only flash the lean drawing over the full one (D-32)
+  const zoomed = (a, b) => a.scale !== b.scale || a.distance !== b.distance;
+
   // ------------------------------------------------------------ pointer and wheel
   function down(e, hit) {
     const svg = svgEl();
@@ -75,9 +95,10 @@
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     try { svg.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is already gone */ }
     if (pointers.size === 2) {
-      const [p, q] = [...pointers.values()];
+      const [p, q] = [...pointers.values()], vp = viewport();
+      const m0 = { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 };
       UI.edit3d.reset();
-      drag = { kind: 'pinch', d0: Math.hypot(q.x - p.x, q.y - p.y) || 1, m0: { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 }, cam0: S3.camera(), moved: true };
+      drag = { kind: 'pinch', d0: Math.hypot(q.x - p.x, q.y - p.y) || 1, m0, cam0: zoomFocus(S3.camera(), vp, m0.x - vp.left, m0.y - vp.top), moved: true };
       return;
     }
     // the editing tools take the pointer first (src/ui/view3d/edit.js)
@@ -109,6 +130,8 @@
     }
     const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
     if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    // an orbit turns about what the middle of the screen shows (D-31)
+    if (!drag.moved && drag.kind === 'orbit') drag.cam0 = focused(drag.cam0, vp, vp.w / 2, vp.h / 2);
     drag.moved = true;
     if (drag.kind === 'orbit') apply(V.orbit(drag.cam0, dx, dy), true);
     else if (drag.kind === 'pan') apply(V.pan(drag.cam0, vp, dx, dy), true);
@@ -127,15 +150,23 @@
   }
 
   function wheel(e) {
+    const vp = viewport(), sx = e.clientX - vp.left, sy = e.clientY - vp.top;
+    const from = zoomFocus(S3.camera(), vp, sx, sy), to = V.zoomAt(from, vp, sx, sy, Math.exp(-e.deltaY * 0.0015));
+    if (!zoomed(from, to)) return;
     stopGlide(false);
-    const vp = viewport();
-    apply(V.zoomAt(S3.camera(), vp, e.clientX - vp.left, e.clientY - vp.top, Math.exp(-e.deltaY * 0.0015)), true);
+    apply(to, true);
     clearTimeout(wheelIdle);
     wheelIdle = setTimeout(() => redraw(false), 160);
   }
 
   // ------------------------------------------------------------ camera commands (they glide)
-  function zoomBy(f) { const vp = viewport(); glide(V.zoomAt(base(), vp, vp.w / 2, vp.h / 2, f)); }
+  function zoomBy(f) {
+    const vp = viewport(), cx = vp.w / 2, cy = vp.h / 2;
+    const from = anim ? anim.to : zoomFocus(S3.camera(), vp, cx, cy), to = V.zoomAt(from, vp, cx, cy, f);
+    if (!zoomed(from, to)) return;
+    if (!anim) S3.setCamera(from);
+    glide(to);
+  }
 
   // frames the whole scene
   function fit() { glide(V.fit(base(), viewport(), S3.points(), S3.FIT_PAD)); }
@@ -156,12 +187,14 @@
     stopGlide(false);
     const cam = S3.camera();
     if (cam.projection === proj) return;
-    const f = V.focalPx(cam, viewport());
-    apply(proj === 'ortho' ? { ...cam, projection: 'ortho', scale: V.clamp(f / cam.distance, 2, 400) } : { ...cam, projection: 'persp', distance: V.clamp(f / cam.scale, 0.5, 5000) });
+    const vp = viewport(), f = V.focalPx(cam, vp);
+    apply(proj === 'ortho' ? { ...cam, projection: 'ortho', scale: V.clamp(f / cam.distance, 2, V.MAX_SCALE) } : { ...cam, projection: 'persp', distance: V.clamp(f / cam.scale, V.closestOf(cam, vp), 5000) });
   }
 
-  // the isometric view turns by 90° about the target: the azimuth stays in {-45, 45, 135, -135}
+  // the isometric view turns by 90° about what the middle of the screen shows: the azimuth stays in
+  // {-45, 45, 135, -135}
   function rotateIso(dir) {
+    focusMiddle();
     const cam = base();
     glide({ ...cam, azimuth: ((cam.azimuth + dir * 90 + 540) % 360) - 180 });
   }
@@ -178,6 +211,7 @@
     const [ax, ay] = dirs[k];
     if (e.shiftKey) { glide(V.pan(base(), viewport(), -ax * 40, -ay * 40)); return true; }
     if (isIso()) return false; // the arrows choose pipe routes while drawing in the isometric view
+    focusMiddle();
     glide(V.orbit(base(), ax * 37.5, -ay * 37.5)); // 15° per press (0.4° per px); up raises the camera
     return true;
   }

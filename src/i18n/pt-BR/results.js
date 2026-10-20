@@ -9,7 +9,7 @@ PumpIt.i18n.add('pt-BR', {
       pipes: {
         id: 'Tubo',
         dn: 'Diâmetro nominal',
-        schTxt: 'Schedule',
+        schTxt: 'Schedule / classe',
         zin: 'Elevação inicial',
         zout: 'Elevação final',
         Q: 'Vazão',

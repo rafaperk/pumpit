@@ -1,6 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pump It</title>
+<meta name="author" content="Rafael Perktold">
 <meta name="description" content="Steady-state pipe network simulator, written as a clean-room implementation from public methods." data-i18n-content="app.page.description">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +34,7 @@
         <button class="btn ghost" data-menu="file" id="btn-menu-file" data-i18n="app.menu.file">File</button>
         <div class="menu-pop" id="menu-file" hidden>
           <button data-act="new" data-i18n="app.menu.new">New model</button>
-          <button data-act="open" data-i18n="app.menu.open">Open .json file…</button>
+          <button data-act="open" data-i18n="app.menu.open">Open file (.json, .fth)…</button>
           <button data-act="save" data-i18n="app.menu.save">Download .json</button>
           <button data-act="copy-json" data-i18n="app.menu.copyJson">Copy model (JSON)</button>
           <button data-act="paste-json" data-i18n="app.menu.pasteJson">Paste model (JSON)…</button>
@@ -279,10 +280,10 @@
     </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <input type="file" id="file-input" accept=".json,application/json" hidden>
+  <input type="file" id="file-input" accept=".json,.fth,application/json" hidden>
 </div>
 
-<!-- Languages: the i18n engine and one folder of message catalogs per language (pt-BR is the base) -->
+<!-- Languages: the i18n engine and one folder of message catalogs per language (en is the base) -->
 <script src="src/i18n/i18n.js" charset="utf-8"></script>
 <script src="src/i18n/pt-BR/language.js" charset="utf-8"></script>
 <script src="src/i18n/pt-BR/core.js" charset="utf-8"></script>
@@ -323,7 +324,11 @@
 <script src="src/core/fluids/fluids.js" charset="utf-8"></script>
 <script src="src/core/fluids/water.js" charset="utf-8"></script>
 <script src="src/core/fluids/gases.js" charset="utf-8"></script>
+<script src="src/core/data/pipe-library.js" charset="utf-8"></script>
 <script src="src/core/data/steel-pipe.js" charset="utf-8"></script>
+<script src="src/core/data/stainless-pipe.js" charset="utf-8"></script>
+<script src="src/core/data/hdpe-pipe.js" charset="utf-8"></script>
+<script src="src/core/data/ductile-iron-pipe.js" charset="utf-8"></script>
 <script src="src/core/data/roughness.js" charset="utf-8"></script>
 <script src="src/core/data/fittings.js" charset="utf-8"></script>
 <script src="src/core/data/water-velocity.js" charset="utf-8"></script>
@@ -375,6 +380,8 @@
 <script src="src/core/examples/sprinkler-branch.js" charset="utf-8"></script>
 <script src="src/core/examples/compressed-air.js" charset="utf-8"></script>
 <script src="src/core/examples/air-plant.js" charset="utf-8"></script>
+<!-- Import of model files of other formats -->
+<script src="src/core/import/fth.js" charset="utf-8"></script>
 <!-- 3D views: geometry of the isometric and free 3D drawings (pure functions, no DOM) -->
 <script src="src/core/view3d/camera.js" charset="utf-8"></script>
 <script src="src/core/view3d/navigation.js" charset="utf-8"></script>
@@ -387,6 +394,7 @@
 <!-- Interface: shared utilities -->
 <script src="src/ui/namespace.js" charset="utf-8"></script>
 <script src="src/ui/common/format.js" charset="utf-8"></script>
+<script src="src/ui/common/pipe-labels.js" charset="utf-8"></script>
 <script src="src/ui/common/dom.js" charset="utf-8"></script>
 <script src="src/ui/common/dialogs.js" charset="utf-8"></script>
 <script src="src/ui/common/tips.js" charset="utf-8"></script>
@@ -413,6 +421,7 @@
 <script src="src/ui/app/editing.js" charset="utf-8"></script>
 <script src="src/ui/app/clipboard.js" charset="utf-8"></script>
 <script src="src/ui/app/files.js" charset="utf-8"></script>
+<script src="src/ui/app/import-report.js" charset="utf-8"></script>
 <script src="src/ui/app/layout.js" charset="utf-8"></script>
 <script src="src/ui/app/keyboard.js" charset="utf-8"></script>
 <!-- Top bar -->

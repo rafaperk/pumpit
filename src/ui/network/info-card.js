@@ -29,7 +29,10 @@
       sub = tx('pipeSub', { up: o.up, down: o.down }) + (o.name ? ' · ' + o.name : '');
       const r = res && res.pipes[o.id];
       add(tx('length'), inp(o.length));
-      if (o.material.kind === 'steel') add(tx('nominalSize'), `${o.material.nps}" Sch. ${o.material.sch}`);
+      if (UI.pipeLabels.isCatalog(o.material)) {
+        add(tx('material'), UI.pipeLabels.material(o.material.kind));
+        add(tx('nominalSize'), UI.pipeLabels.full(o.material));
+      }
       if (o.geometry.kind === 'circular') add(tx('innerDiameter'), inp(o.geometry.d));
       if (r) {
         add(tx('elevations'), `${out(r.zin, 'length')} / ${out(r.zout, 'length')}`);
