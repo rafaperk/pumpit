@@ -51,6 +51,8 @@ Their data are not imported, and each one has a note. With sizing, the stored re
 
 The scenario becomes the base scenario of a Pump It model, named after it, and the title takes its name. The scenarios of Pump It cannot add or delete objects, which the children of the file do, so the other scenarios are imported one at a time, by opening the file again.
 
+**F-33 A base scenario without a network.** The description has the base scenario hold the whole network, but files have turned up whose base scenario is empty, with the network only in the scenarios derived from it. Such a file is read: it is a model when it has a section of pipes or of junctions of any scenario, and the records of a child that its parents do not have are new records, whole by the rules of F-08. Which scenarios have a network is worked out from the IDs left along each chain (the deletions, then the records). The choice of F-08 shows every scenario but lets only those with a network be chosen, the first of them by default. The import of such a scenario carries a note, since no description has confirmed this layout yet. A file in which no scenario has a network is refused with a message, and so is a scenario without a network asked for by name or number.
+
 ## Pipes
 
 **F-09 Record.** Field 5 counts the segments of the pipe, each a pair (length, elevation at its end). After the segments come one field, the count of drawing points and 3 fields per point; the block b starts after them. The length is the sum of the segments, and the outlet elevation is that of the last one. The intermediate elevations and the drawing points are not read.
@@ -167,6 +169,7 @@ What the description leaves open, and how the importer treats it:
 | Thermal data of the heat exchanger, three-way valve | not read (F-22, F-26) |
 | Check valves, relief valves and the kinds not seen in files | K = 0 or a node (F-26) |
 | Result columns after the ninth | not read |
+| A base scenario without a network | read: the network of the children as new records, with a note (F-33) |
 | Writing .fth files | out of scope |
 
 A gap is closed only by a new description from the specification team, never by studying files of other programs here (CONTRIBUTING, clean-room rules).

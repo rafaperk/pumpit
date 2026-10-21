@@ -10,10 +10,10 @@
   const { t } = PumpIt.i18n;
   const q = M.q;
   const {
-    FT, LBM, blank, unesc, readSections, sectionOf, scenarioKey, scenarioSection, records, kv, valUnit, addOns, header,
-    PROGRAMS, num, n0, str, isInt, key, LENGTH, AREA, PRESSURE, DP, FLOW, VISCOSITY, TEMPERATURE, inTable, quantities,
-    listScenarios, scenarios, chainOf, pipeLayout, junctionLayout, scenarioRecords, fluidLines, goalSeek, pumpConfigs,
-    shutoffRange, makeNotes, LEVELS, sortNotes, noteText, stopIsolated, place, compare,
+    FT, LBM, blank, unesc, readSections, sectionOf, scenarioSection, records, kv, valUnit, addOns, header, PROGRAMS,
+    num, n0, str, isInt, key, LENGTH, AREA, PRESSURE, DP, FLOW, VISCOSITY, TEMPERATURE, inTable, quantities, hasNetwork,
+    listScenarios, scenarios, targetScenario, chainOf, pipeLayout, junctionLayout, scenarioRecords, fluidLines, goalSeek,
+    pumpConfigs, shutoffRange, makeNotes, LEVELS, sortNotes, noteText, stopIsolated, place, compare,
   } = PumpIt.importShared;
   const Ru = 8314.462618; // J/(kmol·K)
 
@@ -179,17 +179,16 @@
   // ---------- reading
 
   // text of a .aro file → { model, notes, stored, counts, version, scenario, scenarios }. scenario: its number or its
-  // name or path (the base scenario by default). stored: the results saved in the file for that scenario (Map pipe ID →
-  // { m [kg/s], P0in, P0out [Pa(a)], T0in, T0out [K], Min, Mout }), or null
+  // name or path (the base scenario by default, or the first one with a network when the base has none, A-28). stored:
+  // the results saved in the file for that scenario (Map pipe ID → { m [kg/s], P0in, P0out [Pa(a)], T0in, T0out [K],
+  // Min, Mout }), or null
   function read(text, { name = '', scenario } = {}) {
     const hd = header(text);
     if (hd && hd.program !== PROGRAMS.gas) throw new Error(t(hd.program === PROGRAMS.liquid ? 'core.aro.liquidModel' : 'core.aro.otherProgram'));
     const S = readSections(text);
-    if (!scenarioKey(S, 'PIPES') || !scenarioKey(S, 'JUNCTIONS')) throw new Error(t('core.aro.notAro'));
+    if (!hasNetwork(S)) throw new Error(t('core.aro.notAro'));
     const list = listScenarios(S);
-    const want = scenario === undefined || scenario === null || scenario === '' ? 1 : scenario;
-    const target = typeof want === 'number' ? list.find((s) => s.n === want) : list.find((s) => s.path === want || s.name === want);
-    if (!target) throw new Error(t('core.import.noScenario', { scenario: String(want) }));
+    const target = targetScenario(list, scenario);
     const chain = chainOf(list, target.n);
     const notes = makeNotes();
     const note = notes.add;
@@ -203,6 +202,7 @@
     if (title) m.title = target.n === 1 ? title : `${title} (${target.name})`;
     if (target.name) m.scenarios.list[0].name = target.name;
     if (list.length > 1) note('info', 'scenario', null, { n: target.n, path: target.path, count: list.length });
+    if (!list.find((s) => s.n === 1).network) note('assumed', 'emptyBase', null);
 
     // what the program adjusts or replaces while it calculates (A-04)
     if (goalSeek(S, chain) > 0) note('ignored', 'goalSeek', null);

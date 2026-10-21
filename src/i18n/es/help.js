@@ -764,7 +764,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
 </table>
 <p>El modelo también se guarda automáticamente en el navegador en cada cambio. Los modelos de versiones anteriores se convierten al abrirlos: los tipos de unión eliminados pasan al equivalente más cercano, y un mensaje informa lo que cambió.</p>
 <h4>Modelos en el formato .fth</h4>
-<p>[[t:app.menu.open]] también lee archivos <code>.fth</code>, un formato de texto de modelos de redes de tuberías. Cuando el archivo tiene varios escenarios, una ventana los lista (con sus descripciones, marcando los que tienen resultados guardados): entra el que usted elija, reconstruido a partir del escenario base. Para traer otro, abra el archivo de nuevo.</p>
+<p>[[t:app.menu.open]] también lee archivos <code>.fth</code>, un formato de texto de modelos de redes de tuberías. Cuando el archivo tiene varios escenarios, una ventana los lista (con sus descripciones, marcando los que tienen resultados guardados y los que no tienen red, que no se pueden elegir): entra el que usted elija, reconstruido a partir del escenario base. El propio escenario base puede estar vacío, con la red solo en los escenarios derivados de él. Para traer otro, abra el archivo de nuevo.</p>
 <p>Tuberías, uniones, cotas, unidades y dibujo entran con lo que el modelo necesita para calcular:</p>
 <ul>
 <li>tuberías y válvulas abiertas y cerradas, válvulas de control con su tipo, punto de ajuste y estado fijo, y bombas encendidas o apagadas, con su velocidad y la curva de la configuración en uso;</li>

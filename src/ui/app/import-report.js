@@ -41,21 +41,25 @@
     UI.dialogs.modal({ title: tx('title', { name }), body: box, actions: [{ label: t('app.dialog.close'), primary: true }] });
   }
 
-  // choice of the scenario to import from a file that has several (list: [{ n, name, path, description, results }], as
-  // the importer lists them); onPick(n) runs after the window closes. The base scenario comes first and is chosen
+  // choice of the scenario to import from a file that has several (list: [{ n, name, path, description, results,
+  // network }], as the importer lists them); onPick(n) runs after the window closes. The base scenario comes first and
+  // is chosen. A scenario without a network is shown but cannot be chosen; when the base scenario has none, the first
+  // one with a network is chosen
   function pickScenario(name, list, onPick) {
     const box = document.createElement('div');
     box.className = 'import-report import-scenarios';
     const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
     box.appendChild(el('p', 'muted', tx('pick.intro', { n: list.length })));
-    const first = list.find((s) => s.n === 1) || list[0];
+    const can = (s) => s.network !== false;
+    const first = list.find((s) => s.n === 1 && can(s)) || list.find(can) || list[0];
     for (const s of list) {
-      const lab = el('label');
+      const lab = el('label', can(s) ? '' : 'empty');
       const radio = el('input');
-      Object.assign(radio, { type: 'radio', name: 'import-scenario', value: String(s.n), checked: s === first });
+      Object.assign(radio, { type: 'radio', name: 'import-scenario', value: String(s.n), checked: s === first, disabled: !can(s) });
       const txt = el('span');
       txt.appendChild(el('b', '', s.path || s.name || '#' + s.n));
-      if (s.results) txt.appendChild(el('span', 'tag', tx('pick.results')));
+      if (!can(s)) txt.appendChild(el('span', 'tag empty', tx('pick.empty')));
+      else if (s.results) txt.appendChild(el('span', 'tag', tx('pick.results')));
       if (s.description) txt.appendChild(el('small', '', s.description));
       lab.append(radio, txt);
       box.appendChild(lab);

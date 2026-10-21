@@ -172,7 +172,7 @@ console.log('\nFirst line and refusals');
   } finally { Object.assign(X.PROGRAMS, saved); }
   thrown = '';
   try { read('[SOMETHING]\r\nkey= 1\r\n'); } catch (e) { thrown = e.message; }
-  ok('a file without the network of the base scenario is refused', thrown === PumpIt.i18n.t('core.aro.notAro'));
+  ok('a file without sections of pipes or junctions is not a model', thrown === PumpIt.i18n.t('core.aro.notAro'));
   thrown = '';
   try { read(body, { scenario: 9 }); } catch (e) { thrown = e.message; }
   ok('a scenario that is not in the file is refused', thrown === PumpIt.i18n.t('core.import.noScenario', { scenario: '9' }));
@@ -227,6 +227,49 @@ console.log('\nScenarios');
   ok('grandchild: a length defined in the delta and an ambient pressure of its own', P(s3, 1).length.value === 12 && s3.system.patm.value === 0.8 && J(s3, 1).surfP.value === 5);
   const s1 = read(file).model;
   ok('the base scenario stays as it is', J(s1, 1).gasT.value === 30 && !!P(s1, 5) && !J(s1, 7));
+  ok('every scenario of a file with a whole base scenario has a network', list.every((s) => s.network === true));
+
+  // a base scenario without a network (A-28): its sections left out, the network drawn in #2 and changed in its child
+  // #3; #4, another child of the base, adds nothing to it
+  const net = [
+    ['JUNCTIONS -- SCENARIO #2 -- Winter', ['NumberOfJunctions= 2', junc({ type: 2, id: 1, pipes: [-1], t: tank({ P: 5, T: 10 }) }), junc({ type: 4, id: 2, pipes: [1], t: press({ P: 0 }) })]],
+    ['PIPES -- SCENARIO #2 -- Winter', ['NumberOfPipes= 1', pipe({ id: 1, from: 1, to: 2, L: 50, D: 5 })]],
+    ['JUNCTIONS -- SCENARIO #3 -- Peak', ['NumberOfJunctions= 1', deltaJ(2, 1, 1, {}, { 7: 7 })]],
+  ];
+  const scenE = [['Base Scenario', ''], ['Winter', 'Base Scenario'], ['Peak', 'Base Scenario/Winter'], ['Spare', 'Base Scenario']];
+  const fe = aro({ scen: scenE, secs: net });
+  const le = ARO.scenarios(fe);
+  ok('a base scenario without a network: the file is a model, and the list tells which scenarios have one', le.map((s) => s.network).join() === 'false,true,true,false', JSON.stringify(le.map((s) => [s.path, s.network])));
+  const re = read(fe, { name: 'Empty base.aro' });
+  ok('by default, the first scenario with a network comes in, with a note on the empty base scenario', re.counts.scenario === 'Winter' && re.model.title === 'Empty base (Winter)'
+    && re.model.pipes.length === 1 && re.model.junctions.length === 2 && hasNote(re, 'emptyBase') && hasNote(re, 'scenario'), keysOf(re));
+  const ve = M.validate(M.effective(re.model, 'base'));
+  const rre = ve.ok ? run(re.model) : null;
+  ok('its records are new ones, whole: the model is complete and calculates', ve.ok && rre.ok && rre.converged && J(re.model, 1).surfP.value === 5 && J(re.model, 1).gasT.value === 10
+    && P(re.model, 1).length.value === 50, ve.ok ? (rre.ok ? '' : rre.errors.join('; ')) : JSON.stringify([...ve.undef.keys()]));
+  const rp = read(fe, { scenario: 'Peak' });
+  ok('a child of that scenario changes it as usual', J(rp.model, 1).surfP.value === 7 && J(rp.model, 1).gasT.value === 10 && P(rp.model, 1).length.value === 50 && hasNote(rp, 'emptyBase'));
+  let thrown = '';
+  try { read(fe, { scenario: 1 }); } catch (e) { thrown = e.message; }
+  const withNetwork = '“Base Scenario/Winter”, “Base Scenario/Winter/Peak”';
+  ok('the empty base scenario is refused, with the scenarios that have a network', thrown === PumpIt.i18n.t('core.import.emptyScenario', { scenario: 'Base Scenario', list: withNetwork }), thrown);
+  thrown = '';
+  try { read(fe, { scenario: 'Spare' }); } catch (e) { thrown = e.message; }
+  ok('and so is a child that adds nothing to it', thrown === PumpIt.i18n.t('core.import.emptyScenario', { scenario: 'Base Scenario/Spare', list: withNetwork }), thrown);
+  const fz = aro({ scen: scenE.slice(0, 2), secs: [[BASE('JUNCTIONS'), ['NumberOfJunctions= 0']], [BASE('PIPES'), ['NumberOfPipes= 0']], ...net.slice(0, 2)] });
+  const rz = read(fz);
+  ok('the same when the sections of the base scenario are there but empty', ARO.scenarios(fz).map((s) => s.network).join() === 'false,true' && rz.counts.scenario === 'Winter' && hasNote(rz, 'emptyBase'));
+  thrown = '';
+  try { read(aro({ scen: scenE.slice(0, 2), secs: [[BASE('JUNCTIONS'), ['NumberOfJunctions= 0']], [BASE('PIPES'), ['NumberOfPipes= 0']]] })); } catch (e) { thrown = e.message; }
+  ok('a file in which no scenario has a network is refused', thrown === PumpIt.i18n.t('core.import.noNetwork'), thrown);
+  const fd = aro({
+    scen: [['Base Scenario', ''], ['Gone', 'Base Scenario']],
+    secs: [[BASE('JUNCTIONS'), [junc({ type: 2, id: 1, pipes: [-1], t: tank({ P: 1 }) }), junc({ type: 4, id: 2, pipes: [1], t: press({ P: 0 }) })]], [BASE('PIPES'), [pipe({ id: 1, from: 1, to: 2, L: 10, D: 5 })]],
+      ['JUNCTIONS -- SCENARIO #2 -- Gone', ['DELETED,2,1,Tank', 'DELETED,4,2,Outlet']], ['PIPES -- SCENARIO #2 -- Gone', ['DELETED,1,Pipe']]],
+  });
+  const rd = read(fd);
+  ok('a child that deletes the whole network has none; the base scenario stays the default, without the note', ARO.scenarios(fd).map((s) => s.network).join() === 'true,false'
+    && rd.model.pipes.length === 1 && !hasNote(rd, 'emptyBase'));
 }
 
 console.log('\nValves, control valves, compressors and special conditions');

@@ -110,6 +110,7 @@ PumpIt.i18n.add('pt-BR', {
         title: 'Cenário a importar: {name}',
         intro: 'O arquivo tem {n} cenários. Escolha o que será importado; abra o arquivo de novo para importar outro.',
         results: 'resultados gravados',
+        empty: 'sem rede',
         import: 'Importar',
       },
     },

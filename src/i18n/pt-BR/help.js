@@ -764,7 +764,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 </table>
 <p>O modelo também é salvo automaticamente no navegador a cada alteração. Modelos de versões antigas são convertidos ao abrir: tipos de junção removidos viram o equivalente mais próximo, e uma mensagem informa o que mudou.</p>
 <h4>Modelos no formato .fth</h4>
-<p>[[t:app.menu.open]] também lê arquivos <code>.fth</code>, um formato de texto de modelos de redes de tubulação. Quando o arquivo tem vários cenários, uma janela os lista (com as descrições, marcando os que têm resultados gravados): entra o que você escolher, reconstruído a partir do cenário base. Para trazer outro, abra o arquivo de novo.</p>
+<p>[[t:app.menu.open]] também lê arquivos <code>.fth</code>, um formato de texto de modelos de redes de tubulação. Quando o arquivo tem vários cenários, uma janela os lista (com as descrições, marcando os que têm resultados gravados e os que não têm rede, que não podem ser escolhidos): entra o que você escolher, reconstruído a partir do cenário base. O próprio cenário base pode estar vazio, com a rede só nos cenários derivados dele. Para trazer outro, abra o arquivo de novo.</p>
 <p>Tubos, junções, cotas, unidades e desenho entram com o que o modelo precisa para rodar:</p>
 <ul>
 <li>tubos e válvulas abertos e fechados, válvulas de controle com tipo, ponto de ajuste e estado fixo, e bombas ligadas ou desligadas, com a rotação e a curva da configuração em uso;</li>

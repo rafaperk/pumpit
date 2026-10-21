@@ -179,6 +179,8 @@ PumpIt.i18n.add('es', {
     // importación de archivos de modelo .fth (src/core/import/fth.js)
     import: {
       noScenario: 'El escenario {scenario} no está en el archivo.',
+      noNetwork: 'El archivo no tiene red: ninguno de sus escenarios tiene tuberías o uniones.',
+      emptyScenario: 'El escenario “{scenario}” no tiene red (ninguna tubería o unión). Escenarios del archivo con red: {list}.',
       created: { suction: '{name} (succión)', discharge: '{name} (descarga)', pipe: 'Conexión de {name}' },
       kinds: {
         branch: 'ramificación', reservoir: 'reservorio', flow: 'caudal impuesto', pressure: 'presión impuesta', areaChange: 'cambio de área',
@@ -254,6 +256,7 @@ PumpIt.i18n.add('es', {
         pumpConfig: '{objs}: la bomba tiene {n} configuraciones (rodetes o velocidades); se importó la configuración {sel} ({name}), la que está en uso.',
         pumpOnePipeFlow: '{objs}: bomba de caudal fijo conectada a una sola tubería, importada como caudal impuesto.',
         scenario: 'Escenario importado: n.º {n} “{path}” (el archivo tiene {count}).',
+        emptyBase: 'El escenario base del archivo no tiene red: todas las tuberías y uniones vienen de los escenarios derivados de él, leídas como registros nuevos y completos. Revise el modelo.',
         sprayDensity: '{objs}: factor K convertido para Pump It, que lo refiere al agua a 1000 kg/m³ (el archivo, al propio fluido), para que la pérdida sea la misma.',
         gasDefault: 'No se pudo leer el gas: se supuso aire. Defina el gas en las propiedades del sistema.',
         gasComponents: 'El gas es una mezcla con componentes sin datos aquí ({names}); se supuso aire. Defina el gas en las propiedades del sistema.',
@@ -294,13 +297,13 @@ PumpIt.i18n.add('es', {
       },
     },
     fth: {
-      notFth: 'El archivo no es un modelo .fth: no tiene la red del escenario base (secciones de tuberías y de uniones).',
+      notFth: 'El archivo no es un modelo .fth: no tiene secciones de tuberías ni de uniones.',
       otherProgram: 'El archivo es un modelo de otro programa de la misma familia, como muestra su primera línea, y no un modelo de líquido en régimen permanente; Pump It no lo importa.',
       fluidName: 'Fluido del archivo importado',
       teeLoss: 'Te {id}, en el punto de operación guardado',
     },
     aro: {
-      notAro: 'El archivo no es un modelo .aro: no tiene la red del escenario base (secciones de tuberías y de uniones).',
+      notAro: 'El archivo no es un modelo .aro: no tiene secciones de tuberías ni de uniones.',
       otherProgram: 'El archivo es un modelo de otro programa de la misma familia, como muestra su primera línea, y no un modelo de gas en régimen permanente; Pump It no lo importa.',
       liquidModel: 'El archivo es un modelo de líquido del formato .fth, como muestra su primera línea; dele la extensión .fth para importarlo.',
       gasName: 'Gas del archivo importado',

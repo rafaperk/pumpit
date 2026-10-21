@@ -53,7 +53,7 @@
   }
 
   // a file of another format becomes a model, and the import report tells what was read; a file with several scenarios
-  // first asks which one to import
+  // first asks which one to import (a file whose scenarios have no network is refused by the importer at once)
   function importFile(f, imp) {
     const rd = new FileReader();
     rd.onload = () => {
@@ -68,7 +68,7 @@
       };
       let list = [];
       try { list = imp.scenarios ? imp.scenarios(text) : []; } catch (err) { list = []; }
-      if (list.length > 1) UI.importReport.pickScenario(f.name, list, (n) => load({ scenario: n }));
+      if (list.length > 1 && list.some((s) => s.network !== false)) UI.importReport.pickScenario(f.name, list, (n) => load({ scenario: n }));
       else load({});
     };
     rd.readAsArrayBuffer(f);

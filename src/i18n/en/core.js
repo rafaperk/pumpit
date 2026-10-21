@@ -181,6 +181,8 @@ PumpIt.i18n.add('en', {
     // import of model files of other formats (src/core/import/): what both importers say
     import: {
       noScenario: 'Scenario {scenario} is not in the file.',
+      noNetwork: 'The file has no network: none of its scenarios has pipes or junctions.',
+      emptyScenario: 'Scenario “{scenario}” has no network (no pipes or junctions). Scenarios of the file with a network: {list}.',
       created: { suction: '{name} (suction)', discharge: '{name} (discharge)', pipe: 'Connection of {name}' },
       kinds: {
         branch: 'branch', reservoir: 'reservoir', flow: 'imposed flow', pressure: 'imposed pressure', areaChange: 'area change',
@@ -256,6 +258,7 @@ PumpIt.i18n.add('en', {
         pumpConfig: '{objs}: the pump has {n} configurations (impellers or speeds); configuration {sel} ({name}), the one in use, was imported.',
         pumpOnePipeFlow: '{objs}: fixed-flow pump on a single pipe, imported as an imposed flow.',
         scenario: 'Imported scenario: #{n} “{path}” (the file has {count}).',
+        emptyBase: 'The base scenario of the file has no network: every pipe and junction comes from the scenarios derived from it, read as new, whole records. Check the model.',
         sprayDensity: '{objs}: K factor converted for Pump It, which refers it to water at 1000 kg/m³ (the file, to the fluid itself), so that the loss stays the same.',
         gasDefault: 'The gas could not be read: air was assumed. Set the gas in the system properties.',
         gasComponents: 'The gas is a mixture with components that have no data here ({names}); air was assumed. Set the gas in the system properties.',
@@ -297,14 +300,14 @@ PumpIt.i18n.add('en', {
     },
     // import of .fth model files (src/core/import/fth.js)
     fth: {
-      notFth: 'The file is not a .fth model: it has no network of the base scenario (sections of pipes and of junctions).',
+      notFth: 'The file is not a .fth model: it has no sections of pipes or of junctions.',
       otherProgram: 'The file is a model of another program of the same family, as its first line shows, not a steady-state liquid model; Pump It does not import it.',
       fluidName: 'Fluid of the imported file',
       teeLoss: 'Tee {id}, at the stored operating point',
     },
     // import of .aro model files (src/core/import/aro.js)
     aro: {
-      notAro: 'The file is not a .aro model: it has no network of the base scenario (sections of pipes and of junctions).',
+      notAro: 'The file is not a .aro model: it has no sections of pipes or of junctions.',
       otherProgram: 'The file is a model of another program of the same family, as its first line shows, not a steady-state gas model; Pump It does not import it.',
       liquidModel: 'The file is a liquid model of the .fth format, as its first line shows; give it the .fth extension to import it.',
       gasName: 'Gas of the imported file',

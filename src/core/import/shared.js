@@ -170,7 +170,34 @@
     return { unknownUnit, undefinedUnit, qty, len, area, pressure, dp, flow };
   }
 
-  // ---------- scenarios: the base scenario is complete, and each child keeps only what differs from its parent (F-08)
+  // ---------- scenarios: the base scenario is complete, and each child keeps only what differs from its parent (F-08).
+  // The base scenario may also have no network, the network being in its children (F-33, A-28)
+
+  // a file of the family holds a model when it has a section of pipes or of junctions, of any scenario
+  const hasNetwork = (S) => Object.keys(S).some((x) => /^(PIPES|JUNCTIONS)( -- SCENARIO #\d+( -- .*)?)?$/i.test(x));
+  // deletions in a child: "DELETED,id,name" for a pipe, "DELETED,type,id,name" for a junction
+  const DELETED_PIPE = /^\s*DELETED\s*,\s*([^,]+)/i, DELETED_JUNCTION = /^\s*DELETED\s*,[^,]*,\s*([^,]+)/i;
+  // the IDs that the section of pipes or junctions of scenario k deletes and those of its records, read without
+  // splitting the records: a pipe record starts with its ID, a junction record with its type and its ID
+  function sectionIds(S, name, k) {
+    const junction = name === 'JUNCTIONS', out = { del: [], ids: [] };
+    for (const l of scenarioSection(S, name, k) || []) {
+      const d = (junction ? DELETED_JUNCTION : DELETED_PIPE).exec(l);
+      const r = !d && (junction ? /^\s*-?\d+\s*,([^,]*)/ : /^\s*(-?\d+)\s*,/).exec(l);
+      if (d) out.del.push(d[1].trim()); else if (r) out.ids.push(r[1].trim());
+    }
+    return out;
+  }
+  // whether each scenario of the list has a network: a pipe or a junction left at the end of its chain
+  function markNetworks(S, list) {
+    const own = new Map(list.map((s) => [s.n, [sectionIds(S, 'PIPES', s.n), sectionIds(S, 'JUNCTIONS', s.n)]]));
+    for (const s of list) {
+      const sets = [new Set(), new Set()];
+      for (const k of chainOf(list, s.n)) own.get(k).forEach((x, i) => { x.del.forEach((id) => sets[i].delete(id)); x.ids.forEach((id) => sets[i].add(id)); });
+      s.network = sets[0].size + sets[1].size > 0;
+    }
+    return list;
+  }
 
   // the scenario manager: "Scenario #n= name,parent path,L,description of L characters,control integers"
   function listScenarios(S) {
@@ -190,10 +217,25 @@
       const name = k ? k.split(' -- ').slice(2).join(' -- ').trim() : '';
       out.unshift({ n: 1, name, parent: '', path: name, description: '', results: records(scenarioSection(S, 'PIPE ARCHIVE DATA', 1)).length > 0 });
     }
-    return out.sort((a, b) => a.n - b.n);
+    return markNetworks(S, out.sort((a, b) => a.n - b.n));
   }
-  // the scenarios of a file, for the choice before the import: [{ n, name, parent, path, description, results }]
+  // the scenarios of a file, for the choice before the import: [{ n, name, parent, path, description, results,
+  // network }]
   const scenarios = (text) => listScenarios(readSections(text));
+  // the scenario to import: the one asked for (its number, name or path) or else the base scenario, or the first one
+  // with a network when the base scenario has none. A file without a network, a scenario that is not in the file and a
+  // scenario without a network are refused
+  function targetScenario(list, scenario) {
+    if (!list.some((s) => s.network)) throw new Error(t('core.import.noNetwork'));
+    const given = scenario !== undefined && scenario !== null && scenario !== '';
+    const target = !given ? list.find((s) => s.n === 1 && s.network) || list.find((s) => s.network)
+      : typeof scenario === 'number' ? list.find((s) => s.n === scenario) : list.find((s) => s.path === scenario || s.name === scenario);
+    if (!target) throw new Error(t('core.import.noScenario', { scenario: String(scenario) }));
+    if (!target.network) {
+      throw new Error(t('core.import.emptyScenario', { scenario: target.path || '#' + target.n, list: list.filter((s) => s.network).map((s) => `“${s.path || '#' + s.n}”`).join(', ') }));
+    }
+    return target;
+  }
   // the chain of scenario n: the base scenario, the ancestors of n by its parent path (from the root down) and n
   function chainOf(list, n) {
     const target = list.find((s) => s.n === n);
@@ -311,8 +353,8 @@
     const P = new Map(), J = new Map();
     chain.forEach((n, k) => {
       const ps = scenarioSection(S, 'PIPES', n), js = scenarioSection(S, 'JUNCTIONS', n);
-      for (const l of ps || []) { const m = /^\s*DELETED\s*,\s*([^,]+)/i.exec(l); if (m) P.delete(m[1].trim()); }
-      for (const l of js || []) { const m = /^\s*DELETED\s*,[^,]*,\s*([^,]+)/i.exec(l); if (m) J.delete(m[1].trim()); }
+      for (const l of ps || []) { const m = DELETED_PIPE.exec(l); if (m) P.delete(m[1].trim()); }
+      for (const l of js || []) { const m = DELETED_JUNCTION.exec(l); if (m) J.delete(m[1].trim()); }
       for (const r of records(ps)) P.set(r[0], k === 0 || !P.has(r[0]) ? r : mergePipe(P.get(r[0]), r));
       for (const r of records(js)) {
         const prev = J.get(r[1]);
@@ -477,8 +519,8 @@
     unesc, readSections, findKey, sectionOf, scenarioKey, scenarioSection, records, keyValues, kv, valUnit, addOns,
     wordHash, header, PROGRAMS, num, n0, str, isInt,
     key, LENGTH, AREA, PRESSURE, DP, FLOW, VISCOSITY, TEMPERATURE, inTable, quantities,
-    listScenarios, scenarios, chainOf, mergeList, overlay, pipeLayout, mergePipe, junctionLayout, mergeJunction,
-    scenarioRecords, fluidLines, goalSeek, pumpConfigs, shutoffRange,
+    hasNetwork, listScenarios, scenarios, targetScenario, chainOf, mergeList, overlay, pipeLayout, mergePipe,
+    junctionLayout, mergeJunction, scenarioRecords, fluidLines, goalSeek, pumpConfigs, shutoffRange,
     makeNotes, LEVELS, sortNotes, noteText, stopIsolated, place, compare,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

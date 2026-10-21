@@ -14,8 +14,9 @@
   const {
     FT, IN, LBM, GAL, SLUG, blank, unesc, readSections, sectionOf, scenarioKey, scenarioSection, records, keyValues, kv,
     valUnit, addOns, header, PROGRAMS, num, n0, str, isInt, key, LENGTH, PRESSURE, DP, FLOW, VISCOSITY, TEMPERATURE,
-    inTable, quantities, listScenarios, scenarios, chainOf, pipeLayout, junctionLayout, scenarioRecords, fluidLines,
-    goalSeek, pumpConfigs, shutoffRange, makeNotes, LEVELS, sortNotes, noteText, stopIsolated, place, compare,
+    inTable, quantities, hasNetwork, listScenarios, scenarios, targetScenario, chainOf, pipeLayout, junctionLayout,
+    scenarioRecords, fluidLines, goalSeek, pumpConfigs, shutoffRange, makeNotes, LEVELS, sortNotes, noteText,
+    stopIsolated, place, compare,
   } = PumpIt.importShared;
 
   // ---------- units of a liquid
@@ -62,18 +63,16 @@
   // ---------- reading
 
   // text of a .fth file → { model, notes, stored, counts, version, scenario, scenarios }. scenario: its number or its
-  // name or path (the base scenario by default); calibrate: false keeps the stored results out of the losses of F-21
-  // and F-23 (F-29). stored: the results saved in the file for that scenario (Map pipe ID → { m [kg/s], P0in, P0out
-  // [Pa(a)] }), or null
+  // name or path (the base scenario by default, or the first one with a network when the base has none, F-33);
+  // calibrate: false keeps the stored results out of the losses of F-21 and F-23 (F-29). stored: the results saved in
+  // the file for that scenario (Map pipe ID → { m [kg/s], P0in, P0out [Pa(a)] }), or null
   function read(text, { name = '', scenario, calibrate = true } = {}) {
     const hd = header(text);
     if (hd && hd.program !== PROGRAMS.liquid) throw new Error(t('core.fth.otherProgram'));
     const S = readSections(text);
-    if (!scenarioKey(S, 'PIPES') || !scenarioKey(S, 'JUNCTIONS')) throw new Error(t('core.fth.notFth'));
+    if (!hasNetwork(S)) throw new Error(t('core.fth.notFth'));
     const list = listScenarios(S);
-    const want = scenario === undefined || scenario === null || scenario === '' ? 1 : scenario;
-    const target = typeof want === 'number' ? list.find((s) => s.n === want) : list.find((s) => s.path === want || s.name === want);
-    if (!target) throw new Error(t('core.import.noScenario', { scenario: String(want) }));
+    const target = targetScenario(list, scenario);
     const chain = chainOf(list, target.n);
     const notes = makeNotes();
     const note = notes.add;
@@ -84,6 +83,7 @@
     if (title) m.title = target.n === 1 ? title : `${title} (${target.name})`;
     if (target.name) m.scenarios.list[0].name = target.name;
     if (list.length > 1) note('info', 'scenario', null, { n: target.n, path: target.path, count: list.length });
+    if (!list.find((s) => s.n === 1).network) note('assumed', 'emptyBase', null);
 
     // the add-on modules and settings that change the calculation of the program (F-06)
     const sized = n0(kv(sectionOf(S, 'SIZING CONTROL'), 'OptimizationLevel')) > 0 && addOns(S).length > 0;

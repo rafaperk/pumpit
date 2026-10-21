@@ -56,6 +56,8 @@ The mass flow of a normal volume is ρ_N·V_N with the molar mass of the gas (G-
 - the counted coefficients of a valve, orifice and heat exchanger have their count at t+8;
 - each configuration of a compressor has three counted lists.
 
+**A-28 A base scenario without a network.** As for `.fth` files (F-33): a file whose base scenario is empty, with the network only in the scenarios derived from it, is read. The scenarios without a network are shown in the choice but cannot be chosen, the import of the others carries a note, and a file in which no scenario has a network is refused with a message. The description has the base scenario hold the whole network; such files have turned up, and the shared reader takes them.
+
 ## Pipes
 
 **A-09 Record.** As for `.fth` files (F-09): the segments (length, elevation at the end), one field, the drawing points, and the block b after them.
@@ -213,6 +215,7 @@ What the description leaves open, and how the importer treats it:
 | The configuration in use of a compressor and its efficiency | the first one; 75 % (A-21) |
 | Temperature of a static pressure | static, from the description's check; the stored stagnation temperature (A-17) |
 | Vapour pressure, enthalpy table, result columns after the 13th | not read |
+| A base scenario without a network | read: the network of the children as new records, with a note (A-28) |
 | Writing .aro files | out of scope |
 
 A gap is closed only by a new description from the specification team, never by studying files of other programs here (CONTRIBUTING, clean-room rules).

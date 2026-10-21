@@ -110,6 +110,7 @@ PumpIt.i18n.add('en', {
         title: 'Scenario to import: {name}',
         intro: 'The file has {n} scenarios. Choose the one to import; open the file again to import another one.',
         results: 'stored results',
+        empty: 'no network',
         import: 'Import',
       },
     },

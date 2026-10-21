@@ -139,7 +139,7 @@ console.log('\nFile, fluid and units');
   ok('the version is read from the first line', hd && hd.version === 12 && FTH.parse.header('no header') === null);
   thrown = '';
   try { FTH.read('[SOMETHING]\r\nkey= 1\r\n'); } catch (e) { thrown = e.message; }
-  ok('a file without the network of the base scenario is refused', thrown === PumpIt.i18n.t('core.fth.notFth'));
+  ok('a file without sections of pipes or junctions is not a model', thrown === PumpIt.i18n.t('core.fth.notFth'));
 }
 
 console.log('\nPipes');
@@ -384,6 +384,32 @@ console.log('\nScenarios');
   const v6 = M.validate(M.effective(m6, 'base'));
   const r6r = v6.ok ? run(m6) : null;
   ok('the child scenario is complete and calculates', v6.ok && r6r.ok && r6r.converged, v6.ok ? (r6r.ok ? '' : r6r.errors.join('; ')) : JSON.stringify([...v6.undef].slice(0, 2)));
+  ok('every scenario of a file with a whole base scenario has a network', list.every((s) => s.network === true));
+
+  // a base scenario without a network (F-33): its sections left out, the network drawn in #2 and changed in its child
+  // #3 (the pressure of junction 1)
+  const fe = fth({
+    scen: [['Base Scenario', ''], ['Line', 'Base Scenario'], ['Higher', 'Base Scenario/Line']],
+    secs: [
+      ['JUNCTIONS -- SCENARIO #2 -- Line', ['NumberOfJunctions= 2', junc({ type: 4, id: 1, pipes: [-1], t: press({ P: 2 }) }), junc({ type: 4, id: 2, pipes: [1], t: press({ P: 0 }) })]],
+      ['PIPES -- SCENARIO #2 -- Line', ['NumberOfPipes= 1', pipe({ id: 1, from: 1, to: 2, L: 100, D: 5 })]],
+      ['JUNCTIONS -- SCENARIO #3 -- Higher', ['NumberOfJunctions= 1', deltaJ({ type: 4, id: 1, nPar: 1, t: ['', '', '', '', 3] })]],
+    ],
+  });
+  const le = FTH.scenarios(fe);
+  ok('a base scenario without a network: the file is a model, and the list tells which scenarios have one', le.map((s) => s.network).join() === 'false,true,true', JSON.stringify(le.map((s) => [s.path, s.network])));
+  const re = read(fe, { name: 'Empty base.fth' });
+  const ve = M.validate(M.effective(re.model, 'base'));
+  const rre = ve.ok ? run(re.model) : null;
+  ok('by default, the first scenario with a network comes in whole, with a note, and calculates', re.counts.scenario === 'Line' && re.model.title === 'Empty base (Line)' && hasNote(re, 'emptyBase')
+    && J(re.model, 1).P.value === 2 && P(re.model, 1).length.value === 100 && ve.ok && rre.ok && rre.converged, ve.ok ? (rre.ok ? '' : rre.errors.join('; ')) : JSON.stringify([...ve.undef].slice(0, 2)));
+  ok('its child changes it as usual', J(read(fe, { scenario: 'Higher' }).model, 1).P.value === 3);
+  thrown = '';
+  try { read(fe, { scenario: 1 }); } catch (e) { thrown = e.message; }
+  ok('the empty base scenario is refused, with the scenarios that have a network', thrown === PumpIt.i18n.t('core.import.emptyScenario', { scenario: 'Base Scenario', list: '“Base Scenario/Line”, “Base Scenario/Line/Higher”' }), thrown);
+  thrown = '';
+  try { read(fth({ secs: [[BASE('JUNCTIONS'), ['NumberOfJunctions= 0']], [BASE('PIPES'), ['NumberOfPipes= 0']]] })); } catch (e) { thrown = e.message; }
+  ok('a file in which no scenario has a network is refused', thrown === PumpIt.i18n.t('core.import.noNetwork'), thrown);
 }
 
 console.log('\nStored results and the losses taken from them');

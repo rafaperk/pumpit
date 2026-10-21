@@ -764,7 +764,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 </table>
 <p>The model is also saved automatically in the browser after every change. Models of older versions are converted when opened: junction types that were removed become the closest equivalent, and a message tells what changed.</p>
 <h4>Models in the .fth format</h4>
-<p>[[t:app.menu.open]] also reads <code>.fth</code> files, a text format of pipe network models. When the file has several scenarios, a window lists them (with their descriptions, marking those with stored results): the one you choose comes in, rebuilt from the base scenario. To bring in another one, open the file again.</p>
+<p>[[t:app.menu.open]] also reads <code>.fth</code> files, a text format of pipe network models. When the file has several scenarios, a window lists them (with their descriptions, marking those with stored results and those without a network, which cannot be chosen): the one you choose comes in, rebuilt from the base scenario. The base scenario may itself be empty, with the network only in the scenarios derived from it. To bring in another one, open the file again.</p>
 <p>Pipes, junctions, elevations, units and drawing come in with what the model needs to run:</p>
 <ul>
 <li>open and closed pipes and valves, control valves with their kind, set point and fixed state, and pumps on or off, with their speed and the curve of the configuration in use;</li>
