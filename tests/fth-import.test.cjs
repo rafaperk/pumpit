@@ -380,7 +380,7 @@ console.log('\nScenarios');
   ok('the base scenario stays as it is', J(m6b, 2).mode === 'fixedFlow' && !!P(m6b, 4) && !P(m6b, 6) && J(m6b, 3).K === 5 && m6b.system.fluid.rho.value === 998.2);
   let thrown = '';
   try { FTH.read(f6, { scenario: 9 }); } catch (e) { thrown = e.message; }
-  ok('a scenario that is not in the file is refused', thrown === PumpIt.i18n.t('core.fth.noScenario', { scenario: '9' }));
+  ok('a scenario that is not in the file is refused', thrown === PumpIt.i18n.t('core.import.noScenario', { scenario: '9' }));
   const v6 = M.validate(M.effective(m6, 'base'));
   const r6r = v6.ok ? run(m6) : null;
   ok('the child scenario is complete and calculates', v6.ok && r6r.ok && r6r.converged, v6.ok ? (r6r.ok ? '' : r6r.errors.join('; ')) : JSON.stringify([...v6.undef].slice(0, 2)));
@@ -631,14 +631,15 @@ console.log('\nDrawing positions and file variants');
 
 console.log('\nTexts');
 {
-  const src = fs.readFileSync(path.join(ROOT, 'src/core/import/fth.js'), 'utf8');
+  // the notes of the importer, and those of the parts it shares with the .aro importer
+  const src = ['fth.js', 'shared.js'].map((f) => fs.readFileSync(path.join(ROOT, 'src/core/import', f), 'utf8')).join('\n');
   const noteKeys = [...src.matchAll(/note\('(\w+)', '(\w+)'/g)].map((x) => x[2]).concat(['pipeCount', 'unsupported']);
   const kinds = [...src.match(/const KINDS = \{([\s\S]*?)\};/)[1].matchAll(/'(\w+)'/g)].map((x) => x[1]).concat(['unknown']);
   const missing = [];
   for (const { code } of PumpIt.i18n.languages()) {
     const cat = PumpIt.i18n.catalog(code);
-    for (const k of noteKeys) if (!cat.has('core.fth.notes.' + k)) missing.push(`${code}: notes.${k}`);
-    for (const k of kinds) if (!cat.has('core.fth.kinds.' + k)) missing.push(`${code}: kinds.${k}`);
+    for (const k of noteKeys) if (!cat.has('core.import.notes.' + k)) missing.push(`${code}: notes.${k}`);
+    for (const k of kinds) if (!cat.has('core.import.kinds.' + k)) missing.push(`${code}: kinds.${k}`);
   }
   ok(`every note (${new Set(noteKeys).size}) and kind (${kinds.length}) has its text in every language`, !missing.length, missing.slice(0, 4).join(', '));
   const bad = [];

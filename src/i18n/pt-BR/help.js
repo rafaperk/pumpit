@@ -756,7 +756,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
             body: `<table>
 <tr><th>Comando em [[t:app.menu.file]]</th><th>O que faz</th></tr>
 <tr><td>[[t:app.menu.new]]</td><td>Começa um modelo vazio (dá para desfazer).</td></tr>
-<tr><td>[[t:app.menu.open]]</td><td>Abre um modelo salvo em .json, ou importa um modelo no formato .fth (abaixo). Arrastar o arquivo para a janela faz o mesmo.</td></tr>
+<tr><td>[[t:app.menu.open]]</td><td>Abre um modelo salvo em .json, ou importa um modelo nos formatos .fth ou .aro (abaixo). Arrastar o arquivo para a janela faz o mesmo.</td></tr>
 <tr><td>[[t:app.menu.save]]</td><td>Baixa o modelo como <code>título.pumpit.json</code>, com todos os cenários e o desenho.</td></tr>
 <tr><td>[[t:app.menu.copyJson]] e [[t:app.menu.pasteJson]]</td><td>Copia o modelo como texto, ou abre um modelo colado como texto — útil para mandar por mensagem.</td></tr>
 <tr><td>[[t:app.menu.exportXlsx]]</td><td>Gera a planilha com a tabela de resultados dos tubos.</td></tr>
@@ -771,7 +771,15 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <li>reservatórios com o nível do líquido, a pressão na superfície e, para cada tubo, o K e a profundidade abaixo da superfície, válvulas de saída com a pressão de saída e bocais com o fator K;</li>
 <li>o fluido do arquivo e a pressão ambiente, referência das pressões manométricas.</li>
 </ul>
-<p>Em seguida, um relatório mostra como o primeiro cálculo se compara com os resultados gravados no arquivo, o que precisa de você (deixado em branco e marcado em vermelho na lista de verificação), o que foi assumido, o que ficou de fora (módulos adicionais, troca de calor) e o que foi lido. As perdas detalhadas dos tês vêm do ponto de operação gravado, e algumas leituras do formato ainda a confirmar têm uma nota cada. Use a importação para os seus próprios modelos.</p>`,
+<p>Em seguida, um relatório mostra como o primeiro cálculo se compara com os resultados gravados no arquivo, o que precisa de você (deixado em branco e marcado em vermelho na lista de verificação), o que foi assumido, o que ficou de fora (módulos adicionais, troca de calor) e o que foi lido. As perdas detalhadas dos tês vêm do ponto de operação gravado, e algumas leituras do formato ainda a confirmar têm uma nota cada. Use a importação para os seus próprios modelos.</p>
+<h4>Modelos no formato .aro</h4>
+<p>[[t:app.menu.open]] também lê arquivos <code>.aro</code>, o mesmo tipo de formato de texto para redes de gás. O modelo entra no modo compressível, com o cenário que você escolher, como num arquivo .fth:</p>
+<ul>
+<li>o gás com os dados do arquivo (massa molar, k pelo calor específico, viscosidade na temperatura das fontes e Z pela correlação de Pitzer–Abbott; numa mistura, estimados pelos componentes) e o modelo térmico: isotérmico quando todos os tubos são, adiabático nos demais casos;</li>
+<li>reservatórios, pressões e vazões impostas com a temperatura do gás, válvulas, válvulas de saída, válvulas de controle de vazão e de pressão, e compressores de vazão fixa ou por curva, convertida na altura × vazão de sucção do Pump It;</li>
+<li>vazões em massa, em volume nas condições locais ou nas normais; volumes padrão viram normais pelas condições padrão do arquivo.</li>
+</ul>
+<p>Vem o mesmo relatório, que compara o primeiro cálculo com os resultados gravados e lista o que precisa de você, o que foi assumido e o que ficou de fora (troca de calor, módulos adicionais).</p>`,
           },
           language: {
             title: 'Idioma e números',

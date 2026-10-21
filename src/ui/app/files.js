@@ -1,6 +1,6 @@
 // Models in and out of the editor: normalization of loaded files (missing defaults, ids, migration of removed
 // junction types), loading into the editor, saving as .json, and opening a file — .json, or another format through the
-// importer of its extension (PumpIt.importers: .fth) — from the hidden file input or dropped on the page.
+// importer of its extension (PumpIt.importers: .fth, .aro) — from the hidden file input or dropped on the page.
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, UI = PumpIt.ui;

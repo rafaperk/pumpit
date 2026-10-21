@@ -9,7 +9,7 @@
 - [ ] Upgrade the 3D model.
 - [ ] Import .xlsx files.
 - [x] Import .fth files.
-- [ ] Import .aro files.
+- [x] Import .aro files.
 - [x] Add HDPE piping library.
 - [ ] Add fluids.
 - [ ] Make the interface look cleaner.

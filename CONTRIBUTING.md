@@ -34,6 +34,7 @@ This project is a clean-room implementation. These rules are not optional:
 - Trademarks of the reference software must not appear in the product, the code or the documentation.
 - Reference model files (`.fth`) serve only as an output answer key. Never copy them, or data taken from them, into the repository (`*.fth` is in `.gitignore`). A value inferred from such a comparison must be marked as *inferred* and documented in the README.
 - The `.fth` importer (`src/core/import/fth.js`) follows only the format descriptions written by the specification team: Annex A of the specification and the description of 20 October 2026. Do not study files of other programs to extend it: a gap in those descriptions is left blank or assumed, reported to the user and recorded in `docs/fth-import.md`, until the specification team describes it. Its tests write synthetic files in code.
+- The `.aro` importer (`src/core/import/aro.js`, with the parts it shares with the `.fth` importer in `src/core/import/shared.js`) follows only the format description written by the specification team (version 1.1 of 20 October 2026), under the same rules: no `.aro` file is studied or copied (`*.aro` is in `.gitignore`), a gap is left blank or assumed, reported to the user and recorded in `docs/aro-import.md`, and its tests write synthetic files in code.
 - Engineering data must come from public primary sources (standards, published papers, textbooks), cited in the README.
 
 ## Conventions

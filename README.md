@@ -9,8 +9,8 @@ The product uses no trademarks, names, icons, texts or screens of any commercial
 ## How to use
 
 - **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
-- **Open a model:** *File → Open* reads a model saved as `.json`, or imports a `.fth` model (see [Importing .fth files](#importing-fth-files)). Dropping the file on the window does the same.
-- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help), the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`), the checks of the `.fth` import (`tests/fth-import.test.cjs`) and the checks of the ends of pipes (`tests/pipe-ends.test.cjs`).
+- **Open a model:** *File → Open* reads a model saved as `.json`, or imports a `.fth` model of a liquid or a `.aro` model of a gas (see [Importing .fth files](#importing-fth-files) and [Importing .aro files](#importing-aro-files)). Dropping the file on the window does the same.
+- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help), the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`), the checks of the `.fth` and `.aro` imports (`tests/fth-import.test.cjs`, `tests/aro-import.test.cjs`) and the checks of the ends of pipes (`tests/pipe-ends.test.cjs`).
 - **Help:** the Help menu (or F1) opens the guide to the whole app, the guided tour of the screen and the technical reference of the calculation, for liquids and for gases.
 - **Validation against stored reference results:** `node tests/validate-fth.js "<folder with .fth files>"` (see Verification).
 
@@ -68,6 +68,20 @@ Pump It also calculates networks of a gas (see [docs/gas-decisions.md](docs/gas-
 - **From the stored results:** the report compares the first calculation with them. The detailed losses of tees and wyes, which the program works out by correlations, become K values at the stored operating point.
 - **Report:** what needs input, what was assumed (each reading of the format still to be confirmed has its note), what was left out and what was read.
 - **Left out:** the data of add-on modules (time simulation, goal seek, sizing, slurries), heat transfer, design factors, and the components Pump It does not have (they become plain nodes, or components with K = 0).
+
+## Importing .aro files
+
+*File → Open* also reads `.aro` model files, the same family of text files for networks of a gas. It follows the format description of the specification team (version 1.1 of 20 October 2026; decisions in [docs/aro-import.md](docs/aro-import.md)) and shares with the `.fth` import the reading of sections, records, scenarios and units. The model comes in the compressible mode, with the scenario chosen as for `.fth` files.
+
+- **What comes in:**
+  - pipes with their segments, section (circular or rectangular), friction model (roughness, relative roughness, smooth, fixed f, Weymouth as a fixed f), fittings and closed state, and the thermal model: isothermal when every pipe is, adiabatic otherwise;
+  - reservoirs (vessels of gas at their stagnation pressure and temperature), imposed pressures (static or stagnation) and flows with the temperature of their gas, branches with their source and the K of each connection;
+  - valves by K, open or closed, exit valves with their outlet pressure, and control valves of flow, pressure reducing, pressure sustaining and pressure drop, with their set point, its basis and their fixed states;
+  - compressors with a fixed flow, or with their curve of pressure rise turned into the head against the suction flow of Pump It;
+  - the gas: molar mass, k from the specific heat and viscosity from the polynomials of the file, Z by the Pitzer–Abbott correlation; a mixture estimated from the properties of its components;
+  - flows in mass, in local volume or in normal volume (standard volumes converted through the standard conditions of the file), the ambient pressure, units and drawing.
+- **From the stored results:** the comparison of the report, the basis of a pressure set point, the suction state of a compressor curve and the temperature of a static pressure.
+- **Left out:** heat transfer, the data of add-on modules (time simulation, goal seek), the loss curves of valves and the data of orifices and heat exchangers (K = 0, with a note), design factors, and the components Pump It does not have.
 
 ## Languages
 
@@ -128,7 +142,7 @@ src/core/                  calculation core, no DOM (runs in Node)
   gas/                     compressible mode: reference physics (gas.js), link relations, gas network, Newton, results
   junctions/               junction type registry + one file per type (defaults, checks, equations, results)
   examples/                example builder + one file per example model
-  import/                  import of model files of other formats, one per extension: .fth (its scenarios, the notes of the import, the comparison with stored results)
+  import/                  import of model files of other formats, one per extension: .fth (liquids) and .aro (gases), with what the two share (sections, scenarios, units, the notes of the import, the comparison with stored results)
   view3d/                  geometry of the 3D views: camera, navigation, grids, pipe routes, symbols, plan and elevation, free editing, solids
 src/ui/                    browser interface
   common/                  formatting, DOM helpers, dialogs, the bubble of the notes, downloads, .xlsx writer
@@ -149,12 +163,14 @@ tests/check-i18n.js        every language has every text; every key used in the 
 tests/validate-fth.js      validation against stored reference results (specification section 10)
 tests/view3d.test.cjs      geometry of the 3D views; a drawing never changes a result
 tests/fth-import.test.cjs  import of .fth files, with synthetic files written by the test
+tests/aro-import.test.cjs  import of .aro files, with synthetic files written by the test
 tests/pipe-ends.test.cjs   the ends of pipes: freeing, connecting, loose ends in the checklist and the solvers
 docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
 docs/3D-VIEWS.md           3D views: progress, where each part lives, decisions
 docs/pipe-ends.md          the ends of pipes: disconnecting, reconnecting and loose ends, decisions
 docs/gas-decisions.md      compressible mode: progress, where each part lives, decisions
 docs/fth-import.md         import of .fth files: what is read, assumed and left out (decisions F-xx)
+docs/aro-import.md         import of .aro files: what is read, assumed and left out (decisions A-xx)
 docs/pipe-library.md       pipe catalogues: sources, rules and decisions (P-xx)
 CONTRIBUTING.md            conventions and how to work in parallel
 ```
@@ -176,7 +192,7 @@ Reference: the clean-room specification (`Clean Room.md`), sections 0 to 8.
 | Junctions | Reservoir (each pipe connected at an elevation or at a depth below the liquid surface; its panel draws the tank cut through, with the bottom, the level and each connection), imposed pressure, imposed flow, nozzle/sprinkler, branch, pump, valve (K, Cv, Kv), control valve (PRV, PSV, FCV, PDCV), **exit valve** (elevation and residual outlet pressure, with an optional loss by K, Cv or Kv), orifice, generic component (K or a ΔP × Q curve) |
 | Pumps | H × Q curve by least squares or interpolation; affinity laws; pumps in parallel; variable speed controlling flow or pressure; efficiency, power, NPSH. In **fixed flow (sizing)** mode the pump reports the required head and the panel asks for no curve, efficiency or NPSH |
 | Output | Summary, boundaries, pipes (format above), junctions, pumps, valves and warnings in three levels (plus information); right-click card; values with units and colours on the drawing; pump × system; profile of HGL, EGL and elevation |
-| Files | Save and open `.json`; import `.fth` models (one scenario at a time, with a report); open a file dropped on the window; copy and paste the model; export pipes to `.xlsx`; automatic saving in the browser |
+| Files | Save and open `.json`; import `.fth` and `.aro` models (one scenario at a time, with a report); open a file dropped on the window; copy and paste the model; export pipes to `.xlsx`; automatic saving in the browser |
 | Languages | Portuguese, English and Spanish, switched live; numbers in the format of the language |
 | Properties | Inspector on the right for the selection, collapsed by the arrow on its edge (remembered by the browser); the system properties in a window of their own; the notes of the fields behind an *i* that shows them on hover |
 | Appearance | Light and dark mode, switched by the sun and moon button at the top right and remembered by the browser; without a choice, the mode of the system |
@@ -185,11 +201,11 @@ Removed on request: area change, bend, check valve, dead end and the design fact
 
 ### Not in this version
 
-Time simulation, goal seek and control, automatic sizing and settling slurries, cost calculation, heat transfer and non-Newtonian fluids (specification sections 4, 5 and 9). Also left out: the correlations of the detailed tee/wye, relief valve, three-way valve, the heat transfer of heat exchangers, ejector, weir, volume balance, intermediate elevations, design alerts, NFPA report and the import of other formats.
+Time simulation, goal seek and control, automatic sizing and settling slurries, cost calculation, heat transfer and non-Newtonian fluids (specification sections 4, 5 and 9). Also left out: the correlations of the detailed tee/wye, relief valve, three-way valve, the heat transfer of heat exchangers, ejector, weir, volume balance, intermediate elevations, design alerts, NFPA report and the import of formats other than `.fth` and `.aro`.
 
 ## Clean-room record
 
-**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used. The compressible mode follows its own clean-room specification (public compressible flow physics only; see [docs/gas-decisions.md](docs/gas-decisions.md)). The import of `.fth` files follows only the format descriptions of the specification team (Annex A of the specification and the description of 20 October 2026, written from data files) and this repository: no file of another program was opened during that work, and its tests write synthetic files (see [docs/fth-import.md](docs/fth-import.md), F-01).
+**Sources used in the implementation:** the specification `Clean Room.md` and the public references of its Annex C. No executables, help files, `.dat` databases, screens or texts of the reference software were used. The compressible mode follows its own clean-room specification (public compressible flow physics only; see [docs/gas-decisions.md](docs/gas-decisions.md)). The import of `.fth` files follows only the format descriptions of the specification team (Annex A of the specification and the description of 20 October 2026, written from data files) and this repository: no file of another program was opened during that work, and its tests write synthetic files (see [docs/fth-import.md](docs/fth-import.md), F-01). The import of `.aro` files follows only the format description of the specification team (version 1.1 of 20 October 2026, written from data files) and this repository, in the same way: no `.aro` file was opened, and its tests write synthetic files (see [docs/aro-import.md](docs/aro-import.md), A-01).
 
 **Validation:** the `.fth` model files installed on the user's computer were read only as an output answer key, as section 10 allows (layout of Annex A). None of these files was copied into the project, and the validator only reads them when it runs. Two values were inferred from that comparison of results (marked as *inferred*, following the rule of section 0):
 
@@ -214,6 +230,10 @@ Time simulation, goal seek and control, automatic sizing and settling slurries, 
 | Water viscosity | Vogel equation |
 | Water vapour pressure | IAPWS-IF97, region 4 |
 | Network method | Todini & Pilati (1988); Jeppson (1976) |
+| Gas mixtures of an imported file | Molar masses from the IUPAC standard atomic weights; specific heats of the ideal gas at 300 K: Çengel & Boles, *Thermodynamics: An Engineering Approach*, table A-2(a) (after Kyle), and the NIST Chemistry WebBook (isobutane, pentane, hydrogen sulfide, ammonia); viscosities at 300 K and 100 kPa: Huber & Harvey, "Viscosity of Gases", *CRC Handbook of Chemistry and Physics*, 92nd ed.; viscosity of a mixture: Herning & Zipperer (1936) |
+| Compressibility of an imported gas | Virial correlation of Pitzer and Abbott: Smith, Van Ness & Abbott, *Introduction to Chemical Engineering Thermodynamics* |
+| Weymouth friction of an imported pipe | f = 0.032/d^(1/3), d in inches, from the transmission factor of the Weymouth equation: Menon, *Gas Pipeline Hydraulics* |
+| Bend without a K in an imported file | L/D of 90° pipe bends by r/D and the rule for several bends: Crane, Technical Paper 410 |
 
 **Interface:** our own layout, symbols, texts and colours. The symbols follow the generic process flow diagram convention, drawn here in SVG. The solids of the 3D views are shapes of our own, built from cylinders, cones, boxes and spheres.
 
@@ -255,6 +275,8 @@ Time simulation, goal seek and control, automatic sizing and settling slurries, 
 `node tests/gas.test.cjs` checks the compressible mode: the reference physics of its specification (air properties, the closed isothermal form, the march against it and against Fanno, choking, the incompressible limit, networks in series and branched) and the calculation of models — the compressed air example against an independent calculation, critical flows against the closed form and Fanno, a single adiabatic pipe against exact Fanno, the mixing of temperatures, nozzles, orifices, control valves and the compressor.
 
 `node tests/fth-import.test.cjs` writes synthetic `.fth` files from the format descriptions and imports them. It checks every value read (units, fluid, pipes, each kind of junction, pumps and their configurations, open and closed states), the scenarios rebuilt from their parents, the losses taken from stored results, the depths of reservoir connections and their check against the file, the calculation against the same network built in Pump It (identical to 10⁻⁹), the energy balance of two reservoirs, the comparison with stored results, what is left blank, assumed or left out, the drawing positions, Windows-1252 names, the texts of every note and `tests/validate-fth.js` itself.
+
+`node tests/aro-import.test.cjs` writes synthetic `.aro` files from the format description and imports them. It checks the units and the gas (the polynomials of a library, mixtures, Z), every kind of junction and its special conditions, the scenarios rebuilt from their parents, the calculation against the same network built in Pump It (identical to 10⁻⁹), the comparison with stored results, the basis of a pressure set point and the suction of a compressor read from them, a compressor curve that gives back the rise of the file, a textbook problem of Fanno flow, what is left blank, assumed or left out, and the texts of every note.
 
 `node tests/validate-fth.js` compares with the results stored in the reference verification models. Boundaries: at reservoirs, imposed pressures and discharge valves, the stagnation pressure stored at the pipe end; everything else is calculated. The measure is the worst deviation of the case: flow relative to the largest flow, and stagnation pressure at the pipe ends relative to the largest pressure drop in a pipe. Result, measured on 15 October 2026:
 

@@ -1,6 +1,6 @@
 # Import of .fth files
 
-*File → Open* (or a file dropped on the window) reads a `.fth` model and turns one of its scenarios into a Pump It model. The reader is `src/core/import/fth.js` (`PumpIt.importers.fth`); the choice of the scenario and the report shown after the import are `src/ui/app/import-report.js`; the checks are `tests/fth-import.test.cjs`.
+*File → Open* (or a file dropped on the window) reads a `.fth` model and turns one of its scenarios into a Pump It model. The reader is `src/core/import/fth.js` (`PumpIt.importers.fth`), with the parts it shares with the reader of `.aro` files in `src/core/import/shared.js`; the choice of the scenario and the report shown after the import are `src/ui/app/import-report.js`; the checks are `tests/fth-import.test.cjs`.
 
 ## Clean room
 
@@ -148,7 +148,7 @@ A path that gains pressure gets a negative K, which goes into the fittings of it
 
 **F-31 Report.** After the first calculation, the report compares it with the stored results by the measure of section 10 of the specification: the mass flow of each pipe relative to the largest stored flow, and the stagnation pressure at both ends relative to the largest stored pressure drop in a pipe. Below 0.1 % on both, it says that the results match. The notes follow, by level: what needs the user, what was assumed, what was left out and what was read.
 
-**F-32 Opening.** *File → Open* accepts `.json` and `.fth`; a file dropped anywhere on the window opens the same way. A `.fth` file with several scenarios first shows them to choose from. Undo brings back the model that was open before.
+**F-32 Opening.** *File → Open* accepts `.json`, `.fth` and `.aro` (docs/aro-import.md); a file dropped anywhere on the window opens the same way. A `.fth` file with several scenarios first shows them to choose from. Undo brings back the model that was open before.
 
 ## Known gaps
 

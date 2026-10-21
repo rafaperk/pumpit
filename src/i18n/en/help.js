@@ -756,7 +756,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
             body: `<table>
 <tr><th>Command in [[t:app.menu.file]]</th><th>What it does</th></tr>
 <tr><td>[[t:app.menu.new]]</td><td>Starts an empty model (it can be undone).</td></tr>
-<tr><td>[[t:app.menu.open]]</td><td>Opens a model saved as .json, or imports a model in the .fth format (below). Dragging the file onto the window does the same.</td></tr>
+<tr><td>[[t:app.menu.open]]</td><td>Opens a model saved as .json, or imports a model in the .fth or .aro formats (below). Dragging the file onto the window does the same.</td></tr>
 <tr><td>[[t:app.menu.save]]</td><td>Downloads the model as <code>title.pumpit.json</code>, with all its scenarios and its drawing.</td></tr>
 <tr><td>[[t:app.menu.copyJson]] and [[t:app.menu.pasteJson]]</td><td>Copies the model as text, or opens a model pasted as text — handy for sending it in a message.</td></tr>
 <tr><td>[[t:app.menu.exportXlsx]]</td><td>Creates the spreadsheet with the results table of the pipes.</td></tr>
@@ -771,7 +771,15 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <li>reservoirs with their liquid level, surface pressure and, for each pipe, its K and its depth below the surface, exit valves with their outlet pressure and nozzles with their K factor;</li>
 <li>the fluid of the file and its ambient pressure, the reference of the gauge pressures.</li>
 </ul>
-<p>A report then shows how the first calculation compares with the results stored in the file, what needs your input (left blank and marked in red in the checklist), what was assumed, what was left out (add-on modules, heat transfer) and what was read. Detailed tee losses come from the stored operating point, and some readings of the format still to be confirmed have a note each. Use the import for your own models.</p>`,
+<p>A report then shows how the first calculation compares with the results stored in the file, what needs your input (left blank and marked in red in the checklist), what was assumed, what was left out (add-on modules, heat transfer) and what was read. Detailed tee losses come from the stored operating point, and some readings of the format still to be confirmed have a note each. Use the import for your own models.</p>
+<h4>Models in the .aro format</h4>
+<p>[[t:app.menu.open]] also reads <code>.aro</code> files, the same kind of text format for networks of a gas. The model comes in the compressible mode, with the scenario you choose, as for a .fth file:</p>
+<ul>
+<li>the gas from the data of the file (its molar mass, k from its specific heat, its viscosity at the temperature of the sources and Z by the Pitzer–Abbott correlation; for a mixture, estimated from its components) and the thermal model: isothermal when every pipe is, adiabatic otherwise;</li>
+<li>reservoirs, imposed pressures and flows with the temperature of their gas, valves, exit valves, control valves of flow and of pressure, and compressors with a fixed flow or a curve, turned into the head against the suction flow of Pump It;</li>
+<li>flows in mass, in volume at the local conditions or at normal ones; standard volumes become normal ones through the standard conditions of the file.</li>
+</ul>
+<p>The same report follows, comparing the first calculation with the stored results and listing what needs your input, what was assumed and what was left out (heat transfer, add-on modules).</p>`,
           },
           language: {
             title: 'Language and numbers',

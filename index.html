@@ -34,7 +34,7 @@
         <button class="btn ghost" data-menu="file" id="btn-menu-file" data-i18n="app.menu.file">File</button>
         <div class="menu-pop" id="menu-file" hidden>
           <button data-act="new" data-i18n="app.menu.new">New model</button>
-          <button data-act="open" data-i18n="app.menu.open">Open file (.json, .fth)…</button>
+          <button data-act="open" data-i18n="app.menu.open">Open file (.json, .fth, .aro)…</button>
           <button data-act="save" data-i18n="app.menu.save">Download .json</button>
           <button data-act="copy-json" data-i18n="app.menu.copyJson">Copy model (JSON)</button>
           <button data-act="paste-json" data-i18n="app.menu.pasteJson">Paste model (JSON)…</button>
@@ -281,7 +281,7 @@
     </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <input type="file" id="file-input" accept=".json,.fth,application/json" hidden>
+  <input type="file" id="file-input" accept=".json,.fth,.aro,application/json" hidden>
 </div>
 
 <!-- Languages: the i18n engine and one folder of message catalogs per language (en is the base) -->
@@ -383,7 +383,9 @@
 <script src="src/core/examples/compressed-air.js" charset="utf-8"></script>
 <script src="src/core/examples/air-plant.js" charset="utf-8"></script>
 <!-- Import of model files of other formats -->
+<script src="src/core/import/shared.js" charset="utf-8"></script>
 <script src="src/core/import/fth.js" charset="utf-8"></script>
+<script src="src/core/import/aro.js" charset="utf-8"></script>
 <!-- 3D view: geometry of the drawing and of the view cube (pure functions, no DOM) -->
 <script src="src/core/view3d/camera.js" charset="utf-8"></script>
 <script src="src/core/view3d/navigation.js" charset="utf-8"></script>
