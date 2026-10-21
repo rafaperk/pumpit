@@ -12,12 +12,15 @@
     // 3D views: an open tank with its liquid (D-29)
     solid: { parts: [S.tank(15, -13, 13, 6, { shell: 'steel', inside: 'inside', liquid: 'liquid' })], reach: [S.cyl([0, 0, -13], [0, 0, 13], 15)] },
     get elevationLabel() { return tx('elevation'); },
+    get elevationInfo() { return tx('elevationInfo'); },
     connectionElevation: true,
 
-    // for a gas (compressible mode) the reservoir is a vessel: its pressure applies at the reference elevation
+    // a drawing of the tank first (src/ui/inspector/reservoir-drawing.js); for a gas (compressible mode) the reservoir
+    // is a vessel: its pressure applies at the reference elevation
     form(s, ctx) {
       const { key, f, gas } = ctx;
-      s.appendChild(f.qty(key, 'liquidElev', tx(gas ? 'form.gasElev' : 'form.liquidElev'), 'length'));
+      s.appendChild(PumpIt.ui.reservoirDrawing.build(ctx));
+      s.appendChild(f.qty(key, 'liquidElev', tx(gas ? 'form.gasElev' : 'form.liquidElev'), 'length', { info: gas ? null : tx('form.liquidElevInfo') }));
       s.appendChild(f.qty(key, 'surfP', tx(gas ? 'form.gasP' : 'form.surfP'), 'pressure'));
       f.note(s, tx(gas ? 'form.gasHint' : 'form.hint'));
       JT.shared.sourceTemperature(s, ctx);

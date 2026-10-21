@@ -363,12 +363,13 @@ PumpIt.i18n.add('es', {
             body: `<p>[[icon:reservoir]] Un tanque o lago con superficie libre: el nivel del líquido y la presión sobre él son conocidos. Es la referencia de presión más común.</p>
 <h4>Datos</h4>
 <ul>
-<li>[[t:junctions.reservoir.elevation]]: la cota donde se unen las tuberías, salvo que la tabla de pérdidas por tubería indique otra.</li>
-<li>[[t:junctions.reservoir.form.liquidElev]]: el nivel del líquido, como cota absoluta (no como altura sobre el fondo).</li>
+<li>[[t:junctions.reservoir.elevation]]: la cota del piso del tanque; una tubería sin cota ni profundidad propias en la tabla de pérdidas por tubería se une en ella.</li>
+<li>[[t:junctions.reservoir.form.liquidElev]]: la cota de la superficie del líquido, en la misma referencia que el fondo (no la altura de líquido sobre el fondo).</li>
 <li>[[t:junctions.reservoir.form.surfP]]: 0 kgf/cm²(g) para un tanque abierto; otro valor para un recipiente presurizado.</li>
 <li>[[t:inspector.pipeLosses.title]]: el K de salida del tanque hacia cada tubería (una entrada de borde vivo, por ejemplo, tiene 0,5), el K de llegada de la tubería al tanque (una salida al tanque, 1,0) y dónde se une cada tubería (en blanco, el fondo).</li>
 <li>[[t:inspector.pipeLosses.connBy]]: por cota, la conexión queda donde está; por profundidad bajo la superficie del líquido, acompaña la superficie cuando el nivel cambia (en un escenario, por ejemplo). Pasar de una a otra mantiene cada conexión donde está.</li>
 </ul>
+<p>En lo alto de los datos, un dibujo del tanque en corte muestra estas cotas en una misma escala: el nivel del líquido y el fondo a la izquierda, la presión en la superficie arriba y cada tubería en la pared derecha, donde se une, con su cota, o con su profundidad acotada desde la superficie. El campo en edición, o bajo el puntero, ilumina su parte del dibujo.</p>
 <h4>Cómo se calcula</h4>
 <p>El reservorio es un nudo cuya presión de estancamiento es igual a la presión en la superficie, en la cota del nivel. Sin K indicado, la presión de estancamiento es continua entre el tanque y el extremo de la tubería. Una tubería unida por encima del nivel del líquido descarga en caída libre; si intenta tomar líquido del tanque, aparece un aviso.</p>
 <p>En los resultados, cada reservorio aparece en [[t:results.boundaries.title]], con el caudal que entra en la red o sale de ella por allí.</p>`,

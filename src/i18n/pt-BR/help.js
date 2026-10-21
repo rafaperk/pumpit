@@ -363,12 +363,13 @@ PumpIt.i18n.add('pt-BR', {
             body: `<p>[[icon:reservoir]] Um tanque ou lago com superfície livre: o nível do líquido e a pressão sobre ele são conhecidos. É a referência de pressão mais comum.</p>
 <h4>Dados</h4>
 <ul>
-<li>[[t:junctions.reservoir.elevation]]: a cota onde os tubos se ligam, salvo indicação diferente na tabela de perdas por tubo.</li>
-<li>[[t:junctions.reservoir.form.liquidElev]]: o nível do líquido, como cota absoluta (não como altura acima do fundo).</li>
+<li>[[t:junctions.reservoir.elevation]]: a cota do piso do tanque; um tubo sem cota ou profundidade própria na tabela de perdas por tubo se liga nela.</li>
+<li>[[t:junctions.reservoir.form.liquidElev]]: a cota da superfície do líquido, na mesma referência do fundo (não a altura de líquido acima do fundo).</li>
 <li>[[t:junctions.reservoir.form.surfP]]: 0 kgf/cm²(g) para um tanque aberto; outro valor para um vaso pressurizado.</li>
 <li>[[t:inspector.pipeLosses.title]]: o K de saída do tanque para cada tubo (uma entrada de borda viva, por exemplo, tem 0,5), o K de chegada do tubo ao tanque (uma saída para o tanque, 1,0) e onde cada tubo se liga (em branco, o fundo).</li>
 <li>[[t:inspector.pipeLosses.connBy]]: por cota, a ligação fica onde está; por profundidade abaixo da superfície do líquido, ela acompanha a superfície quando o nível muda (num cenário, por exemplo). Trocar de uma para a outra mantém cada ligação onde está.</li>
 </ul>
+<p>No alto dos dados, um desenho do tanque em corte mostra essas cotas numa mesma escala: o nível do líquido e o fundo à esquerda, a pressão na superfície em cima e cada tubo na parede da direita, onde se liga, com a sua cota, ou com a sua profundidade cotada a partir da superfície. O campo em edição, ou sob o ponteiro, acende a sua parte do desenho.</p>
 <h4>Como é calculado</h4>
 <p>O reservatório é um nó de pressão de estagnação igual à pressão na superfície, na cota do nível. Sem K informado, a pressão de estagnação é contínua entre o tanque e a ponta do tubo. Um tubo ligado acima do nível do líquido descarrega em queda livre; se ele tentar puxar líquido do tanque, aparece um aviso.</p>
 <p>Nos resultados, cada reservatório aparece em [[t:results.boundaries.title]], com a vazão que entra na rede ou sai dela por ali.</p>`,

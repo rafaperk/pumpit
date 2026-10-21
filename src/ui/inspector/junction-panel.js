@@ -29,7 +29,7 @@
     const tf = el('div', { class: 'field' }); tf.innerHTML = `<label for="jtype-${id}">${t('inspector.junction.type')}</label>`;
     const tc = el('div', { class: 'ctl' }); tc.appendChild(ts); tf.appendChild(tc);
     s0.appendChild(tf);
-    s0.appendChild(qty(key, 'elevation', v.elevationLabel || t('inspector.junction.elevation'), 'length'));
+    s0.appendChild(qty(key, 'elevation', v.elevationLabel || t('inspector.junction.elevation'), 'length', { info: v.elevationInfo }));
     host.appendChild(s0);
 
     const s = section(t('inspector.junction.data'));

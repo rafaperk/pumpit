@@ -198,7 +198,7 @@ PumpIt.i18n.add('en', {
       kOutTitle: 'Flow leaving the junction into the pipe',
       kIn: 'K in',
       kInTitle: 'Flow arriving from the pipe into the junction',
-      elevation: 'Connection elev.',
+      elevation: 'Elevation',
       depth: 'Depth',
       kOutAria: 'K out to P{id}',
       kInAria: 'K in from P{id}',

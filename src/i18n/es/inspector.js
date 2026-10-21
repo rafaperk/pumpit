@@ -198,7 +198,7 @@ PumpIt.i18n.add('es', {
       kOutTitle: 'Flujo que sale de la unión hacia la tubería',
       kIn: 'K llegando',
       kInTitle: 'Flujo que llega de la tubería a la unión',
-      elevation: 'Cota conexión',
+      elevation: 'Cota',
       depth: 'Profundidad',
       kOutAria: 'K saliendo hacia P{id}',
       kInAria: 'K llegando de P{id}',

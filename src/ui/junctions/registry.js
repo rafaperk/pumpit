@@ -10,6 +10,7 @@
 //                               (src/core/view3d/solids.js); orient overrides the one above in the 3D views
 //   closed(j)                   the junction stops the flow: its 3D symbol turns red
 //   elevationLabel              label of the elevation field (default: the common elevation label)
+//   elevationInfo               note of the elevation field (an "i" beside its label)
 //   connectionElevation         the per-pipe loss table also edits each pipe's connection elevation
 //   form(sec, ctx)              fills the inspector's data section; ctx = { key, j, f, gas } (f = field builders,
 //                               gas = the model is in the compressible regime)

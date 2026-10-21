@@ -363,12 +363,13 @@ PumpIt.i18n.add('en', {
             body: `<p>[[icon:reservoir]] A tank or lake with a free surface: the liquid level and the pressure on it are known. It is the most common pressure reference.</p>
 <h4>Data</h4>
 <ul>
-<li>[[t:junctions.reservoir.elevation]]: the elevation where the pipes connect, unless the per-pipe loss table says otherwise.</li>
-<li>[[t:junctions.reservoir.form.liquidElev]]: the liquid level, as an absolute elevation (not as a height above the bottom).</li>
+<li>[[t:junctions.reservoir.elevation]]: the elevation of the floor of the tank; a pipe without its own elevation or depth in the per-pipe loss table connects there.</li>
+<li>[[t:junctions.reservoir.form.liquidElev]]: the elevation of the liquid surface, on the same datum as the bottom (not the height of liquid above the bottom).</li>
 <li>[[t:junctions.reservoir.form.surfP]]: 0 kgf/cm²(g) for an open tank; another value for a pressurised vessel.</li>
 <li>[[t:inspector.pipeLosses.title]]: the K leaving the tank into each pipe (a sharp-edged entrance, for instance, has 0.5), the K arriving from the pipe into the tank (an exit into the tank, 1.0) and where each pipe connects (blank means the bottom).</li>
 <li>[[t:inspector.pipeLosses.connBy]]: as an elevation, a connection stays where it is; as a depth below the liquid surface, it follows the surface when the level changes (in a scenario, for instance). Switching from one to the other keeps every connection where it is.</li>
 </ul>
+<p>At the top of the data, a drawing of the tank cut through shows these elevations on one scale: the liquid level and the bottom on the left, the surface pressure above, and each pipe on the right wall where it connects, with its elevation, or with its depth as a dimension from the surface. The field being edited, or under the pointer, lights its part of the drawing.</p>
 <h4>How it is calculated</h4>
 <p>The reservoir is a node whose stagnation pressure equals the surface pressure, at the elevation of the level. Without any K, the stagnation pressure is continuous between the tank and the end of the pipe. A pipe connected above the liquid level discharges in free fall; if it tries to draw liquid from the tank, a warning appears.</p>
 <p>In the results, each reservoir appears under [[t:results.boundaries.title]], with the flow that enters or leaves the network through it.</p>`,

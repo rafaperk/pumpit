@@ -83,9 +83,11 @@
         const v = cur[field];
         const i = el('input', { type: 'text', inputmode: 'decimal', id: `pk-${j.id}-${p.id}-${field}`, 'aria-label': tx(depth ? 'depthAria' : 'elevationAria', { id: p.id }), placeholder: tx('bottom') });
         i.value = fin(v) ? F.inputStr(v.unit === u ? v.value : inUnit(toM(v), u)) : '';
-        // the other reference in the tooltip: the elevation of a depth, the depth of an elevation
+        // the other reference in the tooltip: the elevation of a depth, the depth of an elevation (six digits, as the
+        // drawing of the reservoir shows it)
         const z = zOf(cur);
-        if (Number.isFinite(z) && Number.isFinite(zL)) i.title = depth ? tx('atElevation', { z: `${F.inputStr(inUnit(z, u))} ${F.unit(u)}` }) : tx('atDepth', { d: `${F.inputStr(inUnit(zL - z, u))} ${F.unit(u)}` });
+        const shown = (m) => `${F.inputStr(+U.fromSI(m, u, 'length').toPrecision(6))} ${F.unit(u)}`;
+        if (Number.isFinite(z) && Number.isFinite(zL)) i.title = depth ? tx('atElevation', { z: shown(z) }) : tx('atDepth', { d: shown(zL - z) });
         i.addEventListener('change', () => { const n = F.parseNum(i.value); write({ [field]: Number.isFinite(n) ? { value: n, unit: u } : null }); });
         const td = el('td'); td.appendChild(i); return td;
       },
