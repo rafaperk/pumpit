@@ -56,7 +56,7 @@ The mass flow of a normal volume is ρ_N·V_N with the molar mass of the gas (G-
 - the counted coefficients of a valve, orifice and heat exchanger have their count at t+8;
 - each configuration of a compressor has three counted lists.
 
-**A-28 A base scenario without a network.** As for `.fth` files (F-33): a file whose base scenario is empty, with the network only in the scenarios derived from it, is read. The scenarios without a network are shown in the choice but cannot be chosen, the import of the others carries a note, and a file in which no scenario has a network is refused with a message. The description has the base scenario hold the whole network; such files have turned up, and the shared reader takes them.
+**A-28 A base scenario without a network.** As for `.fth` files (F-33): a file whose base scenario is empty, with the network only in the scenarios derived from it, is read. The scenarios without a network are shown in the choice but cannot be chosen, the import of the others carries a note, and a file in which no scenario has a network is refused with a message that names its scenarios. The description has the base scenario hold the whole network; a file refused because its base scenario had no network suggested such files, and the shared reader takes them, though none has been confirmed yet. A model of the program by its first line (A-02) with no section of pipes or junctions at all is a model without a network, refused with that message; without that line, it is not a model. The file that led to this decision was refused again with no section of pipes or junctions in any scenario: most likely a model without a network, like the one empty file of the survey of the description (§15.3).
 
 ## Pipes
 

@@ -180,7 +180,7 @@ PumpIt.i18n.add('pt-BR', {
     // importação de arquivos de modelo .fth (src/core/import/fth.js)
     import: {
       noScenario: 'O cenário {scenario} não está no arquivo.',
-      noNetwork: 'O arquivo não tem rede: nenhum dos seus cenários tem tubos ou junções.',
+      noNetwork: 'O arquivo não tem rede: nenhum dos seus cenários tem tubos ou junções. Cenários do arquivo: {list}.',
       emptyScenario: 'O cenário “{scenario}” não tem rede (nenhum tubo ou junção). Cenários do arquivo com rede: {list}.',
       created: { suction: '{name} (sucção)', discharge: '{name} (recalque)', pipe: 'Ligação de {name}' },
       kinds: {
@@ -298,13 +298,13 @@ PumpIt.i18n.add('pt-BR', {
       },
     },
     fth: {
-      notFth: 'O arquivo não é um modelo .fth: não tem seções de tubos nem de junções.',
+      notFth: 'O arquivo não é um modelo .fth: a primeira linha não é a de um modelo, e não há seções de tubos nem de junções.',
       otherProgram: 'O arquivo é um modelo de outro programa da mesma família, como mostra a primeira linha, e não um modelo de líquido em regime permanente; o Pump It não o importa.',
       fluidName: 'Fluido do arquivo importado',
       teeLoss: 'Tê {id}, no ponto de operação gravado',
     },
     aro: {
-      notAro: 'O arquivo não é um modelo .aro: não tem seções de tubos nem de junções.',
+      notAro: 'O arquivo não é um modelo .aro: a primeira linha não é a de um modelo, e não há seções de tubos nem de junções.',
       otherProgram: 'O arquivo é um modelo de outro programa da mesma família, como mostra a primeira linha, e não um modelo de gás em regime permanente; o Pump It não o importa.',
       liquidModel: 'O arquivo é um modelo de líquido no formato .fth, como mostra a primeira linha; dê a ele a extensão .fth para importá-lo.',
       gasName: 'Gás do arquivo importado',

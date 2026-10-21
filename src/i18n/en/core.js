@@ -181,7 +181,7 @@ PumpIt.i18n.add('en', {
     // import of model files of other formats (src/core/import/): what both importers say
     import: {
       noScenario: 'Scenario {scenario} is not in the file.',
-      noNetwork: 'The file has no network: none of its scenarios has pipes or junctions.',
+      noNetwork: 'The file has no network: none of its scenarios has pipes or junctions. Scenarios of the file: {list}.',
       emptyScenario: 'Scenario “{scenario}” has no network (no pipes or junctions). Scenarios of the file with a network: {list}.',
       created: { suction: '{name} (suction)', discharge: '{name} (discharge)', pipe: 'Connection of {name}' },
       kinds: {
@@ -300,14 +300,14 @@ PumpIt.i18n.add('en', {
     },
     // import of .fth model files (src/core/import/fth.js)
     fth: {
-      notFth: 'The file is not a .fth model: it has no sections of pipes or of junctions.',
+      notFth: 'The file is not a .fth model: its first line is not that of a model, and it has no sections of pipes or of junctions.',
       otherProgram: 'The file is a model of another program of the same family, as its first line shows, not a steady-state liquid model; Pump It does not import it.',
       fluidName: 'Fluid of the imported file',
       teeLoss: 'Tee {id}, at the stored operating point',
     },
     // import of .aro model files (src/core/import/aro.js)
     aro: {
-      notAro: 'The file is not a .aro model: it has no sections of pipes or of junctions.',
+      notAro: 'The file is not a .aro model: its first line is not that of a model, and it has no sections of pipes or of junctions.',
       otherProgram: 'The file is a model of another program of the same family, as its first line shows, not a steady-state gas model; Pump It does not import it.',
       liquidModel: 'The file is a liquid model of the .fth format, as its first line shows; give it the .fth extension to import it.',
       gasName: 'Gas of the imported file',

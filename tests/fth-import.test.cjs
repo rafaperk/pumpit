@@ -409,7 +409,20 @@ console.log('\nScenarios');
   ok('the empty base scenario is refused, with the scenarios that have a network', thrown === PumpIt.i18n.t('core.import.emptyScenario', { scenario: 'Base Scenario', list: '“Base Scenario/Line”, “Base Scenario/Line/Higher”' }), thrown);
   thrown = '';
   try { read(fth({ secs: [[BASE('JUNCTIONS'), ['NumberOfJunctions= 0']], [BASE('PIPES'), ['NumberOfPipes= 0']]] })); } catch (e) { thrown = e.message; }
-  ok('a file in which no scenario has a network is refused', thrown === PumpIt.i18n.t('core.import.noNetwork'), thrown);
+  ok('a file in which no scenario has a network is refused, with its scenarios', thrown === PumpIt.i18n.t('core.import.noNetwork', { list: '“Base Scenario”' }), thrown);
+  // a model of the program by its first line, with no section of pipes or junctions in any scenario, is a model
+  // without a network; without that line, the same file is not a model
+  const X = PumpIt.importShared, saved = Object.assign({}, X.PROGRAMS);
+  const two = [['Base Scenario', ''], ['Line', 'Base Scenario']];
+  thrown = '';
+  try {
+    X.PROGRAMS.liquid = X.wordHash('SOMELIQUID');
+    read(fth({ header: 'ABC SOMELIQUID VERSION 11 INPUT FILE', scen: two, secs: [] }));
+  } catch (e) { thrown = e.message; } finally { Object.assign(X.PROGRAMS, saved); }
+  ok('a model without sections of pipes or junctions has no network, and the message names its scenarios', thrown === PumpIt.i18n.t('core.import.noNetwork', { list: '“Base Scenario”, “Base Scenario/Line”' }), thrown);
+  thrown = '';
+  try { read(fth({ scen: two, secs: [] })); } catch (e) { thrown = e.message; }
+  ok('without the first line of a model, the same file is not a model', thrown === PumpIt.i18n.t('core.fth.notFth'), thrown);
 }
 
 console.log('\nStored results and the losses taken from them');

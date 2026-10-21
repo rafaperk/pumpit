@@ -186,7 +186,7 @@
     const hd = header(text);
     if (hd && hd.program !== PROGRAMS.gas) throw new Error(t(hd.program === PROGRAMS.liquid ? 'core.aro.liquidModel' : 'core.aro.otherProgram'));
     const S = readSections(text);
-    if (!hasNetwork(S)) throw new Error(t('core.aro.notAro'));
+    if (!hd && !hasNetwork(S)) throw new Error(t('core.aro.notAro'));
     const list = listScenarios(S);
     const target = targetScenario(list, scenario);
     const chain = chainOf(list, target.n);

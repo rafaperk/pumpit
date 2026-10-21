@@ -55,7 +55,7 @@ Pump It also calculates networks of a gas (see [docs/gas-decisions.md](docs/gas-
 
 ## Importing .fth files
 
-*File → Open* also reads `.fth` model files, a text format of pipe network models. It follows the format descriptions of the specification team (Annex A of the specification and the description of 20 October 2026; decisions in [docs/fth-import.md](docs/fth-import.md)). A file with several scenarios first shows them to choose one; a child scenario is rebuilt from the base one. The base scenario may be empty, with the network only in its children: the scenarios without a network are shown but cannot be chosen.
+*File → Open* also reads `.fth` model files, a text format of pipe network models. It follows the format descriptions of the specification team (Annex A of the specification and the description of 20 October 2026; decisions in [docs/fth-import.md](docs/fth-import.md)). A file with several scenarios first shows them to choose one; a child scenario is rebuilt from the base one. The base scenario may be empty, with the network only in its children: the scenarios without a network are shown but cannot be chosen. A file in which no scenario has pipes or junctions is refused, and the message lists its scenarios.
 
 - **What comes in:**
   - pipes with their segments, section, friction model, fittings and closed state;

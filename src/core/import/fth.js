@@ -70,7 +70,7 @@
     const hd = header(text);
     if (hd && hd.program !== PROGRAMS.liquid) throw new Error(t('core.fth.otherProgram'));
     const S = readSections(text);
-    if (!hasNetwork(S)) throw new Error(t('core.fth.notFth'));
+    if (!hd && !hasNetwork(S)) throw new Error(t('core.fth.notFth'));
     const list = listScenarios(S);
     const target = targetScenario(list, scenario);
     const chain = chainOf(list, target.n);

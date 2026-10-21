@@ -261,7 +261,27 @@ console.log('\nScenarios');
   ok('the same when the sections of the base scenario are there but empty', ARO.scenarios(fz).map((s) => s.network).join() === 'false,true' && rz.counts.scenario === 'Winter' && hasNote(rz, 'emptyBase'));
   thrown = '';
   try { read(aro({ scen: scenE.slice(0, 2), secs: [[BASE('JUNCTIONS'), ['NumberOfJunctions= 0']], [BASE('PIPES'), ['NumberOfPipes= 0']]] })); } catch (e) { thrown = e.message; }
-  ok('a file in which no scenario has a network is refused', thrown === PumpIt.i18n.t('core.import.noNetwork'), thrown);
+  const both = '“Base Scenario”, “Base Scenario/Winter”';
+  ok('a file in which no scenario has a network is refused, with its scenarios', thrown === PumpIt.i18n.t('core.import.noNetwork', { list: both }), thrown);
+  // a model of the program by its first line, with no section of pipes or junctions in any scenario, is a model
+  // without a network; without that line, the same file is not a model
+  const saved = Object.assign({}, X.PROGRAMS);
+  const many = Array.from({ length: 12 }, (_, i) => (i ? ['S' + i, 'Base Scenario'] : ['Base Scenario', '']));
+  let thrownMany = '';
+  thrown = '';
+  try {
+    X.PROGRAMS.gas = X.wordHash('SOMEGAS');
+    try { read(aro({ header: 'ABC SOMEGAS VERSION 10 INPUT FILE', scen: scenE.slice(0, 2), secs: [] })); } catch (e) { thrown = e.message; }
+    try { read(aro({ header: 'ABC SOMEGAS VERSION 10 INPUT FILE', scen: many, secs: [] })); } catch (e) { thrownMany = e.message; }
+  } finally { Object.assign(X.PROGRAMS, saved); }
+  ok('a model without sections of pipes or junctions has no network, and the message names its scenarios', thrown === PumpIt.i18n.t('core.import.noNetwork', { list: both }), thrown);
+  ok('only the first ten of them', thrownMany === PumpIt.i18n.t('core.import.noNetwork', { list: ['Base Scenario', ...many.slice(1, 10).map(([n]) => 'Base Scenario/' + n)].map((p) => `“${p}”`).join(', ') + ', …' }), thrownMany);
+  thrown = '';
+  try { read(aro({ scen: scenE.slice(0, 2), secs: [] })); } catch (e) { thrown = e.message; }
+  ok('without the first line of a model, the same file is not a model', thrown === PumpIt.i18n.t('core.aro.notAro'), thrown);
+  // sections named by the prefix alone ("NAME -- SCENARIO #n --"), as F-04 finds them, hold the network
+  const fx = aro({ secs: [['JUNCTIONS -- SCENARIO #1 -- ', net[0][1]], ['PIPES -- SCENARIO #1 -- ', net[1][1]]] });
+  ok('sections named by the prefix alone hold the network', ARO.scenarios(fx)[0].network === true && read(fx).model.pipes.length === 1);
   const fd = aro({
     scen: [['Base Scenario', ''], ['Gone', 'Base Scenario']],
     secs: [[BASE('JUNCTIONS'), [junc({ type: 2, id: 1, pipes: [-1], t: tank({ P: 1 }) }), junc({ type: 4, id: 2, pipes: [1], t: press({ P: 0 }) })]], [BASE('PIPES'), [pipe({ id: 1, from: 1, to: 2, L: 10, D: 5 })]],

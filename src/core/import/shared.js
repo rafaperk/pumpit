@@ -173,8 +173,9 @@
   // ---------- scenarios: the base scenario is complete, and each child keeps only what differs from its parent (F-08).
   // The base scenario may also have no network, the network being in its children (F-33, A-28)
 
-  // a file of the family holds a model when it has a section of pipes or of junctions, of any scenario
-  const hasNetwork = (S) => Object.keys(S).some((x) => /^(PIPES|JUNCTIONS)( -- SCENARIO #\d+( -- .*)?)?$/i.test(x));
+  // a file of the family holds a network when it has a section of pipes or of junctions, of any scenario, named as
+  // scenarioKey finds them; one whose first line is that of a model may have none, and is refused by targetScenario
+  const hasNetwork = (S) => Object.keys(S).some((x) => /^(PIPES|JUNCTIONS)( -- SCENARIO #\d+( --.*)?)?$/i.test(x));
   // deletions in a child: "DELETED,id,name" for a pipe, "DELETED,type,id,name" for a junction
   const DELETED_PIPE = /^\s*DELETED\s*,\s*([^,]+)/i, DELETED_JUNCTION = /^\s*DELETED\s*,[^,]*,\s*([^,]+)/i;
   // the IDs that the section of pipes or junctions of scenario k deletes and those of its records, read without
@@ -222,17 +223,19 @@
   // the scenarios of a file, for the choice before the import: [{ n, name, parent, path, description, results,
   // network }]
   const scenarios = (text) => listScenarios(readSections(text));
+  // scenarios named in a message: their paths, the first ten
+  const quoted = (list) => list.slice(0, 10).map((s) => `“${s.path || '#' + s.n}”`).join(', ') + (list.length > 10 ? ', …' : '');
   // the scenario to import: the one asked for (its number, name or path) or else the base scenario, or the first one
   // with a network when the base scenario has none. A file without a network, a scenario that is not in the file and a
   // scenario without a network are refused
   function targetScenario(list, scenario) {
-    if (!list.some((s) => s.network)) throw new Error(t('core.import.noNetwork'));
+    if (!list.some((s) => s.network)) throw new Error(t('core.import.noNetwork', { list: quoted(list) }));
     const given = scenario !== undefined && scenario !== null && scenario !== '';
     const target = !given ? list.find((s) => s.n === 1 && s.network) || list.find((s) => s.network)
       : typeof scenario === 'number' ? list.find((s) => s.n === scenario) : list.find((s) => s.path === scenario || s.name === scenario);
     if (!target) throw new Error(t('core.import.noScenario', { scenario: String(scenario) }));
     if (!target.network) {
-      throw new Error(t('core.import.emptyScenario', { scenario: target.path || '#' + target.n, list: list.filter((s) => s.network).map((s) => `“${s.path || '#' + s.n}”`).join(', ') }));
+      throw new Error(t('core.import.emptyScenario', { scenario: target.path || '#' + target.n, list: quoted(list.filter((s) => s.network)) }));
     }
     return target;
   }
