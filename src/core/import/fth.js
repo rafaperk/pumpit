@@ -628,7 +628,9 @@
       const ids = (xs) => [...new Set(xs)].sort((x, y) => x - y).join(',');
       if (ids(listed.filter((pid) => pipes.has(pid))) !== ids(conn.map((p) => p.id))) note('ignored', 'pipeList', obj);
       raw.set(id, [num(f[b]), num(f[b + 1])]);
-      const elevation = len(num(f[b + 7]), f[b + 9], obj);
+      // the elevation of the junction; that of a reservoir only stands in for a level or a bottom its fields do not give,
+      // so its note waits until then (F-17)
+      const elevation = len(num(f[b + 7]), f[b + 9], type === 2 ? null : obj);
       const zJ = si(elevation, 'length');
       // special condition: −1 does not apply, 0 none, 1 closed, 2 open without control (a control valve)
       const special = num(f[b + 24]), closed = special === 1;
@@ -674,7 +676,7 @@
           const o = 5 * Math.max(0, np - 1);
           const surfP = pressure(num(at(7 + o)), at(8 + o), obj);
           let level = len(num(at(21 + o)), at(22 + o), null);
-          if (level.value === null) { level = Object.assign({}, elevation); note('assumed', 'reservoirLevel', obj); }
+          if (level.value === null && elevation.value !== null) { level = Object.assign({}, elevation); note('assumed', 'reservoirLevel', obj); }
           const pk = {};
           const zLevel = si(level, 'length'), byDepth = Number.isFinite(zLevel);
           let bottom = null;
@@ -699,6 +701,11 @@
             Object.assign(props, { connBy: 'depth', elevation: Object.assign({}, si(bottom, 'length') > zLevel ? level : bottom) });
             note('info', 'connDepth', obj);
           }
+          // what still comes in blank needs the user: the level, and the elevation of the junction when no pipe gives the
+          // bottom. The note of its unit, or of a value not given
+          const needed = (v, unit) => (LENGTH[key(unit)] ? note('missing', 'notGiven', obj) : len(v, unit, obj));
+          if (level.value === null) needed(num(at(21 + o)), at(22 + o));
+          if (!bottom && elevation.value === null) needed(num(f[b + 7]), f[b + 9]);
           j = make('reservoir', props);
           break;
         }

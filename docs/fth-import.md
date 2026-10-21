@@ -79,7 +79,7 @@ The scenario becomes the base scenario of a Pump It model, named after it, and t
 - The bottom of the reservoir, the junction elevation of Pump It, is its lowest connection, never above the surface. The elevation of the junction in the file (b+7) usually is that of the surface, and it would read as a bottom at the surface.
 - A pipe above the surface has a negative depth and discharges at the surface pressure, which Pump It already does.
 
-So a reservoir with pipes at several depths or with several losses stays one reservoir. A surface that cannot be read takes the elevation of the junction, with a note; if neither can be read, the pipes connect by the elevations of their ends.
+So a reservoir with pipes at several depths or with several losses stays one reservoir. A surface that cannot be read takes the elevation of the junction, with a note; if neither can be read, the pipes connect by the elevations of their ends. The elevation of the junction only stands in for the surface and the bottom: when it is undefined or in an unknown unit, the report asks for it only if the reservoir is left without one of them.
 
 **F-18 Imposed flow (3) and imposed pressure (4).**
 

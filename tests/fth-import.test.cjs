@@ -231,6 +231,16 @@ console.log('\nReservoirs, imposed pressures and flows, branches');
   const nd = rd.notes.find((n) => n.key === 'depthDiffers');
   ok('a depth of the file that the end of the pipe contradicts: the end of the pipe, with a note', J(rd.model, 1).pipeK[1].depth.value === 2 && nd && nd.objs.join() === 'P1'
     && near(nd.params.file, 2.5, 1e-12) && near(nd.params.ends, 2, 1e-12) && nd.level === 'assumed', JSON.stringify(nd));
+  // the elevation of the reservoir junction left undefined by the file
+  const undef = (t1) => read(fth({ secs: [[BASE('JUNCTIONS'), [junc({ type: 2, id: 1, pipes: [-1], zu: 'None', t: t1 }), junc({ type: 2, id: 2, pipes: [1], t: tank({ level: 0 }) })]],
+    [BASE('PIPES'), [pipe({ id: 1, from: 1, to: 2, L: 100, D: 10, z1: 10 })]]] }));
+  const keys = (r) => r.notes.map((n) => n.key + ':' + n.objs).join(' ');
+  const ru = undef(tank({ conns: [[0, 0, 2]], level: 12 }));
+  ok('a reservoir without its own elevation: the level and the pipe give all it needs, and nothing asks to fill it in', J(ru.model, 1).elevation.value === 10
+    && J(ru.model, 1).liquidElev.value === 12 && J(ru.model, 1).pipeK[1].depth.value === 2 && !hasNote(ru, 'notGiven') && !hasNote(ru, 'unit') && !hasNote(ru, 'reservoirLevel'), keys(ru));
+  const rn = undef(tank({ conns: [[0, 0, 2]], level: 'x', lu: 'None' }));
+  ok('without a level either: the level and the bottom blank for the user, with one note', J(rn.model, 1).liquidElev.value === null && J(rn.model, 1).elevation.value === null
+    && J(rn.model, 1).pipeK[1].elev.value === 10 && hasNote(rn, 'notGiven', 'J1') && !hasNote(rn, 'reservoirLevel'), keys(rn));
 }
 
 console.log('\nValves, fittings and nozzles');
