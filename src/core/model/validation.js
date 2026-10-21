@@ -26,7 +26,7 @@
     const miss = unitMiss(p);
     const need = (k) => miss.push(t('core.checklist.pipe.' + k));
     if (!m.junctions.some((j) => j.id === p.up) || !m.junctions.some((j) => j.id === p.down)) need('connect');
-    if (p.up === p.down) need('sameEnds');
+    if (p.up !== null && p.up !== undefined && p.up === p.down) need('sameEnds');
     if (!pos(p.length)) need('length');
     const g = p.geometry;
     if (g.kind === 'circular' && !pos(g.d)) need('diameter');
@@ -58,12 +58,25 @@
       const pr = M.ports(m, j);
       if (def.directional && pr && !pr.consistent) miss.push(t('core.checklist.junction.direction'));
     }
-    if (def.validate) def.validate(j, miss, { fin, pos, curveOk, pipeCount: n, gas: M.isCompressible(m) });
+    if (def.validate) def.validate(j, miss, { fin, pos, curveOk, pipeCount: n, gas: M.isCompressible(m), gasP: gasPressure(m, miss) });
     return miss;
   }
 
+  // compressible mode (R-13): a pressure is gauge or absolute by its unit, and the gas is calculated in absolute pressure,
+  // so a pressure the calculation takes must be above vacuum once a gauge value is added to the atmospheric pressure of
+  // the system. gasP(x, key) checks one such field of a junction; key names the field in the catalogs. A liquid is not
+  // checked, nor a field another item already reports (empty, a unit that is not a pressure, no valid atmospheric pressure).
+  function gasPressure(m, miss) {
+    const U = PumpIt.units, pa = m.system.patm;
+    const patm = M.isCompressible(m) && fin(pa) && U.has('pressure', pa.unit) ? U.toSI(pa.value, pa.unit, 'pressure') : NaN;
+    return (x, key) => {
+      if (!(patm > 0) || !fin(x) || !U.has('pressure', x.unit)) return;
+      if (!(U.toSI(x.value, x.unit, 'pressure', { patm }) > 0)) miss.push(t('core.checklist.junction.vacuum', { what: t(key) }));
+    };
+  }
+
   // the gas of the compressible mode (§8.5): temperature above absolute zero and Z > 0; a custom gas also MW > 0,
-  // k > 1 and μ > 0. The design limits of the warnings too.
+  // k > 1 and μ > 0. The atmospheric pressure above zero (R-13) and the design limits of the warnings too.
   function checkGas(sys) {
     const g = sys.fluidGas || {};
     const miss = [];
@@ -75,6 +88,8 @@
       if (!(g.k > 1)) miss.push(t('core.checklist.gas.kRatio'));
       if (!pos(g.mu)) miss.push(t('core.checklist.gas.viscosity'));
     }
+    const pa = sys.patm;
+    if (!(fin(pa) && PumpIt.units.has('pressure', pa.unit) && PumpIt.units.toSI(pa.value, pa.unit, 'pressure') > 0)) miss.push(t('core.checklist.gas.patm'));
     if (!(sys.machLimit > 0)) miss.push(t('core.checklist.gas.machLimit'));
     if (!pos(sys.gasVelLimit)) miss.push(t('core.checklist.gas.velocityLimit'));
     return miss;

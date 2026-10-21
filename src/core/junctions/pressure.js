@@ -10,8 +10,9 @@
 
     defaults: () => ({ P: q(2, 'kgf/cm²(g)'), ptype: 'stagnation', pipeK: {} }),
 
-    validate(j, miss, { fin, pipeCount }) {
+    validate(j, miss, { fin, pipeCount, gasP }) {
       if (!fin(j.P)) miss.push(t('junctions.pressure.check.P'));
+      gasP(j.P, 'junctions.pressure.check.P');
       if (j.ptype === 'static' && pipeCount !== 1) miss.push(t('junctions.pressure.check.staticOnePipe'));
     },
 

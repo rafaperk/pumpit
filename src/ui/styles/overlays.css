@@ -26,6 +26,12 @@
 .import-report h4.level-missing { color: var(--crit); }
 .import-report ul { margin: 0; padding-left: 20px; }
 .import-report li { margin: 3px 0; color: var(--ink-2); }
+.import-scenarios label { display: flex; gap: 10px; align-items: flex-start; padding: 7px 6px; border-radius: 8px; cursor: pointer; }
+.import-scenarios label:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.import-scenarios input { margin-top: 3px; }
+.import-scenarios b { font-weight: 600; color: var(--ink); }
+.import-scenarios .tag { margin-left: 8px; padding: 1px 7px; border-radius: 999px; font-size: 11.5px; color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.import-scenarios small { display: block; margin-top: 2px; color: var(--ink-2); white-space: pre-line; }
 /* keyboard shortcuts box (Edit menu) */
 .shortcuts { max-height: min(62vh, 560px); overflow: auto; font-size: 12.5px; }
 .shortcuts h4 { margin: 14px 0 4px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }

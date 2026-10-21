@@ -14,7 +14,9 @@
 //   directional                 two-port only: one pipe must arrive and the other leave
 //   ref                         the junction can act as a pressure reference
 //   defaults()                  → type-specific fields of a new junction
-//   validate(j, miss, v)        pushes missing-input texts (from the catalogs); v = { fin, pos, curveOk, pipeCount }
+//   validate(j, miss, v)        pushes missing-input texts (from the catalogs); v = { fin, pos, curveOk, pipeCount, gas,
+//                               gasP }: gas, the model is compressible; gasP(x, key), a pressure the gas takes must be
+//                               above vacuum (key: the catalog name of the field)
 //   pipeEndElevation(j, pk, si) optional; elevation (m) where a pipe connects (undefined = junction elevation)
 //   buildNode(j, net, z)        multi: creates the node (and any discharge link) through the network builder
 //   buildElement(j, lk, net)    two-port: fills the element link (loss function, modes, device behaviour)

@@ -104,7 +104,7 @@
       ratio: 2, etaGas: 75, // compressible mode: pressure ratio and polytropic efficiency (%) of a compressor
     }),
 
-    validate(j, miss, { fin, pos, curveOk, gas }) {
+    validate(j, miss, { fin, pos, curveOk, gas, gasP }) {
       if (j.state !== 'on') return;
       const need = (k) => miss.push(t('junctions.pump.check.' + k));
       // a fixed pressure ratio is a compressor of the compressible mode
@@ -114,6 +114,7 @@
       if (j.mode === 'fixedFlow' && !(fin(j.fixedFlow) && j.fixedFlow.value >= 0)) need('fixedFlow');
       if (j.mode === 'controlFlow' && !pos(j.setQ)) need('setQ');
       if ((j.mode === 'controlDischarge' || j.mode === 'controlSuction') && !fin(j.setP)) need('setP');
+      if (j.mode === 'controlDischarge' || j.mode === 'controlSuction') gasP(j.setP, 'junctions.pump.check.setP');
       if (j.mode !== 'fixedFlow' && !(j.speed > 0)) need('speed');
       if (j.mode !== 'fixedFlow' && !(Number.isInteger(j.nPumps) && j.nPumps >= 1)) need('nPumps');
     },

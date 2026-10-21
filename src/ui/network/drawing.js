@@ -1,26 +1,48 @@
-// SVG markup of the network: grid, pipes (with flow arrows and result labels), junction symbols, the pipe
-// being drawn and the selection box. Junction symbols and their orientation come from the junction views.
+// SVG markup of the network: grid, pipes (with flow arrows and result labels, and a ring at a loose end), junction
+// symbols, the handles at the ends of the selected pipe, the pipe being drawn and the selection box. Junction symbols
+// and their orientation come from the junction views.
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui, app = PumpIt.app;
   const F = UI.format, CS = UI.colorScales;
   const views = UI.junctionTypes;
+  const { t } = PumpIt.i18n;
 
-  const R = 16; // touch radius of the junctions
+  const R = 16;        // touch radius of the junctions
+  const LOOSE_R = 5;   // the ring of a loose end (docs/pipe-ends.md)
+  const HANDLE_R = 5;  // the handles at the ends of the selected pipe
+
+  // Where an end of the pipe p is drawn: { x, y, r (the gap the line leaves there), loose }, its junction or its
+  // loose spot; null when neither is known. While that end is dragged (drag.kind 'end'), the junction it would
+  // connect to, or the point where it would stay loose.
+  function endOf(p, end, jById, drag) {
+    if (drag && drag.kind === 'end' && drag.moved && drag.pid === p.id && drag.end === end) {
+      const tj = drag.target !== null && jById.get(drag.target);
+      return tj ? { x: tj.x, y: tj.y, r: R, loose: false } : { x: drag.at.x, y: drag.at.y, r: LOOSE_R, loose: true };
+    }
+    if (p[end] !== null && p[end] !== undefined) {
+      const j = jById.get(p[end]);
+      return j ? { x: j.x, y: j.y, r: R, loose: false } : null;
+    }
+    const s = p.loose && p.loose[end];
+    return s ? { x: s.x, y: s.y, r: LOOSE_R, loose: true } : null;
+  }
+  // the far end of a pipe seen from the junction jid
+  const farEnd = (p, jid) => (p.up === jid ? 'down' : 'up');
 
   // symbol angle: from the inlet neighbour to the outlet neighbour (or along the single pipe)
   function symbolAngle(m, j, jById) {
     const orient = views.get(j.type).orient;
     if (orient === 'pipe') {
       const p = m.pipes.find((x) => x.up === j.id || x.down === j.id);
-      const o = p && jById.get(p.up === j.id ? p.down : p.up);
+      const o = p && endOf(p, farEnd(p, j.id), jById);
       return o ? (Math.atan2(j.y - o.y, j.x - o.x) * 180) / Math.PI : 0;
     }
     if (orient !== 'ports') return 0;
     const pr = PumpIt.model.ports(m, j);
     if (!pr) return 0;
-    const ai = jById.get(pr.in.up === j.id ? pr.in.down : pr.in.up);
-    const bo = jById.get(pr.out.up === j.id ? pr.out.down : pr.out.up);
+    const ai = endOf(pr.in, farEnd(pr.in, j.id), jById);
+    const bo = endOf(pr.out, farEnd(pr.out, j.id), jById);
     return ai && bo ? (Math.atan2(bo.y - ai.y, bo.x - ai.x) * 180) / Math.PI : 0;
   }
 
@@ -55,12 +77,14 @@
     out += `<g transform="translate(${view.tx} ${view.ty}) scale(${s})">`;
 
     // pipes
+    const ends = new Map(); // pipe id → [start, end] of its line, for the handles of the selected pipe
     for (const p of m.pipes) {
-      const a = jById.get(p.up), b = jById.get(p.down);
+      const a = endOf(p, 'up', jById, drag), b = endOf(p, 'down', jById, drag);
       if (!a || !b) continue;
       const dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
       const ux = dx / L, uy = dy / L;
-      const x1 = a.x + ux * R, y1 = a.y + uy * R, x2 = b.x - ux * R, y2 = b.y - uy * R;
+      const x1 = a.x + ux * a.r, y1 = a.y + uy * a.r, x2 = b.x - ux * b.r, y2 = b.y - uy * b.r;
+      ends.set(p.id, [{ x: x1, y: y1 }, { x: x2, y: y2 }]);
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
       const ang = (Math.atan2(dy, dx) * 180) / Math.PI;
       const key = 'p:' + p.id;
@@ -71,6 +95,7 @@
       const eff = app.effObj(key);
       if (eff && eff.closed) cls.push('closed');
       if (r && r.isolated) cls.push('iso');
+      if (drag && drag.kind === 'end' && drag.moved && drag.pid === p.id) cls.push('moving');
       let color = '';
       let val = '';
       let over = false;
@@ -94,6 +119,7 @@
         <path class="p-arrow" d="M5 0L-4 -4.5L-4 4.5z" transform="translate(${mx} ${my}) rotate(${ang + (flip ? 180 : 0)})"${arrowStyle}/>
         <text class="p-label" x="${lx}" y="${ly + 4}" text-anchor="middle">P${p.id}</text>
         ${val ? `<text class="p-val" x="${mx - nx * 15}" y="${my - ny * 15 + 4}" text-anchor="middle">${F.esc(val)}</text>` : ''}
+        ${a.loose ? ring('up', a) : ''}${b.loose ? ring('down', b) : ''}
       </g>`;
     }
 
@@ -112,6 +138,8 @@
       const jr = res && res.junctions[j.id];
       if (jr && jr.isolated) cls.push('iso');
       if (drag && drag.kind === 'move' && drag.ids.includes(j.id)) cls.push('dragging');
+      if (drag && drag.kind === 'end' && drag.moved && drag.target === j.id) cls.push('target');
+      if (drag && drag.kind === 'end' && drag.moved && drag.refused === j.id) cls.push('refused');
       const rot = symbolAngle(m, j, jById);
       const effJ = app.effObj(key) || j;
       const name = effJ.name ? `<text class="j-name" y="40" text-anchor="middle">${F.esc(effJ.name)}</text>` : '';
@@ -129,6 +157,15 @@
       </g>`;
     }
 
+    // the ends of the selected pipe: a handle at each end on a junction, to drag it to another junction or away (a
+    // loose end has its ring)
+    const one = tool === 'select' && sel.size === 1 && app.sel && app.sel.kind === 'pipe' ? ends.get(app.sel.id) : null;
+    if (one && !(drag && drag.kind === 'end' && drag.moved)) {
+      const p = m.pipes.find((x) => x.id === app.sel.id);
+      const hs = ['up', 'down'].map((end, i) => (p[end] === null || p[end] === undefined ? '' : handle(end, one[i]))).join('');
+      if (hs) out += `<g class="p-ends" data-p="${p.id}">${hs}</g>`;
+    }
+
     // selection box
     if (drag && drag.kind === 'box') {
       const x0 = Math.min(drag.x0, drag.x1), y0 = Math.min(drag.y0, drag.y1);
@@ -141,5 +178,9 @@
     CS.renderLegend(document.getElementById('legend'), ov, ovKey, unitOf, fmtOv, gas);
   }
 
-  PumpIt.ui.drawing = { render, symbolAngle };
+  // the ring of a loose end, which takes the pointer to drag it onto a junction
+  const ring = (end, at) => `<circle class="p-loose" data-end="${end}" cx="${at.x}" cy="${at.y}" r="${LOOSE_R}"><title>${F.esc(t('network.ends.looseTitle'))}</title></circle>`;
+  const handle = (end, at) => `<circle class="p-end" data-end="${end}" cx="${at.x}" cy="${at.y}" r="${HANDLE_R}"><title>${F.esc(t('network.ends.handleTitle'))}</title></circle>`;
+
+  PumpIt.ui.drawing = { render, symbolAngle, R };
 })(typeof window !== 'undefined' ? window : globalThis);

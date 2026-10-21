@@ -12,8 +12,9 @@
 
     defaults: () => ({ Pout: q(0, 'kgf/cm²(g)'), lossModel: 'K', K: 0, Cv: 100, Kv: 86 }),
 
-    validate(j, miss, { fin }) {
+    validate(j, miss, { fin, gasP }) {
       if (!fin(j.Pout)) miss.push(t('junctions.exitvalve.check.Pout'));
+      gasP(j.Pout, 'junctions.exitvalve.check.Pout');
       JS.checkValveLoss(j, miss);
     },
 

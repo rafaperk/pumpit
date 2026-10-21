@@ -26,7 +26,7 @@ PumpIt.i18n.add('es', {
 
     reservoir: {
       label: 'Reservorio',
-      check: { liquidElev: 'nivel del líquido', surfP: 'presión en la superficie' },
+      check: { liquidElev: 'nivel del líquido', surfP: 'presión en la superficie', gasP: 'presión del gas' },
       elevation: 'Cota del fondo (conexiones)',
       form: {
         gasElev: 'Cota de la presión de referencia',

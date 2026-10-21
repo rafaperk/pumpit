@@ -1,9 +1,10 @@
-// Inspector panel of a pipe: quick results, identification, geometry, friction, fittings and closed state.
+// Inspector panel of a pipe: quick results, identification, the junctions of its ends, geometry, friction, fittings
+// and closed state.
 (function (root) {
   const PumpIt = root.PumpIt;
-  const D = PumpIt.data, UI = PumpIt.ui, I = UI.inspector;
+  const D = PumpIt.data, M = PumpIt.model, UI = PumpIt.ui, I = UI.inspector;
   const F = UI.format;
-  const { el, section, qty, num, sel, chk, text, readout, hint } = UI.forms;
+  const { el, section, qty, num, sel, chk, text, readout, hint, wrap } = UI.forms;
   const app = PumpIt.app;
   const { t } = PumpIt.i18n;
   const tx = (key, params) => t('inspector.pipe.' + key, params);
@@ -12,7 +13,7 @@
     const key = 'p:' + id;
     const p = app.effObj(key);
     if (!p) return I.panels.system(host);
-    const h = I.head(host, tx('title'), 'P' + id, `J${p.up} → J${p.down}`);
+    const h = I.head(host, tx('title'), 'P' + id, F.esc(UI.pipeLabels.ends(p)));
     const rev = el('button', { class: 'btn small', type: 'button' }, tx('reverse'));
     rev.addEventListener('click', () => app.reversePipe(id));
     h.querySelector('.meta').appendChild(rev);
@@ -22,6 +23,7 @@
     const s0 = section(t('inspector.identification'));
     s0.appendChild(text(key, 'name', t('inspector.name')));
     host.appendChild(s0);
+    host.appendChild(connections(id, p));
 
     const s1 = section(tx('geometry'));
     s1.appendChild(qty(key, 'length', tx('length'), 'length'));
@@ -67,6 +69,30 @@
     s4.appendChild(chk(key, 'closed', tx('closed')));
     host.appendChild(s4);
   };
+
+  // The junctions of the two ends (docs/pipe-ends.md): choosing another one moves that end there, and the loose
+  // option lets it go, next to the junction it leaves. The connections are the same in every scenario.
+  function connections(id, p) {
+    const s = section(tx('connections'));
+    const js = [...app.model.junctions].sort((a, b) => a.id - b.id);
+    const name = (j) => {
+      const e = app.effObj('j:' + j.id) || j;
+      return ['J' + j.id, M.JT[j.type] ? M.JT[j.type].label : j.type, e.name].filter(Boolean).join(' · ');
+    };
+    for (const end of M.PIPE_ENDS) {
+      const cur = M.isLoose(p, end) ? null : p[end];
+      const ctl = el('select', { id: 'pipe-end-' + end },
+        `<option value=""${cur === null ? ' selected' : ''}>${F.esc(tx('loose'))}</option>`
+        + js.map((j) => `<option value="${j.id}"${j.id === cur ? ' selected' : ''}>${F.esc(name(j))}</option>`).join(''));
+      ctl.addEventListener('change', () => {
+        if (ctl.value === '') app.disconnectEnd(id, end);
+        else if (!app.connectEnd(id, end, Number(ctl.value))) I.render(); // refused: the choice goes back
+      });
+      s.appendChild(wrap(null, null, tx(end === 'up' ? 'startJunction' : 'endJunction'), ctl));
+    }
+    if (M.PIPE_ENDS.some((end) => M.isLoose(p, end))) s.appendChild(hint(tx('looseHint')));
+    return s;
+  }
 
   // a pipe of a catalogue: its nominal size, its grade when the catalogue has grades (the compound of HDPE, which sets
   // the nominal pressure of each series) and its series, with the outside diameter, the wall and the lining that the

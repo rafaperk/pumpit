@@ -31,12 +31,12 @@ flowchart LR
 | Fluids | `src/core/fluids/` | `PumpIt.fluids` | Fluid library (`register`, `evaluate`); water from public correlations; the gases of the compressible mode (`GASES`, `evaluateGas`, Sutherland, normal density) |
 | Engineering data | `src/core/data/` | `PumpIt.data` | Pipe catalogues (carbon and stainless steel, HDPE, ductile iron), one file each, registered in `pipe-library.js` (`registerPipes`, `pipeDims`, `fitMaterial`; see [pipe-library.md](pipe-library.md)), roughness, fittings (Crane), water velocity bands |
 | Hydraulics | `src/core/hydraulics/` | `PumpIt.hyd` | Friction factors, curve fitting, local loss coefficients |
-| Model | `src/core/model/` | `PumpIt.model` | Factories (`newModel`, `newPipe`, `newJunction`, `pipeDefaults`), scenarios, checklist (`validate`), drawing-only fields (`LAYOUT_KEYS`, `stripLayout`, `normalizeLayout`) |
+| Model | `src/core/model/` | `PumpIt.model` | Factories (`newModel`, `newPipe`, `newJunction`, `pipeDefaults`), scenarios, checklist (`validate`), drawing-only fields (`LAYOUT_KEYS`, `stripLayout`, `normalizeLayout`), the ends of pipes (`connectEnd`, `loosenEnd`, `spotNear`, `normalizeEnds`: an end may be loose, see [pipe-ends.md](pipe-ends.md)) |
 | Solver | `src/core/solver/` | `PumpIt.solver` | `run`, `prepare`, `systemCurve` and the internal stages |
 | Compressible mode | `src/core/gas/` | `PumpIt.gas` | The reference physics of gas flow (`gas.js`, appendix A of its specification), the flow relations of the links (`flow.js`), the gas network of a model (`network.js`), Newton on the node pressures (`newton.js`), results (`results.js`) and `solveModelGas` (`solver.js`); see [gas-decisions.md](gas-decisions.md) |
 | Junction types | `src/core/junctions/` | `PumpIt.junctionTypes` | Registry and one file per type |
 | Examples | `src/core/examples/` | `PumpIt.examples` | Builder helpers and one file per example |
-| Import | `src/core/import/` | `PumpIt.importers` | Readers of model files of other formats, one per file extension: `.fth` (Annex A of the specification) → a model, the notes of the import (what needs input, was assumed or left out) and the comparison with the results stored in the file |
+| Import | `src/core/import/` | `PumpIt.importers` | Readers of model files of other formats, one per file extension: `.fth` (the format descriptions of the specification team; docs/fth-import.md) → the scenarios of the file, a model of one of them, the notes of the import (what needs input, was assumed, left out or read) and the comparison with the results stored in the file |
 | 3D view geometry | `src/core/view3d/` | `PumpIt.view3d` | Camera and projection, navigation, the grid, pipe routes that follow their ends, symbol orientation, scene points from the plan and the elevation, editing, the junction symbols as solids, the view cube (pure functions; see [3D-VIEWS.md](3D-VIEWS.md)) |
 | Common UI | `src/ui/common/` | `PumpIt.ui.format`, `.pipeLabels`, `.dom`, `.dialogs`, `.tips`, `.download`, `.xlsx` | Formatting, the designations of catalogue pipes, DOM helpers, dialogs, the bubble of the notes (the "i" of the fields), downloads, .xlsx writer |
 | Junction views | `src/ui/junctions/` | `PumpIt.ui.junctionTypes` | Registry and one view per type |
@@ -59,7 +59,7 @@ Load-order rules: a file may use, **at load time**, only modules listed before i
 2. **Recalculate.** `app.changed()` increments `app.version`, clears every result, saves the model to the browser and calls `app.recalc()`: if the checklist (`PumpIt.model.validate`) of the current scenario is complete, `PumpIt.solver.run(app.eff())` calculates it.
 3. **Render.** `app.renderAll()` redraws the header, the drawing, the inspector, the system window (when open) and the visible view. Panels read `app.eff()` (effective model of the current scenario) and `app.okResults()`.
 
-Drawing fields (`PumpIt.model.LAYOUT_KEYS`: the schematic position, symbol rolls, pipe routes and the 3D view settings) are not calculation data. They live on the objects of the base model, never in scenario overrides; editing them only pushes an undo snapshot and saves, without recalculating or clearing the results; and the solver works on a copy without them. The 3D views draw every junction at its schematic position and at the height of its elevation, which is calculation data: moving a junction up or down there is an elevation edit, with recalculation.
+Drawing fields (`PumpIt.model.LAYOUT_KEYS`: the schematic position, symbol rolls, pipe routes, where the loose ends of pipes lie and the 3D view settings) are not calculation data. They live on the objects of the base model, never in scenario overrides; editing them only pushes an undo snapshot and saves, without recalculating or clearing the results; and the solver works on a copy without them. The 3D views draw every junction at its schematic position and at the height of its elevation, which is calculation data: moving a junction up or down there is an elevation edit, with recalculation.
 
 ## Interface languages
 
@@ -130,7 +130,7 @@ Add `src/core/data/<material>-pipe.js` with the table of its standard, calling `
 
 ### A new import format
 
-Add `src/core/import/<ext>.js` registering `PumpIt.importers.<ext>` (the file extension, in lower case) with `encoding`, `read(text, { name })` → `{ model, notes, counts, stored }`, `compare(results, stored)`, `noteText(note)` and `LEVELS`, as `fth.js` does, and its `<script>` tag. File → Open, the file input and file drops choose the importer by the extension, and the import report shows what it read. Its texts go in every language; list the extension in `app.menu.open`.
+Add `src/core/import/<ext>.js` registering `PumpIt.importers.<ext>` (the file extension, in lower case) with `encoding`, `read(text, { name, scenario })` → `{ model, notes, counts, stored }`, `compare(results, stored)`, `noteText(note)` and `LEVELS`, as `fth.js` does, and its `<script>` tag. An importer of a format with scenarios also gives `scenarios(text)` → `[{ n, name, path, description, results }]`: with more than one, the app asks which one to read. File → Open, the file input and file drops choose the importer by the extension, and the import report shows what it read. Its texts go in every language; list the extension in `app.menu.open`.
 
 ### A new example
 
@@ -149,7 +149,8 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 - `tests/run-tests.js` (also run by `tests/motor.test.cjs`): the core against independent solutions (analytical or by bisection).
 - `tests/gas.test.cjs`: the reference physics of the compressible mode (appendix B of its specification, as given) and the calculation of gas networks against independent solutions.
 - `tests/validate-fth.js`: the core against results stored in reference model files (answer key only; see the clean-room rules in `CONTRIBUTING.md`).
-- `tests/fth-import.test.cjs`: the `.fth` importer, with synthetic files written from Annex A by the test itself.
+- `tests/fth-import.test.cjs`: the `.fth` importer, with synthetic files written from the format descriptions by the test itself.
 - `tests/check-i18n.js`: same keys and placeholders in every language, every literal key of the code defined, the texts of every pipe catalogue, every example calculated in every language without missing texts, and every reference inside the help (labels, links, formulas, examples, areas of the screen, tour steps) resolved.
 - `tests/view3d.test.cjs`: the geometry of the 3D view and of the view cube against exact values, and the drawing/calculation contract (every example gives byte-identical results with a random drawing).
+- `tests/pipe-ends.test.cjs`: freeing and connecting the ends of pipes, where a loose end goes, the checklist and both solvers with a loose end, and loaded models whose ends point nowhere.
 - All of them load the core with `tests/load-core.js`, from the list in `index.html`.

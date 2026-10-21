@@ -22,6 +22,7 @@
     m._notes = M.migrate(m);
     M.normalizeRegime(m);
     M.normalizeLayout(m);
+    M.normalizeEnds(m);
     return m;
   }
 
@@ -51,16 +52,24 @@
     return ext && Object.prototype.hasOwnProperty.call(importers(), ext) ? importers()[ext] : null;
   }
 
-  // a file of another format becomes a model, and the import report tells what was read
+  // a file of another format becomes a model, and the import report tells what was read; a file with several scenarios
+  // first asks which one to import
   function importFile(f, imp) {
     const rd = new FileReader();
     rd.onload = () => {
-      let res;
-      try { res = imp.read(new TextDecoder(imp.encoding || 'utf-8').decode(rd.result), { name: f.name }); }
-      catch (err) { toast(t('app.importReport.cannotRead', { message: err.message })); return; }
-      app.pushUndo();
-      app.loadModel(res.model);
-      UI.importReport.show(f.name, res, app.results[app.model.scenarios.current] || null, imp);
+      const text = new TextDecoder(imp.encoding || 'utf-8').decode(rd.result);
+      const load = (opts) => {
+        let res;
+        try { res = imp.read(text, Object.assign({ name: f.name }, opts)); }
+        catch (err) { toast(t('app.importReport.cannotRead', { message: err.message })); return; }
+        app.pushUndo();
+        app.loadModel(res.model);
+        UI.importReport.show(f.name, res, app.results[app.model.scenarios.current] || null, imp);
+      };
+      let list = [];
+      try { list = imp.scenarios ? imp.scenarios(text) : []; } catch (err) { list = []; }
+      if (list.length > 1) UI.importReport.pickScenario(f.name, list, (n) => load({ scenario: n }));
+      else load({});
     };
     rd.readAsArrayBuffer(f);
   }

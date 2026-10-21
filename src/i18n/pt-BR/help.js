@@ -272,6 +272,18 @@ PumpIt.i18n.add('pt-BR', {
 <h4>Sentido de referência</h4>
 <p>O tubo aponta da junção clicada primeiro para a segunda, como mostra a seta no desenho. Vazões no sentido de referência são positivas; contra ele, negativas. Depois do cálculo, a seta mostra o sentido real do escoamento. Veja [[go:draw.direction|Sentido e sinais]].</p>`,
           },
+          connect: {
+            title: 'Desconectar e reconectar tubos',
+            body: `<p>Um tubo pode trocar de junção sem ser desenhado de novo: ele mantém comprimento, material, acessórios e todos os outros dados.</p>
+<ul>
+<li><b>Arrastar uma ponta</b>: selecione o tubo e aparece uma alça em cada ponta. Arraste a alça até outra junção para ligar aquela ponta nela, ou para um lugar vazio para deixá-la solta.</li>
+<li><b>Clique direito</b>: num tubo, <b>Desconectar de J…</b> solta uma das pontas (há um item para cada ponta); numa junção, [[t:network.menu.disconnectPipes]] solta todos os tubos ligados a ela, e a junção pode ser movida, trocada ou excluída sem perder os tubos.</li>
+<li><b>No painel</b>: em [[t:inspector.pipe.connections]], [[t:inspector.pipe.startJunction]] e [[t:inspector.pipe.endJunction]] escolhem a junção de cada ponta numa lista, e [[t:inspector.pipe.loose]] solta a ponta.</li>
+</ul>
+<p>A <b>ponta solta</b> aparece como um anel na extremidade do tubo: arraste o anel até uma junção para ligá-la. Enquanto o tubo tiver uma ponta solta, ele fica incompleto: a lista de verificação avisa e o cálculo espera.</p>
+<p>O sentido de referência não muda: a ponta de origem continua sendo a origem. A vista 3D funciona do mesmo jeito, e lá <kbd>Shift</kbd> move a ponta para cima e para baixo. <kbd>Esc</kbd> cancela o arraste, e <kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz qualquer mudança.</p>
+<p class="tip"><b>Dica:</b> para pôr um componente no meio de um tubo, coloque-o, arraste uma ponta do tubo até ele e desenhe um tubo novo dele até a junção que a ponta deixou.</p>`,
+          },
           select: {
             title: 'Selecionar, mover e navegar',
             body: `<table>
@@ -294,7 +306,7 @@ PumpIt.i18n.add('pt-BR', {
 <li><b>Trocar o tipo de uma junção</b>: no painel, mude [[t:inspector.junction.type]]. Nome, cota, posição e os dados compatíveis — como as perdas por tubo e o modelo de perda das válvulas — são mantidos.</li>
 <li><b>Inverter o sentido de um tubo</b>: o botão [[t:inspector.pipe.reverse]] no painel, o menu [[t:app.menu.edit]] → [[t:app.menu.reverse]] ou o clique direito no tubo.</li>
 <li><b>Copiar e colar</b>: <kbd>Ctrl</kbd>+<kbd>C</kbd> copia as junções selecionadas, as pontas dos tubos selecionados e os tubos entre elas, com os valores do cenário atual; <kbd>Ctrl</kbd>+<kbd>V</kbd> cola uma cópia deslocada, e cada nova colagem desloca um pouco mais.</li>
-<li><b>Excluir</b>: <kbd>Del</kbd>. Excluir uma junção exclui também os tubos ligados a ela.</li>
+<li><b>Excluir</b>: <kbd>Del</kbd>. Excluir uma junção exclui também os tubos ligados a ela. Para mantê-los, use antes [[t:network.menu.disconnectPipes]] (veja [[go:draw.connect|Desconectar e reconectar tubos]]).</li>
 <li><b>Desfazer e refazer</b>: <kbd>Ctrl</kbd>+<kbd>Z</kbd> e <kbd>Ctrl</kbd>+<kbd>Y</kbd>.</li>
 </ul>
 <p class="tip"><b>Dica:</b> os atalhos não agem enquanto você digita num campo. Assim, <kbd>Del</kbd> apaga texto, e não objetos.</p>`,
@@ -306,7 +318,7 @@ PumpIt.i18n.add('pt-BR', {
 <li><b>Tubo</b>: comprimento, diâmetro, cotas, vazão, velocidade com a faixa de velocidade, perda de carga, pressões de estagnação e estáticas, Reynolds, fator de atrito, K dos acessórios e o sentido do escoamento.</li>
 <li><b>Junção</b>: cota, pressões, vazão através e os resultados próprios do tipo, como a altura de uma bomba, o estado de uma válvula de controle ou o Cv equivalente de uma válvula.</li>
 </ul>
-<p>No pé do cartão ficam as ações: [[t:network.menu.reverse]] (só tubos), [[t:network.menu.copy]], [[t:network.menu.paste]] e [[t:network.menu.delete]].</p>`,
+<p>No pé do cartão ficam as ações: [[t:network.menu.reverse]] e <b>Desconectar de J…</b> (tubos), [[t:network.menu.disconnectPipes]] (junções), [[t:network.menu.copy]], [[t:network.menu.paste]] e [[t:network.menu.delete]].</p>`,
           },
           direction: {
             title: 'Sentido e sinais',
@@ -354,7 +366,8 @@ PumpIt.i18n.add('pt-BR', {
 <li>[[t:junctions.reservoir.elevation]]: a cota onde os tubos se ligam, salvo indicação diferente na tabela de perdas por tubo.</li>
 <li>[[t:junctions.reservoir.form.liquidElev]]: o nível do líquido, como cota absoluta (não como altura acima do fundo).</li>
 <li>[[t:junctions.reservoir.form.surfP]]: 0 kgf/cm²(g) para um tanque aberto; outro valor para um vaso pressurizado.</li>
-<li>[[t:inspector.pipeLosses.title]]: o K de saída do tanque para cada tubo (uma entrada de borda viva, por exemplo, tem 0,5), o K de chegada do tubo ao tanque (uma saída para o tanque, 1,0) e a cota de conexão de cada tubo (em branco, o fundo).</li>
+<li>[[t:inspector.pipeLosses.title]]: o K de saída do tanque para cada tubo (uma entrada de borda viva, por exemplo, tem 0,5), o K de chegada do tubo ao tanque (uma saída para o tanque, 1,0) e onde cada tubo se liga (em branco, o fundo).</li>
+<li>[[t:inspector.pipeLosses.connBy]]: por cota, a ligação fica onde está; por profundidade abaixo da superfície do líquido, ela acompanha a superfície quando o nível muda (num cenário, por exemplo). Trocar de uma para a outra mantém cada ligação onde está.</li>
 </ul>
 <h4>Como é calculado</h4>
 <p>O reservatório é um nó de pressão de estagnação igual à pressão na superfície, na cota do nível. Sem K informado, a pressão de estagnação é contínua entre o tanque e a ponta do tubo. Um tubo ligado acima do nível do líquido descarrega em queda livre; se ele tentar puxar líquido do tanque, aparece um aviso.</p>
@@ -520,7 +533,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <ul>
 <li>[[t:inspector.pipeLosses.kOut]]: a perda quando o fluido sai da junção e entra no tubo (por exemplo, uma entrada de borda viva, 0,5).</li>
 <li>[[t:inspector.pipeLosses.kIn]]: a perda quando o fluido chega do tubo à junção (por exemplo, a saída para um tanque, 1,0).</li>
-<li>[[t:inspector.pipeLosses.elevation]] (só no reservatório): a cota onde aquele tubo se liga; em branco, o fundo.</li>
+<li>[[t:inspector.pipeLosses.elevation]] ou [[t:inspector.pipeLosses.depth]] (só no reservatório): onde aquele tubo se liga, como cota ou como profundidade abaixo da superfície do líquido ([[t:inspector.pipeLosses.connBy]]); em branco, o fundo.</li>
 </ul>
 <p>Cada K usa a área do próprio tubo e só age no sentido correspondente do escoamento.</p>`,
           },
@@ -716,6 +729,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <li><b>Tubos</b>: o tubo segue na horizontal, no plano do último ponto; segure <kbd>Shift</kbd> para subir ou descer e <kbd>Ctrl</kbd> para travar no eixo mais próximo; <kbd>Alt</kbd>+clique ou <kbd>D</kbd> faz uma dobra; perto de uma junção, <kbd>←</kbd> e <kbd>→</kbd> escolhem o traçado até ela; um clique no vazio termina o tubo num nó novo.</li>
 <li><b>Mover</b>: arraste uma junção na horizontal; com <kbd>Shift</kbd>, na vertical (muda a elevação).</li>
 <li><b>Dobras</b>: com um tubo selecionado, arraste uma dobra, dê um duplo clique no tubo para inserir outra, ou marque uma e pressione <kbd>Del</kbd>.</li>
+<li><b>Pontas dos tubos</b>: com um tubo selecionado, arraste a alça de uma ponta até outra junção, ou para longe para deixá-la solta; <kbd>Shift</kbd> a move para cima e para baixo. A ponta solta é um anel: arraste-o até uma junção. Veja [[go:draw.connect|Desconectar e reconectar tubos]].</li>
 </ul>
 <p>Olhando de frente, de trás ou de lado, o piso fica de perfil; por isso colocar, desenhar e mover usam o plano vertical de frente para a câmera.</p>`,
           },
@@ -749,13 +763,14 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 </table>
 <p>O modelo também é salvo automaticamente no navegador a cada alteração. Modelos de versões antigas são convertidos ao abrir: tipos de junção removidos viram o equivalente mais próximo, e uma mensagem informa o que mudou.</p>
 <h4>Modelos no formato .fth</h4>
-<p>[[t:app.menu.open]] também lê arquivos <code>.fth</code>, um formato de texto de modelos de redes de tubulação. O cenário base entra com tubos, junções, cotas, unidades e desenho; o fluido vem dos resultados gravados no arquivo. Em seguida, um relatório mostra:</p>
+<p>[[t:app.menu.open]] também lê arquivos <code>.fth</code>, um formato de texto de modelos de redes de tubulação. Quando o arquivo tem vários cenários, uma janela os lista (com as descrições, marcando os que têm resultados gravados): entra o que você escolher, reconstruído a partir do cenário base. Para trazer outro, abra o arquivo de novo.</p>
+<p>Tubos, junções, cotas, unidades e desenho entram com o que o modelo precisa para rodar:</p>
 <ul>
-<li>como o primeiro cálculo se compara com os resultados gravados no arquivo;</li>
-<li>o que precisa de você: dados que o formato não descreve, deixados em branco e marcados em vermelho na lista de verificação;</li>
-<li>o que foi assumido (por exemplo, o nível do líquido de um reservatório tomado como a cota da junção) e o que ficou de fora (outros cenários, módulos adicionais).</li>
+<li>tubos e válvulas abertos e fechados, válvulas de controle com tipo, ponto de ajuste e estado fixo, e bombas ligadas ou desligadas, com a rotação e a curva da configuração em uso;</li>
+<li>reservatórios com o nível do líquido, a pressão na superfície e, para cada tubo, o K e a profundidade abaixo da superfície, válvulas de saída com a pressão de saída e bocais com o fator K;</li>
+<li>o fluido do arquivo e a pressão ambiente, referência das pressões manométricas.</li>
 </ul>
-<p>Componentes que o Pump It não tem entram como o tipo mais próximo ou como um nó simples. Use a importação para os seus próprios modelos.</p>`,
+<p>Em seguida, um relatório mostra como o primeiro cálculo se compara com os resultados gravados no arquivo, o que precisa de você (deixado em branco e marcado em vermelho na lista de verificação), o que foi assumido, o que ficou de fora (módulos adicionais, troca de calor) e o que foi lido. As perdas detalhadas dos tês vêm do ponto de operação gravado, e algumas leituras do formato ainda a confirmar têm uma nota cada. Use a importação para os seus próprios modelos.</p>`,
           },
           language: {
             title: 'Idioma e números',
@@ -943,7 +958,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
           boundaries: {
             title: 'Contornos',
             body: `<ul>
-<li><b>Reservatório</b>: um nó de pressão fixa igual à pressão na superfície, na cota do nível do líquido. Cada tubo se liga na cota do fundo ou na sua cota de conexão; se essa cota estiver acima do nível, o tubo descarrega em queda livre, e a pressão de contorno vale na ponta do tubo.</li>
+<li><b>Reservatório</b>: um nó de pressão fixa igual à pressão na superfície, na cota do nível do líquido. Cada tubo se liga na cota do fundo ou na sua própria ligação, dada como cota ou como profundidade abaixo do nível (cota = nível − profundidade); se a ligação estiver acima do nível, o tubo descarrega em queda livre, e a pressão de contorno vale na ponta do tubo.</li>
 <li><b>Pressão imposta</b>: um nó de pressão de estagnação fixa; no tipo estático, fixa-se p = P<sub>0</sub> − ½ρV² do tubo único.</li>
 <li><b>Vazão imposta</b> e <b>fonte de um nó</b>: entram na continuidade como demanda (positiva sai, negativa entra).</li>
 <li><b>Bocal</b> e <b>válvula de saída</b>: um nó externo de pressão fixa (a externa ou a residual), ligado por uma ligação de descarga.</li>
@@ -1020,7 +1035,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <p>Abaixo disso, o modo incompressível com a densidade do gás erra pouco. O app ajuda nos dois sentidos: no modo incompressível, um fluido leve como um gás que passa desses limites gera um aviso que sugere o compressível; no compressível, quando tudo fica abaixo de Mach 0,1 e de 2% de queda, uma informação lembra que o incompressível daria praticamente o mesmo.</p>
 <h4>Nada se perde ao trocar</h4>
 <p>Cada regime guarda o seu fluido: o líquido de um lado, o gás do outro. Trocar de regime recalcula na hora, sem apagar dados. Dá para comparar os dois, inclusive com um [[go:scenarios.concept|cenário]] que mude só o regime ou o modelo térmico. O desenho, as junções, os tubos e as vistas são os mesmos.</p>
-<p class="tip">Para começar, abra [[act:example:air]], uma linha de ar comprimido com queda de pressão de cerca de 50%, ou [[act:example:airPlant]], com compressor, válvula redutora e bico de limpeza.</p>`,
+<p class="tip">Para começar, abra [[act:example:air]], uma linha de ar comprimido que perde 42% e 50% da pressão absoluta até os dois consumos, ou [[act:example:airPlant]], com compressor, válvula redutora e bico de limpeza.</p>`,
           },
           setup: {
             title: 'Gás, temperatura e modelo térmico',
@@ -1035,7 +1050,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <h4>Limites de projeto</h4>
 <p>[[t:inspector.system.machLimit]] (padrão 0,7) e [[t:inspector.system.velLimit]] (padrão 30 m/s) geram avisos quando um tubo os passa. O bloqueio sônico é sempre avisado.</p>
 <h4>Pressões e vazões</h4>
-<p>As pressões do gás são calculadas em valor <b>absoluto</b>; as unidades manométricas somam a [[t:inspector.system.patm]]. As vazões podem ser informadas em massa (kg/s, kg/h, t/h…), em volume nas condições do ponto (m³/h, L/s…) ou em volume <b>normal</b> (Nm³/h, a 0 °C e 101,325 kPa).</p>`,
+<p>Cada pressão é manométrica ou absoluta conforme a sua unidade, como no líquido: uma unidade com (g) é relativa à [[t:inspector.system.patm]], que é somada a ela, pois o gás é sempre calculado em pressão <b>absoluta</b>. Os resultados mostram pressões manométricas por padrão, e o seletor de unidade de cada coluna oferece também as absolutas. Uma pressão igual ou abaixo do vácuo (zero absoluto) não tem sentido para um gás: fica pendente na [[go:start.autoCalc|lista de verificação]]. As vazões podem ser informadas em massa (kg/s, kg/h, t/h…), em volume nas condições do ponto (m³/h, L/s…) ou em volume <b>normal</b> (Nm³/h, a 0 °C e 101,325 kPa).</p>`,
           },
           components: {
             title: 'Contornos e componentes com gás',

@@ -272,6 +272,18 @@ PumpIt.i18n.add('en', {
 <h4>Reference direction</h4>
 <p>The pipe points from the junction clicked first to the second one, as the arrow on the drawing shows. Flows in the reference direction are positive; against it, negative. After the calculation, the arrow shows the actual flow direction. See [[go:draw.direction|Direction and signs]].</p>`,
           },
+          connect: {
+            title: 'Disconnecting and reconnecting pipes',
+            body: `<p>A pipe can change junctions without being drawn again: it keeps its length, material, fittings and all its other data.</p>
+<ul>
+<li><b>Drag an end</b>: select the pipe and a handle appears at each end. Drag a handle onto another junction to connect that end there, or to an empty spot to leave it loose.</li>
+<li><b>Right click</b>: on a pipe, <b>Disconnect from J…</b> frees one end (there is one item for each end); on a junction, [[t:network.menu.disconnectPipes]] frees every pipe connected to it, so the junction can be moved, replaced or deleted while its pipes stay.</li>
+<li><b>In the panel</b>: under [[t:inspector.pipe.connections]], [[t:inspector.pipe.startJunction]] and [[t:inspector.pipe.endJunction]] choose the junction of each end from a list, and [[t:inspector.pipe.loose]] frees that end.</li>
+</ul>
+<p>A <b>loose end</b> is drawn as a ring at the tip of the pipe: drag the ring onto a junction to connect it. While a pipe has a loose end it is incomplete: the checklist says so and the calculation waits.</p>
+<p>The reference direction does not change: the start end stays the start. The 3D view works the same way, and there <kbd>Shift</kbd> moves the end up and down. <kbd>Esc</kbd> cancels a drag, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes any change.</p>
+<p class="tip"><b>Tip:</b> to put a component in the middle of a pipe, place it, drag one end of the pipe onto it, and draw a new pipe from it to the junction that end left.</p>`,
+          },
           select: {
             title: 'Selecting, moving and navigating',
             body: `<table>
@@ -294,7 +306,7 @@ PumpIt.i18n.add('en', {
 <li><b>Change the type of a junction</b>: in the panel, change [[t:inspector.junction.type]]. Name, elevation, position and the compatible data — such as the per-pipe losses and the loss model of valves — are kept.</li>
 <li><b>Reverse a pipe</b>: the [[t:inspector.pipe.reverse]] button in the panel, the [[t:app.menu.edit]] → [[t:app.menu.reverse]] menu or a right click on the pipe.</li>
 <li><b>Copy and paste</b>: <kbd>Ctrl</kbd>+<kbd>C</kbd> copies the selected junctions, the ends of the selected pipes and the pipes between them, with the values of the current scenario; <kbd>Ctrl</kbd>+<kbd>V</kbd> pastes a shifted copy, and each new paste shifts a little further.</li>
-<li><b>Delete</b>: <kbd>Del</kbd>. Deleting a junction also deletes the pipes connected to it.</li>
+<li><b>Delete</b>: <kbd>Del</kbd>. Deleting a junction also deletes the pipes connected to it. To keep them, use [[t:network.menu.disconnectPipes]] first (see [[go:draw.connect|Disconnecting and reconnecting pipes]]).</li>
 <li><b>Undo and redo</b>: <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>.</li>
 </ul>
 <p class="tip"><b>Tip:</b> the shortcuts do nothing while you type in a field. So <kbd>Del</kbd> erases text, not objects.</p>`,
@@ -306,7 +318,7 @@ PumpIt.i18n.add('en', {
 <li><b>Pipe</b>: length, diameter, elevations, flow, velocity with its velocity band, head loss, stagnation and static pressures, Reynolds number, friction factor, K of the fittings and the flow direction.</li>
 <li><b>Junction</b>: elevation, pressures, flow through and the results of its type, such as the head of a pump, the state of a control valve or the equivalent Cv of a valve.</li>
 </ul>
-<p>At the bottom of the card are the actions: [[t:network.menu.reverse]] (pipes only), [[t:network.menu.copy]], [[t:network.menu.paste]] and [[t:network.menu.delete]].</p>`,
+<p>At the bottom of the card are the actions: [[t:network.menu.reverse]] and <b>Disconnect from J…</b> (pipes), [[t:network.menu.disconnectPipes]] (junctions), [[t:network.menu.copy]], [[t:network.menu.paste]] and [[t:network.menu.delete]].</p>`,
           },
           direction: {
             title: 'Direction and signs',
@@ -354,7 +366,8 @@ PumpIt.i18n.add('en', {
 <li>[[t:junctions.reservoir.elevation]]: the elevation where the pipes connect, unless the per-pipe loss table says otherwise.</li>
 <li>[[t:junctions.reservoir.form.liquidElev]]: the liquid level, as an absolute elevation (not as a height above the bottom).</li>
 <li>[[t:junctions.reservoir.form.surfP]]: 0 kgf/cm²(g) for an open tank; another value for a pressurised vessel.</li>
-<li>[[t:inspector.pipeLosses.title]]: the K leaving the tank into each pipe (a sharp-edged entrance, for instance, has 0.5), the K arriving from the pipe into the tank (an exit into the tank, 1.0) and the connection elevation of each pipe (blank means the bottom).</li>
+<li>[[t:inspector.pipeLosses.title]]: the K leaving the tank into each pipe (a sharp-edged entrance, for instance, has 0.5), the K arriving from the pipe into the tank (an exit into the tank, 1.0) and where each pipe connects (blank means the bottom).</li>
+<li>[[t:inspector.pipeLosses.connBy]]: as an elevation, a connection stays where it is; as a depth below the liquid surface, it follows the surface when the level changes (in a scenario, for instance). Switching from one to the other keeps every connection where it is.</li>
 </ul>
 <h4>How it is calculated</h4>
 <p>The reservoir is a node whose stagnation pressure equals the surface pressure, at the elevation of the level. Without any K, the stagnation pressure is continuous between the tank and the end of the pipe. A pipe connected above the liquid level discharges in free fall; if it tries to draw liquid from the tank, a warning appears.</p>
@@ -520,7 +533,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <ul>
 <li>[[t:inspector.pipeLosses.kOut]]: the loss when the fluid leaves the junction and enters the pipe (for example, a sharp-edged entrance, 0.5).</li>
 <li>[[t:inspector.pipeLosses.kIn]]: the loss when the fluid arrives from the pipe into the junction (for example, the exit into a tank, 1.0).</li>
-<li>[[t:inspector.pipeLosses.elevation]] (reservoir only): the elevation where that pipe connects; blank means the bottom.</li>
+<li>[[t:inspector.pipeLosses.elevation]] or [[t:inspector.pipeLosses.depth]] (reservoir only): where that pipe connects, as an elevation or as a depth below the liquid surface ([[t:inspector.pipeLosses.connBy]]); blank means the bottom.</li>
 </ul>
 <p>Each K uses the area of its own pipe and acts only in the matching flow direction.</p>`,
           },
@@ -716,6 +729,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <li><b>Pipes</b>: the pipe runs across, on the plane of its last point; hold <kbd>Shift</kbd> to go up or down and <kbd>Ctrl</kbd> to keep it on the nearest axis; <kbd>Alt</kbd>+click or <kbd>D</kbd> makes a bend; near a junction, <kbd>←</kbd> and <kbd>→</kbd> choose the route to it; a click on empty space ends the pipe at a new node.</li>
 <li><b>Moving</b>: drag a junction across; with <kbd>Shift</kbd>, up and down (its elevation changes).</li>
 <li><b>Bends</b>: with a pipe selected, drag a bend, double-click the pipe to insert another, or mark one and press <kbd>Del</kbd>.</li>
+<li><b>Ends of pipes</b>: with a pipe selected, drag the handle at an end onto another junction, or away to leave it loose; <kbd>Shift</kbd> moves it up and down. A loose end is a ring: drag it onto a junction. See [[go:draw.connect|Disconnecting and reconnecting pipes]].</li>
 </ul>
 <p>Seen from the front, the back or a side, the floor is edge on, so placing, drawing and moving use the vertical plane facing the camera.</p>`,
           },
@@ -749,13 +763,14 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 </table>
 <p>The model is also saved automatically in the browser after every change. Models of older versions are converted when opened: junction types that were removed become the closest equivalent, and a message tells what changed.</p>
 <h4>Models in the .fth format</h4>
-<p>[[t:app.menu.open]] also reads <code>.fth</code> files, a text format of pipe network models. The base scenario comes in with its pipes, junctions, elevations, units and drawing; the fluid comes from the results stored in the file. A report then shows:</p>
+<p>[[t:app.menu.open]] also reads <code>.fth</code> files, a text format of pipe network models. When the file has several scenarios, a window lists them (with their descriptions, marking those with stored results): the one you choose comes in, rebuilt from the base scenario. To bring in another one, open the file again.</p>
+<p>Pipes, junctions, elevations, units and drawing come in with what the model needs to run:</p>
 <ul>
-<li>how the first calculation compares with the results stored in the file;</li>
-<li>what needs your input: data the format does not describe, left blank and marked in red in the checklist;</li>
-<li>what was assumed (for example, the liquid level of a reservoir taken as the elevation of the junction) and what was left out (other scenarios, add-on modules).</li>
+<li>open and closed pipes and valves, control valves with their kind, set point and fixed state, and pumps on or off, with their speed and the curve of the configuration in use;</li>
+<li>reservoirs with their liquid level, surface pressure and, for each pipe, its K and its depth below the surface, exit valves with their outlet pressure and nozzles with their K factor;</li>
+<li>the fluid of the file and its ambient pressure, the reference of the gauge pressures.</li>
 </ul>
-<p>Components that Pump It does not have come in as the nearest type or as a plain node. Use the import for your own models.</p>`,
+<p>A report then shows how the first calculation compares with the results stored in the file, what needs your input (left blank and marked in red in the checklist), what was assumed, what was left out (add-on modules, heat transfer) and what was read. Detailed tee losses come from the stored operating point, and some readings of the format still to be confirmed have a note each. Use the import for your own models.</p>`,
           },
           language: {
             title: 'Language and numbers',
@@ -943,7 +958,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
           boundaries: {
             title: 'Boundaries',
             body: `<ul>
-<li><b>Reservoir</b>: a fixed-pressure node equal to the surface pressure, at the elevation of the liquid level. Each pipe connects at the bottom elevation or at its own connection elevation; if that elevation is above the level, the pipe discharges in free fall, and the boundary pressure applies at the end of the pipe.</li>
+<li><b>Reservoir</b>: a fixed-pressure node equal to the surface pressure, at the elevation of the liquid level. Each pipe connects at the bottom elevation or at its own connection, given as an elevation or as a depth below the level (elevation = level − depth); if the connection is above the level, the pipe discharges in free fall, and the boundary pressure applies at the end of the pipe.</li>
 <li><b>Imposed pressure</b>: a node of fixed stagnation pressure; with the static type, p = P<sub>0</sub> − ½ρV² of the single pipe is fixed.</li>
 <li><b>Imposed flow</b> and the <b>source of a branch</b>: they enter continuity as a demand (positive leaves, negative enters).</li>
 <li><b>Nozzle</b> and <b>exit valve</b>: an external node of fixed pressure (the external or the residual pressure), joined by a discharge link.</li>
@@ -1020,7 +1035,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <p>Below that, the incompressible mode with the density of the gas makes a small error. The app helps both ways: in the incompressible mode, a fluid as light as a gas that goes past those limits brings a warning that suggests the compressible mode; in the compressible mode, when everything stays below Mach 0.1 and a 2% drop, a note says that the incompressible mode would give practically the same.</p>
 <h4>Nothing is lost when you switch</h4>
 <p>Each regime keeps its own fluid: the liquid on one side, the gas on the other. Switching the regime recalculates at once and erases nothing. You can compare both, even with a [[go:scenarios.concept|scenario]] that changes only the regime or the thermal model. The drawing, the junctions, the pipes and the views are the same.</p>
-<p class="tip">To start, open [[act:example:air]], a compressed air line whose pressure falls by about 50%, or [[act:example:airPlant]], with a compressor, a reducing valve and a blow-off nozzle.</p>`,
+<p class="tip">To start, open [[act:example:air]], a compressed air line that loses 42% and 50% of its absolute pressure on the way to its two consumers, or [[act:example:airPlant]], with a compressor, a reducing valve and a blow-off nozzle.</p>`,
           },
           setup: {
             title: 'Gas, temperature and thermal model',
@@ -1035,7 +1050,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <h4>Design limits</h4>
 <p>[[t:inspector.system.machLimit]] (0.7 by default) and [[t:inspector.system.velLimit]] (30 m/s by default) bring warnings when a pipe goes past them. Sonic choking is always reported.</p>
 <h4>Pressures and flows</h4>
-<p>Gas pressures are calculated as <b>absolute</b> values; gauge units add the [[t:inspector.system.patm]]. Flows may be given as a mass (kg/s, kg/h, t/h…), as a volume at the conditions of the point (m³/h, L/s…) or as a <b>normal</b> volume (Nm³/h, at 0 °C and 101.325 kPa).</p>`,
+<p>Each pressure is gauge or absolute by its unit, as for a liquid: a unit with (g) is relative to the [[t:inspector.system.patm]], which is added to it, since a gas is always calculated in <b>absolute</b> pressure. The results show gauge pressures by default, and the unit selector of each column also offers the absolute ones. A pressure at or below vacuum (zero absolute) means nothing for a gas: it stays pending in the [[go:start.autoCalc|checklist]]. Flows may be given as a mass (kg/s, kg/h, t/h…), as a volume at the conditions of the point (m³/h, L/s…) or as a <b>normal</b> volume (Nm³/h, at 0 °C and 101.325 kPa).</p>`,
           },
           components: {
             title: 'Boundaries and components with a gas',

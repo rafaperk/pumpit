@@ -26,7 +26,7 @@
 
     if (hit.kind === 'pipe') {
       title = `P${o.id}`;
-      sub = tx('pipeSub', { up: o.up, down: o.down }) + (o.name ? ' · ' + o.name : '');
+      sub = tx('pipeSub', { ends: UI.pipeLabels.ends(o) }) + (o.name ? ' · ' + o.name : '');
       const r = res && res.pipes[o.id];
       add(tx('length'), inp(o.length));
       if (UI.pipeLabels.isCatalog(o.material)) {

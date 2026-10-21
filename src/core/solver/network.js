@@ -41,7 +41,8 @@
         id: p.id, p, A, Dh, L: si(p.length, 'length'), fm, eD, fx, C, Ksum, fT,
         fTurb: H.colebrook(1e8, eD), // same pipe at a very high Re (reference of the 'pipeFt' laminar correction)
         N: p.nParallel || 1,
-        zUp: endElev(ju, p.id), zDown: endElev(jd, p.id), closed: !!p.closed,
+        // a loose end has no elevation: the pipe is left out below, with its message
+        zUp: ju ? endElev(ju, p.id) : 0, zDown: jd ? endElev(jd, p.id) : 0, closed: !!p.closed,
       });
     }
 

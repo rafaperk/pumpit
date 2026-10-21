@@ -1,11 +1,12 @@
 // 3D view: editing (3D views specification §5.4, §8.9, §8.10, Phase 3). Placing junctions on the working plane;
 // drawing pipes in any direction (across, on the plane of the last point; Shift up and down; Ctrl along an axis;
-// Alt+click or D for a bend); moving a junction across or, with Shift, up and down, which changes its elevation; and
-// the bends of the selected pipe: drag them, insert one with a double click, delete the marked one with Delete. Grid
-// snapping is optional (Snap, in the menu of the view).
+// Alt+click or D for a bend); moving a junction across or, with Shift, up and down, which changes its elevation; the
+// bends of the selected pipe: drag them, insert one with a double click, delete the marked one with Delete; and the
+// ends of pipes, dragged onto another junction or away to stay loose (docs/pipe-ends.md). Grid snapping is optional
+// (Snap, in the menu of the view).
 (function (root) {
   const PumpIt = root.PumpIt;
-  const UI = PumpIt.ui, V = PumpIt.view3d;
+  const M = PumpIt.model, UI = PumpIt.ui, V = PumpIt.view3d;
   const app = PumpIt.app;
   const F = UI.format;
   const { t } = PumpIt.i18n;
@@ -15,7 +16,7 @@
   const DRAG_PX = 5; // a press on a junction or a bend moves it after 5 px; less is a click
 
   let draw = null;    // pipe being drawn: { startId, pts (fixed so far, from the start junction), anchor, tail, toJ, cands, idx }
-  let drag = null;    // { kind: 'move' | 'bend', ... }
+  let drag = null;    // { kind: 'move' | 'bend' | 'end', ... }
   let at = null;      // last cursor position: { sx, sy, vp }
   let mods = { shift: false, lock: false }; // Shift (vertical) and Ctrl (along an axis), from the last pointer or key event
   let preview = null; // { pos, routes } while a drag goes on
@@ -112,6 +113,17 @@
     if (drag.kind === 'move') {
       if (S3.junctionAt(P, drag.id) === null) drag.P = P; // never onto another junction: the last valid point stays
       preview = drag.P ? { pos: new Map([[drag.id, drag.P]]) } : null;
+    } else if (drag.kind === 'end') {
+      // the end goes to the junction near the cursor, or else follows the point; the junction of the other end of the
+      // pipe refuses it
+      const sc = S3.scene(), p = app.model.pipes.find((x) => x.id === drag.pid);
+      const near = E3.nearJunction(at, sc, null);
+      drag.P = P;
+      drag.refused = near !== null && near === p[M.otherEnd(drag.end)] ? near : null;
+      drag.target = drag.refused === null ? near : null;
+      const tip = drag.target !== null ? sc.pos.get(drag.target) : P;
+      const a = drag.end === 'up' ? tip : S3.endPoint(sc, p, 'up'), b = drag.end === 'down' ? tip : S3.endPoint(sc, p, 'down');
+      preview = a && b ? { routes: new Map([[drag.pid, S3.routeFor(p, a, b)]]) } : null;
     } else {
       drag.P = P;
       preview = { routes: new Map([[drag.pid, drag.pts0.map((q, k) => (k === drag.i ? P : q))]]) };
@@ -162,6 +174,18 @@
       return true;
     }
     if (tl.startsWith('place:')) { place(tl.slice(6), e.shiftKey); return true; }
+    // an end of a pipe: the ring of a loose end, or the handle of an end of the selected pipe; Shift moves it up and down
+    const endEl = e.target.closest && e.target.closest('[data-end]');
+    if (endEl && !(e.ctrlKey || e.metaKey)) {
+      const pid = Number(endEl.dataset.p), end = endEl.dataset.end;
+      const p = app.model.pipes.find((x) => x.id === pid);
+      const p0 = p && S3.endPoint(S3.scene(), p, end);
+      if (p0) {
+        if (!(app.selSet.size === 1 && app.selSet.has('p:' + pid))) app.select({ kind: 'pipe', id: pid });
+        drag = { kind: 'end', pid, end, at0: at, ray0: E3.rayOf(at), p0, vertical: mods.shift, P: null, target: null, refused: null, moved: false };
+        return true;
+      }
+    }
     // a bend of the selected pipe: marked at once, moved by dragging
     const handle = e.target.closest && e.target.closest('[data-bend]');
     if (handle) {
@@ -202,6 +226,7 @@
     const d = drag;
     drag = null;
     preview = null;
+    if (d.kind === 'end') { dropEnd(d); return true; }
     if (!d.moved) {
       if (d.kind === 'move' && d.toggle) app.select(d.hit, { toggle: true });
       else E3.redraw(false);
@@ -209,6 +234,19 @@
     else if (d.kind === 'bend' && d.P && !V.pointsEqual(d.P, d.pts0[d.i])) C3.setRoute(d.pid, d.pts0.map((q, k) => (k === d.i ? d.P : q)), { free: true });
     else E3.redraw(false);
     return true;
+  }
+
+  // An end let go: on a junction it connects there; elsewhere it stays loose at the point of the drag, at that height. A
+  // click without a drag only selects the pipe.
+  function dropEnd(d) {
+    const p = app.model.pipes.find((x) => x.id === d.pid);
+    if (!d.moved || !p || (d.target === null && !d.P)) { E3.redraw(false); return; }
+    if (d.refused !== null) { app.toast(t('app.edit.sameEnds')); E3.redraw(false); return; }
+    if (d.target !== null) { if (!app.connectEnd(d.pid, d.end, d.target)) E3.redraw(false); return; }
+    const { x, y, elev } = V.fromScene(d.P, S3.zScale());
+    if (M.isLoose(p, d.end)) app.moveLooseEnd(d.pid, d.end, { x, y, z: elev });
+    else app.disconnectEnd(d.pid, d.end, { x, y, z: elev });
+    E3.redraw(false);
   }
 
   // keys of the 3D view (§6.4): D makes a bend while drawing; ← → choose the route to the junction under the
@@ -282,6 +320,14 @@
 
   function overlay({ cam, vp, sc, floorZ }) {
     let o = '';
+    const endDrag = drag && drag.kind === 'end' && drag.moved ? drag : null;
+    // the loose ends (docs/pipe-ends.md): a ring at each, which takes the pointer to drag it onto a junction
+    for (const [pid, ends] of sc.loose) {
+      for (const end of M.PIPE_ENDS) {
+        const s = ends[end] && !(endDrag && endDrag.pid === pid && endDrag.end === end) && V.project(cam, vp, ends[end]);
+        if (s) o += `<circle class="loose3${app.selSet.has('p:' + pid) ? ' sel' : ''}" data-p="${pid}" data-end="${end}" cx="${f1(s.x)}" cy="${f1(s.y)}" r="6"><title>${F.esc(t('network.ends.looseTitle'))}</title></circle>`;
+      }
+    }
     // the bends of the selected pipe (R-47): a handle on each; the marked one is filled
     const pid = E3.selPipe();
     if (E3.tool() === 'select' && !draw && pid !== null && sc.routes.has(pid)) {
@@ -291,9 +337,25 @@
         const on = !!bendSel && bendSel.pid === pid && bendSel.i === i;
         if (s) o += `<circle class="handle bend${on ? ' on' : ''}" data-pipe="${pid}" data-bend="${i}" cx="${f1(s.x)}" cy="${f1(s.y)}" r="${on ? 6 : 5}"/>`;
       }
+      // its ends on junctions: a handle just off the symbol, along the pipe, to drag that end elsewhere
+      const p = app.model.pipes.find((x) => x.id === pid);
+      for (const [end, i, k] of [['up', 0, 1], ['down', pts.length - 1, pts.length - 2]]) {
+        if (!p || M.isLoose(p, end) || endDrag) continue;
+        const a = V.project(cam, vp, pts[i]), b = V.project(cam, vp, pts[k]);
+        const L = a && b ? Math.hypot(b.x - a.x, b.y - a.y) : 0;
+        if (L < 1) continue;
+        const r = Math.min(UI.render3d.symbolRadius(a.k) + 7, L * 0.45) / L;
+        o += `<circle class="handle end" data-p="${pid}" data-end="${end}" cx="${f1(a.x + (b.x - a.x) * r)}" cy="${f1(a.y + (b.y - a.y) * r)}" r="5"><title>${F.esc(t('network.ends.handleTitle'))}</title></circle>`;
+      }
     }
-    // a junction or a bend being moved: its height down to the floor
-    if (drag && drag.moved && drag.P) o += E3.marker(cam, vp, drag.P, floorZ);
+    // an end being dragged: a ring around the junction it would connect to, or around the one that refuses it
+    const ringed = endDrag ? (endDrag.target !== null ? endDrag.target : endDrag.refused) : null;
+    if (ringed !== null) {
+      const q = sc.pos.get(ringed), s = q && V.project(cam, vp, q);
+      if (s) o += `<circle class="${endDrag.target !== null ? 'target3' : 'refused3'}" cx="${f1(s.x)}" cy="${f1(s.y)}" r="${f1(UI.render3d.symbolRadius(s.k) + 5)}"/>`;
+    }
+    // a junction, a bend or a loose end being moved: its height down to the floor
+    if (drag && drag.moved && drag.P && !(endDrag && endDrag.target !== null)) o += E3.marker(cam, vp, drag.P, floorZ);
     // the pipe being drawn: the dashed route, the tip with its height, and the label
     if (draw) {
       o += E3.polyline(cam, vp, [...draw.pts, ...draw.tail], 'rubber3');

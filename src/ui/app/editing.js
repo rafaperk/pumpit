@@ -1,5 +1,6 @@
 // Model editing with undo and redo: field values (following the scenario inheritance rule), adding, deleting,
-// reversing and retyping objects. Every edit pushes an undo snapshot and ends in app.changed().
+// reversing and retyping objects, and connecting and letting go the ends of pipes. Every edit pushes an undo snapshot
+// and ends in app.changed().
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, D = PumpIt.data, U = PumpIt.units;
@@ -115,9 +116,61 @@
     const p = app.model.pipes.find((x) => x.id === id);
     if (!p) return;
     app.pushUndo();
-    [p.up, p.down] = [p.down, p.up];
+    M.swapEnds(p);
     // the bends go from the start to the end of the pipe, and each follows the start (a) or the end (b)
     if (p.bends3) p.bends3 = p.bends3.reverse().map(({ ref, d }) => ({ ref: [...ref].map((c) => (c === 'a' ? 'b' : 'a')).join(''), d }));
+    app.changed();
+  };
+
+  // ------------------------------------------------------------ ends of pipes (docs/pipe-ends.md)
+  const findPipe = (id) => app.model.pipes.find((x) => x.id === id);
+  // the elevation of a junction in the current scenario (m): a loose end that leaves it stays at that height in 3D
+  const elevNow = (j) => PumpIt.ui.scene3d.elevationM(app.effObj('j:' + j.id) || j);
+
+  // The end of a pipe connected to the junction jid (dropped on it, or chosen in the panel). False when nothing changed:
+  // the end was there already, or jid is the junction of the other end (a pipe joins two different junctions).
+  app.connectEnd = (pid, end, jid) => {
+    const p = findPipe(pid);
+    if (!p || p[end] === jid || !app.model.junctions.some((j) => j.id === jid)) return false;
+    if (p[M.otherEnd(end)] === jid) { toast(t('app.edit.sameEnds')); return false; }
+    app.pushUndo();
+    M.connectEnd(app.model, p, end, jid);
+    app.changed();
+    return true;
+  };
+
+  // The end of a pipe let go: it stays loose at the spot s ({ x, y, z }), or next to the junction it leaves. The pipe
+  // keeps its data, and the checklist waits for the end to be connected again.
+  app.disconnectEnd = (pid, end, s) => {
+    const p = findPipe(pid);
+    if (!p) return;
+    if (M.isLoose(p, end)) { if (s) app.moveLooseEnd(pid, end, s); return; }
+    const at = s || M.spotNear(app.model, p, end, elevNow);
+    app.pushUndo();
+    M.loosenEnd(p, end, at);
+    app.changed();
+  };
+
+  // a loose end moved: drawing data only, so the results stay (like a junction moved on the schematic)
+  app.moveLooseEnd = (pid, end, s) => {
+    const p = findPipe(pid);
+    if (!p || !M.isLoose(p, end)) return;
+    const was = p.loose && p.loose[end];
+    const r = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
+    if (was && was.x === r(s.x, 2) && was.y === r(s.y, 2) && was.z === r(s.z, 6)) return;
+    app.pushUndo();
+    M.loosenEnd(p, end, s);
+    app.save();
+    app.layoutChanged();
+    app.renderAll();
+  };
+
+  // every pipe at the junction jid let go of it: their ends stay loose next to it, and the junction stays
+  app.disconnectJunction = (jid) => {
+    const ps = M.pipesAt(app.model, jid);
+    if (!ps.length) return;
+    app.pushUndo();
+    for (const p of ps) for (const end of M.PIPE_ENDS) if (p[end] === jid) M.loosenEnd(p, end, M.spotNear(app.model, p, end, elevNow));
     app.changed();
   };
 

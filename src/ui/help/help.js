@@ -23,7 +23,7 @@
   const CHAPTERS = [
     ['start', ['welcome', 'firstModel', 'examples', 'autoCalc', 'saving']],
     ['screen', ['overview', 'topbar', 'tabs', 'inspector', 'units']],
-    ['draw', ['place', 'pipes', 'select', 'edit', 'context', 'direction']],
+    ['draw', ['place', 'pipes', 'connect', 'select', 'edit', 'context', 'direction']],
     ['junctions', ['overview', 'reservoir', 'pressure', 'flow', 'spray', 'branch', 'pump', 'valve', 'control', 'exitvalve', 'orifice', 'generic']],
     ['pipes', ['geometry', 'friction', 'fittings', 'ends']],
     ['system', ['fluid', 'environment', 'solution']],

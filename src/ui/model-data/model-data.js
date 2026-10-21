@@ -34,7 +34,7 @@
     const ov = (key, ...paths) => paths.some((p) => app.isOv(key, p)) ? ' ov' : '';
     const pRows = eff.pipes.map((p) => {
       const k = 'p:' + p.id, s = pipeSummary(p);
-      return `<tr data-key="${k}"><td class="txt num">P${p.id}${und.has(k) ? ` <span class="pill crit">${tx('undefinedPipe')}</span>` : ''}</td><td class="txt${ov(k, 'name')}">${F.esc(p.name)}</td><td class="txt">J${p.up} → J${p.down}</td>
+      return `<tr data-key="${k}"><td class="txt num">P${p.id}${und.has(k) ? ` <span class="pill crit">${tx('undefinedPipe')}</span>` : ''}</td><td class="txt${ov(k, 'name')}">${F.esc(p.name)}</td><td class="txt">${F.esc(UI.pipeLabels.ends(p))}</td>
         <td class="num${ov(k, 'length')}">${q(p.length)}</td><td class="txt${ov(k, 'material')}">${s.mat}</td><td class="txt${ov(k, 'geometry')}">${s.geo}</td><td class="txt${ov(k, 'friction')}">${s.fr}</td>
         <td class="num${ov(k, 'fittings')}">${(p.fittings || []).reduce((a, f) => a + (f.qty || 0), 0)}</td><td class="num${ov(k, 'nParallel')}">${p.nParallel}</td><td class="txt${ov(k, 'closed')}">${p.closed ? tx('closed') : ''}</td></tr>`;
     }).join('');

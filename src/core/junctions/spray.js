@@ -11,10 +11,11 @@
 
     defaults: () => ({ sprayModel: 'CdA', Cd: 0.62, dHole: q(10, 'mm'), nHoles: 1, Kf: q(80, 'L/min/bar½'), Pext: q(0, 'kgf/cm²(g)') }),
 
-    validate(j, miss, { fin, pos }) {
+    validate(j, miss, { fin, pos, gasP }) {
       if (j.sprayModel === 'CdA' && !(j.Cd > 0 && pos(j.dHole) && j.nHoles >= 1)) miss.push(t('junctions.spray.check.holes'));
       if (j.sprayModel === 'K' && !pos(j.Kf)) miss.push(t('junctions.spray.check.Kf'));
       if (!fin(j.Pext)) miss.push(t('junctions.spray.check.Pext'));
+      gasP(j.Pext, 'junctions.spray.check.Pext');
     },
 
     buildNode(j, net, z) {

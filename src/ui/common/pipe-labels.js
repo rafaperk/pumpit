@@ -34,5 +34,9 @@
     return `${s} · ${grade(g)}` + (Number.isFinite(p) ? ` · ${pn(p)}` : '');
   }
 
-  PumpIt.ui.pipeLabels = { isCatalog, material, size, nominal, series, full, grade, pn, num, dim };
+  // the ends of a pipe: "J3 → J5", or "J3 → loose end" (docs/pipe-ends.md)
+  const end = (id) => (id === null || id === undefined ? t('network.ends.loose') : 'J' + id);
+  const ends = (p) => `${end(p.up)} → ${end(p.down)}`;
+
+  PumpIt.ui.pipeLabels = { isCatalog, material, size, nominal, series, full, grade, pn, num, dim, end, ends };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -26,7 +26,7 @@ PumpIt.i18n.add('en', {
 
     reservoir: {
       label: 'Reservoir',
-      check: { liquidElev: 'liquid level', surfP: 'surface pressure' },
+      check: { liquidElev: 'liquid level', surfP: 'surface pressure', gasP: 'gas pressure' },
       elevation: 'Bottom elevation (connections)',
       form: {
         gasElev: 'Elevation of the reference pressure',

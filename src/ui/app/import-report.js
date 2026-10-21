@@ -41,5 +41,31 @@
     UI.dialogs.modal({ title: tx('title', { name }), body: box, actions: [{ label: t('app.dialog.close'), primary: true }] });
   }
 
-  PumpIt.ui.importReport = { show };
+  // choice of the scenario to import from a file that has several (list: [{ n, name, path, description, results }], as
+  // the importer lists them); onPick(n) runs after the window closes. The base scenario comes first and is chosen
+  function pickScenario(name, list, onPick) {
+    const box = document.createElement('div');
+    box.className = 'import-report import-scenarios';
+    const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+    box.appendChild(el('p', 'muted', tx('pick.intro', { n: list.length })));
+    const first = list.find((s) => s.n === 1) || list[0];
+    for (const s of list) {
+      const lab = el('label');
+      const radio = el('input');
+      Object.assign(radio, { type: 'radio', name: 'import-scenario', value: String(s.n), checked: s === first });
+      const txt = el('span');
+      txt.appendChild(el('b', '', s.path || s.name || '#' + s.n));
+      if (s.results) txt.appendChild(el('span', 'tag', tx('pick.results')));
+      if (s.description) txt.appendChild(el('small', '', s.description));
+      lab.append(radio, txt);
+      box.appendChild(lab);
+    }
+    const chosen = () => { const c = box.querySelector('input[name="import-scenario"]:checked'); return c ? Number(c.value) : first.n; };
+    UI.dialogs.modal({
+      title: tx('pick.title', { name }), body: box,
+      actions: [{ label: t('app.dialog.cancel') }, { label: tx('pick.import'), primary: true, onClick: () => { const n = chosen(); setTimeout(() => onPick(n), 0); } }],
+    });
+  }
+
+  PumpIt.ui.importReport = { show, pickScenario };
 })(typeof window !== 'undefined' ? window : globalThis);

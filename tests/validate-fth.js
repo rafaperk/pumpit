@@ -2,7 +2,7 @@
 // Usage: node tests/validate-fth.js <folder> [<folder> ...]
 //
 // The files serve only as an output answer key and are never copied into the project. They are read with the parsing
-// helpers of the importer (src/core/import/fth.js, layout of Annex A), but the method is that of section 10: at
+// helpers of the importer (src/core/import/fth.js and its layout of the records), but the method is that of section 10: at
 // reservoirs, imposed pressures and exit valves the boundary is the stagnation pressure stored at the end of each
 // pipe, so that only the solver is under test; everything else is calculated. Comparison: mass flow of each pipe
 // (relative to the largest flow) and stagnation pressure at both ends (relative to the largest pressure drop in a
@@ -14,7 +14,7 @@ const { loadCore } = require('./load-core');
 
 const { model: M, solver: S, units: U, importers } = loadCore();
 const q = M.q;
-const { readSections, records, keyValues: kv, scenarioSection: sec, addOns } = importers.fth.parse;
+const { readSections, records, keyValues: kv, scenarioSection: sec, addOns, pipeLayout, junctionLayout, pumpConfigs } = importers.fth.parse;
 
 const PSI = 6894.757293168, LBM = 0.45359237, FT = 0.3048;
 const UNIT = {
@@ -65,10 +65,12 @@ function buildCase(file) {
   const pipes = new Map();
   for (const f of records(sec(S, 'PIPES'))) {
     const id = +f[0];
-    const b = 10 + 3 * +f[9];
+    const { nT, b } = pipeLayout(f);
     const p = M.newPipe(id, +f[b + 3], +f[b + 4]);
     p.material.kind = 'user';
-    p.length = q(+f[6], u('length', f[2]));
+    let L = 0;
+    for (let k = 0; k < nT; k++) L += +f[6 + 2 * k];
+    p.length = q(L, u('length', f[2]));
     const geo = +f[b + 16];
     if (geo === 0) p.geometry = Object.assign(p.geometry, { kind: 'circular', d: q(+f[b + 5], u('length', f[b + 6])) });
     else if (geo === 2) p.geometry = Object.assign(p.geometry, { kind: 'noncircular', area: q(+f[b + 7] * U.toSI(1, u('length', f[b + 8].replace('2', '')), 'length') ** 2, 'm²'), perim: q(+f[b + 9], u('length', f[b + 10])) });
@@ -83,14 +85,15 @@ function buildCase(file) {
     else return { skip: `friction model ${code}` };
     const Ksum = +f[b + 20];
     p.fittings = Ksum ? [{ name: 'ΣK', model: 'K', value: Ksum, qty: 1 }] : [];
-    pipes.set(id, { p, zIn: q(+f[4], u('length', f[3])), zOut: q(+f[7], u('length', f[3])) });
+    pipes.set(id, { p, zIn: q(+f[4], u('length', f[3])), zOut: q(+f[5 + 2 * nT], u('length', f[3])) });
     m.pipes.push(p);
   }
 
   // junctions
   let nextJ = 100000;
   for (const f of records(sec(S, 'JUNCTIONS'))) {
-    const type = +f[0], id = +f[1], np = +f[5], b = 6 + np;
+    const type = +f[0], id = +f[1];
+    const { np, b, t } = junctionLayout(f); // t: the block of the type, after the anchor of the common block
     const pids = f.slice(6, 6 + np).map((x) => Math.abs(+x));
     const elev = q(+f[b + 7], u('length', f[b + 9]));
     const add = (t, props) => { const j = Object.assign(M.newJunction(t, id, 0, 0), { elevation: elev }, props); m.junctions.push(j); return j; };
@@ -108,12 +111,12 @@ function buildCase(file) {
         break;
       }
       case 1: {
-        for (let i = 0; i < np; i++) if (+f[b + 70 + 3 * i]) return { skip: 'per-pipe K at a branch' };
-        add('branch', { source: flowQ(f[b + 70 + 3 * np], f[b + 71 + 3 * np]) });
+        for (let i = 0; i < np; i++) if (+f[t + 3 * i + 1]) return { skip: 'per-pipe K at a branch' };
+        add('branch', { source: flowQ(f[t + 3 * np + 1], f[t + 3 * np + 2]) });
         break;
       }
-      case 3: { const Q = flowQ(Math.abs(+f[b + 70]), f[b + 71]); add('flow', { Q, dir: +f[b + 72] === 0 ? 'in' : 'out' }); break; }
-      case 6: add('generic', { genModel: 'K', K: +f[b + 72] }); break;
+      case 3: { const Q = flowQ(Math.abs(+f[t + 1]), f[t + 2]); add('flow', { Q, dir: +f[t + 3] === 0 ? 'in' : 'out' }); break; }
+      case 6: add('generic', { genModel: 'K', K: +f[t + 3] }); break;
       case 8:
         if (np === 1) { // discharge valve: boundary at the pressure stored at the pipe end, like the reservoirs
           const pid = pids[0], P = pipes.get(pid), r = rec.get(pid);
@@ -122,13 +125,18 @@ function buildCase(file) {
           if (atUp) P.p.up = nj; else P.p.down = nj;
           break;
         }
-        add('valve', { lossModel: 'K', K: +f[b + 90] }); break;
+        // loss model at t+1 (1 = K); the K after the counted coefficients (t+8), at u+7 with u = t+9+nc
+        if (+f[t + 1] !== 1) return { skip: 'valve loss model' };
+        add('valve', { lossModel: 'K', K: +f[t + 16 + Math.abs(+f[t + 8])] }); break;
       case 11: add('flow', { Q: q(0, 'm³/h'), dir: 'out' }); break; // dead end
       case 17: {
-        const n = +f[b + 92];
-        const a = f.slice(b + 93, b + 93 + n).map(Number);
+        // mode at t+0 (0 = curve); the head coefficients of the configuration in use, after the head of the block
+        if (+f[t] !== 0) return { skip: 'pump mode' };
+        const cfs = pumpConfigs(f, t), cf = cfs.list[cfs.sel - 1];
+        const a = cf ? cf.H : [], n = a.length;
         if (!n || a.some((x) => !Number.isFinite(x))) return { skip: 'pump curve in another form' };
-        const hu = u('head', f[b + 79]), qu = f[b + 81];
+        if (Math.abs(cfs.speed - 1) > 1e-12) return { skip: 'pump speed' };
+        const hu = u('head', f[t + 6]), qu = f[t + 8];
         if (!(qu in { 'gal/min': 1, 'm3/sec': 1, 'm3/hr': 1, 'ft3/sec': 1, 'liters/sec': 1, 'liters/min': 1 })) return { skip: `pump flow in ${qu}` };
         const pid = pids[0], r = rec.get(pid);
         const qop = U.fromSI(Math.abs(r.m) / first.rho, UNIT.flow[qu], 'volFlow') || 1;

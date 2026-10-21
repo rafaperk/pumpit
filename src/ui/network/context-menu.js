@@ -1,7 +1,7 @@
-// Right click on an object: the data card plus actions (reverse, copy, paste, delete).
+// Right click on an object: the data card plus actions (reverse, disconnect, copy, paste, delete).
 (function (root) {
   const PumpIt = root.PumpIt;
-  const UI = PumpIt.ui, app = PumpIt.app;
+  const UI = PumpIt.ui, app = PumpIt.app, M = PumpIt.model;
   const { $ } = UI.dom;
   const { t } = PumpIt.i18n;
 
@@ -14,6 +14,10 @@
     const many = app.selSet.size > 1;
     const items = [];
     if (hit.kind === 'pipe' && !many) items.push([t('network.menu.reverse'), () => app.reversePipe(hit.id)]);
+    // the ends of a pipe let go of their junctions, or every pipe let go of a junction (docs/pipe-ends.md)
+    const p = hit.kind === 'pipe' && !many && app.model.pipes.find((x) => x.id === hit.id);
+    if (p) for (const end of M.PIPE_ENDS) if (!M.isLoose(p, end)) items.push([t('network.menu.disconnectFrom', { id: p[end] }), () => app.disconnectEnd(hit.id, end)]);
+    if (hit.kind === 'junction' && !many && M.pipesAt(app.model, hit.id).length) items.push([t('network.menu.disconnectPipes'), () => app.disconnectJunction(hit.id)]);
     items.push([many ? t('network.menu.copyMany', { n: app.selSet.size }) : t('network.menu.copy'), () => app.copySelection()]);
     if (app.clipboard) items.push([t('network.menu.paste'), () => app.paste()]);
     items.push([many ? t('network.menu.deleteMany', { n: app.selSet.size }) : t('network.menu.delete'), () => app.deleteSelection()]);

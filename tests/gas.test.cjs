@@ -187,7 +187,8 @@ if (PumpIt) {
   }
 
   // T13 appendix D (example "air"): solves, closes the mass balance, and the pressure of the branch equals an
-  // independent calculation (bisection on that pressure, closed isothermal form, isentropic entrance from the vessel)
+  // independent calculation (bisection on that pressure, closed isothermal form, isentropic entrance from the vessel),
+  // in absolute pressures: the gauge ones of the example plus the atmospheric pressure of the model (R-13)
   {
     const m = PumpIt.examples.get('air').build();
     m.system.fluidGas = Object.assign({}, customAir);
@@ -209,11 +210,13 @@ if (PumpIt) {
         return (lo + hi) / 2;
       };
       const A = (D) => Math.PI * D * D / 4;
-      let lo = 2.5e5, hi = 5e5;
-      for (let i = 0; i < 100; i++) { const Pb = (lo + hi) / 2; if (fluxVS(5e5, Pb, 200, 0.1) * A(0.1) > (fluxSS(Pb, 2.5e5, 150, 0.08) + fluxSS(Pb, 2e5, 180, 0.08)) * A(0.08)) lo = Pb; else hi = Pb; }
+      const pa = PumpIt.units.toSI(m.system.patm.value, m.system.patm.unit, 'pressure');
+      const P0 = 5e5 + pa, PA = 2.5e5 + pa, PB = 2e5 + pa;
+      let lo = PA, hi = P0;
+      for (let i = 0; i < 100; i++) { const Pb = (lo + hi) / 2; if (fluxVS(P0, Pb, 200, 0.1) * A(0.1) > (fluxSS(Pb, PA, 150, 0.08) + fluxSS(Pb, PB, 180, 0.08)) * A(0.08)) lo = Pb; else hi = Pb; }
       const Pb = (lo + hi) / 2;
       ok('T13 pressure of the branch = independent calculation', near(r.junctions[2].Pin, Pb, 1e-7), `${(r.junctions[2].Pin / 1e3).toFixed(4)} × ${(Pb / 1e3).toFixed(4)} kPa`);
-      ok('T13 flows = independent calculation', near(r.pipes[1].m, fluxVS(5e5, Pb, 200, 0.1) * A(0.1), 1e-6) && near(r.pipes[3].m, fluxSS(Pb, 2e5, 180, 0.08) * A(0.08), 1e-6), `ṁ1=${r.pipes[1].m.toFixed(5)} kg/s`);
+      ok('T13 flows = independent calculation', near(r.pipes[1].m, fluxVS(P0, Pb, 200, 0.1) * A(0.1), 1e-6) && near(r.pipes[3].m, fluxSS(Pb, PB, 180, 0.08) * A(0.08), 1e-6), `ṁ1=${r.pipes[1].m.toFixed(5)} kg/s`);
       ok('T13 the results carry Mach and stagnation', r.pipes[3].Mout > r.pipes[3].Min && r.pipes[3].P0out > r.pipes[3].Pout && r.junctions[2].T === 300);
     }
   }
@@ -374,7 +377,7 @@ if (PumpIt) {
     const ri = solve(m);
     ok('T21 incompressible with a fast gas: suggests the compressible mode', ri.ok && ri.warnings.some((w) => w.level === 'caution' && /P1/.test(w.text) && /Mach 0[.,]3/.test(w.text)));
     const ms = PumpIt.examples.get('air').build();
-    ms.junctions[2].P = q(4.99, 'bar(a)'); ms.junctions[3].P = q(4.995, 'bar(a)');
+    ms.junctions[2].P = q(4.99, 'bar(g)'); ms.junctions[3].P = q(4.995, 'bar(g)');
     const rs = solve(ms);
     ok('T21 slow compressible: says the incompressible mode would give the same', rs.ok && rs.warnings.length === 1 && rs.warnings[0].level === 'info');
     const rf = solve(PumpIt.examples.get('air').build());
@@ -500,6 +503,52 @@ if (PumpIt) {
     const rd = solve(mk('adiabatic', { mode: 'controlDischarge', setP: q(3, 'bar(a)'), curve }));
     ok('T28 discharge control: static P = 3 bar(a) and the speed the curve asks for', rd.ok && near(rd.pipes[2].Pin, 3e5, 1e-9) && rd.pumps[2].speed > 50 && rd.pumps[2].speed < 100,
       rd.ok ? `P = ${(rd.pipes[2].Pin / 1e5).toFixed(6)} bar(a), speed ${rd.pumps[2].speed.toFixed(2)} %` : rd.errors.join('; '));
+  }
+
+  // T29 gauge and absolute pressures (R-13): the example is in gauge pressures; a gauge value is the absolute one less
+  // the atmospheric pressure of the model, whatever that is; a pressure at or below vacuum, and an atmospheric pressure
+  // that is not above zero, stay pending in the checklist of a gas, and a liquid is not affected
+  {
+    const tr = PumpIt.i18n.t;
+    const ex = () => PumpIt.examples.get('air').build();
+    const e0 = ex();
+    ok('T29 example D in gauge pressures: 5, 2.5 and 2 bar(g)', [e0.junctions[0].surfP, e0.junctions[2].P, e0.junctions[3].P].map((x) => x.value + ' ' + x.unit).join(', ') === '5 bar(g), 2.5 bar(g), 2 bar(g)');
+    // the same line typed in gauge and in absolute pressures, at sea level and at about 1400 m
+    const typed = (unit, add, patm) => {
+      const m = ex();
+      m.system.patm = q(patm, 'bar(a)');
+      m.junctions[0].surfP = q(5 + add, unit); m.junctions[2].P = q(2.5 + add, unit); m.junctions[3].P = q(2 + add, unit);
+      return m;
+    };
+    for (const patm of [1.01325, 0.85]) {
+      const rg = solve(typed('bar(g)', 0, patm)), ra = solve(typed('bar(a)', patm, patm));
+      ok(`T29 gauge = absolute − atmospheric (${patm} bar(a))`, rg.ok && ra.ok && near(rg.pipes[1].m, ra.pipes[1].m, 1e-9) && near(rg.junctions[2].Pin, ra.junctions[2].Pin, 1e-9) && near(rg.patm, patm * 1e5, 1e-12),
+        rg.ok && ra.ok ? `ṁ1 ${rg.pipes[1].m.toFixed(6)} × ${ra.pipes[1].m.toFixed(6)} kg/s` : '');
+    }
+    const vac = (key) => tr('core.checklist.junction.vacuum', { what: tr(key) });
+    const pending = (v, id, key) => (v.undef.get('j:' + id) || []).includes(vac(key));
+    const below = ex();
+    below.junctions[0].surfP = q(-1.5, 'bar(g)');            // −0.49 bar(a)
+    below.junctions[2].P = q(0, 'bar(a)');                   // vacuum
+    below.junctions[3].P = q(-0.5, 'bar(g)');                // 0.51 bar(a): a vacuum line, which a gas allows
+    const vb = M.validate(M.effective(below, 'base'));
+    ok('T29 a vessel and a consumer at or below vacuum stay pending, with the field named', !vb.ok && pending(vb, 1, 'junctions.reservoir.check.gasP') && pending(vb, 3, 'junctions.pressure.check.P') && !vb.undef.has('j:4'),
+      JSON.stringify([...vb.undef]));
+    below.system.regime = 'incompressible';
+    ok('T29 a liquid is not checked', M.validate(M.effective(below, 'base')).ok);
+    const dev = gasModel([
+      [1, 'reservoir', { surfP: q(8, 'bar(g)'), liquidElev: q(0, 'm') }], [2, 'control', { ctype: 'PRV', setP: q(-1.2, 'bar(g)'), basis: 'static', kOpen: 1 }],
+      [3, 'branch', {}], [4, 'exitvalve', { Pout: q(-1.1, 'bar(g)') }], [5, 'spray', { sprayModel: 'CdA', Cd: 0.8, dHole: q(6, 'mm'), nHoles: 1, Pext: q(0, 'bar(a)') }],
+      [6, 'pump', { mode: 'controlDischarge', setP: q(-2, 'bar(g)') }], [7, 'pressure', { P: q(1, 'bar(g)'), ptype: 'static' }],
+    ], [[1, 1, 2, 10, 50], [2, 2, 3, 10, 50], [3, 3, 4, 10, 50], [4, 3, 5, 10, 50], [5, 3, 6, 10, 50], [6, 6, 7, 10, 50]], { fluidGas: Object.assign({}, customAir) });
+    const vd = M.validate(M.effective(dev, 'base'));
+    ok('T29 set and outside pressures at or below vacuum stay pending: reducing valve, exit valve, nozzle, compressor',
+      pending(vd, 2, 'junctions.control.check.setP') && pending(vd, 4, 'junctions.exitvalve.check.Pout') && pending(vd, 5, 'junctions.spray.check.Pext') && pending(vd, 6, 'junctions.pump.check.setP')
+      && !vd.undef.has('j:1') && !vd.undef.has('j:7'), JSON.stringify([...vd.undef]));
+    const thin = ex();
+    thin.system.patm = q(0, 'bar(a)');
+    const vs = M.validate(M.effective(thin, 'base'));
+    ok('T29 an atmospheric pressure of zero stays pending for a gas', !vs.ok && vs.items.find((i) => i.key === 'sys').detail.includes(tr('core.checklist.gas.patm')));
   }
 }
 

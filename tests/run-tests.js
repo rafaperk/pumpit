@@ -61,6 +61,41 @@ console.log('\nSingle pipe between reservoirs (Darcy + Colebrook)');
   check('P0 at the upstream end = P_surface + ρg·h', rel(r.pipes[1].P0in, P0exp) < 1e-9);
 }
 
+console.log('\nReservoir connections by elevation and by depth');
+{
+  // two tanks and one pipe; r1 and r2 add to the tanks (surfaces at 30 m and 10 m, bottoms at 0 m)
+  const build = (r1 = {}, r2 = {}) => {
+    const m = M.newModel();
+    m.junctions.push(Object.assign(M.newJunction('reservoir', 1, 0, 0), { liquidElev: q(30, 'm'), elevation: q(0, 'm') }, r1));
+    m.junctions.push(Object.assign(M.newJunction('reservoir', 2, 100, 0), { liquidElev: q(10, 'm'), elevation: q(0, 'm') }, r2));
+    const p = M.newPipe(1, 1, 2);
+    p.length = q(800, 'm'); p.geometry.d = q(150, 'mm'); p.friction.eps = q(0.05, 'mm');
+    m.pipes.push(p);
+    return m;
+  };
+  const fl = F.evaluate(M.newModel().system);
+  const g = 9.80665, D = 0.15, L = 800, eps = 0.05e-3;
+  const P0at = (r, h) => r.patm + fl.rho * g * h; // stagnation pressure h metres under a surface at the atmospheric pressure
+  const byElev = (z) => ({ pipeK: { 1: { kOut: 0, kIn: 0, elev: q(z, 'm') } } });
+  const byDepth = (d, unit = 'm') => ({ connBy: 'depth', pipeK: { 1: { kOut: 0, kIn: 0, depth: q(d, unit) } } });
+  const rE = solveOk(build(byElev(20))), rD = solveOk(build(byDepth(10)));
+  check('A depth of 10 m under a surface at 30 m = an elevation of 20 m', rel(rD.pipes[1].m, rE.pipes[1].m) < 1e-12 && rel(rD.pipes[1].P0in, rE.pipes[1].P0in) < 1e-12);
+  check('P0 at the connection = P_surface + ρg·depth', rel(rD.pipes[1].P0in, P0at(rD, 10)) < 1e-9);
+  check('A depth in feet', rel(solveOk(build(byDepth(10 / 0.3048, 'ft'))).pipes[1].P0in, P0at(rD, 10)) < 1e-9);
+  // the level 5 m higher: a depth goes with the surface, an elevation stays where it is
+  const up = { liquidElev: q(35, 'm') };
+  const rE2 = solveOk(build(Object.assign(byElev(20), up))), rD2 = solveOk(build(Object.assign(byDepth(10), up)));
+  check('A higher level: the depth stays 10 m, the elevation 20 m', rel(rD2.pipes[1].P0in, P0at(rD2, 10)) < 1e-9 && rel(rE2.pipes[1].P0in, P0at(rE2, 15)) < 1e-9);
+  // a blank cell is the bottom, and only the field of the reference in use counts
+  const rB = solveOk(build({ connBy: 'depth', pipeK: { 1: { kOut: 0, kIn: 0, elev: q(20, 'm') } } }));
+  check('By depth, a pipe without one connects at the bottom (its elevation is not used)', rel(rB.pipes[1].P0in, P0at(rB, 30)) < 1e-9);
+  // a negative depth is above the surface: the pipe discharges in free fall, from 12 m
+  const rF = solveOk(build({}, { connBy: 'depth', pipeK: { 1: { kOut: 0, kIn: 0, depth: q(-2, 'm') } } }));
+  const V = bisect((V) => { const Re = fl.rho * V * D / fl.mu; return H.frictionFactor(Re, eps / D) * L / D * V * V / 2 - g * 18; }, 0.01, 20);
+  check('A negative depth discharges in free fall above the surface', rel(rF.pipes[1].V, V) < 1e-7 && rel(rF.pipes[1].P0out, rF.patm) < 1e-9, `${rF.pipes[1].V.toFixed(6)} × ${V.toFixed(6)} m/s`);
+  check('… as the same elevation does', rel(solveOk(build({}, byElev(12))).pipes[1].m, rF.pipes[1].m) < 1e-12);
+}
+
 console.log('\nHazen-Williams');
 {
   const m = M.newModel();

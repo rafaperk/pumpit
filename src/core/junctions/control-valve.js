@@ -55,8 +55,9 @@
       basis: 'static', alwaysControl: true, kOpen: 0, failAction: 'open', special: 'none',
     }),
 
-    validate(j, miss, { fin, pos }) {
+    validate(j, miss, { fin, pos, gasP }) {
       if ((j.ctype === 'PRV' || j.ctype === 'PSV') && !fin(j.setP)) miss.push(t('junctions.control.check.setP'));
+      if (j.ctype === 'PRV' || j.ctype === 'PSV') gasP(j.setP, 'junctions.control.check.setP');
       if (j.ctype === 'FCV' && !pos(j.setQ)) miss.push(t('junctions.control.check.setQ'));
       if (j.ctype === 'PDCV' && !fin(j.setDP)) miss.push(t('junctions.control.check.setDP'));
       if (!(j.kOpen >= 0)) miss.push(t('junctions.control.check.kOpen'));

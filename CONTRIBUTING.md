@@ -33,7 +33,7 @@ This project is a clean-room implementation. These rules are not optional:
 - Never use executables, help files, `.dat` databases, screens or texts of the reference software.
 - Trademarks of the reference software must not appear in the product, the code or the documentation.
 - Reference model files (`.fth`) serve only as an output answer key. Never copy them, or data taken from them, into the repository (`*.fth` is in `.gitignore`). A value inferred from such a comparison must be marked as *inferred* and documented in the README.
-- The `.fth` importer (`src/core/import/fth.js`) follows only Annex A of the specification. Do not study files of other programs to extend it: a gap in Annex A is left blank or assumed, reported to the user and recorded in `docs/fth-import.md`. Its tests write synthetic files in code.
+- The `.fth` importer (`src/core/import/fth.js`) follows only the format descriptions written by the specification team: Annex A of the specification and the description of 20 October 2026. Do not study files of other programs to extend it: a gap in those descriptions is left blank or assumed, reported to the user and recorded in `docs/fth-import.md`, until the specification team describes it. Its tests write synthetic files in code.
 - Engineering data must come from public primary sources (standards, published papers, textbooks), cited in the README.
 
 ## Conventions

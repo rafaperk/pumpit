@@ -1,11 +1,11 @@
 // Drawing area: the only place where the topology changes. SVG drawing with pan, zoom, grid, snapping,
-// multiple selection (Ctrl/Shift+click, Shift+drag on empty space) and group dragging. The SVG markup itself
-// is produced by drawing.js. In the 3D view (src/ui/view3d/) the same SVG element hands its events and its
-// drawing over to that block. The tools explain themselves in their tooltips and in the help: no text is written
+// multiple selection (Ctrl/Shift+click, Shift+drag on empty space), group dragging and the ends of pipes, dragged
+// onto another junction or away from it (docs/pipe-ends.md). The SVG markup itself is produced by drawing.js. In the
+// 3D view (src/ui/view3d/) the same SVG element hands its events and its drawing over to that block. The tools explain themselves in their tooltips and in the help: no text is written
 // over the drawing (decision D-37 of docs/3D-VIEWS.md).
 (function (root) {
   const PumpIt = root.PumpIt;
-  const UI = PumpIt.ui, app = PumpIt.app;
+  const M = PumpIt.model, UI = PumpIt.ui, app = PumpIt.app;
   const { $ } = UI.dom;
   const { t } = PumpIt.i18n;
 
@@ -18,7 +18,7 @@
   const state = {
     tool: 'select',   // 'select' | 'pipe' | 'place:<type>'
     pending: null,    // start junction while drawing a pipe
-    drag: null,       // { kind: 'move' | 'pan' | 'box', ... }
+    drag: null,       // { kind: 'move' | 'pan' | 'box' | 'end', ... }
     mouseW: null,     // last mouse position in world coordinates
   };
   let autoFit = true; // refits on resize until the user pans or zooms
@@ -104,6 +104,14 @@
 
     if (state.tool === 'select') {
       const additive = e.ctrlKey || e.metaKey || e.shiftKey;
+      // an end of a pipe (the handle of the selected pipe, or a loose end): dragged onto a junction, or away to stay loose
+      const endEl = !additive && hit.kind === 'pipe' && e.target.closest('[data-end]');
+      if (endEl) {
+        if (!(app.selSet.size === 1 && app.selSet.has(keyOf(hit)))) app.select(hit);
+        state.drag = { kind: 'end', pid: hit.id, end: endEl.dataset.end, x0: e.clientX, y0: e.clientY, at: w, target: null, refused: null, moved: false };
+        svg.setPointerCapture(e.pointerId);
+        return;
+      }
       if (additive) { app.select(hit, { toggle: true }); return; }
       // clicking an object that is already selected keeps the group (to drag them all)
       if (!(app.selSet.has(keyOf(hit)) && app.selSet.size > 1)) app.select(hit);
@@ -113,7 +121,10 @@
         if (!ids.includes(hit.id)) ids.push(hit.id);
         const start = {};
         for (const id of ids) { const j = app.model.junctions.find((x) => x.id === id); if (j) start[id] = { x: j.x, y: j.y }; }
-        state.drag = { kind: 'move', id: hit.id, ids, start, w0: w, moved: false };
+        // the loose ends of the selected pipes go with the group
+        const loose = [];
+        for (const p of app.model.pipes) if (p.loose && app.selSet.has('p:' + p.id)) for (const s of Object.values(p.loose)) loose.push({ s, x: s.x, y: s.y });
+        state.drag = { kind: 'move', id: hit.id, ids, start, loose, w0: w, moved: false };
         svg.setPointerCapture(e.pointerId);
       }
       return;
@@ -166,8 +177,41 @@
         const j = app.model.junctions.find((x) => x.id === id);
         if (j) { j.x = drag.start[id].x + dx; j.y = drag.start[id].y + dy; }
       }
+      for (const l of drag.loose) { l.s.x = l.x + dx; l.s.y = l.y + dy; }
+      render();
+    } else if (drag.kind === 'end') {
+      if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 3) return;
+      drag.moved = true;
+      // the junction under the cursor takes the end; the junction of the other end of the pipe refuses it
+      const j = junctionNear(mouseW);
+      const p = app.model.pipes.find((x) => x.id === drag.pid);
+      drag.refused = j !== null && p && j === p[M.otherEnd(drag.end)] ? j : null;
+      drag.target = drag.refused === null ? j : null;
+      drag.at = { x: snap(mouseW.x), y: snap(mouseW.y) };
       render();
     }
+  }
+
+  // the junction under the point w: within the disc of its symbol, and never less than 12 px on the screen
+  function junctionNear(w) {
+    let best = null, bestD = Math.max(UI.drawing.R + 4, 12 / view.s);
+    for (const j of app.model.junctions) {
+      const d = Math.hypot(j.x - w.x, j.y - w.y);
+      if (d <= bestD) { best = j.id; bestD = d; }
+    }
+    return best;
+  }
+
+  // the end of a pipe let go: on a junction it connects there (never on the junction of the other end); elsewhere it
+  // stays loose at the grid point, at the height it had (that of the junction it leaves)
+  function dropEnd(d) {
+    const p = app.model.pipes.find((x) => x.id === d.pid);
+    if (!p) return;
+    if (d.refused !== null) { app.toast(t('app.edit.sameEnds')); return; }
+    if (d.target !== null) { app.connectEnd(d.pid, d.end, d.target); return; }
+    if (M.isLoose(p, d.end)) { app.moveLooseEnd(d.pid, d.end, { ...d.at, z: p.loose[d.end].z }); return; }
+    const j = M.junctionOf(app.model, p, d.end);
+    app.disconnectEnd(d.pid, d.end, { ...d.at, z: UI.scene3d.elevationM(app.effObj('j:' + j.id) || j) });
   }
 
   function onUp(e) {
@@ -176,10 +220,19 @@
     if (!drag) return;
     if (drag.kind === 'pan' && !drag.moved && drag.clickEmpty) app.select(null);
     if (drag.kind === 'move' && drag.moved) { app.save(); app.layoutChanged(); }
+    if (drag.kind === 'end') {
+      state.drag = null;
+      if (drag.moved) dropEnd(drag);
+      render();
+      return;
+    }
     if (drag.kind === 'box') {
       const x0 = Math.min(drag.x0, drag.x1), x1 = Math.max(drag.x0, drag.x1), y0 = Math.min(drag.y0, drag.y1), y1 = Math.max(drag.y0, drag.y1);
-      const inside = new Set(app.model.junctions.filter((j) => j.x >= x0 && j.x <= x1 && j.y >= y0 && j.y <= y1).map((j) => j.id));
-      const keys = [...inside].map((id) => 'j:' + id).concat(app.model.pipes.filter((p) => inside.has(p.up) && inside.has(p.down)).map((p) => 'p:' + p.id));
+      const inBox = (pt) => !!pt && pt.x >= x0 && pt.x <= x1 && pt.y >= y0 && pt.y <= y1;
+      const inside = new Set(app.model.junctions.filter(inBox).map((j) => j.id));
+      // a pipe with both ends inside: its junctions, or the spots of its loose ends
+      const endIn = (p, end) => (M.isLoose(p, end) ? inBox(p.loose && p.loose[end]) : inside.has(p[end]));
+      const keys = [...inside].map((id) => 'j:' + id).concat(app.model.pipes.filter((p) => endIn(p, 'up') && endIn(p, 'down')).map((p) => 'p:' + p.id));
       state.drag = null;
       app.selectKeys(keys);
       return;
@@ -236,9 +289,10 @@
     app.showInfo(hit, e.clientX, e.clientY);
   }
 
-  // Esc: drops the pipe being drawn, then the current tool
+  // Esc: drops the end being dragged or the pipe being drawn, then the current tool
   function cancel() {
     if (in3d() && UI.edit3d.cancel()) return true;
+    if (state.drag && state.drag.kind === 'end') { state.drag = null; render(); return true; }
     if (state.pending !== null) { state.pending = null; render(); return true; }
     if (state.tool !== 'select') { setTool('select'); return true; }
     return false;

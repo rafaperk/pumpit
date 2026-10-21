@@ -1,6 +1,6 @@
 // Drawing-only data (3D views specification §7, as adapted in docs/3D-VIEWS.md): the schematic position (x, y), the
-// roll of a junction symbol (icon3), the route of a pipe in the 3D views (bends3, snap3) and the settings of the 3D
-// views (view3). The calculation never reads them: PumpIt.solver.run starts from a copy without them (stripLayout,
+// roll of a junction symbol (icon3), the route of a pipe in the 3D views (bends3, snap3), where the loose ends of a
+// pipe lie (loose, docs/pipe-ends.md) and the settings of the 3D views (view3). The calculation never reads them: PumpIt.solver.run starts from a copy without them (stripLayout,
 // R-10). The 3D scene itself is not stored: X and Y come from the schematic, which is its plan, and the height from
 // the elevation of each junction, which is calculation data (decision D-20).
 (function (root) {
@@ -11,7 +11,7 @@
   const LAYOUT_KEYS = Object.freeze({
     model: Object.freeze(['view3']),
     junction: Object.freeze(['x', 'y', 'icon3']),
-    pipe: Object.freeze(['bends3', 'snap3']),
+    pipe: Object.freeze(['bends3', 'snap3', 'loose']),
   });
 
   // deep copy of a model (or of an effective model) without the drawing fields

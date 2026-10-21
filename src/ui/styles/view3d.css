@@ -153,6 +153,13 @@
 .g3-edit .handle { fill: var(--panel); stroke: var(--accent); stroke-width: 2; cursor: move; }
 .g3-edit .handle.bend { stroke-width: 2.5; }
 .g3-edit .handle.bend.on { fill: var(--accent); stroke: var(--panel); }
+/* the ends of pipes (docs/pipe-ends.md): the ring of a loose end, the handles at the ends of the selected pipe and the
+   junction that would take an end being dragged */
+.g3-edit .loose3 { fill: var(--panel); stroke: var(--crit); stroke-width: 2.2; cursor: grab; }
+.g3-edit .loose3.sel { stroke: var(--sel); }
+.g3-edit .handle.end { fill: var(--sel); stroke: var(--panel); stroke-width: 1.5; cursor: grab; }
+.g3-edit .target3 { fill: none; stroke: var(--accent); stroke-width: 2.5; pointer-events: none; }
+.g3-edit .refused3 { fill: none; stroke: var(--crit); stroke-width: 2.5; pointer-events: none; }
 .g3-edit .rubber3 { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 4; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
 .g3-edit .mark3 { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; pointer-events: none; }
 .g3-edit .drop3 { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; pointer-events: none; }

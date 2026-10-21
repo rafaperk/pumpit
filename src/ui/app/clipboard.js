@@ -1,5 +1,6 @@
 // Copy and paste (Ctrl+C / Ctrl+V). Copies the selected junctions, the end junctions of the selected pipes and
-// the pipes between them, with the effective values of the current scenario. Each paste is shifted a little.
+// the pipes between them, with the effective values of the current scenario; a selected pipe with a loose end goes
+// with its loose spot (docs/pipe-ends.md). Each paste is shifted a little.
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model;
@@ -11,9 +12,10 @@
     if (!app.selSet.size) { toast(t('app.clipboard.selectFirst')); return; }
     const eff = app.eff();
     const jIds = new Set([...app.selSet].filter((k) => k[0] === 'j').map((k) => Number(k.slice(2))));
-    for (const k of app.selSet) if (k[0] === 'p') { const p = eff.pipes.find((x) => x.id === Number(k.slice(2))); if (p) { jIds.add(p.up); jIds.add(p.down); } }
+    const picked = new Set([...app.selSet].filter((k) => k[0] === 'p').map((k) => Number(k.slice(2))));
+    for (const p of eff.pipes) if (picked.has(p.id)) for (const end of M.PIPE_ENDS) if (!M.isLoose(p, end)) jIds.add(p[end]);
     const junctions = eff.junctions.filter((j) => jIds.has(j.id));
-    const pipes = eff.pipes.filter((p) => jIds.has(p.up) && jIds.has(p.down));
+    const pipes = eff.pipes.filter((p) => M.PIPE_ENDS.every((end) => (M.isLoose(p, end) ? picked.has(p.id) : jIds.has(p[end]))));
     app.clipboard = { junctions: M.clone(junctions), pipes: M.clone(pipes), pastes: 0 };
     try { navigator.clipboard.writeText(JSON.stringify({ pumpit: 1, junctions, pipes })).catch(() => {}); } catch (e) { /* internal clipboard only */ }
     toast(t('app.clipboard.copied', { junctions: junctions.length, pipes: pipes.length }));
@@ -21,7 +23,7 @@
 
   app.paste = () => {
     const cb = app.clipboard;
-    if (!cb || !cb.junctions.length) { toast(t('app.clipboard.empty')); return; }
+    if (!cb || !(cb.junctions.length || cb.pipes.length)) { toast(t('app.clipboard.empty')); return; }
     app.pushUndo();
     cb.pastes++;
     const off = 40 * cb.pastes;
@@ -38,7 +40,9 @@
     }
     for (const p0 of cb.pipes) {
       const p = M.clone(p0);
-      p.id = pMap.get(p0.id); p.up = jMap.get(p0.up); p.down = jMap.get(p0.down); // its route follows the new ends
+      p.id = pMap.get(p0.id);
+      for (const end of M.PIPE_ENDS) p[end] = M.isLoose(p0, end) ? null : jMap.get(p0[end]); // its route follows the new ends
+      if (p.loose) for (const s of Object.values(p.loose)) { s.x += off; s.y += off; }
       app.model.pipes.push(p);
       keys.push('p:' + p.id);
     }

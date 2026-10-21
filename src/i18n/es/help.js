@@ -272,6 +272,18 @@ PumpIt.i18n.add('es', {
 <h4>Sentido de referencia</h4>
 <p>La tubería apunta de la unión pulsada primero a la segunda, como muestra la flecha del dibujo. Los caudales en el sentido de referencia son positivos; en contra, negativos. Después del cálculo, la flecha muestra el sentido real del flujo. Vea [[go:draw.direction|Sentido y signos]].</p>`,
           },
+          connect: {
+            title: 'Desconectar y reconectar tuberías',
+            body: `<p>Una tubería puede cambiar de unión sin dibujarla de nuevo: conserva la longitud, el material, los accesorios y todos sus demás datos.</p>
+<ul>
+<li><b>Arrastrar un extremo</b>: seleccione la tubería y aparece un tirador en cada extremo. Arrastre el tirador hasta otra unión para unir allí ese extremo, o a un lugar vacío para dejarlo suelto.</li>
+<li><b>Clic derecho</b>: en una tubería, <b>Desconectar de J…</b> suelta uno de los extremos (hay un elemento para cada extremo); en una unión, [[t:network.menu.disconnectPipes]] suelta todas las tuberías unidas a ella, y la unión se puede mover, cambiar o eliminar sin perder sus tuberías.</li>
+<li><b>En el panel</b>: en [[t:inspector.pipe.connections]], [[t:inspector.pipe.startJunction]] y [[t:inspector.pipe.endJunction]] eligen la unión de cada extremo en una lista, y [[t:inspector.pipe.loose]] suelta ese extremo.</li>
+</ul>
+<p>Un <b>extremo suelto</b> se dibuja como un anillo en la punta de la tubería: arrastre el anillo hasta una unión para unirlo. Mientras la tubería tenga un extremo suelto, está incompleta: la lista de verificación lo indica y el cálculo espera.</p>
+<p>El sentido de referencia no cambia: el extremo de origen sigue siendo el origen. La vista 3D funciona igual, y allí <kbd>Mayús</kbd> mueve el extremo hacia arriba y hacia abajo. <kbd>Esc</kbd> cancela el arrastre, y <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace cualquier cambio.</p>
+<p class="tip"><b>Consejo:</b> para poner un componente en medio de una tubería, colóquelo, arrastre un extremo de la tubería hasta él y dibuje una tubería nueva desde él hasta la unión que dejó ese extremo.</p>`,
+          },
           select: {
             title: 'Seleccionar, mover y navegar',
             body: `<table>
@@ -294,7 +306,7 @@ PumpIt.i18n.add('es', {
 <li><b>Cambiar el tipo de una unión</b>: en el panel, cambie [[t:inspector.junction.type]]. El nombre, la cota, la posición y los datos compatibles — como las pérdidas por tubería y el modelo de pérdida de las válvulas — se conservan.</li>
 <li><b>Invertir el sentido de una tubería</b>: el botón [[t:inspector.pipe.reverse]] del panel, el menú [[t:app.menu.edit]] → [[t:app.menu.reverse]] o el clic derecho sobre la tubería.</li>
 <li><b>Copiar y pegar</b>: <kbd>Ctrl</kbd>+<kbd>C</kbd> copia las uniones seleccionadas, los extremos de las tuberías seleccionadas y las tuberías entre ellas, con los valores del escenario actual; <kbd>Ctrl</kbd>+<kbd>V</kbd> pega una copia desplazada, y cada pegado nuevo desplaza un poco más.</li>
-<li><b>Eliminar</b>: <kbd>Supr</kbd>. Eliminar una unión elimina también las tuberías unidas a ella.</li>
+<li><b>Eliminar</b>: <kbd>Supr</kbd>. Eliminar una unión elimina también las tuberías unidas a ella. Para conservarlas, use antes [[t:network.menu.disconnectPipes]] (vea [[go:draw.connect|Desconectar y reconectar tuberías]]).</li>
 <li><b>Deshacer y rehacer</b>: <kbd>Ctrl</kbd>+<kbd>Z</kbd> y <kbd>Ctrl</kbd>+<kbd>Y</kbd>.</li>
 </ul>
 <p class="tip"><b>Consejo:</b> los atajos no actúan mientras usted escribe en un campo. Así, <kbd>Supr</kbd> borra texto, no objetos.</p>`,
@@ -306,7 +318,7 @@ PumpIt.i18n.add('es', {
 <li><b>Tubería</b>: longitud, diámetro, cotas, caudal, velocidad con su franja de velocidad, pérdida de carga, presiones de estancamiento y estáticas, número de Reynolds, factor de fricción, K de los accesorios y el sentido del flujo.</li>
 <li><b>Unión</b>: cota, presiones, caudal a través y los resultados propios del tipo, como la altura de una bomba, el estado de una válvula de control o el Cv equivalente de una válvula.</li>
 </ul>
-<p>Al pie de la tarjeta están las acciones: [[t:network.menu.reverse]] (solo tuberías), [[t:network.menu.copy]], [[t:network.menu.paste]] y [[t:network.menu.delete]].</p>`,
+<p>Al pie de la tarjeta están las acciones: [[t:network.menu.reverse]] y <b>Desconectar de J…</b> (tuberías), [[t:network.menu.disconnectPipes]] (uniones), [[t:network.menu.copy]], [[t:network.menu.paste]] y [[t:network.menu.delete]].</p>`,
           },
           direction: {
             title: 'Sentido y signos',
@@ -354,7 +366,8 @@ PumpIt.i18n.add('es', {
 <li>[[t:junctions.reservoir.elevation]]: la cota donde se unen las tuberías, salvo que la tabla de pérdidas por tubería indique otra.</li>
 <li>[[t:junctions.reservoir.form.liquidElev]]: el nivel del líquido, como cota absoluta (no como altura sobre el fondo).</li>
 <li>[[t:junctions.reservoir.form.surfP]]: 0 kgf/cm²(g) para un tanque abierto; otro valor para un recipiente presurizado.</li>
-<li>[[t:inspector.pipeLosses.title]]: el K de salida del tanque hacia cada tubería (una entrada de borde vivo, por ejemplo, tiene 0,5), el K de llegada de la tubería al tanque (una salida al tanque, 1,0) y la cota de conexión de cada tubería (en blanco, el fondo).</li>
+<li>[[t:inspector.pipeLosses.title]]: el K de salida del tanque hacia cada tubería (una entrada de borde vivo, por ejemplo, tiene 0,5), el K de llegada de la tubería al tanque (una salida al tanque, 1,0) y dónde se une cada tubería (en blanco, el fondo).</li>
+<li>[[t:inspector.pipeLosses.connBy]]: por cota, la conexión queda donde está; por profundidad bajo la superficie del líquido, acompaña la superficie cuando el nivel cambia (en un escenario, por ejemplo). Pasar de una a otra mantiene cada conexión donde está.</li>
 </ul>
 <h4>Cómo se calcula</h4>
 <p>El reservorio es un nudo cuya presión de estancamiento es igual a la presión en la superficie, en la cota del nivel. Sin K indicado, la presión de estancamiento es continua entre el tanque y el extremo de la tubería. Una tubería unida por encima del nivel del líquido descarga en caída libre; si intenta tomar líquido del tanque, aparece un aviso.</p>
@@ -520,7 +533,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
 <ul>
 <li>[[t:inspector.pipeLosses.kOut]]: la pérdida cuando el fluido sale de la unión y entra en la tubería (por ejemplo, una entrada de borde vivo, 0,5).</li>
 <li>[[t:inspector.pipeLosses.kIn]]: la pérdida cuando el fluido llega de la tubería a la unión (por ejemplo, la salida a un tanque, 1,0).</li>
-<li>[[t:inspector.pipeLosses.elevation]] (solo en el reservorio): la cota donde se une esa tubería; en blanco, el fondo.</li>
+<li>[[t:inspector.pipeLosses.elevation]] o [[t:inspector.pipeLosses.depth]] (solo en el reservorio): dónde se une esa tubería, como cota o como profundidad bajo la superficie del líquido ([[t:inspector.pipeLosses.connBy]]); en blanco, el fondo.</li>
 </ul>
 <p>Cada K usa el área de su propia tubería y solo actúa en el sentido correspondiente del flujo.</p>`,
           },
@@ -716,6 +729,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
 <li><b>Tuberías</b>: la tubería sigue en horizontal, en el plano de su último punto; mantenga <kbd>Mayús</kbd> para subir o bajar y <kbd>Ctrl</kbd> para fijarla en el eje más cercano; <kbd>Alt</kbd>+clic o <kbd>D</kbd> hace un quiebre; cerca de una unión, <kbd>←</kbd> y <kbd>→</kbd> eligen el trazado hasta ella; un clic en el vacío termina la tubería en un nudo nuevo.</li>
 <li><b>Mover</b>: arrastre una unión en horizontal; con <kbd>Mayús</kbd>, en vertical (cambia su cota).</li>
 <li><b>Quiebres</b>: con una tubería seleccionada, arrastre un quiebre, haga doble clic en la tubería para insertar otro, o marque uno y pulse <kbd>Supr</kbd>.</li>
+<li><b>Extremos de las tuberías</b>: con una tubería seleccionada, arrastre el tirador de un extremo hasta otra unión, o lejos para dejarlo suelto; <kbd>Mayús</kbd> lo mueve hacia arriba y hacia abajo. Un extremo suelto es un anillo: arrástrelo hasta una unión. Vea [[go:draw.connect|Desconectar y reconectar tuberías]].</li>
 </ul>
 <p>Mirando de frente, desde atrás o de lado, el piso se ve de perfil; por eso colocar, dibujar y mover usan el plano vertical de frente a la cámara.</p>`,
           },
@@ -749,13 +763,14 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
 </table>
 <p>El modelo también se guarda automáticamente en el navegador en cada cambio. Los modelos de versiones anteriores se convierten al abrirlos: los tipos de unión eliminados pasan al equivalente más cercano, y un mensaje informa lo que cambió.</p>
 <h4>Modelos en el formato .fth</h4>
-<p>[[t:app.menu.open]] también lee archivos <code>.fth</code>, un formato de texto de modelos de redes de tuberías. El escenario base entra con sus tuberías, uniones, cotas, unidades y dibujo; el fluido viene de los resultados guardados en el archivo. Después, un informe muestra:</p>
+<p>[[t:app.menu.open]] también lee archivos <code>.fth</code>, un formato de texto de modelos de redes de tuberías. Cuando el archivo tiene varios escenarios, una ventana los lista (con sus descripciones, marcando los que tienen resultados guardados): entra el que usted elija, reconstruido a partir del escenario base. Para traer otro, abra el archivo de nuevo.</p>
+<p>Tuberías, uniones, cotas, unidades y dibujo entran con lo que el modelo necesita para calcular:</p>
 <ul>
-<li>cómo se compara el primer cálculo con los resultados guardados en el archivo;</li>
-<li>lo que necesita su intervención: datos que el formato no describe, dejados en blanco y marcados en rojo en la lista de verificación;</li>
-<li>lo que se asumió (por ejemplo, el nivel del líquido de un reservorio tomado como la cota de la unión) y lo que quedó fuera (otros escenarios, módulos adicionales).</li>
+<li>tuberías y válvulas abiertas y cerradas, válvulas de control con su tipo, punto de ajuste y estado fijo, y bombas encendidas o apagadas, con su velocidad y la curva de la configuración en uso;</li>
+<li>reservorios con el nivel del líquido, la presión en la superficie y, para cada tubería, su K y su profundidad bajo la superficie, válvulas de salida con su presión de salida y boquillas con su factor K;</li>
+<li>el fluido del archivo y su presión ambiente, la referencia de las presiones manométricas.</li>
 </ul>
-<p>Los componentes que Pump It no tiene entran como el tipo más cercano o como un nudo simple. Use la importación para sus propios modelos.</p>`,
+<p>Después, un informe muestra cómo se compara el primer cálculo con los resultados guardados en el archivo, lo que necesita su intervención (dejado en blanco y marcado en rojo en la lista de verificación), lo que se asumió, lo que quedó fuera (módulos adicionales, transferencia de calor) y lo que se leyó. Las pérdidas detalladas de las tes vienen del punto de operación guardado, y algunas lecturas del formato aún por confirmar tienen una nota cada una. Use la importación para sus propios modelos.</p>`,
           },
           language: {
             title: 'Idioma y números',
@@ -943,7 +958,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
           boundaries: {
             title: 'Contornos',
             body: `<ul>
-<li><b>Reservorio</b>: un nudo de presión fija igual a la presión en la superficie, en la cota del nivel del líquido. Cada tubería se une en la cota del fondo o en su cota de conexión; si esa cota está por encima del nivel, la tubería descarga en caída libre, y la presión de contorno vale en el extremo de la tubería.</li>
+<li><b>Reservorio</b>: un nudo de presión fija igual a la presión en la superficie, en la cota del nivel del líquido. Cada tubería se une en la cota del fondo o en su propia conexión, dada como cota o como profundidad bajo el nivel (cota = nivel − profundidad); si la conexión está por encima del nivel, la tubería descarga en caída libre, y la presión de contorno vale en el extremo de la tubería.</li>
 <li><b>Presión impuesta</b>: un nudo de presión de estancamiento fija; en el tipo estático, se fija p = P<sub>0</sub> − ½ρV² de la única tubería.</li>
 <li><b>Caudal impuesto</b> y <b>fuente de un nudo</b>: entran en la continuidad como demanda (positiva sale, negativa entra).</li>
 <li><b>Boquilla</b> y <b>válvula de salida</b>: un nudo externo de presión fija (la externa o la residual), unido por un enlace de descarga.</li>
@@ -1020,7 +1035,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
 <p>Por debajo de eso, el modo incompresible con la densidad del gas comete un error pequeño. La app ayuda en los dos sentidos: en el modo incompresible, un fluido liviano como un gas que supera esos límites genera un aviso que sugiere el compresible; en el compresible, cuando todo queda por debajo de Mach 0,1 y del 2 % de caída, una información recuerda que el incompresible daría prácticamente lo mismo.</p>
 <h4>Nada se pierde al cambiar</h4>
 <p>Cada régimen guarda su fluido: el líquido de un lado, el gas del otro. Cambiar de régimen recalcula al instante, sin borrar datos. Se pueden comparar los dos, incluso con un [[go:scenarios.concept|escenario]] que cambie solo el régimen o el modelo térmico. El dibujo, las uniones, las tuberías y las vistas son los mismos.</p>
-<p class="tip">Para empezar, abra [[act:example:air]], una línea de aire comprimido con una caída de presión de alrededor del 50 %, o [[act:example:airPlant]], con compresor, válvula reductora y boquilla de limpieza.</p>`,
+<p class="tip">Para empezar, abra [[act:example:air]], una línea de aire comprimido que pierde el 42 % y el 50 % de la presión absoluta hasta sus dos consumos, o [[act:example:airPlant]], con compresor, válvula reductora y boquilla de limpieza.</p>`,
           },
           setup: {
             title: 'Gas, temperatura y modelo térmico',
@@ -1035,7 +1050,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
 <h4>Límites de diseño</h4>
 <p>[[t:inspector.system.machLimit]] (0,7 por defecto) y [[t:inspector.system.velLimit]] (30 m/s por defecto) generan avisos cuando una tubería los supera. El bloqueo sónico siempre se informa.</p>
 <h4>Presiones y caudales</h4>
-<p>Las presiones del gas se calculan en valor <b>absoluto</b>; las unidades manométricas suman la [[t:inspector.system.patm]]. Los caudales pueden darse en masa (kg/s, kg/h, t/h…), en volumen en las condiciones del punto (m³/h, L/s…) o en volumen <b>normal</b> (Nm³/h, a 0 °C y 101,325 kPa).</p>`,
+<p>Cada presión es manométrica o absoluta según su unidad, como en el líquido: una unidad con (g) es relativa a la [[t:inspector.system.patm]], que se le suma, pues el gas siempre se calcula en presión <b>absoluta</b>. Los resultados muestran presiones manométricas por defecto, y el selector de unidad de cada columna ofrece también las absolutas. Una presión igual o inferior al vacío (cero absoluto) no tiene sentido para un gas: queda pendiente en la [[go:start.autoCalc|lista de verificación]]. Los caudales pueden darse en masa (kg/s, kg/h, t/h…), en volumen en las condiciones del punto (m³/h, L/s…) o en volumen <b>normal</b> (Nm³/h, a 0 °C y 101,325 kPa).</p>`,
           },
           components: {
             title: 'Contornos y componentes con gas',

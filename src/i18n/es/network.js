@@ -78,6 +78,13 @@ PumpIt.i18n.add('es', {
       paste: 'Pegar',
       delete: 'Eliminar',
       deleteMany: 'Eliminar {n} objetos',
+      disconnectFrom: 'Desconectar de J{id}',
+      disconnectPipes: 'Desconectar tuberías',
+    },
+    ends: {
+      loose: 'extremo suelto',
+      looseTitle: 'Extremo suelto: arrástrelo hasta una unión',
+      handleTitle: 'Arrastre este extremo hasta otra unión, o a un lugar vacío para dejarlo suelto',
     },
     info: {
       chokedPipe: 'bloqueada (sónico a la salida)',
@@ -87,7 +94,7 @@ PumpIt.i18n.add('es', {
       machInOut: 'Mach entrada / salida',
       temperatureInOut: 'T entrada / salida',
       temperature: 'Temperatura',
-      pipeSub: 'Tubería · J{up} → J{down}',
+      pipeSub: 'Tubería · {ends}',
       length: 'Longitud',
       material: 'Material',
       nominalSize: 'Diámetro nominal',

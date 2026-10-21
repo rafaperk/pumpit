@@ -79,5 +79,14 @@
 .junction { cursor: grab; }
 .junction.dragging { cursor: grabbing; }
 .rubber { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 4; fill: none; pointer-events: none; }
+/* the ends of pipes (docs/pipe-ends.md): the ring of a loose end, the handles at the ends of the selected pipe, an end
+   being dragged and the junction that would take it */
+.p-loose { fill: var(--bg); stroke: var(--crit); stroke-width: 2; cursor: grab; }
+.sel .p-loose { stroke: var(--sel); }
+.p-end { fill: var(--sel); stroke: var(--panel); stroke-width: 1.5; cursor: grab; }
+.pipe.moving .p-line { stroke: var(--accent); stroke-dasharray: 6 4; }
+.pipe.moving .p-loose { stroke: var(--accent); }
+.junction.target .j-bg { stroke: var(--accent); stroke-width: 3; stroke-dasharray: none; }
+.junction.refused .j-bg { stroke: var(--crit); stroke-width: 3; stroke-dasharray: none; }
 .box-sel { fill: var(--accent-soft); fill-opacity: .45; stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 5 4; pointer-events: none; }
 .drop-ok { outline: 2px dashed var(--accent); outline-offset: -6px; }

@@ -78,6 +78,14 @@ PumpIt.i18n.add('en', {
       paste: 'Paste',
       delete: 'Delete',
       deleteMany: 'Delete {n} objects',
+      disconnectFrom: 'Disconnect from J{id}',
+      disconnectPipes: 'Disconnect pipes',
+    },
+    // the ends of pipes (docs/pipe-ends.md)
+    ends: {
+      loose: 'loose end',
+      looseTitle: 'Loose end: drag it onto a junction',
+      handleTitle: 'Drag this end onto another junction, or to an empty spot to leave it loose',
     },
     info: {
       chokedPipe: 'choked (sonic at the outlet)',
@@ -87,7 +95,7 @@ PumpIt.i18n.add('en', {
       machInOut: 'Mach in / out',
       temperatureInOut: 'T in / out',
       temperature: 'Temperature',
-      pipeSub: 'Pipe · J{up} → J{down}',
+      pipeSub: 'Pipe · {ends}',
       length: 'Length',
       material: 'Material',
       nominalSize: 'Nominal size',
