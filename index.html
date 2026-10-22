@@ -39,7 +39,7 @@
           <button data-act="copy-json" data-i18n="app.menu.copyJson">Copy model (JSON)</button>
           <button data-act="paste-json" data-i18n="app.menu.pasteJson">Paste model (JSON)…</button>
           <div class="menu-sep"></div>
-          <button data-act="export-xlsx" data-i18n="app.menu.exportXlsx">Export pipes to Excel (.xlsx)</button>
+          <button data-act="export-xlsx" data-i18n="app.menu.exportXlsx">Export results to Excel (.xlsx)</button>
           <div class="menu-sep"></div>
           <div class="menu-label" data-i18n="app.menu.examples">Examples</div>
           <div id="menu-examples"></div>
@@ -478,8 +478,11 @@
 <script src="src/ui/view3d/panel.js" charset="utf-8"></script>
 <!-- Model data view -->
 <script src="src/ui/model-data/model-data.js" charset="utf-8"></script>
-<!-- Results view and exports -->
+<!-- Results view, its columns (the outputs, the user's choice and the column window) and exports -->
+<script src="src/ui/results/catalog.js" charset="utf-8"></script>
+<script src="src/ui/results/column-setup.js" charset="utf-8"></script>
 <script src="src/ui/results/columns.js" charset="utf-8"></script>
+<script src="src/ui/results/column-window.js" charset="utf-8"></script>
 <script src="src/ui/results/results.js" charset="utf-8"></script>
 <script src="src/ui/results/export.js" charset="utf-8"></script>
 <!-- Charts view -->

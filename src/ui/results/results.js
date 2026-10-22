@@ -11,12 +11,14 @@
   const tx = (key, params) => t('results.' + key, params);
 
   const OUT_TABS = ['general', 'pipes', 'junctions', 'pumps', 'valves', 'warnings'];
+  // the button of the column window, in the head of every table
+  const COLUMNS_ICON = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="10.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.1 3v10M9.9 3v10" stroke="currentColor" stroke-width="1.4"/></svg>';
 
   function resultTable(table, res, eff) {
     const cols = C.colsFor(table, res);
     const rows = C.rowsFor(table, res, eff);
     if (!rows.length) return `<div class="empty">${tx('noItems')}</div>`;
-    const ctx = { rho: res.fluid.rho, patm: res.patm };
+    const ctx = C.ctxOf(res);
     const th = cols.map((c) => `<th class="${c.t ? 'txt' : ''}">${F.esc(C.colLabel(table, c))}${c.c ? C.unitSelect(table, c) : ''}</th>`).join('');
     const body = rows.map((r) => `<tr data-key="${r.key}">${cols.map((c) => {
       const txt = C.cellValue(c, r, ctx, table);
@@ -50,8 +52,10 @@
     else if (tab === 'warnings') container.innerHTML = warningsCard(res);
     else {
       const title = tx('tabs.' + tab);
-      const xl = tab === 'pipes' ? `<button class="btn small primary" data-xlsx="pipes" type="button">${tx('exportExcel')}</button>` : '';
-      container.innerHTML = `<div class="card"><div class="card-head"><h3>${title}</h3><div class="btn-row">${xl}<button class="btn small" data-copy="${tab}" type="button">${tab === 'pipes' ? tx('copyExcel') : tx('copyTable')}</button></div></div>${resultTable(tab, res, eff)}</div>`;
+      const pick = F.esc(tx('setup.open'));
+      const cols = `<button class="btn small icon cols-open" data-columns="${tab}" type="button" title="${pick}" aria-label="${pick}">${COLUMNS_ICON}</button>`;
+      const xl = `<button class="btn small primary" data-xlsx type="button" title="${F.esc(tx('exportExcelTitle'))}">${tx('exportExcel')}</button>`;
+      container.innerHTML = `<div class="card"><div class="card-head"><h3>${title}</h3><div class="btn-row">${cols}${xl}<button class="btn small" data-copy="${tab}" type="button">${tab === 'pipes' ? tx('copyExcel') : tx('copyTable')}</button></div></div>${resultTable(tab, res, eff)}</div>`;
     }
   }
 
@@ -110,8 +114,10 @@
     });
     // table buttons, and a click on a row (or warning) selects its object
     $('#view-out').addEventListener('click', (e) => {
+      const w = e.target.closest('[data-columns]');
+      if (w) { UI.columnWindow.open(w.dataset.columns, C.regimeOf(app.currentResults())); return; }
       const x = e.target.closest('[data-xlsx]');
-      if (x) { app.exportPipesXlsx(); return; }
+      if (x) { app.exportResultsXlsx(); return; }
       const c = e.target.closest('[data-copy]');
       if (c) { UI.dialogs.copyText(UI.resultExport.tableTSV(c.dataset.copy, app.okResults(), app.eff()), tx('copied')); return; }
       if (e.target.closest('select')) return;

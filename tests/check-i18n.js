@@ -58,8 +58,9 @@ console.log('\nKeys used in the code');
   for (const file of files) {
     const src = fs.readFileSync(file, 'utf8');
     for (const key of callArgs(src, 't')) use(key, file);
+    // tx('…') in a file whose tx adds a prefix: its first argument is the rest of the key
     const tx = src.match(/const tx = \(key, params\) => t\('([^']+)' \+ key, params\);/);
-    if (tx) for (const k of callArgs(src, 'tx')) use(tx[1] + k, file);
+    if (tx) for (const m of src.matchAll(/(^|[^\w.])tx\('([^'\n]*)'(?!\s*\+)/g)) use(tx[1] + m[2], file);
     const need = src.match(/const need = \(k\) => miss\.push\(t\('([^']+)' \+ k\)\);/);
     if (need) for (const m of src.matchAll(/need\('([^']+)'\)/g)) use(need[1] + m[1], file);
   }

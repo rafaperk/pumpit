@@ -48,3 +48,45 @@ table.grid td.na { color: var(--ink-3); }
 .chart-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); padding: 6px 4px 0; }
 .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .chart-legend i { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+
+/* the column window of the result tables (column-window.js), in the frame of the system window: the outputs a table
+   can show on the left, the columns it shows on the right, the profile row and the footer */
+.cw-win { width: min(980px, 100%); }
+.cw-win .btn:disabled { opacity: .45; cursor: not-allowed; }
+.cw-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.seg button.cur::after { content: ''; display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 50%; background: var(--accent); vertical-align: middle; }
+.cw-body { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; padding: 12px 16px; background: var(--bg); }
+.cw-pane { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+.cw-pane-head { display: flex; align-items: center; gap: 6px; padding: 7px 8px 7px 12px; border-bottom: 1px solid var(--line); }
+.cw-pane-head h4 { margin: 0; flex: 1; min-width: 0; font: 600 13.5px var(--f-display); }
+.cw-pane-head input { width: 48%; min-height: 26px; background: var(--sunk); border: 1px solid var(--line); border-radius: var(--r); padding: 2px 7px; }
+/* a fixed height (what the screen leaves beside the rest of the window), so that the window does not change size as
+   outputs go from one side to the other */
+.cw-list { flex: none; height: clamp(140px, calc(90vh - 300px), 470px); overflow-y: auto; padding: 4px; }
+.cw-group-title { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; padding: 9px 8px 3px; }
+.cw-item {
+  display: flex; align-items: baseline; gap: 8px; width: 100%; min-width: 0; text-align: left; cursor: pointer; font-size: 13px; color: var(--ink);
+  border: 1px solid transparent; background: transparent; padding: 4px 8px; border-radius: 6px; user-select: none;
+}
+.cw-item:hover { background: var(--sunk); }
+.cw-item[aria-pressed="true"] { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.cw-item small { margin-left: auto; padding-left: 8px; color: var(--ink-3); font: 11px var(--f-mono); white-space: nowrap; }
+.cw-row { display: flex; align-items: center; gap: 6px; padding: 1px 2px; }
+.cw-row .cw-item { flex: 1; }
+.cw-row select { max-width: 9.5em; min-height: 26px; padding: 1px 4px; font: 12px var(--f-mono); }
+.cw-row.locked .cw-item { cursor: default; color: var(--ink-2); }
+.cw-row.locked .cw-item:hover { background: transparent; }
+.cw-lock { font-size: 11.5px; color: var(--ink-3); padding-right: 8px; white-space: nowrap; }
+.cw-x { display: inline-flex; border: 0; background: transparent; color: var(--ink-3); cursor: pointer; padding: 5px; border-radius: 6px; }
+.cw-x:hover { color: var(--crit); background: var(--sunk); }
+.cw-mid { display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.cw-mid .btn { white-space: nowrap; }
+.cw-empty { margin: 0; padding: 18px 10px; color: var(--ink-2); font-size: 12.5px; text-align: center; }
+.cw-profile { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 16px; border-top: 1px solid var(--line); }
+.cw-profile select { min-width: 12em; max-width: 20em; }
+.cw-spacer { flex: 1; }
+@media (max-width: 760px) {
+  .cw-body { grid-template-columns: minmax(0, 1fr); }
+  .cw-mid { flex-direction: row; justify-content: center; }
+  .cw-list { height: 30vh; }
+}

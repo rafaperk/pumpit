@@ -22,6 +22,7 @@
     redoStack: [],
     clipboard: null,
     view: 'net',
+    // outputs and outputTemplates: the result columns and their templates (src/ui/results/column-setup.js)
     prefs: Object.assign({ grid: true, overlay: 'none', colUnits: {}, outTab: 'general', chart: 'pump', chartPump: null, profile: null }, store.get(KEY.prefs) || {}),
   };
   let effCache = { key: null, eff: null, val: null };

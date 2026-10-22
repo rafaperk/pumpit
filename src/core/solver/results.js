@@ -41,8 +41,8 @@
         m, Q: m / rho, V, Re: lo.Re, f: lo.f,
         regime: t('core.solver.regime.' + (lo.Re < env.reLam ? 'laminar' : lo.Re > env.reTurb ? 'turbulent' : 'transition')),
         P0in, P0out, Pin: P0in - dyn, Pout: P0out - dyn,
-        dP0: P0in - P0out, dPfric: lo.dpF, dPfit: lo.dpK, dPgrav: rho * g * (P.zDown - P.zUp),
-        zin: P.zUp, zout: P.zDown, L: P.L, Dh: P.Dh, A: P.A, N: P.N, K: P.Ksum,
+        dP0: P0in - P0out, dPfric: lo.dpF, dPfit: lo.dpK, dPend: lo.dpE, dPgrav: rho * g * (P.zDown - P.zUp),
+        zin: P.zUp, zout: P.zDown, L: P.L, Dh: P.Dh, A: P.A, N: P.N, K: P.Ksum, eD: P.fm === 'darcy' ? P.eD : NaN,
         hL: (lo.dpF + lo.dpK + lo.dpE) / rg,
         isolated: !!(l.isolated || (nA.isolated && nB.isolated)), closed: P.closed,
       };

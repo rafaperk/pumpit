@@ -28,7 +28,7 @@
         try { app.pushUndo(); app.loadModel(JSON.parse(ta.value)); toast(t('app.pasteModel.opened')); } catch (e) { toast(t('app.pasteModel.cannotRead', { message: e.message })); return false; }
       } }] });
     },
-    'export-xlsx': () => app.exportPipesXlsx(),
+    'export-xlsx': () => app.exportResultsXlsx(),
     undo: () => app.undo(),
     redo: () => app.redo(),
     copy: () => app.copySelection(),

@@ -17,7 +17,7 @@ PumpIt.i18n.add('en', {
       save: 'Download .json',
       copyJson: 'Copy model (JSON)',
       pasteJson: 'Paste model (JSON)…',
-      exportXlsx: 'Export pipes to Excel (.xlsx)',
+      exportXlsx: 'Export results to Excel (.xlsx)',
       examples: 'Examples',
       options: 'Options',
       grid3d: '3D grid',

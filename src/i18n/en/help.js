@@ -192,7 +192,7 @@ PumpIt.i18n.add('en', {
             title: 'Top bar',
             body: `<ul>
 <li><b>Title</b>: click the name next to the logo to rename the model. The name also becomes the name of the downloaded file.</li>
-<li>[[t:app.menu.file]]: new model, open, download, copy and paste the model as JSON text, export the pipes to Excel, and the examples.</li>
+<li>[[t:app.menu.file]]: new model, open, download, copy and paste the model as JSON text, export the results to Excel, and the examples.</li>
 <li>[[t:app.menu.edit]]: undo, redo, copy, paste, select all, reverse a pipe, delete, fit the drawing to the screen and turn the grid on or off.</li>
 <li>[[t:app.menu.help]]: this help center, the guided tour, the technical reference, the keyboard shortcuts and information about the app.</li>
 <li>[[t:app.scenario.label]]: the list picks the scenario on the screen; the buttons next to it create a child scenario, rename and delete. See [[go:scenarios.concept|Scenarios]].</li>
@@ -239,7 +239,7 @@ PumpIt.i18n.add('en', {
 [[eq:gauge]]
 <p>Pressure differences (pressure drop, set ΔP) carry neither (g) nor (a).</p>
 <h4>Units of the results</h4>
-<p>In the result tables and charts, every numeric column has its own list of units in the header. There, changing the unit <b>converts</b> the values shown, without recalculating, and the choice is remembered.</p>
+<p>In the result tables and charts, every numeric column has its own list of units in the header. There, changing the unit <b>converts</b> the values shown, without recalculating, and the choice is remembered. The column window of the result tables ([[go:results.tables|Results tab]]) sets the unit of each column too, apart for liquids and gases.</p>
 <p>Numbers follow the language: decimal comma in Portuguese and Spanish, decimal point in English. When typing, either one is accepted.</p>`,
           },
         },
@@ -625,15 +625,24 @@ Choosing a catalogue also sets the roughness of its material, which can still be
             body: `<p>The [[t:app.tabs.out]] tab has six parts:</p>
 <ul>
 <li>[[t:results.tabs.general]]: calculation status, iterations, fluid and environment; [[t:results.boundaries.title]], with what enters and leaves the network at each boundary; and the warnings.</li>
-<li>[[t:results.tabs.pipes]]: nominal size, schedule, elevations, flow, velocity, stagnation pressures at the inlet and at the outlet, and K of the fittings.</li>
-<li>[[t:results.tabs.junctions]]: stagnation and static pressures, ΔP0, effective K, flow through, HGL and elevation.</li>
-<li>[[t:results.tabs.pumps]]: flow, head, ΔP, speed, efficiency, powers and NPSH.</li>
-<li>[[t:results.tabs.valves]]: state, flow, ΔP0, inlet static pressure, effective Cv and K.</li>
+<li>[[t:results.tabs.pipes]]: by default, for a liquid and for a gas, nominal size, schedule, elevations, flow, velocity, stagnation pressures at the inlet and at the outlet, and K of the fittings.</li>
+<li>[[t:results.tabs.junctions]]: by default stagnation and static pressures, ΔP0, effective K, flow through, HGL and elevation.</li>
+<li>[[t:results.tabs.pumps]]: by default flow, head, ΔP, speed, efficiency, powers and NPSH.</li>
+<li>[[t:results.tabs.valves]]: by default state, flow, ΔP0, inlet static pressure, effective Cv and K.</li>
 <li>[[t:results.tabs.warnings]]: the full list of warnings.</li>
 </ul>
 <p>Click a row, or a warning, to find the object on the drawing. Every numeric column picks its own unit in the header.</p>
+<h4>Choosing the columns</h4>
+<p>The button with three columns at the head of each table opens the window [[t:results.setup.title]]. On the left, under [[t:results.setup.available]], are the outputs the table can still show, in groups (pressures, losses, grade lines, NPSH…) and with a filter. On the right, under [[t:results.setup.shown]], are the columns of the table, in order, each with its unit.</p>
+<ul>
+<li>Click to select one or more outputs; [[t:results.setup.add]] and [[t:results.setup.remove]] move the selected ones across, and a double click moves one. The arrows move the selected columns up or down. The first column, which finds the object, always stays.</li>
+<li>Liquids and gases have columns of their own: switch between [[t:results.setup.liquid]] and [[t:results.setup.gas]]; a dot marks the fluid of the open model.</li>
+<li>[[t:results.setup.save]] keeps the columns in this browser, for the next results and the next times you open Pump It. [[t:results.setup.reset]] brings back the default columns of the table on screen.</li>
+<li>[[t:results.setup.templates]]: [[t:results.setup.saveAs]] keeps the four tables of the fluid under a name, which [[t:results.setup.apply]] brings back. [[t:results.setup.export]] writes the columns and the templates to a file, which [[t:results.setup.import]] reads in another browser.</li>
+</ul>
+<p>What each output is comes in [[go:tech.outputs|Derived results]].</p>
 <h4>Taking it to Excel</h4>
-<p>In [[t:results.tabs.pipes]], [[t:results.exportExcel]] creates an .xlsx file with a formatted header, numbers stored as values and a filter; [[t:results.copyExcel]] copies the table to paste into a spreadsheet. The other tables have the [[t:results.copyTable]] button.</p>`,
+<p>[[t:results.exportExcel]], at the head of every table and in [[t:app.menu.file]], creates one .xlsx file with a sheet for each table — [[t:results.tabs.pipes]], [[t:results.tabs.junctions]], [[t:results.tabs.pumps]] and [[t:results.tabs.valves]] —, with the columns and units chosen: formatted header, numbers stored as values, and a filter. [[t:results.copyExcel]] and [[t:results.copyTable]] copy the table on screen to paste into a spreadsheet.</p>`,
           },
           warnings: {
             title: 'Warnings',
@@ -760,7 +769,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <tr><td>[[t:app.menu.open]]</td><td>Opens a model saved as .json, or imports a model in the .fth or .aro formats (below). Dragging the file onto the window does the same.</td></tr>
 <tr><td>[[t:app.menu.save]]</td><td>Downloads the model as <code>title.pumpit.json</code>, with all its scenarios and its drawing.</td></tr>
 <tr><td>[[t:app.menu.copyJson]] and [[t:app.menu.pasteJson]]</td><td>Copies the model as text, or opens a model pasted as text — handy for sending it in a message.</td></tr>
-<tr><td>[[t:app.menu.exportXlsx]]</td><td>Creates the spreadsheet with the results table of the pipes.</td></tr>
+<tr><td>[[t:app.menu.exportXlsx]]</td><td>Creates one .xlsx file with a sheet for each results table, in the columns and units chosen.</td></tr>
 <tr><td>[[t:app.menu.examples]]</td><td>Opens the example models.</td></tr>
 </table>
 <p>The model is also saved automatically in the browser after every change. Models of older versions are converted when opened: junction types that were removed become the closest equivalent, and a message tells what changed.</p>
@@ -999,7 +1008,17 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <li><b>Pumps</b>: ΔH, powers, efficiency and NPSH, as in [[go:tech.pumps|Pumps]].</li>
 <li><b>K in the pipes table</b>: the sum of the fitting K values, on the pipe area, without the laminar correction.</li>
 </ul>
-<p>Warnings also come out for cavitation (static pressure below the vapour pressure), for a pipe shorter than the height difference it climbs, for a pipe above the level drawing liquid from a reservoir and for flow against the reference direction in a component, besides the warnings of pumps, valves and convergence.</p>`,
+<p>Warnings also come out for cavitation (static pressure below the vapour pressure), for a pipe shorter than the height difference it climbs, for a pipe above the level drawing liquid from a reservoir and for flow against the reference direction in a component, besides the warnings of pumps, valves and convergence.</p>
+<h4>Outputs of the column window</h4>
+<ul>
+<li><b>Losses of a pipe</b>: friction, fittings and the ends (the K of the junction at each end) add up to the head loss h<sub>L</sub>. The stagnation drop is the drop due to elevation, ρ·g·(z<sub>out</sub> − z<sub>in</sub>), plus friction and fittings, since P<sub>0</sub> at the inlet and at the outlet already account for the ends. The head loss gradient is h<sub>L</sub>/L; the pressure loss per length, ρ·g·h<sub>L</sub>/L.</li>
+<li><b>Grade lines</b>: HGL = P/(ρg) + z and EGL = P<sub>0</sub>/(ρg) + z, with the absolute pressure, as in the profile chart; they include the head of the atmosphere (about 10.3 m of water).</li>
+<li><b>Highest and lowest static pressure</b> of a pipe: those of its ends, since the pressure of a liquid changes in a straight line between them; for a gas, the points of its profile as well.</li>
+<li><b>Relative roughness</b> ε/D, in the models with a roughness; none for Hazen-Williams, a given f or frictionless.</li>
+<li><b>Junctions</b>: the static ΔP between the two pipes of a component and its head loss ΔP<sub>0</sub>/(ρg); the net flow into the network at a boundary, with the sign of [[t:results.boundaries.title]].</li>
+<li><b>Pumps</b>: the suction and discharge pressures of the junction of the pump; the NPSH margin, NPSH<sub>A</sub> − NPSH<sub>R</sub>, and the ratio NPSH<sub>A</sub>/NPSH<sub>R</sub>. The <b>best efficiency point</b> (BEP) is the flow at the peak of the efficiency curve, between its first and last points, taken to the operating point by the affinity laws: Q<sub>BEP</sub> = N·n·Q<sub>peak</sub>, with N pumps at the speed n. A curve whose highest point is one of its ends gives none.</li>
+<li><b>Valves</b>: K<sub>v</sub> = 0.8645·C<sub>v</sub> (C<sub>v</sub> in gpm with ΔP in psi and water at 60 °F; K<sub>v</sub> in m³/h with ΔP in bar).</li>
+</ul>`,
           },
           references: {
             title: 'Validation and references',
@@ -1098,6 +1117,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <li>The <b>choking</b> mark: the gas reached the speed of sound at the outlet of the pipe (Mach 1/√k isothermal, 1 adiabatic). The flow stays at the critical one however low the downstream pressure falls; the result shows the state at the outlet of the pipe, before the expansion down to the pressure of the node.</li>
 </ul>
 <p>[[show:overlay|Results on the drawing]] add the mass flow and the Mach number; the hydraulic grade line, a height of liquid, goes away. The velocity of a gas is coloured over the range of the model itself, since the fixed scale is that of water. The profile chart draws the static and stagnation pressures point by point inside each pipe, since the pressure of a gas does not fall in a straight line.</p>
+<p>The pipe table starts with the columns of a liquid: its flow is the volume flow at the inlet, and its velocity the higher of the two ends, the one the warnings use. The values of each end, the mass and normal flows and the choking mark are in the [[go:results.tables|column window]], which also has, for a gas: the speed of sound a = √(k·Z·R·T) at each end, the stagnation temperatures, the flow at the outlet, the static drop, the losses by friction and by fittings (the loss split in the ratio of f·L/D to ΣK: an estimate, since the march does not separate them), the net mass and normal flows at the boundaries and, for a compressor, the suction and discharge pressures, the isentropic head, the polytropic efficiency and the best efficiency point. Heads (HGL, EGL, head loss) mean nothing for a gas and are not offered.</p>
 <h4>Warnings</h4>
 <ul>
 <li><b>Critical</b>: a choked pipe; a calculation that did not converge.</li>

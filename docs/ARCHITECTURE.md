@@ -47,7 +47,7 @@ flowchart LR
 | Network view | `src/ui/network/` | `PumpIt.ui.canvas`, `.drawing`, `.colorScales`, `.palette`, `.infoCard` | Interaction, SVG drawing, colour scales, palette (with the arrow that collapses it), right-click card |
 | 3D view | `src/ui/view3d/` | `PumpIt.ui.scene3d`, `.commands3d`, `.edit3d` (with `.freeEdit3d`), `.solids3d`, `.render3d`, `.quick3d`, `.nav3d`, `.hud3d`, `.cube3d` | Scene (plan and elevation), commands, editing, the junction symbols as shaded solids, SVG drawing with depth cues and quick frames while something moves, camera navigation and glides, view switch with the menu of the view, the view cube, inspector sections (see [3D-VIEWS.md](3D-VIEWS.md)) |
 | Model data view | `src/ui/model-data/` | `PumpIt.ui.modelData` | Input tables |
-| Results view | `src/ui/results/` | `PumpIt.ui.results`, `.resultColumns`, `.resultExport` | Result tables, warnings, TSV and Excel export |
+| Results view | `src/ui/results/` | `PumpIt.ui.results`, `.resultCatalog`, `.columnSetup`, `.resultColumns`, `.columnWindow`, `.resultExport` | The outputs each table can show (no DOM), the columns chosen for a liquid and for a gas with their units and the templates of the profile, result tables, the column window, warnings, TSV and Excel export (a sheet per table); see [result-outputs.md](result-outputs.md) |
 | Charts view | `src/ui/charts/` | `PumpIt.ui.charts`, `.lineChart`, `.pumpChart`, `.profileChart` | Charts |
 | Styles | `src/ui/styles/` | — | One stylesheet per block, in cascade order |
 
@@ -138,7 +138,7 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 
 ### Result columns, charts and panels
 
-- Result columns: `COLS` in `src/ui/results/columns.js`.
+- Result outputs: an entry in `CATALOG` of `src/ui/results/catalog.js` (field or value function, group, unit category) and its header under `results.columns` (liquid) or `results.gasColumns` (gas) in every language. The column window lists it at once; `DEFAULTS` says which outputs a table shows before the user chooses. A value the results of the core do not have is worked out by the entry's `v(row, ctx)`.
 - Charts: a new file in `src/ui/charts/`, an entry in `CHARTS` (`charts.js`) and a tab button in `index.html`.
 - Inspector panels: `PumpIt.ui.inspector.panels.<name>(host, ...)`, dispatched by `src/ui/inspector/inspector.js`. Another block adds a section after a panel with `PumpIt.ui.inspector.addSection('system' | 'pipe' | 'junction', fn)`, as the 3D views do.
 - Notes of a field or a section (an "i" that shows the text on hover or focus): `info` in the options of the field builders and of `section()` in `src/ui/inspector/forms.js`, or `forms.note(section, html)`. `forms.hint()` is for a line that must stay in sight: a state (an isolated pipe, the fitted curve) or an error.
@@ -154,4 +154,5 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 - `tests/check-i18n.js`: same keys and placeholders in every language, every literal key of the code defined, the texts of every pipe catalogue, every example calculated in every language without missing texts, and every reference inside the help (labels, links, formulas, examples, areas of the screen, tour steps) resolved.
 - `tests/view3d.test.cjs`: the geometry of the 3D view and of the view cube against exact values, and the drawing/calculation contract (every example gives byte-identical results with a random drawing).
 - `tests/pipe-ends.test.cjs`: freeing and connecting the ends of pipes, where a loose end goes, the checklist and both solvers with a loose end, and loaded models whose ends point nowhere.
+- `tests/result-columns.test.cjs`: every result output on every example, the formulas of the derived outputs against the core, the best efficiency point, the default columns, the columns kept in the preferences (units, templates, profile file) and the `.xlsx` file with a sheet per table. It loads `catalog.js`, `column-setup.js` and `xlsx.js` with the core, since they need no DOM.
 - All of them load the core with `tests/load-core.js`, from the list in `index.html`.

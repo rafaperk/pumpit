@@ -29,10 +29,14 @@
 
   function bind() {
     $$('.tab').forEach((t) => t.addEventListener('click', () => app.setView(t.dataset.view)));
-    // unit chosen per column (result tables and charts)
+    // unit chosen per column: a result table keeps it in the columns of its regime (column-setup.js), the summary and the
+    // charts in prefs.colUnits
     document.addEventListener('change', (e) => {
       const s = e.target.closest('.unit-sel');
-      if (s) { app.prefs.colUnits[s.dataset.t + '.' + s.dataset.c] = s.value; app.savePrefs(); app.renderView(); }
+      if (!s) return;
+      if (s.dataset.regime) UI.columnSetup.setUnit(s.dataset.regime, s.dataset.t, s.dataset.c, s.value);
+      else { app.prefs.colUnits[s.dataset.t + '.' + s.dataset.c] = s.value; app.savePrefs(); }
+      app.renderView();
     });
   }
 

@@ -39,6 +39,7 @@
       const isolated = !!(l.isolated || (nodes[l.a].isolated && nodes[l.b].isolated));
       const r = {
         m, QN: m / env.rhoN, L: P.L, Dh: P.Dh, A: P.A, N: P.N, K: P.Ksum, zin: P.zUp, zout: P.zDown,
+        eD: l.d && l.d.fm === 'darcy' ? l.d.eD : NaN,
         isolated, closed: P.closed, choked: false, xChoke: null,
         HGLin: NaN, HGLout: NaN, EGLin: NaN, EGLout: NaN, hL: NaN,
       };

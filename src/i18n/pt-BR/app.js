@@ -17,7 +17,7 @@ PumpIt.i18n.add('pt-BR', {
       save: 'Baixar .json',
       copyJson: 'Copiar modelo (JSON)',
       pasteJson: 'Colar modelo (JSON)…',
-      exportXlsx: 'Exportar tubos para Excel (.xlsx)',
+      exportXlsx: 'Exportar resultados para Excel (.xlsx)',
       examples: 'Exemplos',
       options: 'Opções',
       grid3d: 'Grade 3D',

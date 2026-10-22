@@ -80,6 +80,7 @@
     }
     const Qs = Number.isFinite(s) ? Q / (el.N * s) : NaN; // equivalent flow per pump on the 100% curve
     r.eta = el.effCurve && Number.isFinite(Qs) ? H.evalCurve(el.effCurve, Qs) : 1;
+    bestEfficiency(r, el, s, Q);
     r.Pideal = Q * dP;
     r.Pshaft = r.eta > 0 ? r.Pideal / r.eta : NaN;
     if (el.npshrCurve && Number.isFinite(Qs)) r.NPSHR = s * s * H.evalCurve(el.npshrCurve, Qs);
@@ -88,6 +89,17 @@
     if (Number.isFinite(r.NPSHR) && r.NPSHA < r.NPSHR) warn('warning', t('junctions.pump.warn.npsh', { id: j.id, available: r.NPSHA.toFixed(2), required: r.NPSHR.toFixed(2) }), 'j:' + j.id);
     if (!el.effCurve) r.etaAssumed = true;
     return r;
+  }
+
+  // best efficiency point (an output, docs/result-outputs.md): the flow at the peak of the efficiency curve, taken to the
+  // speed s and to the N machines of the operating point by the affinity laws, and the flow Q as a percentage of it. No
+  // efficiency curve, or a curve without a peak between its points: no result.
+  function bestEfficiency(r, el, s, Q) {
+    if (!el.effCurve || !(s > 0)) return;
+    const best = H.curveMax(el.effCurve);
+    if (!Number.isFinite(best.x)) return;
+    r.QBEP = best.x * el.N * s;
+    r.bepPct = r.QBEP > 0 ? 100 * Q / r.QBEP : NaN;
   }
 
   PumpIt.junctionTypes.register({
@@ -223,6 +235,7 @@
       else { for (let i = 0; i < 80; i++) { const mid = (lo + hi) / 2; if (f(mid) > 0) hi = mid; else lo = mid; } sp = (lo + hi) / 2; }
       r.speed = sp * 100;
     } else if (j.mode === 'fixedFlow' || j.mode === 'ratio') r.speed = NaN;
+    bestEfficiency(r, el, el.controlled && el.curve ? r.speed / 100 : el.s, su.Q);
     if (m < 0) rc.warn('critical', t('junctions.pump.warn.reverse', { id: j.id }), 'j:' + j.id);
     if (el.curve && j.mode === 'curve' && su.Q / (el.N * el.s) > el.curve.xmax * 1.0001) rc.warn('warning', t('junctions.pump.warn.beyondCurve', { id: j.id }), 'j:' + j.id);
     if (r.ratio < 1 && m > 0) rc.warn('warning', t('core.gas.compressorBelowOne', { id: j.id, r: r.ratio.toFixed(3) }), 'j:' + j.id);

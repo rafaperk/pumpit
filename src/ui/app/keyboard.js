@@ -25,12 +25,13 @@
         if (isModalOpen()) { closeModal(); return; }
         if (UI.help.isOpen()) { UI.help.close(); return; }
         if (UI.systemWindow.isOpen()) { UI.systemWindow.close(); return; }
+        if (UI.columnWindow.isOpen()) { UI.columnWindow.close(); return; }
         app.hideMenus();
         if (!typing) UI.canvas.cancel();
         return;
       }
-      // the help window takes no drawing shortcuts (Del must not delete the selection behind it)
-      if (typing || isModalOpen() || UI.help.isOpen()) return;
+      // the help and column windows take no drawing shortcuts (Del must not delete the selection behind them)
+      if (typing || isModalOpen() || UI.help.isOpen() || UI.columnWindow.isOpen()) return;
       const k = e.key.toLowerCase();
       if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? app.redo() : app.undo(); return; }
       if (mod && k === 'y') { e.preventDefault(); app.redo(); return; }

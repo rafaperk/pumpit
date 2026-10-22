@@ -17,7 +17,7 @@ PumpIt.i18n.add('es', {
       save: 'Descargar .json',
       copyJson: 'Copiar modelo (JSON)',
       pasteJson: 'Pegar modelo (JSON)…',
-      exportXlsx: 'Exportar tuberías a Excel (.xlsx)',
+      exportXlsx: 'Exportar resultados a Excel (.xlsx)',
       examples: 'Ejemplos',
       options: 'Opciones',
       grid3d: 'Cuadrícula 3D',

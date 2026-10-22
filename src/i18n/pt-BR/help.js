@@ -192,7 +192,7 @@ PumpIt.i18n.add('pt-BR', {
             title: 'Barra superior',
             body: `<ul>
 <li><b>Título</b>: clique no nome ao lado do logotipo para renomear o modelo. O nome também batiza o arquivo baixado.</li>
-<li>[[t:app.menu.file]]: novo modelo, abrir, baixar, copiar e colar o modelo como texto JSON, exportar os tubos para o Excel e os exemplos.</li>
+<li>[[t:app.menu.file]]: novo modelo, abrir, baixar, copiar e colar o modelo como texto JSON, exportar os resultados para o Excel e os exemplos.</li>
 <li>[[t:app.menu.edit]]: desfazer, refazer, copiar, colar, selecionar tudo, inverter o sentido de um tubo, excluir, ajustar o desenho à tela e ligar ou desligar a grade.</li>
 <li>[[t:app.menu.help]]: esta central de ajuda, o tour guiado, a referência técnica, os atalhos de teclado e informações sobre o app.</li>
 <li>[[t:app.scenario.label]]: a lista escolhe o cenário na tela; os botões ao lado criam um cenário filho, renomeiam e excluem. Veja [[go:scenarios.concept|Cenários]].</li>
@@ -239,7 +239,7 @@ PumpIt.i18n.add('pt-BR', {
 [[eq:gauge]]
 <p>Diferenças de pressão (queda de pressão, ΔP de ajuste) não levam (g) nem (a).</p>
 <h4>Unidades dos resultados</h4>
-<p>Nas tabelas de resultados e nos gráficos, cada coluna numérica tem a própria lista de unidades no cabeçalho. Ali, trocar a unidade <b>converte</b> os valores mostrados, sem recalcular, e a escolha fica guardada para as próximas vezes.</p>
+<p>Nas tabelas de resultados e nos gráficos, cada coluna numérica tem a própria lista de unidades no cabeçalho. Ali, trocar a unidade <b>converte</b> os valores mostrados, sem recalcular, e a escolha fica guardada para as próximas vezes. A janela de colunas das tabelas de resultados ([[go:results.tables|Aba Resultados]]) também escolhe a unidade de cada coluna, à parte para líquidos e gases.</p>
 <p>Os números seguem o idioma: vírgula decimal em português e espanhol, ponto em inglês. Ao digitar, qualquer um dos dois é aceito.</p>`,
           },
         },
@@ -625,15 +625,24 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
             body: `<p>A aba [[t:app.tabs.out]] tem seis partes:</p>
 <ul>
 <li>[[t:results.tabs.general]]: situação do cálculo, iterações, fluido e ambiente; [[t:results.boundaries.title]], com o que entra e sai da rede em cada contorno; e os avisos.</li>
-<li>[[t:results.tabs.pipes]]: diâmetro nominal, schedule, cotas, vazão, velocidade, pressões de estagnação na entrada e na saída e K dos acessórios.</li>
-<li>[[t:results.tabs.junctions]]: pressões de estagnação e estáticas, ΔP0, K efetivo, vazão através, HGL e cota.</li>
-<li>[[t:results.tabs.pumps]]: vazão, altura, ΔP, velocidade, eficiência, potências e NPSH.</li>
-<li>[[t:results.tabs.valves]]: estado, vazão, ΔP0, pressão estática na entrada, Cv e K efetivos.</li>
+<li>[[t:results.tabs.pipes]]: por padrão, para líquidos e gases, diâmetro nominal, schedule, cotas, vazão, velocidade, pressões de estagnação na entrada e na saída e K dos acessórios.</li>
+<li>[[t:results.tabs.junctions]]: por padrão, pressões de estagnação e estáticas, ΔP0, K efetivo, vazão através, HGL e cota.</li>
+<li>[[t:results.tabs.pumps]]: por padrão, vazão, altura, ΔP, velocidade, eficiência, potências e NPSH.</li>
+<li>[[t:results.tabs.valves]]: por padrão, estado, vazão, ΔP0, pressão estática na entrada, Cv e K efetivos.</li>
 <li>[[t:results.tabs.warnings]]: a lista completa de avisos.</li>
 </ul>
 <p>Clique numa linha, ou num aviso, para localizar o objeto no desenho. Cada coluna numérica escolhe a própria unidade no cabeçalho.</p>
+<h4>Escolher as colunas</h4>
+<p>O botão com três colunas, no alto de cada tabela, abre a janela [[t:results.setup.title]]. À esquerda, em [[t:results.setup.available]], ficam as saídas que a tabela ainda pode mostrar, em grupos (pressões, perdas, linhas de carga, NPSH…) e com um filtro. À direita, em [[t:results.setup.shown]], ficam as colunas da tabela, em ordem, cada uma com a sua unidade.</p>
+<ul>
+<li>Clique para selecionar uma ou mais saídas; [[t:results.setup.add]] e [[t:results.setup.remove]] passam as selecionadas para o outro lado, e um clique duplo passa uma só. As setas sobem ou descem as colunas selecionadas. A primeira coluna, que localiza o objeto, fica sempre.</li>
+<li>Líquidos e gases têm colunas próprias: alterne entre [[t:results.setup.liquid]] e [[t:results.setup.gas]]; um ponto marca o fluido do modelo aberto.</li>
+<li>[[t:results.setup.save]] guarda as colunas neste navegador, para os próximos resultados e as próximas vezes que você abrir o Pump It. [[t:results.setup.reset]] volta às colunas padrão da tabela na tela.</li>
+<li>[[t:results.setup.templates]]: [[t:results.setup.saveAs]] guarda as quatro tabelas do fluido com um nome, que [[t:results.setup.apply]] traz de volta. [[t:results.setup.export]] grava as colunas e os modelos num arquivo, que [[t:results.setup.import]] lê em outro navegador.</li>
+</ul>
+<p>O que é cada saída está em [[go:tech.outputs|Resultados derivados]].</p>
 <h4>Levar para o Excel</h4>
-<p>Em [[t:results.tabs.pipes]], [[t:results.exportExcel]] gera um arquivo .xlsx com cabeçalho formatado, números como valores e filtro; [[t:results.copyExcel]] copia a tabela para colar numa planilha. As outras tabelas têm o botão [[t:results.copyTable]].</p>`,
+<p>[[t:results.exportExcel]], no alto de cada tabela e em [[t:app.menu.file]], gera um único arquivo .xlsx com uma planilha para cada tabela — [[t:results.tabs.pipes]], [[t:results.tabs.junctions]], [[t:results.tabs.pumps]] e [[t:results.tabs.valves]] —, com as colunas e as unidades escolhidas: cabeçalho formatado, números como valores e filtro. [[t:results.copyExcel]] e [[t:results.copyTable]] copiam a tabela da tela para colar numa planilha.</p>`,
           },
           warnings: {
             title: 'Avisos',
@@ -760,7 +769,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <tr><td>[[t:app.menu.open]]</td><td>Abre um modelo salvo em .json, ou importa um modelo nos formatos .fth ou .aro (abaixo). Arrastar o arquivo para a janela faz o mesmo.</td></tr>
 <tr><td>[[t:app.menu.save]]</td><td>Baixa o modelo como <code>título.pumpit.json</code>, com todos os cenários e o desenho.</td></tr>
 <tr><td>[[t:app.menu.copyJson]] e [[t:app.menu.pasteJson]]</td><td>Copia o modelo como texto, ou abre um modelo colado como texto — útil para mandar por mensagem.</td></tr>
-<tr><td>[[t:app.menu.exportXlsx]]</td><td>Gera a planilha com a tabela de resultados dos tubos.</td></tr>
+<tr><td>[[t:app.menu.exportXlsx]]</td><td>Gera um arquivo .xlsx com uma planilha para cada tabela de resultados, nas colunas e unidades escolhidas.</td></tr>
 <tr><td>[[t:app.menu.examples]]</td><td>Abre os modelos de exemplo.</td></tr>
 </table>
 <p>O modelo também é salvo automaticamente no navegador a cada alteração. Modelos de versões antigas são convertidos ao abrir: tipos de junção removidos viram o equivalente mais próximo, e uma mensagem informa o que mudou.</p>
@@ -999,7 +1008,17 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <li><b>Bombas</b>: ΔH, potências, eficiência e NPSH, como em [[go:tech.pumps|Bombas]].</li>
 <li><b>K na tabela de tubos</b>: a soma dos K dos acessórios, sobre a área do tubo, sem a correção laminar.</li>
 </ul>
-<p>Também saem avisos de cavitação (pressão estática abaixo da de vapor), de tubo mais curto que o desnível que vence, de tubo acima do nível tomando líquido de um reservatório e de fluxo contra o sentido de referência num componente, além dos avisos de bombas, válvulas e convergência.</p>`,
+<p>Também saem avisos de cavitação (pressão estática abaixo da de vapor), de tubo mais curto que o desnível que vence, de tubo acima do nível tomando líquido de um reservatório e de fluxo contra o sentido de referência num componente, além dos avisos de bombas, válvulas e convergência.</p>
+<h4>Saídas da janela de colunas</h4>
+<ul>
+<li><b>Perdas de um tubo</b>: atrito, acessórios e pontas (o K da junção em cada ponta) somam a perda de carga h<sub>L</sub>. A queda de estagnação é a queda devida à cota, ρ·g·(z<sub>saída</sub> − z<sub>entrada</sub>), mais atrito e acessórios, porque P<sub>0</sub> na entrada e na saída já descontam as pontas. A perda de carga unitária é h<sub>L</sub>/L; a perda de pressão por comprimento, ρ·g·h<sub>L</sub>/L.</li>
+<li><b>Linhas de carga</b>: HGL = P/(ρg) + z e EGL = P<sub>0</sub>/(ρg) + z, com a pressão absoluta, como no gráfico de perfil; incluem a altura da atmosfera (cerca de 10,3 m de água).</li>
+<li><b>Maior e menor pressão estática</b> de um tubo: as das pontas, porque a pressão de um líquido varia em linha reta entre elas; para um gás, também os pontos do seu perfil.</li>
+<li><b>Rugosidade relativa</b> ε/D, nos modelos com rugosidade; nenhuma para Hazen-Williams, f dado ou sem atrito.</li>
+<li><b>Junções</b>: o ΔP estático entre os dois tubos de um componente e a sua perda de carga ΔP<sub>0</sub>/(ρg); a vazão líquida para a rede numa fronteira, com o sinal de [[t:results.boundaries.title]].</li>
+<li><b>Bombas</b>: as pressões de sucção e de descarga da junção da bomba; a margem de NPSH, NPSH<sub>D</sub> − NPSH<sub>R</sub>, e a razão NPSH<sub>D</sub>/NPSH<sub>R</sub>. O <b>ponto de melhor eficiência</b> (BEP) é a vazão do pico da curva de eficiência, entre o primeiro e o último ponto, levada ao ponto de operação pelas leis de afinidade: Q<sub>BEP</sub> = N·n·Q<sub>pico</sub>, com N bombas na velocidade n. Uma curva cujo ponto mais alto é uma das pontas não dá BEP.</li>
+<li><b>Válvulas</b>: K<sub>v</sub> = 0,8645·C<sub>v</sub> (C<sub>v</sub> em gpm com ΔP em psi e água a 60 °F; K<sub>v</sub> em m³/h com ΔP em bar).</li>
+</ul>`,
           },
           references: {
             title: 'Validação e referências',
@@ -1098,6 +1117,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <li>A marca de <b>bloqueio</b>: o gás chegou à velocidade do som na saída do tubo (Mach 1/√k no isotérmico, 1 no adiabático). A vazão não passa da crítica, por mais que a pressão a jusante caia; o resultado mostra o estado na saída do tubo, antes da expansão até a pressão do nó.</li>
 </ul>
 <p>Em [[show:overlay|Resultados no desenho]] entram a vazão mássica e o número de Mach; a linha piezométrica, uma altura de líquido, sai. A velocidade do gás é colorida pela faixa do próprio modelo, porque a escala fixa é a da água. O gráfico de perfil traça as pressões estática e de estagnação ponto a ponto dentro de cada tubo, porque a pressão de um gás não cai em linha reta.</p>
+<p>A tabela de tubos começa com as colunas de um líquido: a vazão é a vazão volumétrica na entrada, e a velocidade é a maior das duas pontas, a que os avisos usam. Os valores de cada ponta, as vazões mássica e normal e a marca de bloqueio ficam na [[go:results.tables|janela de colunas]], que também traz, para um gás: a velocidade do som a = √(k·Z·R·T) em cada ponta, as temperaturas de estagnação, a vazão na saída, a queda estática, as perdas por atrito e nos acessórios (a perda dividida na razão entre f·L/D e ΣK: uma estimativa, porque a marcha não as separa), as vazões mássica e normal líquidas nas fronteiras e, num compressor, as pressões de sucção e de descarga, a altura isentrópica, a eficiência politrópica e o ponto de melhor eficiência. Alturas (HGL, EGL, perda de carga) não têm sentido para um gás e não são oferecidas.</p>
 <h4>Avisos</h4>
 <ul>
 <li><b>Crítico</b>: tubo bloqueado; cálculo que não convergiu.</li>

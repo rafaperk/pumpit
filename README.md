@@ -10,7 +10,7 @@ The product uses no trademarks, names, icons, texts or screens of any commercial
 
 - **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
 - **Open a model:** *File → Open* reads a model saved as `.json`, or imports a `.fth` model of a liquid or a `.aro` model of a gas (see [Importing .fth files](#importing-fth-files) and [Importing .aro files](#importing-aro-files)). Dropping the file on the window does the same.
-- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help), the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`), the checks of the `.fth` and `.aro` imports (`tests/fth-import.test.cjs`, `tests/aro-import.test.cjs`) and the checks of the ends of pipes (`tests/pipe-ends.test.cjs`).
+- **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help), the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`), the checks of the `.fth` and `.aro` imports (`tests/fth-import.test.cjs`, `tests/aro-import.test.cjs`), the checks of the ends of pipes (`tests/pipe-ends.test.cjs`) and the checks of the result columns (`tests/result-columns.test.cjs`).
 - **Help:** the Help menu (or F1) opens the guide to the whole app, the guided tour of the screen and the technical reference of the calculation, for liquids and for gases.
 - **Validation against stored reference results:** `node tests/validate-fth.js "<folder with .fth files>"` (see Verification).
 
@@ -20,7 +20,7 @@ Workflow (interface names in English; the Portuguese and Spanish screens have th
 2. **Pipe** tool, key `P`: click a junction and then another one. The reference direction goes from the first to the second. Clicking empty space creates a branch node. A new pipe copies length, material, section and friction from the selected pipe (or else from the last one created); the first pipe of a model gets 100 m. The drawn length never counts.
 3. Select an object to edit it in the inspector on the right. Whatever is still missing for it to be defined appears in red; an *i* in a circle next to a field shows its note when the mouse rests on it. The arrow on the left edge of the inspector collapses it to give the drawing more room. The fluid, the environment and the solution control are in the *System properties* window: the regime stamp at the top, *Edit → System properties…*, or the button of the inspector with nothing selected.
 4. When the checklist is complete, the indicator at the top changes to **Calculated** and the results appear. There is no Run button: every change recalculates the current scenario.
-5. See **Results** (pipes, junctions, pumps, valves, warnings), **Charts** (pump × system and profile), the right-click card, or pick a quantity in "Results on the drawing".
+5. See **Results** (pipes, junctions, pumps, valves, warnings; the button with three columns at the head of a table chooses what it shows and in which units), **Charts** (pump × system and profile), the right-click card, or pick a quantity in "Results on the drawing".
 
 Shortcuts and selection:
 
@@ -94,12 +94,20 @@ The selector at the top right switches the whole interface between **Português*
 
 Adding a language is a matter of copying a folder of message catalogs; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#interface-languages).
 
-## Pipe results and Excel export
+## Result columns and Excel export
 
-The **Results › Pipes** table shows, in this order: pipe, nominal size, schedule or class (Sch. 40, SDR 11, K9), start and end elevation (m), flow (m³/h), velocity (m/s), stagnation pressure at the inlet and at the outlet (kgf/cm²(g)) and K (sum of the pipe's fitting K values, on the pipe area).
+By default the **Results › Pipes** table shows, for a liquid and for a gas, in this order: pipe, nominal size, schedule or class (Sch. 40, SDR 11, K9), start and end elevation (m), flow (m³/h), velocity (m/s), stagnation pressure at the inlet and at the outlet (kgf/cm²(g)) and K (sum of the pipe's fitting K values, on the pipe area). For a gas, the flow is the one at the inlet and the velocity the higher of the two ends.
 
-- **Export to Excel** creates an `.xlsx` file with these columns in the same order: formatted header, numbers stored as numeric values with fixed decimals, row 1 frozen and a filter. The writer is our own and depends on no external library. Headers and sheet name follow the interface language.
-- **Copy for Excel** copies the same table to paste straight into a spreadsheet (with the decimal separator of the interface language).
+The button with three columns at the head of each table (pipes, junctions, pumps, valves) opens the column window:
+
+- **Choosing outputs:** every output the table can show is on the left, grouped and with a filter, and the columns it shows are on the right. The user moves outputs across, sets the order and picks the unit of each column. About 55 outputs join the defaults for a liquid and 53 for a gas: mass flow, static and stagnation pressures, the losses by friction, fittings and ends, head loss and its gradient, HGL and EGL, Reynolds number, relative roughness, NPSH margin, best efficiency point, Kv, speed of sound, temperatures and more.
+- **Saving:** a liquid and a gas have columns of their own. *Save* keeps them in the browser, for the next results and the next times Pump It opens. The unit list in each column header still changes the unit at once.
+- **Profile:** the four tables of a fluid can be saved as a named template of the user's profile, and the profile can be exported to a file and imported in another browser.
+
+The outputs, their formulas and the decisions are in [docs/result-outputs.md](docs/result-outputs.md).
+
+- **Export to Excel**, on every table and in the File menu, creates one `.xlsx` file with a sheet for each table: the columns, order and units chosen, a formatted header, numbers stored as numeric values, row 1 frozen and a filter. The classic pipe columns keep their fixed decimals; other columns show five significant digits of their largest value. The writer is our own and depends on no external library. Headers and sheet names follow the interface language.
+- **Copy for Excel** (pipes) and **Copy table** copy the table on screen to paste straight into a spreadsheet (with the decimal separator of the interface language).
 - On the published page, the download goes through the viewer's confirmation; from the local file it is an ordinary download.
 
 ## Velocity colour scale
@@ -153,7 +161,7 @@ src/ui/                    browser interface
   network/                 drawing area, SVG drawing, colour scales, palette, right-click card
   view3d/                  3D view: scene, commands, editing, solids, drawing and quick frames, navigation, controls, view cube, inspector sections
   model-data/              model data view
-  results/                 results view, result columns, TSV and Excel export
+  results/                 results view, the outputs of each table, the columns chosen and the column window, TSV and Excel export
   charts/                  line chart, pump × system and profile charts
   styles/                  one stylesheet per block, loaded in cascade order (tokens first, responsive last)
 tests/load-core.js         loads the core (and the catalogs) into Node in the order listed by index.html
@@ -165,9 +173,11 @@ tests/view3d.test.cjs      geometry of the 3D views; a drawing never changes a r
 tests/fth-import.test.cjs  import of .fth files, with synthetic files written by the test
 tests/aro-import.test.cjs  import of .aro files, with synthetic files written by the test
 tests/pipe-ends.test.cjs   the ends of pipes: freeing, connecting, loose ends in the checklist and the solvers
+tests/result-columns.test.cjs  result outputs and their formulas, the columns kept in the browser, the .xlsx file
 docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
 docs/3D-VIEWS.md           3D views: progress, where each part lives, decisions
 docs/pipe-ends.md          the ends of pipes: disconnecting, reconnecting and loose ends, decisions
+docs/result-outputs.md     result outputs: what each table can show, the formulas, the column window, decisions (C-xx)
 docs/gas-decisions.md      compressible mode: progress, where each part lives, decisions
 docs/fth-import.md         import of .fth files: what is read, assumed and left out (decisions F-xx)
 docs/aro-import.md         import of .aro files: what is read, assumed and left out (decisions A-xx)
@@ -191,8 +201,8 @@ Reference: the clean-room specification (`Clean Room.md`), sections 0 to 8.
 | Fittings | List with quantity; constant K or K/f<sub>T</sub> (Crane); laminar correction of K against the Crane f<sub>T</sub>, against the turbulent f of the pipe, or none |
 | Junctions | Reservoir (each pipe connected at an elevation or at a depth below the liquid surface; its panel draws the tank cut through, with the bottom, the level and each connection), imposed pressure, imposed flow, nozzle/sprinkler, branch, pump, valve (K, Cv, Kv), control valve (PRV, PSV, FCV, PDCV), **exit valve** (elevation and residual outlet pressure, with an optional loss by K, Cv or Kv), orifice, generic component (K or a ΔP × Q curve) |
 | Pumps | H × Q curve by least squares or interpolation; affinity laws; pumps in parallel; variable speed controlling flow or pressure; efficiency, power, NPSH. In **fixed flow (sizing)** mode the pump reports the required head and the panel asks for no curve, efficiency or NPSH |
-| Output | Summary, boundaries, pipes (format above), junctions, pumps, valves and warnings in three levels (plus information); right-click card; values with units and colours on the drawing; pump × system; profile of HGL, EGL and elevation |
-| Files | Save and open `.json`; import `.fth` and `.aro` models (one scenario at a time, with a report); open a file dropped on the window; copy and paste the model; export pipes to `.xlsx`; automatic saving in the browser |
+| Output | Summary, boundaries, pipes, junctions, pumps, valves and warnings in three levels (plus information); the columns of each table, their order and units chosen in a window, apart for liquids and gases, kept in the browser with named templates in a profile ([docs/result-outputs.md](docs/result-outputs.md)); right-click card; values with units and colours on the drawing; pump × system; profile of HGL, EGL and elevation |
+| Files | Save and open `.json`; import `.fth` and `.aro` models (one scenario at a time, with a report); open a file dropped on the window; copy and paste the model; export the results to `.xlsx` (a sheet per table); export and import the profile of result columns; automatic saving in the browser |
 | Languages | Portuguese, English and Spanish, switched live; numbers in the format of the language |
 | Properties | Inspector on the right for the selection, collapsed by the arrow on its edge (remembered by the browser); the system properties in a window of their own; the notes of the fields behind an *i* that shows them on hover |
 | Appearance | Light and dark mode, switched by the sun and moon button at the top right and remembered by the browser; without a choice, the mode of the system |
@@ -277,6 +287,20 @@ Time simulation, goal seek and control, automatic sizing and settling slurries, 
 `node tests/fth-import.test.cjs` writes synthetic `.fth` files from the format descriptions and imports them. It checks every value read (units, fluid, pipes, each kind of junction, pumps and their configurations, open and closed states), the scenarios rebuilt from their parents (and a base scenario without a network), the losses taken from stored results, the depths of reservoir connections and their check against the file, the calculation against the same network built in Pump It (identical to 10⁻⁹), the energy balance of two reservoirs, the comparison with stored results, what is left blank, assumed or left out, the drawing positions, Windows-1252 names, the texts of every note and `tests/validate-fth.js` itself.
 
 `node tests/aro-import.test.cjs` writes synthetic `.aro` files from the format description and imports them. It checks the units and the gas (the polynomials of a library, mixtures, Z), every kind of junction and its special conditions, the scenarios rebuilt from their parents (and a base scenario without a network), the calculation against the same network built in Pump It (identical to 10⁻⁹), the comparison with stored results, the basis of a pressure set point and the suction of a compressor read from them, a compressor curve that gives back the rise of the file, a textbook problem of Fanno flow, what is left blank, assumed or left out, and the texts of every note.
+
+`node tests/result-columns.test.cjs` checks the result outputs ([docs/result-outputs.md](docs/result-outputs.md)):
+
+- every output of every table, on every example and scenario;
+- the formulas against the core:
+  - friction, fittings and ends add up to the head loss;
+  - the drop due to elevation;
+  - EGL − HGL = V²/2g;
+  - Kv against its definition;
+  - the speed of sound against the Mach number;
+  - the best efficiency point of fitted and interpolated curves, with the speed and the number of pumps;
+- the default columns are those the tables always had, and a gas pipe has those of a liquid pipe;
+- the columns kept in the preferences: the units of before, a unit chosen in a header, templates and the profile file;
+- the `.xlsx` file with one sheet per table.
 
 `node tests/validate-fth.js` compares with the results stored in the reference verification models. Boundaries: at reservoirs, imposed pressures and discharge valves, the stagnation pressure stored at the pipe end; everything else is calculated. The measure is the worst deviation of the case: flow relative to the largest flow, and stagnation pressure at the pipe ends relative to the largest pressure drop in a pipe. Result, measured on 15 October 2026:
 

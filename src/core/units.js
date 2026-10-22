@@ -37,6 +37,13 @@
     // mass flow needs the normal density (ctx.rhoN)
     normFlow: { 'Nm³/s': 1, 'Nm³/min': 1 / 60, 'Nm³/h': 1 / 3600, 'Nm³/d': 1 / 86400 },
     velocity: { 'm/s': 1, 'ft/s': FT },
+    volume: { 'm³': 1, L: 1e-3, 'ft³': FT ** 3, gal: GAL },
+    // what a pipe loses per length: head per length (the slope of the grade lines) and pressure per length
+    headGradient: { 'm/m': 1, 'm/100 m': 0.01, 'm/km': 1e-3, 'ft/100 ft': 0.01 },
+    dpGradient: {
+      'Pa/m': 1, 'kPa/m': 1e3, 'kPa/100 m': 10, 'bar/km': 100, 'bar/100 m': 1e3,
+      'kgf/cm²/km': 98.0665, 'kgf/cm²/100 m': 980.665, 'psi/100 ft': PSI / (100 * FT),
+    },
     density: { 'kg/m³': 1, 'g/cm³': 1000, 'lbm/ft³': LBM / FT ** 3 },
     viscosity: { 'Pa·s': 1, cP: 1e-3, 'mPa·s': 1e-3, 'lbm/(ft·s)': LBM / FT },
     power: { W: 1, kW: 1e3, MW: 1e6, hp: 745.699872 },

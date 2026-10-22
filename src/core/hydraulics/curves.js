@@ -64,5 +64,37 @@
   }
   const evalCurve = (c, x) => (c.kind === 'xy' ? interp(c.x, c.y, x) : polyval(c.a, x));
 
-  PumpIt.hyd = Object.assign(PumpIt.hyd || {}, { polyfit, polyval, polyder, interp, makeCurve, evalCurve });
+  // the highest point of a curve between its first and last points (of an efficiency curve: the best efficiency
+  // point): the highest point given, for an interpolated curve; otherwise the best of 200 steps, refined by golden
+  // section and then by Newton on the slope (a search by comparison stops at about √ε, where the curve is flat). A
+  // curve that is highest at one of its ends has no peak in its range: { x: NaN, y: NaN }.
+  function curveMax(c) {
+    const none = { x: NaN, y: NaN };
+    if (c.kind === 'xy') {
+      let i = 0;
+      for (let k = 1; k < c.y.length; k++) if (c.y[k] > c.y[i]) i = k;
+      return i > 0 && i < c.y.length - 1 ? { x: c.x[i], y: c.y[i] } : none;
+    }
+    const a = c.xmin, n = 200, h = (c.xmax - c.xmin) / n;
+    if (!(h > 0)) return none;
+    let best = 0;
+    for (let i = 1; i <= n; i++) if (polyval(c.a, a + i * h) > polyval(c.a, a + best * h)) best = i;
+    if (best === 0 || best === n) return none;
+    let lo = a + (best - 1) * h, hi = a + (best + 1) * h;
+    const r = (Math.sqrt(5) - 1) / 2;
+    for (let i = 0; i < 60; i++) {
+      const x1 = hi - r * (hi - lo), x2 = lo + r * (hi - lo);
+      if (polyval(c.a, x1) < polyval(c.a, x2)) lo = x1; else hi = x2;
+    }
+    let x = (lo + hi) / 2;
+    const d1 = polyder(c.a), d2 = polyder(d1);
+    for (let i = 0; i < 4; i++) {
+      const s2 = polyval(d2, x), nx = x - polyval(d1, x) / s2;
+      if (!(s2 < 0) || !(Math.abs(nx - x) <= 2 * h)) break;
+      x = nx;
+    }
+    return { x, y: polyval(c.a, x) };
+  }
+
+  PumpIt.hyd = Object.assign(PumpIt.hyd || {}, { polyfit, polyval, polyder, interp, makeCurve, evalCurve, curveMax });
 })(typeof window !== 'undefined' ? window : globalThis);

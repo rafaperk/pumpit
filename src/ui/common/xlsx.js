@@ -1,5 +1,5 @@
 // Minimal .xlsx (Office Open XML) writer with no dependencies: uncompressed ZIP + XML.
-// Bold header with a fill, thin borders, real numbers with a fixed format and row 1 frozen.
+// Bold header with a fill, thin borders, real numbers with a fixed format and row 1 frozen; one sheet or several.
 (function (root) {
   const PumpIt = root.PumpIt;
 
@@ -40,9 +40,44 @@
   const x = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const colName = (i) => { let s = ''; for (i++; i > 0; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + ((i - 1) % 26)) + s; return s; };
 
-  // columns: [{ header, width, format: 'text' | '0.00' | '0.000' | '0.0000' }]; rows: arrays of values
-  function workbook({ sheet = 'Sheet1', columns, rows }) {
-    const fmts = [...new Set(columns.map((c) => c.format).filter((f) => f && f !== 'text'))];
+  // a sheet name Excel accepts: no \ / ? * [ ] :, at most 31 characters, not used by another sheet
+  function sheetNames(list) {
+    const names = [];
+    for (const s of list) {
+      const base = String(s.name || 'Sheet').replace(/[\\/?*[\]:]/g, ' ').trim().slice(0, 31) || 'Sheet';
+      let n = base;
+      for (let k = 2; names.includes(n); k++) n = `${base.slice(0, 26)} (${k})`;
+      names.push(n);
+    }
+    return names;
+  }
+
+  // a worksheet: the header in row 1 (frozen, with a filter), then the rows
+  function sheetXml({ columns, rows }, numXf, selected) {
+    const head = `<row r="1" ht="32" customHeight="1">${columns.map((c, i) => `<c r="${colName(i)}1" t="inlineStr" s="1"><is><t>${x(c.header)}</t></is></c>`).join('')}</row>`;
+    const body = rows.map((row, ri) => {
+      const r = ri + 2;
+      return `<row r="${r}">${row.map((v, ci) => {
+        const ref = colName(ci) + r, c = columns[ci];
+        if (typeof v === 'number' && Number.isFinite(v) && c.format !== 'text') return `<c r="${ref}" s="${numXf(c.format)}"><v>${v}</v></c>`;
+        return `<c r="${ref}" t="inlineStr" s="2"><is><t>${x(v ?? '')}</t></is></c>`;
+      }).join('')}</row>`;
+    }).join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheetViews><sheetView${selected ? ' tabSelected="1"' : ''} workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
+<sheetFormatPr defaultRowHeight="15"/>
+<cols>${columns.map((c, i) => `<col min="${i + 1}" max="${i + 1}" width="${c.width || 14}" customWidth="1"/>`).join('')}</cols>
+<sheetData>${head}${body}</sheetData>
+<autoFilter ref="A1:${colName(columns.length - 1)}${rows.length + 1}"/>
+</worksheet>`;
+  }
+
+  // sheets: [{ name, columns: [{ header, width, format: 'text' | a number format such as '0.00' }], rows: arrays of
+  // values }]; a single sheet may also be given as { sheet (its name), columns, rows }
+  function workbook({ sheets, sheet = 'Sheet1', columns, rows }) {
+    const list = sheets || [{ name: sheet, columns, rows }];
+    const fmts = [...new Set(list.flatMap((s) => s.columns.map((c) => c.format)).filter((f) => f && f !== 'text'))];
     const fmtId = (f) => 164 + fmts.indexOf(f);
     // styles: 0 default, 1 header, 2 text with border, 3.. numbers with border (one per format)
     const numXf = (f) => 3 + fmts.indexOf(f);
@@ -61,31 +96,18 @@ ${fmts.map((f) => `<xf numFmtId="${fmtId(f)}" fontId="0" fillId="0" borderId="1"
 </cellXfs>
 <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
 </styleSheet>`;
-    const head = `<row r="1" ht="32" customHeight="1">${columns.map((c, i) => `<c r="${colName(i)}1" t="inlineStr" s="1"><is><t>${x(c.header)}</t></is></c>`).join('')}</row>`;
-    const body = rows.map((row, ri) => {
-      const r = ri + 2;
-      return `<row r="${r}">${row.map((v, ci) => {
-        const ref = colName(ci) + r, c = columns[ci];
-        if (typeof v === 'number' && Number.isFinite(v) && c.format !== 'text') return `<c r="${ref}" s="${numXf(c.format)}"><v>${v}</v></c>`;
-        return `<c r="${ref}" t="inlineStr" s="2"><is><t>${x(v ?? '')}</t></is></c>`;
-      }).join('')}</row>`;
-    }).join('');
-    const sheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
-<sheetFormatPr defaultRowHeight="15"/>
-<cols>${columns.map((c, i) => `<col min="${i + 1}" max="${i + 1}" width="${c.width || 14}" customWidth="1"/>`).join('')}</cols>
-<sheetData>${head}${body}</sheetData>
-<autoFilter ref="A1:${colName(columns.length - 1)}${rows.length + 1}"/>
-</worksheet>`;
-    const name = x(sheet).slice(0, 31);
+    const names = sheetNames(list);
+    // the range of the filter of a sheet, for its defined name ('Sheet name'!$A$1:$C$9, a quote doubled)
+    const range = (s, i) => `'${names[i].replace(/'/g, "''")}'!$A$1:$${colName(s.columns.length - 1)}$${s.rows.length + 1}`;
+    const WS = 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml';
+    const REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
     return zip([
-      { name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>` },
-      { name: '_rels/.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
-      { name: 'xl/workbook.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${name}" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'${name}'!$A$1:$${colName(columns.length - 1)}$${rows.length + 1}</definedName></definedNames></workbook>` },
-      { name: 'xl/_rels/workbook.xml.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` },
+      { name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${list.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="${WS}"/>`).join('')}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>` },
+      { name: '_rels/.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL}/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+      { name: 'xl/workbook.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${REL}"><bookViews><workbookView activeTab="0"/></bookViews><sheets>${list.map((s, i) => `<sheet name="${x(names[i])}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets><definedNames>${list.map((s, i) => `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">${x(range(s, i))}</definedName>`).join('')}</definedNames></workbook>` },
+      { name: 'xl/_rels/workbook.xml.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${list.map((s, i) => `<Relationship Id="rId${i + 1}" Type="${REL}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${list.length + 1}" Type="${REL}/styles" Target="styles.xml"/></Relationships>` },
       { name: 'xl/styles.xml', data: styles },
-      { name: 'xl/worksheets/sheet1.xml', data: sheetXml },
+      ...list.map((s, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, data: sheetXml(s, numXf, i === 0) })),
     ]);
   }
 
