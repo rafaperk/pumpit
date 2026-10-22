@@ -16,7 +16,7 @@ The product uses no trademarks, names, icons, texts or screens of any commercial
 
 Workflow (interface names in English; the Portuguese and Spanish screens have the same layout):
 
-1. Drag a junction type from the palette onto the drawing (or click the type and then the drawing).
+1. Drag a junction type from the palette onto the drawing (or click the type and then the drawing). The arrow on the right edge of the palette collapses it to give the drawing more room.
 2. **Pipe** tool, key `P`: click a junction and then another one. The reference direction goes from the first to the second. Clicking empty space creates a branch node. A new pipe copies length, material, section and friction from the selected pipe (or else from the last one created); the first pipe of a model gets 100 m. The drawn length never counts.
 3. Select an object to edit it in the inspector on the right. Whatever is still missing for it to be defined appears in red; an *i* in a circle next to a field shows its note when the mouse rests on it. The arrow on the left edge of the inspector collapses it to give the drawing more room. The fluid, the environment and the solution control are in the *System properties* window: the regime stamp at the top, *Edit → System properties…*, or the button of the inspector with nothing selected.
 4. When the checklist is complete, the indicator at the top changes to **Calculated** and the results appear. There is no Run button: every change recalculates the current scenario.
@@ -181,7 +181,7 @@ Reference: the clean-room specification (`Clean Room.md`), sections 0 to 8.
 
 | Area | Implemented |
 | --- | --- |
-| Drawing | Palette, pipes with a reference direction, moving (also as a group), multiple selection, copy and paste, delete, reverse direction, change the junction type keeping the compatible data, grid with snapping, zoom, pan, fit to screen, undo and redo; isometric and free 3D views of the same model, with the elevation as height (drawing and editing in both) |
+| Drawing | Palette (collapsed by the arrow on its edge, remembered by the browser), pipes with a reference direction, moving (also as a group), multiple selection, copy and paste, delete, reverse direction, change the junction type keeping the compatible data, grid with snapping, zoom, pan, fit to screen, undo and redo; a 3D view of the same model, with the elevation as height (orbit camera, view cube; drawing and editing in it as well) |
 | Calculation | Automatic after every change and when switching scenarios; the checklist shows what is missing |
 | Scenarios | Scenario tree; a child stores only what differs from its parent; editing with the inherited value relinks to the parent; marker on changed fields; table of differences |
 | Fluid | Water (Kell 1975, Vogel, IAPWS-IF97 region 4) or the user's ρ, μ and Pv; in the compressible mode, a library gas or a custom one (MW, k, Z, μ, T) |

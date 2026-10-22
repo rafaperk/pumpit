@@ -138,7 +138,7 @@
   <main class="views">
     <!-- NETWORK -->
     <section class="view view-net" id="view-net">
-      <aside class="palette" aria-label="Object palette" data-i18n-aria-label="network.palette.aria">
+      <aside class="palette" id="palette" aria-label="Object palette" data-i18n-aria-label="network.palette.aria">
         <button class="tool active" data-tool="select" title="Select and move (Esc)" data-i18n-title="network.palette.selectTitle">
           <svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 3l12 8-5 1.5 3 6-2 1-3-6L6 17z" fill="currentColor"/></svg>
           <span data-i18n="network.palette.select">Select</span>
@@ -151,6 +151,10 @@
         <div id="palette-junctions"></div>
       </aside>
       <div class="canvas-wrap" id="canvas-wrap">
+        <!-- collapses the palette and brings it back; title and label set by src/ui/network/palette.js -->
+        <button type="button" class="palette-toggle" id="palette-toggle" aria-controls="palette" aria-expanded="true" aria-label="Collapse the palette">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M10 3.5L5.5 8L10 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <svg id="canvas" tabindex="0" aria-label="Drawing area" data-i18n-aria-label="network.canvasAria"></svg>
         <div class="canvas-top">
           <!-- the views; the arrow beside 3D opens the menu of the 3D view to its right and closes it again (D-33 and

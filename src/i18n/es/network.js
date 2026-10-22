@@ -9,6 +9,7 @@ PumpIt.i18n.add('es', {
       pipe: 'Tubería',
       pipeTitle: 'Dibujar tuberías: haga clic en una unión y después en otra (P)',
       toolTitle: '{label}: haga clic y después clic en el dibujo, o arrastre',
+      toggle: { hide: 'Contraer la paleta', show: 'Mostrar la paleta' },
     },
     overlay: {
       m: 'Caudal másico',

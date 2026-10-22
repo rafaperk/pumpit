@@ -13,17 +13,19 @@
   // areas of the screen, by name (the help's [[show:area]] links use them too)
   const AREAS = {
     menus: '.menus', title: '#model-title', stamp: '#regime-stamp', scenario: '.scenario', status: '.run', language: '.lang', theme: '#theme-toggle', tabs: '.tabs',
-    palette: '.palette', canvas: '#canvas-wrap', views: '#view-hud', overlay: '.overlay-pick', zoom: '.zoom',
+    palette: '.palette', paletteToggle: '#palette-toggle', canvas: '#canvas-wrap', views: '#view-hud', overlay: '.overlay-pick', zoom: '.zoom',
     inspector: '#inspector', panel: '#panel-toggle', statusLine: '#status-line', help: '#btn-menu-help',
   };
   // the steps of the tour, in order (texts: help.tour.steps.<area>.title / .body)
   const STEPS = ['menus', 'title', 'stamp', 'scenario', 'status', 'language', 'theme', 'tabs', 'palette', 'canvas', 'views', 'overlay', 'zoom', 'inspector', 'panel', 'help'];
-  const IN_NETWORK = new Set(['palette', 'canvas', 'views', 'overlay', 'zoom', 'inspector', 'panel']);
+  const IN_NETWORK = new Set(['palette', 'paletteToggle', 'canvas', 'views', 'overlay', 'zoom', 'inspector', 'panel']);
 
-  // an area of the network view on the screen: that view, and the properties panel open when it is the one shown
+  // an area of the network view on the screen: that view, and the palette or the properties panel open when it is the
+  // one shown
   function reveal(area) {
     if (!IN_NETWORK.has(area)) return;
     if (app.view !== 'net') app.setView('net');
+    if (area === 'palette') UI.palette.setCollapsed(false);
     if (area === 'inspector') UI.inspector.setCollapsed(false);
   }
 

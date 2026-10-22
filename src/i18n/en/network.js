@@ -9,6 +9,7 @@ PumpIt.i18n.add('en', {
       pipe: 'Pipe',
       pipeTitle: 'Draw pipes: click a junction and then another one (P)',
       toolTitle: '{label}: click and then click the drawing, or drag',
+      toggle: { hide: 'Collapse the palette', show: 'Show the palette' },
     },
     overlay: {
       m: 'Mass flow',

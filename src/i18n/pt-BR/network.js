@@ -9,6 +9,7 @@ PumpIt.i18n.add('pt-BR', {
       pipe: 'Tubo',
       pipeTitle: 'Desenhar tubos: clique em uma junção e depois em outra (P)',
       toolTitle: '{label}: clique e depois clique no desenho, ou arraste',
+      toggle: { hide: 'Recolher a paleta', show: 'Mostrar a paleta' },
     },
     overlay: {
       m: 'Vazão mássica',

@@ -1,21 +1,36 @@
 /* Network view: palette, drawing area, floating tools, legends and the symbols on the drawing. */
-.view-net { --palette-w: 88px; --inspector-w: 340px; display: grid; grid-template-columns: var(--palette-w) minmax(0, 1fr) var(--inspector-w); }
-/* the properties panel collapsed by its arrow: the drawing takes its room */
+.view-net {
+  --palette-w: 88px; --inspector-w: 340px; display: grid;
+  grid-template-columns: var(--palette-w) minmax(0, 1fr) var(--inspector-w); grid-template-areas: 'palette drawing inspector';
+}
+.view-net > .palette { grid-area: palette; }
+.view-net > .canvas-wrap { grid-area: drawing; }
+.view-net > .inspector { grid-area: inspector; }
+/* the palette and the properties panel collapsed by their arrows: the drawing takes their room */
+.view-net.pal-off { --palette-w: 0px; }
+.view-net.pal-off .palette { display: none; }
 .view-net.insp-off { --inspector-w: 0px; }
 .view-net.insp-off .inspector { display: none; }
-.panel-toggle {
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 3; width: 18px; height: 52px; padding: 0;
-  display: grid; place-items: center; cursor: pointer; color: var(--ink-2); background: var(--panel);
-  border: 1px solid var(--line); border-right: 0; border-radius: 8px 0 0 8px; box-shadow: -2px 0 6px rgba(10, 16, 20, .06);
+/* the arrows on the edges of the drawing: the palette's on the left, the properties panel's on the right */
+.palette-toggle, .panel-toggle {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 18px; height: 52px; padding: 0;
+  display: grid; place-items: center; cursor: pointer; color: var(--ink-2); background: var(--panel); border: 1px solid var(--line);
 }
-.panel-toggle:hover { color: var(--accent); background: var(--sunk); }
-.panel-toggle svg { display: block; }
+.palette-toggle { left: 0; border-left: 0; border-radius: 0 8px 8px 0; box-shadow: 2px 0 6px rgba(10, 16, 20, .06); }
+.panel-toggle { right: 0; border-right: 0; border-radius: 8px 0 0 8px; box-shadow: -2px 0 6px rgba(10, 16, 20, .06); }
+.palette-toggle:hover, .panel-toggle:hover { color: var(--accent); background: var(--sunk); }
+.palette-toggle svg, .panel-toggle svg { display: block; }
 /* collapsed: the arrow points back into the window */
-.insp-off .panel-toggle svg { transform: rotate(180deg); }
+.pal-off .palette-toggle svg, .insp-off .panel-toggle svg { transform: rotate(180deg); }
+/* the scroll bar of a short window takes room on the right of the palette: --bar, half its width (palette.js), moves
+   from the right padding to the left one, so the tools stay on the middle line of the palette */
 .palette {
-  background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 6px 6px 12px;
+  background: var(--panel); border-right: 1px solid var(--line); overflow-x: hidden; overflow-y: auto;
+  padding: 6px calc(6px - var(--bar, 0px)) 12px calc(6px + var(--bar, 0px));
   display: flex; flex-direction: column; gap: 2px; scrollbar-width: thin;
 }
+/* the junction types are tools of the palette like the two above them, as wide as its column */
+#palette-junctions { display: contents; }
 .palette-sep { height: 1px; background: var(--line); margin: 6px 4px; }
 /* group titles must fit the narrow column in every language; a very long word wraps instead of overflowing */
 .palette-group { font-size: 9px; letter-spacing: .02em; text-transform: uppercase; color: var(--ink-3); padding: 8px 0 2px; text-align: center; overflow-wrap: anywhere; }

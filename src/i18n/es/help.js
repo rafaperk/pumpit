@@ -61,7 +61,7 @@ PumpIt.i18n.add('es', {
         },
         palette: {
           title: 'Paleta',
-          body: '[[t:network.palette.select]] (tecla <kbd>V</kbd>) y [[t:network.palette.pipe]] (tecla <kbd>P</kbd>) son las herramientas. Debajo vienen los tipos de unión, en grupos. Arrastre un tipo al dibujo, o haga clic en él y luego en el dibujo.',
+          body: '[[t:network.palette.select]] (tecla <kbd>V</kbd>) y [[t:network.palette.pipe]] (tecla <kbd>P</kbd>) son las herramientas. Debajo vienen los tipos de unión, en grupos. Arrastre un tipo al dibujo, o haga clic en él y luego en el dibujo. La flecha en su borde derecho contrae la paleta y devuelve el espacio al dibujo; otro clic la trae de vuelta.',
         },
         canvas: {
           title: 'Área de dibujo',
@@ -185,6 +185,7 @@ PumpIt.i18n.add('es', {
 <li>[[show:canvas|Área de dibujo]], en el centro: la red, las vistas, los resultados en el dibujo y el zoom.</li>
 <li>[[show:inspector|Propiedades]], a la derecha: los datos del objeto seleccionado.</li>
 </ol>
+<p>La [[show:paletteToggle|flecha]] en el borde derecho de la paleta y la [[show:panel|flecha]] en el borde izquierdo del panel de propiedades los contraen, y el dibujo gana el espacio; otro clic trae cada uno de vuelta. La elección se guarda en este navegador.</p>
 <p>Para un paseo completo, con una explicación breve de cada parte, haga el [[act:tour|recorrido guiado]].</p>`,
           },
           topbar: {

@@ -61,7 +61,7 @@ PumpIt.i18n.add('pt-BR', {
         },
         palette: {
           title: 'Paleta',
-          body: '[[t:network.palette.select]] (tecla <kbd>V</kbd>) e [[t:network.palette.pipe]] (tecla <kbd>P</kbd>) são as ferramentas. Abaixo vêm os tipos de junção, em grupos. Arraste um tipo para o desenho, ou clique nele e depois no desenho.',
+          body: '[[t:network.palette.select]] (tecla <kbd>V</kbd>) e [[t:network.palette.pipe]] (tecla <kbd>P</kbd>) são as ferramentas. Abaixo vêm os tipos de junção, em grupos. Arraste um tipo para o desenho, ou clique nele e depois no desenho. A setinha na sua borda direita recolhe a paleta e devolve o espaço ao desenho; outro clique a traz de volta.',
         },
         canvas: {
           title: 'Área de desenho',
@@ -185,6 +185,7 @@ PumpIt.i18n.add('pt-BR', {
 <li>[[show:canvas|Área de desenho]], no centro: a rede, as vistas, os resultados no desenho e o zoom.</li>
 <li>[[show:inspector|Propriedades]], à direita: os dados do objeto selecionado.</li>
 </ol>
+<p>A [[show:paletteToggle|setinha]] na borda direita da paleta e a [[show:panel|setinha]] na borda esquerda do painel de propriedades os recolhem, e o desenho ganha o espaço; outro clique traz cada um de volta. A escolha fica guardada neste navegador.</p>
 <p>Para um passeio completo, com uma explicação curta de cada parte, faça o [[act:tour|tour guiado]].</p>`,
           },
           topbar: {

@@ -6,15 +6,16 @@
   #app { height: auto; min-height: 100%; }
   .views { min-height: 0; }
   .view { height: auto; }
-  .view-net { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 62vh auto; }
+  .view-net { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 62vh auto; grid-template-areas: 'palette' 'drawing' 'inspector'; }
   .palette { flex-direction: row; overflow-x: auto; overflow-y: hidden; border-right: 0; border-bottom: 1px solid var(--line); padding: 6px; }
   #palette-junctions { display: flex; gap: 2px; }
   .palette-group { display: none; }
   .palette-sep { width: 1px; height: auto; margin: 4px 6px; }
   .tool { min-width: 68px; }
   .inspector { border-left: 0; border-top: 1px solid var(--line); }
-  /* the panel sits below the drawing: it is not collapsed */
-  .panel-toggle { display: none; }
+  /* the palette sits above the drawing and the panel below it: neither is collapsed */
+  .palette-toggle, .panel-toggle { display: none; }
+  .view-net.pal-off .palette { display: flex; }
   .view-net.insp-off .inspector { display: block; }
   .insp-head { position: static; }
   .scenario select { max-width: 140px; }

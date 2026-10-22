@@ -61,7 +61,7 @@ PumpIt.i18n.add('en', {
         },
         palette: {
           title: 'Palette',
-          body: '[[t:network.palette.select]] (key <kbd>V</kbd>) and [[t:network.palette.pipe]] (key <kbd>P</kbd>) are the tools. Below them come the junction types, in groups. Drag a type onto the drawing, or click it and then the drawing.',
+          body: '[[t:network.palette.select]] (key <kbd>V</kbd>) and [[t:network.palette.pipe]] (key <kbd>P</kbd>) are the tools. Below them come the junction types, in groups. Drag a type onto the drawing, or click it and then the drawing. The arrow on its right edge collapses the palette and gives its room to the drawing; another click brings it back.',
         },
         canvas: {
           title: 'Drawing area',
@@ -185,6 +185,7 @@ PumpIt.i18n.add('en', {
 <li>[[show:canvas|Drawing area]], in the middle: the network, the views, the results on the drawing and the zoom.</li>
 <li>[[show:inspector|Properties]], on the right: the data of the selected object.</li>
 </ol>
+<p>The [[show:paletteToggle|arrow]] on the right edge of the palette and the [[show:panel|arrow]] on the left edge of the properties panel collapse them, and the drawing gets their room; another click brings each one back. The choice is kept in this browser.</p>
 <p>For a complete walk, with a short explanation of each part, take the [[act:tour|guided tour]].</p>`,
           },
           topbar: {
