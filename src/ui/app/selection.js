@@ -6,7 +6,8 @@
 
   const keyOf = (hit) => (hit.kind === 'pipe' ? 'p:' : 'j:') + hit.id;
   const hitOf = (key) => ({ kind: key[0] === 'p' ? 'pipe' : 'junction', id: Number(key.slice(2)) });
-  function selectionChanged() { UI.canvas.render(); UI.inspector.render(); }
+  // the properties panel follows the selection, and opens again at a click on the object already selected
+  function selectionChanged() { UI.inspector.follow(); UI.canvas.render(); UI.inspector.render(); }
 
   app.select = (hit, opts = {}) => {
     if (!hit) { app.selSet.clear(); app.sel = null; }
@@ -17,7 +18,7 @@
     } else { app.selSet = new Set([keyOf(hit)]); app.sel = hit; }
     selectionChanged();
   };
-  app.setPrimary = (hit) => { app.sel = hit; UI.inspector.render(); };
+  app.setPrimary = (hit) => { app.sel = hit; UI.inspector.follow(); UI.inspector.render(); };
   app.selectKeys = (keys) => {
     app.selSet = new Set(keys);
     app.sel = keys.length ? hitOf(keys.find((k) => k[0] === 'j') || keys[0]) : null;

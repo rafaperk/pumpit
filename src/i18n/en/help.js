@@ -81,11 +81,11 @@ PumpIt.i18n.add('en', {
         },
         inspector: {
           title: 'Properties',
-          body: 'Shows and edits the selected object. With nothing selected, it sums up the system and has the button that opens the window of the system properties. Whatever an object still needs appears in a red box; the <b>i</b> next to a field shows a note about it when the mouse rests on it.',
+          body: 'Shows and edits the selected object: it opens when you select something and collapses when nothing is selected. Opened by its arrow with nothing selected, it sums up the system and has the button that opens the window of the system properties. Whatever an object still needs appears in a red box; the <b>i</b> next to a field shows a note about it when the mouse rests on it.',
         },
         panel: {
           title: 'Collapse the panel',
-          body: 'The arrow collapses the properties panel and gives its room to the drawing; another click brings the panel back. The choice is kept in this browser.',
+          body: 'The arrow collapses the properties panel and gives its room to the drawing, or brings the panel back, until the selection changes again.',
         },
         help: {
           title: 'Help',
@@ -185,7 +185,7 @@ PumpIt.i18n.add('en', {
 <li>[[show:canvas|Drawing area]], in the middle: the network, the views, the results on the drawing and the zoom.</li>
 <li>[[show:inspector|Properties]], on the right: the data of the selected object.</li>
 </ol>
-<p>The [[show:paletteToggle|arrow]] on the right edge of the palette and the [[show:panel|arrow]] on the left edge of the properties panel collapse them, and the drawing gets their room; another click brings each one back. The choice is kept in this browser.</p>
+<p>The [[show:paletteToggle|arrow]] on the right edge of the palette collapses it, and the drawing gets its room; another click brings it back, and the choice is kept in this browser. The properties panel opens when something is selected and collapses when nothing is; the [[show:panel|arrow]] on its left edge also collapses it or brings it back.</p>
 <p>For a complete walk, with a short explanation of each part, take the [[act:tour|guided tour]].</p>`,
           },
           topbar: {
@@ -215,7 +215,7 @@ PumpIt.i18n.add('en', {
             title: 'Properties panel',
             body: `<p>The panel on the right follows the selection:</p>
 <ul>
-<li><b>Nothing selected</b>: a summary of the system and the [[t:inspector.system.open]] button, which opens the [[t:inspector.system.title]] window — regime, fluid, environment, solution control and the current scenario. See [[go:system.fluid|System and solution]].</li>
+<li><b>Nothing selected</b>: the panel collapses. Opened by its arrow, it shows a summary of the system and the [[t:inspector.system.open]] button, which opens the [[t:inspector.system.title]] window — regime, fluid, environment, solution control and the current scenario. See [[go:system.fluid|System and solution]].</li>
 <li><b>A pipe</b>: quick results, name, geometry, friction, fittings and special condition.</li>
 <li><b>A junction</b>: quick results, name, [[t:inspector.junction.type]], [[t:inspector.junction.elevation]] and the data of its type.</li>
 <li><b>Several objects</b>: the count and the copy, paste and delete actions.</li>
@@ -228,8 +228,9 @@ PumpIt.i18n.add('en', {
 <li>The red <b>Undefined</b> box lists what the object still needs to enter the calculation.</li>
 <li>An <b>i</b> in a circle, next to a field or to the title of a section, holds a note: rest the mouse on it, or reach it with <kbd>Tab</kbd>, to read it.</li>
 </ul>
-<h4>Collapsing the panel</h4>
-<p>The [[show:panel|arrow]] on the left edge of the panel collapses it, and the drawing gets its room; another click brings it back. The choice is kept in this browser. Going to an object from the checklist, the tables or the warnings opens the panel again.</p>`,
+<h4>Opening and collapsing the panel</h4>
+<p>The panel opens when you select something, also with a click on the object already selected, and collapses when nothing is selected: after a click on empty space, a deletion or the opening of a model. Going to an object from the checklist, the tables or the warnings opens it too. The [[show:panel|arrow]] on its left edge collapses it, and the drawing gets its room, or brings it back; this lasts until the selection changes again.</p>
+<p>The drawing does not move when the panel opens or closes. When the panel would cover the object just selected, the drawing moves aside to show it.</p>`,
           },
           units: {
             title: 'Units',
@@ -547,7 +548,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
         sections: {
           fluid: {
             title: 'Fluid',
-            body: `<p>The properties of the system are in the [[t:inspector.system.title]] window. It opens from the [[show:stamp|regime stamp]], next to the title of the model; from the [[t:app.menu.edit]] → [[t:app.menu.system]] menu; from the items of the system in the checklist; or from the [[t:inspector.system.open]] button of the panel, with nothing selected. Each change applies at once, as in the panel. At the top of the window is the [[t:inspector.system.regime]]; with [[t:inspector.system.regimes.incompressible]], the [[t:inspector.system.fluid]] section has:</p>
+            body: `<p>The properties of the system are in the [[t:inspector.system.title]] window. It opens from the [[show:stamp|regime stamp]], next to the title of the model; from the [[t:app.menu.edit]] → [[t:app.menu.system]] menu; from the items of the system in the checklist; or from the [[t:inspector.system.open]] button of the panel, opened by its arrow with nothing selected. Each change applies at once, as in the panel. At the top of the window is the [[t:inspector.system.regime]]; with [[t:inspector.system.regimes.incompressible]], the [[t:inspector.system.fluid]] section has:</p>
 <ul>
 <li>[[t:core.fluids.water.label]]: give the [[t:inspector.system.temperature]] (0 to 150 °C); density, viscosity and vapour pressure come from public correlations.</li>
 <li>[[t:inspector.system.userDefined]]: give the density, the dynamic viscosity and, if you want the cavitation warnings, the vapour pressure.</li>
@@ -749,7 +750,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
             body: `<p>In the 3D view each junction is a small solid: an open tank with its liquid, a pump with its motor and an arrow along the flow, a valve with its handwheel, a control valve under its actuator, an orifice between flanges, a nozzle with drops, a ball for a branch, a drum (Q), a sphere (P) and a block (K). They follow the direction of their pipes and turn red when the junction stops the flow, such as a closed valve or a pump off and closed.</p>
 <p>With the 3D view open, the panel gains the [[t:inspector.view3.title]] section:</p>
 <ul>
-<li>with nothing selected: [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] and [[t:inspector.view3.fitAll]];</li>
+<li>with nothing selected (the panel opened by its arrow): [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] and [[t:inspector.view3.fitAll]];</li>
 <li>on a pipe: the drawn length (which does not enter the calculation), the bends, [[t:inspector.view3.snap]], [[t:inspector.view3.fit]], [[t:inspector.view3.nextRoute]] and [[t:inspector.view3.removeBends]];</li>
 <li>on a junction: X and Y on the plan and, for the oriented types, [[t:inspector.view3.roll]], which turns the symbol about its pipe, and [[t:inspector.view3.auto]].</li>
 </ul>

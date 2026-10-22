@@ -22,6 +22,8 @@
     mouseW: null,     // last mouse position in world coordinates
   };
   let autoFit = true; // refits on resize until the user pans or zooms
+  let area = null;    // the drawing area at the last resize: { w, h, panel } (panel: the properties panel is open)
+  const REVEAL = 80;  // px between an object brought into sight and the panel: room for its name and the panel's arrow
 
   function init(svgEl, wrapEl) {
     svg = svgEl; wrap = wrapEl;
@@ -42,8 +44,46 @@
       const w = toWorld(e.clientX, e.clientY);
       app.addJunction(type, snap(w.x), snap(w.y));
     });
-    new ResizeObserver(() => (in3d() || !autoFit ? render() : fitSchematic())).observe(wrap);
+    new ResizeObserver(resized).observe(wrap);
     bindTools();
+  }
+
+  // The drawing area changed size. When only the properties panel opened or closed (it follows the selection), the
+  // drawing stays where it was on the screen instead of being framed again: the schematic keeps its left edge, and the
+  // 3D camera follows the middle of the area. Any other change frames the schematic again, until the user pans or zooms.
+  function resized() {
+    const r = wrap.getBoundingClientRect(), panel = !$('#view-net').classList.contains('insp-off');
+    const was = area;
+    area = { w: r.width, h: r.height, panel };
+    if (was && was.panel !== panel && was.w && r.width && was.h === r.height) {
+      if (in3d()) UI.nav3d.keepPlace(was.w, r.width);
+      reveal(was.w, r.width);
+      return;
+    }
+    if (in3d() || !autoFit) render(); else fitSchematic();
+  }
+
+  // The selected object, when the panel that just opened covers it and it was in sight before, comes back into sight:
+  // the drawing moves left as little as it can (the 3D camera glides there). The point is a junction, or the middle of
+  // a pipe.
+  function reveal(w0, w1) {
+    const hit = w1 < w0 && app.selSet.size === 1 && app.sel;
+    const x = hit ? (in3d() ? UI.nav3d.screenX(hit) : schematicX(hit)) : null;
+    const d = x !== null && x > w1 - REVEAL && x <= w0 ? x - (w1 - REVEAL) : 0;
+    if (!in3d()) view.tx -= d;
+    else if (d) { UI.nav3d.reveal(hit, d); return; }
+    render();
+  }
+  // where an object is across the schematic on the screen (px), or null
+  function schematicX(hit) {
+    const m = app.model;
+    const at = (p, end) => (M.isLoose(p, end) ? p.loose && p.loose[end] : m.junctions.find((j) => j.id === p[end]));
+    if (hit.kind === 'junction') {
+      const j = m.junctions.find((q) => q.id === hit.id);
+      return j ? view.tx + j.x * view.s : null;
+    }
+    const p = m.pipes.find((q) => q.id === hit.id), a = p && at(p, 'up'), b = p && at(p, 'down');
+    return a && b ? view.tx + ((a.x + b.x) / 2) * view.s : null;
   }
 
   // floating tools over the drawing: results overlay and zoom

@@ -170,6 +170,28 @@
   // frames the whole scene
   function fit() { glide(V.fit(base(), viewport(), S3.points(), S3.FIT_PAD)); }
 
+  // The drawing area got narrower or wider on the right (the properties panel opened or closed, canvas.js): the camera
+  // follows the middle of the area, so that the scene stays where it was on the screen (in perspective, at the depth
+  // of the target). Nothing is drawn here.
+  function keepPlace(w0, w1) {
+    const vp = viewport(), keep = (c) => V.pan(c, vp, (w0 - w1) / 2, 0);
+    if (anim) { anim.from = keep(anim.from); anim.to = keep(anim.to); }
+    S3.setCamera(keep(S3.camera()));
+    UI.edit3d.cameraMoved();
+  }
+  // where an object is across the screen (px): a junction, or the middle of the drawn route of a pipe
+  function screenX(hit) {
+    const p = S3.anchorOf(hit), s = p && V.project(S3.camera(), viewport(), p);
+    return s ? s.x : null;
+  }
+  // the scene glides left until the object has moved d px (at its own depth, in perspective)
+  function reveal(hit, d) {
+    const cam = base(), vp = viewport(), p = S3.anchorOf(hit), s = p && V.project(cam, vp, p);
+    if (!s) { redraw(false); return; }
+    const k = cam.projection === 'ortho' ? cam.scale : V.focalPx(cam, vp) / cam.distance;
+    glide(V.pan(cam, vp, (-d * k) / s.k, 0));
+  }
+
   // double click on an object: the camera turns around it (unless the editor takes it: a bend inserted in the selected
   // pipe of the free 3D view)
   function dblclick(hit, e) {
@@ -231,6 +253,7 @@
 
   PumpIt.ui.nav3d = {
     down, move, up, wheel, zoomBy, fit, dblclick, lookFrom, cubeStep, setProjection, turn, spinStart, spinMove, spinEnd, key, redraw, drawn,
+    keepPlace, screenX, reveal,
     consumedContext: () => movedLast,
   };
 })(window);

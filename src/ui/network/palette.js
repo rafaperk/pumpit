@@ -1,7 +1,7 @@
 // Palette: the select and pipe tools plus one button per junction type, grouped and ordered as in the
 // junction type registry. Click a type and then the drawing, or drag it onto the drawing. The arrow on the left edge
 // of the drawing collapses the palette, to give the drawing more room, and brings it back; the choice is kept with
-// the preferences, as for the properties panel.
+// the preferences.
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui;

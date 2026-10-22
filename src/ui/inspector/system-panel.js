@@ -1,7 +1,7 @@
 // The properties of the system: the regime of the model (incompressible liquid or compressible gas), the fluid of that
 // regime, the environment, the solution control and the current scenario. They are edited in the system window
-// (system-window.js, which draws them with build); with nothing selected, the inspector shows a summary of them and
-// the button that opens the window.
+// (system-window.js, which draws them with build); with nothing selected, the inspector (collapsed then, until its
+// arrow opens it) shows a summary of them and the button that opens the window.
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, UI = PumpIt.ui, I = UI.inspector;

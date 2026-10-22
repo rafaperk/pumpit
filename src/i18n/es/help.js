@@ -81,11 +81,11 @@ PumpIt.i18n.add('es', {
         },
         inspector: {
           title: 'Propiedades',
-          body: 'Muestra y edita el objeto seleccionado. Sin nada seleccionado, resume el sistema y trae el botón que abre la ventana de las propiedades del sistema. Lo que le falta a un objeto aparece en un recuadro rojo; la <b>i</b> junto a un campo muestra una nota sobre él cuando el ratón pasa por encima.',
+          body: 'Muestra y edita el objeto seleccionado: se abre cuando selecciona algo y se contrae cuando no hay nada seleccionado. Abierto por su flecha sin nada seleccionado, resume el sistema y trae el botón que abre la ventana de las propiedades del sistema. Lo que le falta a un objeto aparece en un recuadro rojo; la <b>i</b> junto a un campo muestra una nota sobre él cuando el ratón pasa por encima.',
         },
         panel: {
           title: 'Contraer el panel',
-          body: 'La flecha contrae el panel de propiedades y devuelve el espacio al dibujo; otro clic trae el panel de vuelta. La elección se guarda en este navegador.',
+          body: 'La flecha contrae el panel de propiedades y devuelve el espacio al dibujo, o trae el panel de vuelta, hasta que la selección cambie de nuevo.',
         },
         help: {
           title: 'Ayuda',
@@ -185,7 +185,7 @@ PumpIt.i18n.add('es', {
 <li>[[show:canvas|Área de dibujo]], en el centro: la red, las vistas, los resultados en el dibujo y el zoom.</li>
 <li>[[show:inspector|Propiedades]], a la derecha: los datos del objeto seleccionado.</li>
 </ol>
-<p>La [[show:paletteToggle|flecha]] en el borde derecho de la paleta y la [[show:panel|flecha]] en el borde izquierdo del panel de propiedades los contraen, y el dibujo gana el espacio; otro clic trae cada uno de vuelta. La elección se guarda en este navegador.</p>
+<p>La [[show:paletteToggle|flecha]] en el borde derecho de la paleta la contrae, y el dibujo gana el espacio; otro clic la trae de vuelta, y la elección se guarda en este navegador. El panel de propiedades se abre cuando algo está seleccionado y se contrae cuando no hay nada seleccionado; la [[show:panel|flecha]] en su borde izquierdo también lo contrae o lo trae de vuelta.</p>
 <p>Para un paseo completo, con una explicación breve de cada parte, haga el [[act:tour|recorrido guiado]].</p>`,
           },
           topbar: {
@@ -215,7 +215,7 @@ PumpIt.i18n.add('es', {
             title: 'Panel de propiedades',
             body: `<p>El panel de la derecha cambia según la selección:</p>
 <ul>
-<li><b>Nada seleccionado</b>: un resumen del sistema y el botón [[t:inspector.system.open]], que abre la ventana [[t:inspector.system.title]] — régimen, fluido, ambiente, control de la solución y el escenario actual. Vea [[go:system.fluid|Sistema y solución]].</li>
+<li><b>Nada seleccionado</b>: el panel se contrae. Abierto por su flecha, muestra un resumen del sistema y el botón [[t:inspector.system.open]], que abre la ventana [[t:inspector.system.title]] — régimen, fluido, ambiente, control de la solución y el escenario actual. Vea [[go:system.fluid|Sistema y solución]].</li>
 <li><b>Una tubería</b>: resultados rápidos, nombre, geometría, fricción, accesorios y condición especial.</li>
 <li><b>Una unión</b>: resultados rápidos, nombre, [[t:inspector.junction.type]], [[t:inspector.junction.elevation]] y los datos propios del tipo.</li>
 <li><b>Varios objetos</b>: el recuento y las acciones de copiar, pegar y eliminar.</li>
@@ -228,8 +228,9 @@ PumpIt.i18n.add('es', {
 <li>El recuadro rojo <b>Indefinido</b> lista lo que le falta al objeto para entrar en el cálculo.</li>
 <li>Una <b>i</b> en un círculo, junto a un campo o al título de una sección, guarda una nota: pase el ratón sobre ella, o llegue a ella con <kbd>Tab</kbd>, para leerla.</li>
 </ul>
-<h4>Contraer el panel</h4>
-<p>La [[show:panel|flecha]] en el borde izquierdo del panel lo contrae, y el dibujo gana el espacio; otro clic lo trae de vuelta. La elección se guarda en este navegador. Ir a un objeto desde la lista de verificación, las tablas o los avisos abre el panel de nuevo.</p>`,
+<h4>Abrir y contraer el panel</h4>
+<p>El panel se abre cuando selecciona algo, también con un clic en el objeto ya seleccionado, y se contrae cuando no hay nada seleccionado: tras un clic en un espacio vacío, una eliminación o la apertura de un modelo. Ir a un objeto desde la lista de verificación, las tablas o los avisos también lo abre. La [[show:panel|flecha]] en su borde izquierdo lo contrae, y el dibujo gana el espacio, o lo trae de vuelta; esto vale hasta que la selección cambie de nuevo.</p>
+<p>El dibujo no se mueve cuando el panel se abre o se cierra. Cuando el panel cubriría el objeto recién seleccionado, el dibujo se desplaza para mostrarlo.</p>`,
           },
           units: {
             title: 'Unidades',
@@ -547,7 +548,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
         sections: {
           fluid: {
             title: 'Fluido',
-            body: `<p>Las propiedades del sistema están en la ventana [[t:inspector.system.title]]. Se abre desde el [[show:stamp|sello del régimen]], junto al título del modelo; desde el menú [[t:app.menu.edit]] → [[t:app.menu.system]]; desde los ítems del sistema en la lista de verificación; o desde el botón [[t:inspector.system.open]] del panel, sin nada seleccionado. Cada cambio vale al instante, como en el panel. Arriba de la ventana está el [[t:inspector.system.regime]]; con [[t:inspector.system.regimes.incompressible]], la sección [[t:inspector.system.fluid]] trae:</p>
+            body: `<p>Las propiedades del sistema están en la ventana [[t:inspector.system.title]]. Se abre desde el [[show:stamp|sello del régimen]], junto al título del modelo; desde el menú [[t:app.menu.edit]] → [[t:app.menu.system]]; desde los ítems del sistema en la lista de verificación; o desde el botón [[t:inspector.system.open]] del panel, abierto por su flecha sin nada seleccionado. Cada cambio vale al instante, como en el panel. Arriba de la ventana está el [[t:inspector.system.regime]]; con [[t:inspector.system.regimes.incompressible]], la sección [[t:inspector.system.fluid]] trae:</p>
 <ul>
 <li>[[t:core.fluids.water.label]]: indique la [[t:inspector.system.temperature]] (de 0 a 150 °C); la densidad, la viscosidad y la presión de vapor salen de correlaciones públicas.</li>
 <li>[[t:inspector.system.userDefined]]: indique la densidad, la viscosidad dinámica y, si quiere los avisos de cavitación, la presión de vapor.</li>
@@ -749,7 +750,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
             body: `<p>En la vista 3D, cada unión es un pequeño sólido: un tanque abierto con su líquido, una bomba con su motor y una flecha en el sentido del flujo, una válvula con su volante, una válvula de control con su actuador, un orificio entre bridas, una boquilla con gotas, una esfera para el nudo, un tambor (Q), una esfera (P) y un bloque (K). Siguen la dirección de sus tuberías y se ponen rojos cuando la unión bloquea el flujo, como una válvula cerrada o una bomba apagada y cerrada.</p>
 <p>Con la vista 3D abierta, el panel suma la sección [[t:inspector.view3.title]]:</p>
 <ul>
-<li>sin nada seleccionado: [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] y [[t:inspector.view3.fitAll]];</li>
+<li>sin nada seleccionado (el panel abierto por su flecha): [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] y [[t:inspector.view3.fitAll]];</li>
 <li>en una tubería: la longitud dibujada (que no entra en el cálculo), los quiebres, [[t:inspector.view3.snap]], [[t:inspector.view3.fit]], [[t:inspector.view3.nextRoute]] y [[t:inspector.view3.removeBends]];</li>
 <li>en una unión: X e Y en la planta y, en los tipos orientados, [[t:inspector.view3.roll]], que gira el símbolo alrededor de su tubería, y [[t:inspector.view3.auto]].</li>
 </ul>

@@ -1,7 +1,8 @@
 // Inspector (properties panel): the summary of the system, the selected pipe or junction, or the multiple selection,
 // with what is still missing for the object to be defined. Each panel lives in its own file and registers in
-// PumpIt.ui.inspector.panels; this file dispatches and holds the helpers they share. The arrow on the left edge of
-// the panel collapses it, to give the drawing more room, and brings it back; the choice is kept with the preferences.
+// PumpIt.ui.inspector.panels; this file dispatches and holds the helpers they share. The panel follows the selection:
+// it opens when something is selected and collapses when nothing is. The arrow on its left edge collapses it or brings
+// it back by hand, until the selection changes again.
 (function (root) {
   const PumpIt = root.PumpIt;
   const U = PumpIt.units, UI = PumpIt.ui;
@@ -18,16 +19,37 @@
   function init(hostEl) {
     host = hostEl;
     document.getElementById('panel-toggle').addEventListener('click', () => setCollapsed(!isCollapsed()));
-    setCollapsed(!!app.prefs.inspectorCollapsed);
+    delete app.prefs.inspectorCollapsed; // kept by older versions, whose arrow alone collapsed the panel
+    root.addEventListener('pointerdown', () => { pressed = true; }, true);
+    root.addEventListener('pointerup', released);
+    root.addEventListener('pointercancel', released);
+    root.addEventListener('blur', released); // the window lost the focus during the press: no release comes
   }
 
-  // ------------------------------------------------------------ collapsing the panel
+  // ------------------------------------------------------------ opening and collapsing the panel
+
+  // The panel follows each change of the selection, and opens again at a click on an object that is already
+  // selected (selection.js); between two of them the arrow decides. During a press on the page (a click or a drag on
+  // the drawing) it waits for the button to be released, so that the drawing area never changes width under a drag.
+  let followed = null; // the selection the panel last followed, as its keys
+  let pressed = false, wanted = null; // wanted: the state waiting for the release (true: collapsed)
+  const selected = () => [...app.selSet].sort().join(' ');
+  function follow() {
+    followed = selected();
+    wanted = !app.selSet.size;
+    if (!pressed) released();
+  }
+  function released() {
+    pressed = false;
+    if (wanted === null) return;
+    setCollapsed(wanted);
+    wanted = null;
+  }
 
   const isCollapsed = () => document.getElementById('view-net').classList.contains('insp-off');
   function setCollapsed(on) {
     document.getElementById('view-net').classList.toggle('insp-off', on);
     labelToggle();
-    if (!!app.prefs.inspectorCollapsed !== on) { app.prefs.inspectorCollapsed = on; app.savePrefs(); }
   }
   // the arrow says what it does: collapse the panel, or show it again
   function labelToggle() {
@@ -40,6 +62,7 @@
   }
 
   function render() {
+    if (selected() !== followed) follow(); // a selection changed elsewhere: an object added, pasted or deleted, a load
     labelToggle(); // its texts follow the language
     const focusId = document.activeElement && host.contains(document.activeElement) ? document.activeElement.id : null;
     const scroll = host.scrollTop;
@@ -95,5 +118,5 @@
     return { A: A * red * red * (p.nParallel || 1), Dh: Dh * red };
   }
 
-  PumpIt.ui.inspector = { init, render, panels, addSection, head, missingBox, out, pipeGeom, isCollapsed, setCollapsed };
+  PumpIt.ui.inspector = { init, render, panels, addSection, head, missingBox, out, pipeGeom, follow, isCollapsed, setCollapsed };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -81,11 +81,11 @@ PumpIt.i18n.add('pt-BR', {
         },
         inspector: {
           title: 'Propriedades',
-          body: 'Mostra e edita o objeto selecionado. Com nada selecionado, resume o sistema e traz o botão que abre a janela das propriedades do sistema. O que falta para definir um objeto aparece numa caixa vermelha; o <b>i</b> ao lado de um campo mostra uma nota sobre ele quando o mouse passa por cima.',
+          body: 'Mostra e edita o objeto selecionado: abre quando você seleciona algo e se recolhe quando nada está selecionado. Aberto pela setinha com nada selecionado, resume o sistema e traz o botão que abre a janela das propriedades do sistema. O que falta para definir um objeto aparece numa caixa vermelha; o <b>i</b> ao lado de um campo mostra uma nota sobre ele quando o mouse passa por cima.',
         },
         panel: {
           title: 'Recolher o painel',
-          body: 'A setinha recolhe o painel de propriedades e devolve o espaço ao desenho; outro clique traz o painel de volta. A escolha fica guardada neste navegador.',
+          body: 'A setinha recolhe o painel de propriedades e devolve o espaço ao desenho, ou traz o painel de volta, até a seleção mudar de novo.',
         },
         help: {
           title: 'Ajuda',
@@ -185,7 +185,7 @@ PumpIt.i18n.add('pt-BR', {
 <li>[[show:canvas|Área de desenho]], no centro: a rede, as vistas, os resultados no desenho e o zoom.</li>
 <li>[[show:inspector|Propriedades]], à direita: os dados do objeto selecionado.</li>
 </ol>
-<p>A [[show:paletteToggle|setinha]] na borda direita da paleta e a [[show:panel|setinha]] na borda esquerda do painel de propriedades os recolhem, e o desenho ganha o espaço; outro clique traz cada um de volta. A escolha fica guardada neste navegador.</p>
+<p>A [[show:paletteToggle|setinha]] na borda direita da paleta a recolhe, e o desenho ganha o espaço; outro clique a traz de volta, e a escolha fica guardada neste navegador. O painel de propriedades abre quando algo é selecionado e se recolhe quando nada está selecionado; a [[show:panel|setinha]] na borda esquerda dele também o recolhe ou o traz de volta.</p>
 <p>Para um passeio completo, com uma explicação curta de cada parte, faça o [[act:tour|tour guiado]].</p>`,
           },
           topbar: {
@@ -215,7 +215,7 @@ PumpIt.i18n.add('pt-BR', {
             title: 'Painel de propriedades',
             body: `<p>O painel à direita muda conforme a seleção:</p>
 <ul>
-<li><b>Nada selecionado</b>: um resumo do sistema e o botão [[t:inspector.system.open]], que abre a janela [[t:inspector.system.title]] — regime, fluido, ambiente, controle da solução e o cenário atual. Veja [[go:system.fluid|Sistema e solução]].</li>
+<li><b>Nada selecionado</b>: o painel se recolhe. Aberto pela setinha, mostra um resumo do sistema e o botão [[t:inspector.system.open]], que abre a janela [[t:inspector.system.title]] — regime, fluido, ambiente, controle da solução e o cenário atual. Veja [[go:system.fluid|Sistema e solução]].</li>
 <li><b>Um tubo</b>: resultados rápidos, nome, geometria, atrito, acessórios e condição especial.</li>
 <li><b>Uma junção</b>: resultados rápidos, nome, [[t:inspector.junction.type]], [[t:inspector.junction.elevation]] e os dados próprios do tipo.</li>
 <li><b>Vários objetos</b>: a contagem e as ações de copiar, colar e excluir.</li>
@@ -228,8 +228,9 @@ PumpIt.i18n.add('pt-BR', {
 <li>A caixa vermelha <b>Indefinido</b> lista o que falta para o objeto entrar no cálculo.</li>
 <li>Um <b>i</b> num círculo, ao lado de um campo ou do título de uma seção, guarda uma nota: passe o mouse sobre ele, ou chegue nele com <kbd>Tab</kbd>, para ler.</li>
 </ul>
-<h4>Recolher o painel</h4>
-<p>A [[show:panel|setinha]] na borda esquerda do painel o recolhe, e o desenho ganha o espaço; outro clique o traz de volta. A escolha fica guardada neste navegador. Ir a um objeto pela lista de verificação, pelas tabelas ou pelos avisos abre o painel de novo.</p>`,
+<h4>Abrir e recolher o painel</h4>
+<p>O painel abre quando você seleciona algo, também com um clique no objeto já selecionado, e se recolhe quando nada está selecionado: depois de um clique num espaço vazio, de uma exclusão ou da abertura de um modelo. Ir a um objeto pela lista de verificação, pelas tabelas ou pelos avisos também o abre. A [[show:panel|setinha]] na borda esquerda dele o recolhe, e o desenho ganha o espaço, ou o traz de volta; isso vale até a seleção mudar de novo.</p>
+<p>O desenho não se mexe quando o painel abre ou fecha. Quando o painel cobriria o objeto que acabou de ser selecionado, o desenho se desloca para mostrá-lo.</p>`,
           },
           units: {
             title: 'Unidades',
@@ -547,7 +548,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
         sections: {
           fluid: {
             title: 'Fluido',
-            body: `<p>As propriedades do sistema ficam na janela [[t:inspector.system.title]]. Ela abre pelo [[show:stamp|selo do regime]], ao lado do título do modelo; pelo menu [[t:app.menu.edit]] → [[t:app.menu.system]]; pelos itens do sistema na lista de verificação; ou pelo botão [[t:inspector.system.open]] do painel, com nada selecionado. Cada alteração vale na hora, como no painel. No topo da janela fica o [[t:inspector.system.regime]]; com [[t:inspector.system.regimes.incompressible]], a seção [[t:inspector.system.fluid]] traz:</p>
+            body: `<p>As propriedades do sistema ficam na janela [[t:inspector.system.title]]. Ela abre pelo [[show:stamp|selo do regime]], ao lado do título do modelo; pelo menu [[t:app.menu.edit]] → [[t:app.menu.system]]; pelos itens do sistema na lista de verificação; ou pelo botão [[t:inspector.system.open]] do painel, aberto pela setinha com nada selecionado. Cada alteração vale na hora, como no painel. No topo da janela fica o [[t:inspector.system.regime]]; com [[t:inspector.system.regimes.incompressible]], a seção [[t:inspector.system.fluid]] traz:</p>
 <ul>
 <li>[[t:core.fluids.water.label]]: informe a [[t:inspector.system.temperature]] (de 0 a 150 °C); densidade, viscosidade e pressão de vapor vêm de correlações públicas.</li>
 <li>[[t:inspector.system.userDefined]]: informe a densidade, a viscosidade dinâmica e, se quiser os avisos de cavitação, a pressão de vapor.</li>
@@ -749,7 +750,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
             body: `<p>Na vista 3D, cada junção é um pequeno sólido: um tanque aberto com o líquido, uma bomba com motor e uma seta no sentido do escoamento, uma válvula com volante, uma válvula de controle com atuador, um orifício entre flanges, um bocal com gotas, uma esfera para o nó, um tambor (Q), uma esfera (P) e um bloco (K). Eles acompanham a direção dos tubos e ficam vermelhos quando a junção bloqueia o fluxo, como uma válvula fechada ou uma bomba desligada e fechada.</p>
 <p>Com a vista 3D aberta, o painel ganha a seção [[t:inspector.view3.title]]:</p>
 <ul>
-<li>com nada selecionado: [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] e [[t:inspector.view3.fitAll]];</li>
+<li>com nada selecionado (o painel aberto pela setinha): [[t:inspector.view3.zScale]], [[t:inspector.view3.autoScale]] e [[t:inspector.view3.fitAll]];</li>
 <li>num tubo: o comprimento desenhado (que não entra no cálculo), as dobras, [[t:inspector.view3.snap]], [[t:inspector.view3.fit]], [[t:inspector.view3.nextRoute]] e [[t:inspector.view3.removeBends]];</li>
 <li>numa junção: X e Y na planta e, nos tipos orientados, [[t:inspector.view3.roll]], que gira o símbolo em volta do tubo, e [[t:inspector.view3.auto]].</li>
 </ul>
