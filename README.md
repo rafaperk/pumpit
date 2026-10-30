@@ -110,7 +110,6 @@ The outputs, their formulas and the decisions are in [docs/result-outputs.md](do
 
 - **Export to Excel**, on every table and in the File menu, creates one `.xlsx` file with a sheet for each table: the columns, order and units chosen, a formatted header, numbers stored as numeric values, row 1 frozen and a filter. The classic pipe columns keep their fixed decimals; other columns show five significant digits of their largest value. The writer is our own and depends on no external library. Headers and sheet names follow the interface language.
 - **Copy for Excel** (pipes) and **Copy table** copy the table on screen to paste straight into a spreadsheet (with the decimal separator of the interface language).
-- On the published page, the download goes through the viewer's confirmation; from the local file it is an ordinary download.
 
 ## Velocity colour scale
 

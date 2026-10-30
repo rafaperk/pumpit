@@ -10,7 +10,7 @@
   const { t } = PumpIt.i18n;
 
   function normalize(m) {
-    if (!m || !Array.isArray(m.pipes) || !Array.isArray(m.junctions)) throw new Error(t('app.files.notAModel'));
+    if (!m || !Array.isArray(m.pipes) || !Array.isArray(m.junctions) || !M.idsWellFormed(m)) throw new Error(t('app.files.notAModel'));
     const base = M.newModel();
     m.system = Object.assign(base.system, m.system || {});
     m.solution = Object.assign(base.solution, m.solution || {});
@@ -27,15 +27,25 @@
   }
 
   app.loadModel = (m, { fit = true } = {}) => {
+    const before = { model: app.model, results: app.results, selSet: app.selSet, sel: app.sel };
     app.model = normalize(m);
     const notes = app.model._notes;
     delete app.model._notes;
-    app.selSet.clear(); app.sel = null;
+    app.selSet = new Set(); app.sel = null;
     app.version++;
     app.results = {};
+    // a damaged file whose model fails to calculate or to draw is refused, and the model before stays; a model is saved
+    // only once it works, so the page never opens again on a broken one
+    try {
+      app.recalc();
+      app.renderAll();
+    } catch (e) {
+      Object.assign(app, before);
+      app.version++;
+      if (app.model) app.renderAll();
+      throw new Error(t('app.files.notAModel'));
+    }
     app.save();
-    app.recalc();
-    app.renderAll();
     // the schematic is framed; the cameras of the 3D views were saved with the model (3D views R-02), and are framed
     // again only when the scene is out of their sight
     if (fit) requestAnimationFrame(() => { UI.scene3d.ensureVisible(); UI.canvas.fitSchematic(); });
@@ -63,7 +73,8 @@
         try { res = imp.read(text, Object.assign({ name: f.name }, opts)); }
         catch (err) { toast(t('app.importReport.cannotRead', { message: err.message })); return; }
         app.pushUndo();
-        app.loadModel(res.model);
+        try { app.loadModel(res.model); }
+        catch (err) { app.undoStack.pop(); toast(t('app.importReport.cannotRead', { message: err.message })); return; }
         UI.importReport.show(f.name, res, app.results[app.model.scenarios.current] || null, imp);
       };
       let list = [];
@@ -80,7 +91,11 @@
     if (imp) { importFile(f, imp); return; }
     const rd = new FileReader();
     rd.onload = () => {
-      try { app.pushUndo(); app.loadModel(JSON.parse(rd.result)); toast(t('app.files.opened', { name: f.name })); } catch (err) { toast(t('app.files.cannotOpen', { message: err.message })); }
+      let model;
+      try { model = JSON.parse(rd.result); } catch (err) { toast(t('app.files.cannotOpen', { message: err.message })); return; }
+      app.pushUndo();
+      try { app.loadModel(model); toast(t('app.files.opened', { name: f.name })); }
+      catch (err) { app.undoStack.pop(); toast(t('app.files.cannotOpen', { message: err.message })); }
     };
     rd.readAsText(f);
   }

@@ -122,6 +122,16 @@ console.log('\nLoaded models and the drawing data');
   ok('E14 a pipe without junctions gets a spot for each end', JSON.stringify(lone.pipes[0].loose) === JSON.stringify({ up: { x: 0, y: 0, z: 0 }, down: { x: 60, y: 0, z: 0 } }) && lone.pipes[0].down === null);
 
   ok('E15 the loose spots are drawing data: the calculation never sees them', !('loose' in M.stripLayout(m).pipes[0]) && M.LAYOUT_KEYS.pipe.includes('loose'));
+
+  // ids are written into the page and read back, so a file whose ids could carry markup is not a model
+  const every = EX.EXAMPLES.every((ex) => M.idsWellFormed(ex.build()));
+  const odd = (change) => { const x = EX.get('pump').build(); change(x); return M.idsWellFormed(x); };
+  ok('E16 the ids of every example are well formed', every);
+  ok('E16 a junction or pipe id that is not a whole number above 0 is refused',
+    !odd((x) => { x.junctions[0].id = '1<b>'; }) && !odd((x) => { x.pipes[0].id = 1.5; }) && !odd((x) => { x.pipes[0].id = 0; }) && !odd((x) => { x.junctions[1] = null; }));
+  ok('E16 so is a scenario id or parent that is not a short word',
+    !odd((x) => { x.scenarios.list[0].id = 'base"><i>'; }) && !odd((x) => { M.addScenario(x, 'base', 'S').parent = 'a b'; }) && odd((x) => { M.addScenario(x, 'base', 'S'); }));
+  ok('E16 a model without scenarios is left to the defaults', odd((x) => { delete x.scenarios; }));
 }
 
 console.log(`\n${pass} checks passed, ${fail} failed`);

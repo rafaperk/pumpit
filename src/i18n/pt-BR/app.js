@@ -77,9 +77,6 @@ PumpIt.i18n.add('pt-BR', {
     checklist: { title: 'Lista de verificação', undefined: 'Objetos indefinidos' },
     dialog: { cancel: 'Cancelar', ok: 'OK', close: 'Fechar', copyTitle: 'Copie o texto' },
     files: {
-      saved: 'Arquivo salvo: {name}',
-      cancelled: 'Download cancelado.',
-      cannotSave: 'Não foi possível salvar o arquivo aqui. Use "Copiar para Excel".',
       started: 'Download iniciado: {name}',
       defaultName: 'modelo',
       notAModel: 'O arquivo não é um modelo deste aplicativo.',

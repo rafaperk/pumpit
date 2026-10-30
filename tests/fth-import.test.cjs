@@ -20,8 +20,8 @@ function ok(name, cond, detail = '') {
 }
 const near = (a, b, tol = 1e-9) => Math.abs(a - b) <= tol * Math.max(1, Math.abs(b));
 const relDiff = (a, b, scale) => Math.abs(a - b) / (scale || Math.max(Math.abs(a), Math.abs(b), 1e-30));
-const allNotes = []; // every note of every import, to check their texts at the end
-function read(text, opts = {}) { const r = FTH.read(text, Object.assign({ name: 'synthetic.fth' }, opts)); allNotes.push(...r.notes); return r; }
+const allNotes = [], allModels = []; // every note and model of every import, to check them at the end
+function read(text, opts = {}) { const r = FTH.read(text, Object.assign({ name: 'synthetic.fth' }, opts)); allNotes.push(...r.notes); allModels.push(r.model); return r; }
 const hasNote = (res, key, obj) => res.notes.some((n) => n.key === key && (!obj || n.objs.includes(obj)));
 const J = (m, id) => m.junctions.find((j) => j.id === id);
 const P = (m, id) => m.pipes.find((p) => p.id === id);
@@ -688,6 +688,7 @@ console.log('\nTexts');
   }
   PumpIt.i18n.setLanguage('en');
   ok(`every note of these imports (${new Set(allNotes.map((n) => n.key)).size} kinds) reads in every language`, !bad.length, bad.slice(0, 3).join(' | '));
+  ok(`every model of these imports (${allModels.length}) has the ids the interface accepts`, allModels.every((m) => M.idsWellFormed(m)));
 }
 
 console.log('\nThe validation script (tests/validate-fth.js) on a synthetic file');

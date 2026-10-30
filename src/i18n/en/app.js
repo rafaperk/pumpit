@@ -77,9 +77,6 @@ PumpIt.i18n.add('en', {
     checklist: { title: 'Checklist', undefined: 'Undefined objects' },
     dialog: { cancel: 'Cancel', ok: 'OK', close: 'Close', copyTitle: 'Copy the text' },
     files: {
-      saved: 'File saved: {name}',
-      cancelled: 'Download cancelled.',
-      cannotSave: 'The file could not be saved here. Use "Copy for Excel".',
       started: 'Download started: {name}',
       defaultName: 'model',
       notAModel: 'The file is not a model of this application.',

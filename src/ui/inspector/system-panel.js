@@ -52,7 +52,7 @@
         if (LIBRARY[sys.fluid.kind]) s.appendChild(readout(tx('temperature'), typed(sys.fluid.T)));
         s.appendChild(readout('ρ · μ', `${F.fmt(fl.rho, 5)} kg/m³ · ${F.fmt(fl.mu * 1e3, 4)} cP`));
       }
-    } catch (e) { s.appendChild(hint(e.message)); }
+    } catch (e) { s.appendChild(hint(F.esc(e.message))); }
     s.appendChild(readout(tx('patm'), typed(sys.patm)));
     const b = el('button', { class: 'btn primary sys-open', type: 'button' }, F.esc(tx('open')));
     b.addEventListener('click', () => UI.systemWindow.open());
@@ -134,7 +134,7 @@
       s1.appendChild(readout('ρ', F.fmt(fl.rho, 6) + ' kg/m³'));
       s1.appendChild(readout('μ', F.fmt(fl.mu * 1e3, 4) + ' cP'));
       s1.appendChild(readout('Pv', Number.isFinite(fl.pv) ? F.fmt(fl.pv / 98066.5, 4) + ' kgf/cm²(a)' : '—'));
-    } catch (e) { s1.appendChild(hint(e.message)); }
+    } catch (e) { s1.appendChild(hint(F.esc(e.message))); }
     return s1;
   }
 
@@ -163,7 +163,7 @@
       s1.appendChild(readout(tx('soundSpeed'), F.fmt(a, 4) + ' m/s'));
       s1.appendChild(readout(tx('normalDensity'), F.fmt(PumpIt.fluids.normalDensity(fl.MW), 5) + ' kg/m³'));
       if (lib) s1.appendChild(readout('MW · k', `${F.fmt(fl.MW, 6)} kg/kmol · ${F.fmt(fl.k, 4)}`));
-    } else s1.appendChild(hint(error.message));
+    } else s1.appendChild(hint(F.esc(error.message)));
     host.appendChild(s1);
 
     const s2 = section(tx('gasLimits'), { info: tx('gasLimitsHint') });

@@ -28,9 +28,10 @@
     UI.tips.bind();
     UI.language.bind();
     UI.theme.bind();
+    // the model kept in the browser, or the first example when there is none or it no longer opens
     let m = app.storedModel();
-    try { if (m) UI.files.normalize(m); } catch (e) { m = null; }
-    app.loadModel(m || PumpIt.examples.get('pump').build());
+    try { if (m) app.loadModel(m); } catch (e) { m = null; }
+    if (!m) app.loadModel(PumpIt.examples.get('pump').build());
     if (!m) app.toast(PumpIt.i18n.t('app.welcome'));
     // the guided tour, offered once
     setTimeout(() => UI.tour.offer(), 600);

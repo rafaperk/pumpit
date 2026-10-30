@@ -99,5 +99,16 @@
     return m;
   }
 
-  Object.assign(M, { PIPE_ENDS, otherEnd, LOOSE_GAP, isLoose, junctionOf, endPoint, spotNear, loosenEnd, connectEnd, swapEnds, normalizeEnds });
+  // the ids of a loaded model: whole numbers for its junctions and pipes (an end that names no junction is made loose
+  // above), short words for its scenarios. The interface writes ids into the page and reads them back, so a file with
+  // anything else is not a model.
+  const isId = (x) => Number.isInteger(x) && x > 0;
+  const isScenarioId = (x) => typeof x === 'string' && /^[\w-]{1,64}$/.test(x);
+  function idsWellFormed(m) {
+    const scenarios = m.scenarios && Array.isArray(m.scenarios.list) ? m.scenarios.list : [];
+    return m.junctions.every((j) => !!j && isId(j.id)) && m.pipes.every((p) => !!p && isId(p.id))
+      && scenarios.every((s) => !!s && isScenarioId(s.id) && (s.parent == null || isScenarioId(s.parent)));
+  }
+
+  Object.assign(M, { PIPE_ENDS, otherEnd, LOOSE_GAP, isLoose, junctionOf, endPoint, spotNear, loosenEnd, connectEnd, swapEnds, normalizeEnds, idsWellFormed });
 })(typeof window !== 'undefined' ? window : globalThis);

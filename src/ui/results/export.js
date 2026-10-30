@@ -20,12 +20,19 @@
   // widths of the classic columns of the pipe sheet, as before the columns could be chosen
   const PIPE_WIDTHS = { id: 8, dn: 16, schTxt: 16, zin: 14, zout: 14, Q: 13, V: 13, P0in: 22, P0out: 22, K: 9 };
 
+  // a text cell stays text when pasted into a spreadsheet: a tab or a line break would split it, and a leading = + - @
+  // would make it a formula there (a name read from someone else's model file could otherwise be one)
+  const pasteText = (s) => {
+    const v = String(s).replace(/[\t\r\n]+/g, ' ');
+    return /^[=+\-@]/.test(v) ? "'" + v : v;
+  };
+
   // TSV to paste into a spreadsheet
   function tableTSV(table, res, eff) {
     const cols = C.colsFor(table, res);
     const ctx = C.ctxOf(res);
     const lines = C.rowsFor(table, res, eff).map((r) => cols.map((c) => {
-      if (c.t) return C.cellValue(c, r, ctx, table);
+      if (c.t) return pasteText(C.cellValue(c, r, ctx, table));
       const x = C.number(c, r, ctx);
       const d = c.x ? (c.x.split('.')[1] || '').length : -1;
       return Number.isFinite(x) ? (d >= 0 ? x.toFixed(d) : String(+x.toPrecision(8))).replace('.', F.decimalSep()) : '';
@@ -62,5 +69,5 @@
     saveFile(`${safeName(app.model.title)} - ${safeName(app.scenario().name)} - ${t('results.export.fileSuffix')}.xlsx`, blob);
   };
 
-  PumpIt.ui.resultExport = { tableTSV, sheet, sheets, autoFormat };
+  PumpIt.ui.resultExport = { tableTSV, pasteText, sheet, sheets, autoFormat };
 })(typeof window !== 'undefined' ? window : globalThis);

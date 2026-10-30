@@ -19,8 +19,8 @@ function ok(name, cond, detail = '') {
 }
 const near = (a, b, tol = 1e-9) => Math.abs(a - b) <= tol * Math.max(1, Math.abs(b));
 const relDiff = (a, b, scale) => Math.abs(a - b) / (scale || Math.max(Math.abs(a), Math.abs(b), 1e-30));
-const allNotes = []; // every note of every import, to check their texts at the end
-function read(text, opts = {}) { const r = ARO.read(text, Object.assign({ name: 'synthetic.aro' }, opts)); allNotes.push(...r.notes); return r; }
+const allNotes = [], allModels = []; // every note and model of every import, to check them at the end
+function read(text, opts = {}) { const r = ARO.read(text, Object.assign({ name: 'synthetic.aro' }, opts)); allNotes.push(...r.notes); allModels.push(r.model); return r; }
 const hasNote = (res, key, obj) => res.notes.some((n) => n.key === key && (!obj || n.objs.includes(obj)));
 const J = (m, id) => m.junctions.find((j) => j.id === id);
 const P = (m, id) => m.pipes.find((p) => p.id === id);
@@ -613,6 +613,7 @@ console.log('\nTexts');
   }
   PumpIt.i18n.setLanguage('en');
   ok(`every note of these imports (${new Set(allNotes.map((n) => n.key)).size} kinds) reads in every language`, !bad.length, bad.slice(0, 3).join(' | '));
+  ok(`every model of these imports (${allModels.length}) has the ids the interface accepts`, allModels.every((m) => M.idsWellFormed(m)));
   const decoded = new TextDecoder('windows-1252').decode(Buffer.from(aro({ secs: [[BASE('JUNCTIONS'), [junc({ type: 2, id: 1, name: 'Vaso de pressão nº 2 – ar', pipes: [-1], t: tank({ P: 1 }) }), junc({ type: 4, id: 2, pipes: [1], t: press({ P: 0 }) })]], [BASE('PIPES'), [pipe({ id: 1, from: 1, to: 2, L: 10, D: 5 })]]] }).replace('–', '\u0096'), 'latin1'));
   ok('Windows-1252 names', J(read(decoded).model, 1).name === 'Vaso de pressão nº 2 – ar');
 }

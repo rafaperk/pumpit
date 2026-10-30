@@ -262,6 +262,16 @@ console.log('\nColumns kept in the preferences');
   ok('a file that is not a profile is refused', Su.importProfile({ outputs: {} }) === -1 && Su.importProfile(null) === -1);
 }
 
+console.log('\nText pasted into a spreadsheet');
+{
+  const P = load(UI_FILES.concat(['src/ui/results/export.js']), {}, { 'src/ui/results/export.js': (PI) => { PI.app = {}; } });
+  const { pasteText } = P.ui.resultExport;
+  ok('a text that a spreadsheet would take for a formula stays text',
+    ['=HYPERLINK("x")', '+1', '-P1', '@SUM(A1)'].every((s) => pasteText(s) === "'" + s));
+  ok('tabs and line breaks do not split the cell', pasteText('P1\tx\r\ny') === 'P1 x y' && pasteText('\t=1') === ' =1');
+  ok('any other text is unchanged', pasteText('Pump P-101') === 'Pump P-101' && pasteText('DN 100') === 'DN 100' && pasteText('') === '');
+}
+
 console.log('\nWorkbook with one sheet per table');
 (async () => {
   const P = load(['src/ui/namespace.js', 'src/ui/common/xlsx.js'], { TextEncoder, Blob });
@@ -289,6 +299,9 @@ console.log('\nWorkbook with one sheet per table');
   ok('the first sheet is the one open', f['xl/worksheets/sheet1.xml'].includes('tabSelected="1"') && !f['xl/worksheets/sheet2.xml'].includes('tabSelected'));
   const one = await unzip(P.ui.xlsx.workbook({ sheet: 'Pipes', columns: cols, rows: [['P1', 1]] }));
   ok('a single sheet given as before', !!one['xl/worksheets/sheet1.xml'] && !one['xl/worksheets/sheet2.xml'] && one['xl/workbook.xml'].includes('<sheet name="Pipes" sheetId="1"'));
+  const odd = (await unzip(P.ui.xlsx.workbook({ sheet: 'Pipes', columns: cols, rows: [['=1+1 <b>&', 2]] })))['xl/worksheets/sheet1.xml'];
+  ok('a name that looks like a formula or markup is written as text, never as a formula',
+    odd.includes('<c r="A2" t="inlineStr" s="2"><is><t>=1+1 &lt;b&gt;&amp;</t></is></c>') && !odd.includes('<f>'));
 
   console.log(`\n${pass} checks passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
