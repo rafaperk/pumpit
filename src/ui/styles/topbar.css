@@ -36,7 +36,7 @@
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
-  border: 1px solid var(--line); background: var(--panel); border-radius: var(--r); padding: 5px 11px; min-height: 30px;
+  border: 1px solid var(--field-line); background: var(--panel); border-radius: var(--r); padding: 5px 11px; min-height: 30px;
 }
 .btn:hover { border-color: var(--ink-3); }
 .btn.ghost { border-color: transparent; background: transparent; }
@@ -47,7 +47,7 @@
 .btn.icon { padding: 4px 7px; min-width: 30px; }
 .btn.small { min-height: 24px; padding: 2px 8px; font-size: 12px; }
 select, input[type="text"], input[type="number"], textarea {
-  background: var(--sunk); border: 1px solid var(--line); border-radius: var(--r); padding: 4px 7px; min-height: 28px; min-width: 0;
+  background: var(--sunk); border: 1px solid var(--field-line); border-radius: var(--r); padding: 4px 7px; min-height: 28px; min-width: 0;
 }
 select:hover, input[type="text"]:hover, textarea:hover { border-color: var(--ink-3); }
 
