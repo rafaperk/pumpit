@@ -5,6 +5,9 @@
 *.fth
 *.aro
 
+# the single-file build (npm run build)
+dist/
+
 # operating system
 Thumbs.db
 .DS_Store

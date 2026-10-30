@@ -5,7 +5,7 @@ Pump It is a static web app: plain HTML, CSS and JavaScript with no build step a
 ## Principles
 
 - **One global namespace.** Every file is a classic script wrapped in an IIFE that attaches its module to `PumpIt` (core) or `PumpIt.ui` (interface). The application controller is `PumpIt.app`.
-- **`index.html` is the manifest.** It lists every script and stylesheet in load order, grouped by block. The Node tests read the core part of that list (`tests/load-core.js`), so a new core file only has to be added there.
+- **`index.html` is the manifest.** It lists every script and stylesheet in load order, grouped by block. The Node tests read the core part of that list (`tests/load-core.js`), and `npm run build` copies every file of it into the single-file build (`tools/build-standalone.cjs`), so a new file only has to be added there.
 - **The core has no DOM.** Everything under `src/core/` runs in Node and in the browser. Values are SI inside the core; units are converted only at input and output.
 - **Registries instead of switches.** Junction types, fluids, examples, pipe catalogues and file importers register themselves. Generic code never tests for a specific junction type or pipe material: it reads the type's definition (core) or view (interface), or the catalogue's definition.
 - **No text in the code.** Everything the user reads comes from the message catalogs (`src/i18n/<language>/`), by key; the code, its comments and the keys are in English.

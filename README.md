@@ -9,6 +9,7 @@ The product uses no trademarks, names, icons, texts or screens of any commercial
 ## How to use
 
 - **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
+- **Share:** `npm run build` (Node 18 or newer) runs the tests and, when they pass, writes `dist/PumpIt.html`, the whole app in one file with its fonts inside (IBM Plex, under the SIL Open Font License, whose text goes with them). Send that file: it opens with a double-click, offline too, with nothing to install. It never goes to the network: a Content-Security-Policy at its top makes the browser refuse every connection and run only its own scripts, and the build stops at a source that names a network API or a web address. `dist/PumpIt.sha256.txt` holds the SHA-256 of the file, for whoever receives it to check their copy.
 - **Open a model:** *File → Open* reads a model saved as `.json`, or imports a `.fth` model of a liquid or a `.aro` model of a gas (see [Importing .fth files](#importing-fth-files) and [Importing .aro files](#importing-aro-files)). Dropping the file on the window does the same.
 - **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help), the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`), the checks of the `.fth` and `.aro` imports (`tests/fth-import.test.cjs`, `tests/aro-import.test.cjs`), the checks of the ends of pipes (`tests/pipe-ends.test.cjs`) and the checks of the result columns (`tests/result-columns.test.cjs`).
 - **Help:** the Help menu (or F1) opens the guide to the whole app, the guided tour of the screen and the technical reference of the calculation, for liquids and for gases.
@@ -180,6 +181,8 @@ tests/fth-import.test.cjs  import of .fth files, with synthetic files written by
 tests/aro-import.test.cjs  import of .aro files, with synthetic files written by the test
 tests/pipe-ends.test.cjs   the ends of pipes: freeing, connecting, loose ends in the checklist and the solvers
 tests/result-columns.test.cjs  result outputs and their formulas, the columns kept in the browser, the .xlsx file
+tools/build-standalone.cjs the single-file build (`npm run build`): `dist/PumpIt.html`, with the fonts inside and its security policy, and its SHA-256
+tools/OFL-IBM-Plex.txt     licence of the IBM Plex fonts, copied into that file with them
 docs/ARCHITECTURE.md       blocks, data flow and how to extend the app
 docs/3D-VIEWS.md           3D views: progress, where each part lives, decisions
 docs/pipe-ends.md          the ends of pipes: disconnecting, reconnecting and loose ends, decisions
