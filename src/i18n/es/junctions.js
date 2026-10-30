@@ -87,9 +87,13 @@ PumpIt.i18n.add('es', {
 
     branch: {
       label: 'Nudo',
-      check: { source: 'caudal de fuente' },
-      form: { source: 'Caudal de fuente', sourceHint: 'Positivo entra al sistema; negativo sale (consumo).' },
-      summary: 'Fuente {flow}',
+      check: { source: 'consumo o entrada' },
+      form: {
+        source: 'Consumo o entrada',
+        sourceHint: 'Caudal que sale de la red en este nodo (negativo, un consumo) o entra en ella (positivo), sin pasar por un tubo. Cero: el caudal solo atraviesa el nodo.',
+        open: '+ Consumo o entrada en el nodo',
+      },
+      summary: 'Consumo o entrada {flow}',
     },
 
     pump: {

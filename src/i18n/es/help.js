@@ -408,7 +408,7 @@ PumpIt.i18n.add('es', {
             title: 'Nudo',
             body: `<p>[[icon:branch]] El encuentro de dos o más tuberías: una te, una cruz, un cambio de diámetro o de material. La presión de estancamiento es la misma para todas las tuberías, salvo las pérdidas indicadas en la tabla de pérdidas por tubería.</p>
 <ul>
-<li>[[t:junctions.branch.form.source]]: positiva entra en el sistema; negativa sale de él (un consumo concentrado). En la mayoría de los casos, cero.</li>
+<li>[[t:junctions.branch.form.source]]: caudal que sale de la red en el nodo (negativo, un consumo concentrado) o entra en ella (positivo). En la mayoría de los casos, cero: el caudal solo atraviesa el nodo. Mientras es cero, el campo queda oculto; el enlace [[t:junctions.branch.form.open]] lo muestra.</li>
 </ul>
 <p>La herramienta [[t:network.palette.pipe]] crea un nudo automáticamente cuando usted hace clic en un punto vacío.</p>`,
           },

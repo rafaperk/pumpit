@@ -88,9 +88,13 @@ PumpIt.i18n.add('pt-BR', {
 
     branch: {
       label: 'Nó',
-      check: { source: 'vazão de fonte' },
-      form: { source: 'Vazão de fonte', sourceHint: 'Positiva entra no sistema; negativa sai (consumo).' },
-      summary: 'Fonte {flow}',
+      check: { source: 'consumo ou entrada' },
+      form: {
+        source: 'Consumo ou entrada',
+        sourceHint: 'Vazão que sai da rede neste nó (negativa, um consumo) ou entra nela (positiva), sem passar por um tubo. Zero: a vazão só atravessa o nó.',
+        open: '+ Consumo ou entrada no nó',
+      },
+      summary: 'Consumo ou entrada {flow}',
     },
 
     pump: {

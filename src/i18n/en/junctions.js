@@ -87,9 +87,13 @@ PumpIt.i18n.add('en', {
 
     branch: {
       label: 'Branch',
-      check: { source: 'source flow' },
-      form: { source: 'Source flow', sourceHint: 'Positive enters the system; negative leaves it (demand).' },
-      summary: 'Source {flow}',
+      check: { source: 'demand or inflow' },
+      form: {
+        source: 'Demand or inflow',
+        sourceHint: 'Flow that leaves the network at this node (negative, a demand) or enters it (positive), without a pipe. Zero: the flow only crosses the node.',
+        open: '+ Demand or inflow at the node',
+      },
+      summary: 'Demand or inflow {flow}',
     },
 
     pump: {

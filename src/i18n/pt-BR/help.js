@@ -408,7 +408,7 @@ PumpIt.i18n.add('pt-BR', {
             title: 'Nó',
             body: `<p>[[icon:branch]] O encontro de dois ou mais tubos: um tê, uma cruzeta, uma mudança de diâmetro ou de material. A pressão de estagnação é a mesma para todos os tubos, salvo as perdas informadas na tabela de perdas por tubo.</p>
 <ul>
-<li>[[t:junctions.branch.form.source]]: positiva entra no sistema; negativa sai dele (um consumo concentrado). Na maioria dos casos, zero.</li>
+<li>[[t:junctions.branch.form.source]]: vazão que sai da rede no nó (negativa, um consumo concentrado) ou entra nela (positiva). Na maioria dos casos, zero: a vazão só atravessa o nó. Enquanto é zero, o campo fica escondido; o link [[t:junctions.branch.form.open]] o mostra.</li>
 </ul>
 <p>A ferramenta [[t:network.palette.pipe]] cria um nó automaticamente quando você clica num ponto vazio.</p>`,
           },

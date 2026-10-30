@@ -408,7 +408,7 @@ PumpIt.i18n.add('en', {
             title: 'Branch',
             body: `<p>[[icon:branch]] Where two or more pipes meet: a tee, a cross, a change of diameter or of material. The stagnation pressure is the same for all the pipes, except for the losses given in the per-pipe loss table.</p>
 <ul>
-<li>[[t:junctions.branch.form.source]]: positive enters the system; negative leaves it (a concentrated demand). In most cases, zero.</li>
+<li>[[t:junctions.branch.form.source]]: flow that leaves the network at the node (negative, a concentrated demand) or enters it (positive). In most cases zero: the flow only crosses the node. While it is zero the field stays hidden; the link [[t:junctions.branch.form.open]] shows it.</li>
 </ul>
 <p>The [[t:network.palette.pipe]] tool creates a branch automatically when you click an empty spot.</p>`,
           },
