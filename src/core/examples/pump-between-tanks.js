@@ -10,7 +10,7 @@
     build: () => model(x('title'), [
       [1, 'reservoir', 100, 300, { name: x('suctionTank'), elevation: q(0, 'm'), liquidElev: q(3, 'm'), pipeK: { 1: { kOut: 0.5, kIn: 1 } } }],
       [2, 'pump', 300, 300, {
-        name: x('pump'), elevation: q(0, 'm'),
+        name: x('pump'), elevation: q(0, 'm'), mode: 'curve',
         curve: { x: [0, 40, 80, 120], y: [48, 46.5, 42, 34.5], xUnit: 'm³/h', yUnit: 'm', fit: '2' },
         eff: { x: [0, 40, 80, 120], y: [0, 58, 76, 70], xUnit: 'm³/h', fit: '2' },
         npshr: { x: [0, 40, 80, 120], y: [1.5, 2.0, 3.2, 5.0], xUnit: 'm³/h', yUnit: 'm', fit: '2' },

@@ -529,7 +529,7 @@ function reference(branchK = 0.4) {
   m.solution.tolRel = 1e-10;
   const add = (type, id, props) => { const j = Object.assign(M.newJunction(type, id, 0, 0), props); m.junctions.push(j); return j; };
   add('reservoir', 1, { elevation: q(10, 'm'), liquidElev: q(10, 'm'), surfP: q(0, 'psig'), pipeK: { 1: { kOut: 0.5, kIn: 0, elev: q(8, 'm') } } });
-  add('pump', 2, { elevation: q(0, 'm'), curve: { x: [0, 50, 100, 140], y: [0, 50, 100, 140].map(H), xUnit: 'm³/h', yUnit: 'm', fit: '2' }, eff: { x: [], y: [], xUnit: 'm³/h', fit: '2' }, npshr: { x: [], y: [], xUnit: 'm³/h', yUnit: 'm', fit: '2' } });
+  add('pump', 2, { mode: 'curve', elevation: q(0, 'm'), curve: { x: [0, 50, 100, 140], y: [0, 50, 100, 140].map(H), xUnit: 'm³/h', yUnit: 'm', fit: '2' }, eff: { x: [], y: [], xUnit: 'm³/h', fit: '2' }, npshr: { x: [], y: [], xUnit: 'm³/h', yUnit: 'm', fit: '2' } });
   add('branch', 3, { elevation: q(2, 'm'), source: q(-10, 'm³/h'), pipeK: branchK ? { 3: { kOut: branchK, kIn: branchK } } : {} });
   add('valve', 4, { elevation: q(2, 'm'), lossModel: 'K', K: 5 });
   add('flow', 5, { elevation: q(1, 'm'), Q: q(20, 'm³/h'), dir: 'out' });

@@ -114,7 +114,7 @@ console.log('\nPump × system (intersection by bisection)');
 {
   const m = M.newModel();
   m.junctions.push(Object.assign(M.newJunction('reservoir', 1, 0, 0), { liquidElev: q(2, 'm') }));
-  m.junctions.push(Object.assign(M.newJunction('pump', 2, 0, 0), {
+  m.junctions.push(Object.assign(M.newJunction('pump', 2, 0, 0), { mode: 'curve',
     curve: { x: [0, 0.01, 0.02, 0.03], y: [40, 39, 36, 31], xUnit: 'm³/s', yUnit: 'm', fit: '2' },
   }));
   m.junctions.push(Object.assign(M.newJunction('reservoir', 3, 0, 0), { liquidElev: q(22, 'm') }));

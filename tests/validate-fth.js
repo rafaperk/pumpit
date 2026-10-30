@@ -142,7 +142,7 @@ function buildCase(file) {
         const qop = U.fromSI(Math.abs(r.m) / first.rho, UNIT.flow[qu], 'volFlow') || 1;
         const xs = [0, 0.5, 1, 1.5, 2, 2.5].map((k) => k * qop);
         const ys = xs.map((x) => a.reduce((s, c, i) => s + c * x ** i, 0));
-        add('pump', { curve: { x: xs, y: ys, xUnit: UNIT.flow[qu], yUnit: hu, fit: String(n - 1) }, eff: { x: [], y: [], xUnit: 'm³/h', fit: '2' }, npshr: { x: [], y: [], xUnit: 'm³/h', yUnit: 'm', fit: '2' } });
+        add('pump', { mode: 'curve', curve: { x: xs, y: ys, xUnit: UNIT.flow[qu], yUnit: hu, fit: String(n - 1) }, eff: { x: [], y: [], xUnit: 'm³/h', fit: '2' }, npshr: { x: [], y: [], xUnit: 'm³/h', yUnit: 'm', fit: '2' } });
         break;
       }
       default: return { skip: `junction type ${type}` };

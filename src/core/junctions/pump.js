@@ -108,7 +108,7 @@
     reverseFlowCaution: false, // reverse flow in a pump has its own critical warning
 
     defaults: () => ({
-      mode: 'curve', speed: 100, nPumps: 1, state: 'on',
+      mode: 'fixedFlow', speed: 100, nPumps: 1, state: 'on', // a new pump sizes: the head needed for its flow
       curve: { x: [0, 20, 40, 60], y: [42, 40.5, 36, 28.5], xUnit: 'm³/h', yUnit: 'm', fit: '2' },
       eff: { x: [], y: [], xUnit: 'm³/h', fit: '2' },
       npshr: { x: [], y: [], xUnit: 'm³/h', yUnit: 'm', fit: '2' },
