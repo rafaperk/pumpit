@@ -24,6 +24,7 @@ PumpIt.i18n.add('es', {
     },
     overlayNeedsResults: 'Complete la lista de verificación para colorear el dibujo con resultados.',
     zoom: { out: 'Alejar', fit: 'Ajustar a la pantalla', in: 'Acercar' },
+    fullScreen: { enter: 'Pantalla completa (F)', exit: 'Salir de la pantalla completa (F o Esc)' },
     legend: {
       m: 'Caudal másico',
       M: 'Mach (el mayor de los extremos)',

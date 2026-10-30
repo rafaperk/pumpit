@@ -48,6 +48,7 @@
   function start(from = 0) {
     end();
     dropOffer();
+    UI.fullScreen.set(false); // the tour shows the bars too
     app.hideMenus();
     if (UI.help) UI.help.close();
     UI.systemWindow.close();

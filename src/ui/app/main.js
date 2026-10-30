@@ -20,6 +20,7 @@
     UI.charts.bind();
     UI.modelData.bind();
     UI.palette.bind();
+    UI.fullScreen.bind();
     UI.hud3d.bind();
     UI.cube3d.bind();
     UI.keyboard.bind();

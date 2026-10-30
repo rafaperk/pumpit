@@ -77,7 +77,7 @@ PumpIt.i18n.add('es', {
         },
         zoom: {
           title: 'Zoom',
-          body: 'Aleje, encuadre todo el dibujo o acerque. La rueda del ratón y las teclas <kbd>+</kbd>, <kbd>−</kbd> e <kbd>Inicio</kbd> hacen lo mismo.',
+          body: 'Aleje, encuadre todo el dibujo o acerque. La rueda del ratón y las teclas <kbd>+</kbd>, <kbd>−</kbd> e <kbd>Inicio</kbd> hacen lo mismo. El último botón (o <kbd>F</kbd>) muestra solo el dibujo, la paleta y las propiedades, en pantalla completa.',
         },
         inspector: {
           title: 'Propiedades',
@@ -299,6 +299,7 @@ PumpIt.i18n.add('es', {
 <tr><td>Mover la vista</td><td>Arrastre el fondo, o use el botón central del ratón.</td></tr>
 <tr><td>Acercar y alejar</td><td>Rueda del ratón, las teclas <kbd>+</kbd> y <kbd>−</kbd>, o los botones de [[show:zoom|zoom]].</td></tr>
 <tr><td>Encuadrar todo</td><td>La tecla <kbd>Inicio</kbd>, el botón [[t:network.zoom.fit]] o [[t:app.menu.edit]] → [[t:app.menu.fit]].</td></tr>
+<tr><td>Pantalla completa</td><td>La tecla <kbd>F</kbd>, el último de los botones de [[show:zoom|zoom]] o [[t:app.menu.edit]] → [[t:app.menu.fullScreen]]: la barra superior y las pestañas desaparecen y el dibujo, la paleta y el panel de propiedades ocupan toda la pantalla, para modelar con más espacio. <kbd>F</kbd>, <kbd>Esc</kbd> o el mismo botón las traen de vuelta.</td></tr>
 </table>`,
           },
           edit: {
@@ -813,6 +814,7 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Deshacer · rehacer</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd> · <kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Copiar · pegar · seleccionar todo</td></tr>
 <tr><td><kbd>Inicio</kbd> · <kbd>+</kbd> · <kbd>−</kbd></td><td>Encuadrar · acercar · alejar</td></tr>
+<tr><td><kbd>F</kbd></td><td>Pantalla completa, y vuelta</td></tr>
 </table>
 <p>La lista completa, con las teclas de la vista 3D: [[act:shortcuts|Atajos de teclado]].</p>`,
           },

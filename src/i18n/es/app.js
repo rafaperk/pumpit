@@ -33,6 +33,7 @@ PumpIt.i18n.add('es', {
       delete: 'Eliminar selección',
       fit: 'Ajustar dibujo a la pantalla',
       grid: 'Cuadrícula y ajuste',
+      fullScreen: 'Pantalla completa',
       system: 'Propiedades del sistema…',
       shortcuts: 'Atajos de teclado…',
       help: 'Ayuda',
@@ -143,6 +144,7 @@ PumpIt.i18n.add('es', {
         copy: { keys: 'Ctrl C · Ctrl V · Ctrl A', does: 'Copiar · pegar · seleccionar todo' },
         fit: { keys: 'Inicio', does: 'Encuadra el dibujo' },
         zoom: { keys: '+ · −', does: 'Acercar · alejar' },
+        full: { keys: 'F', does: 'Pantalla completa: solo el dibujo, la paleta y las propiedades (F o Esc vuelve)' },
       },
       free: {
         orbit: { keys: 'Flechas', does: 'Giran la cámara en pasos de 15°' },

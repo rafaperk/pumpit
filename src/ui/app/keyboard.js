@@ -1,6 +1,7 @@
 // Keyboard shortcuts: F1 (help), Esc, Ctrl+Z / Ctrl+Y (Ctrl+Shift+Z), and on the network view Ctrl+C, Ctrl+V, Ctrl+A,
-// Del / Backspace, P (pipe tool), V (select tool), 1 / 2 (schematic, 3D), Home (fit) and + / − (zoom); the 3D view
-// adds its camera keys (src/ui/view3d/navigation.js) and the view cube its own (src/ui/view3d/cube.js).
+// Del / Backspace, P (pipe tool), V (select tool), 1 / 2 (schematic, 3D), Home (fit), + / − (zoom) and F (full
+// screen); the 3D view adds its camera keys (src/ui/view3d/navigation.js) and the view cube its own
+// (src/ui/view3d/cube.js).
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui;
@@ -49,6 +50,7 @@
       if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); app.deleteSelection(); }
       else if (k === 'p') UI.canvas.setTool('pipe');
       else if (k === 'v') UI.canvas.setTool('select');
+      else if (k === 'f' && !e.altKey) UI.fullScreen.toggle();
     });
   }
 

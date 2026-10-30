@@ -24,6 +24,7 @@ PumpIt.i18n.add('pt-BR', {
     },
     overlayNeedsResults: 'Complete a lista de verificação para colorir o desenho com resultados.',
     zoom: { out: 'Diminuir zoom', fit: 'Ajustar à tela', in: 'Aumentar zoom' },
+    fullScreen: { enter: 'Tela cheia (F)', exit: 'Sair da tela cheia (F ou Esc)' },
     legend: {
       m: 'Vazão mássica',
       M: 'Mach (o maior das pontas)',

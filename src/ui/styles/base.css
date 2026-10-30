@@ -12,3 +12,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 kbd { font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); margin-left: auto; padding-left: 16px; }
 
 #app { display: grid; grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr); height: 100%; min-height: 0; }
+/* full screen (src/ui/network/full-screen.js): the drawing, the palette and the properties panel only */
+#app.full { grid-template-rows: minmax(0, 1fr); }
+#app.full > .topbar, #app.full > .tabs { display: none; }

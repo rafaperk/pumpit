@@ -52,6 +52,9 @@
 }
 .overlay-pick { display: flex; flex-direction: column; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
 .zoom { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+.full-toggle svg { display: block; }
+.full-toggle .leave, .full .full-toggle .enter { display: none; }
+.full .full-toggle .leave { display: block; }
 .legend {
   position: absolute; left: 12px; bottom: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
   padding: 7px 10px; font-size: 12px; min-width: 190px;

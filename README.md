@@ -35,6 +35,7 @@ Shortcuts and selection:
 | Delete | `Del` |
 | Cancel the tool | `Esc` |
 | Zoom and view | mouse wheel; drag the background |
+| Full screen | `F`, the last button of the zoom group or *Edit → Full screen*: only the drawing, the palette and the properties panel stay on screen, to model with more room; `F` or `Esc` brings the bars back |
 
 3D view (see [docs/3D-VIEWS.md](docs/3D-VIEWS.md)): *Schematic · 3D* at the top left of the drawing, or the keys 1 and 2; the arrow beside 3D opens the menu of the view (turns, centring, grid, snapping, shadows, drop lines, working level) and closes it again. The view cube at the top right turns with the camera: a click on a face, an edge or a corner looks from that side (the top, the front, an isometric corner…) and a drag turns the camera. The *Options* menu, beside *File*, holds the grid density, the projection and the view cube. Both views show one geometry: the schematic is the plan and the height of every junction is its elevation, so moving a junction in one view moves it in the other, and moving it up or down in the 3D view changes its elevation. Pipes are drawn as tubes, along the axes unless drawn freely, nearer ones over farther ones, with shadows on the floor; junctions are small shaded solids (tank, pump, valves, nozzle…) that lie along their pipes and turn with the camera. Tubes and solids belong to the scene: they grow and shrink with the zoom, in the proportions of the schematic. The camera turns about what the middle of the screen shows, and in perspective the wheel zooms towards what lies under the cursor. The 3D view draws and edits: pipes go in any direction (Shift up and down, Ctrl along an axis) and bends can be moved, inserted and deleted, and the ends of pipes are dragged onto other junctions as in the schematic. *Help → Keyboard shortcuts…* lists the keys of every view. No length ever comes from the drawing. Phones are not supported.
 
@@ -158,7 +159,7 @@ src/ui/                    browser interface
   app/                     application state and commands (PumpIt.app), files and the import report, keyboard, start-up
   topbar/                  menus (with the Options menu), header status, scenarios, checklist, language selector, light and dark mode
   inspector/               field builders, one file per panel (system, pipe, junction, curves...) and the system window
-  network/                 drawing area, SVG drawing, colour scales, palette, right-click card
+  network/                 drawing area, SVG drawing, colour scales, palette, right-click card, full screen
   view3d/                  3D view: scene, commands, editing, solids, drawing and quick frames, navigation, controls, view cube, inspector sections
   model-data/              model data view
   results/                 results view, the outputs of each table, the columns chosen and the column window, TSV and Excel export

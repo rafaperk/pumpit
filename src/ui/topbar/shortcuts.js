@@ -8,7 +8,7 @@
 
   // the rows of each group, in the order shown (texts in app.shortcuts.<group>.<row>.keys / .does)
   const GROUPS = {
-    all: ['help', 'views', 'tools', 'cancel', 'delete', 'undo', 'copy', 'fit', 'zoom'],
+    all: ['help', 'views', 'tools', 'cancel', 'delete', 'undo', 'copy', 'fit', 'zoom', 'full'],
     free: ['orbit', 'pan', 'level', 'vertical', 'lock', 'bend', 'route', 'delBend', 'mouse', 'cube'],
   };
 

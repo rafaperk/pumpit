@@ -33,6 +33,7 @@ PumpIt.i18n.add('en', {
       delete: 'Delete selection',
       fit: 'Fit drawing to screen',
       grid: 'Grid and snapping',
+      fullScreen: 'Full screen',
       system: 'System properties…',
       shortcuts: 'Keyboard shortcuts…',
       help: 'Help',
@@ -143,6 +144,7 @@ PumpIt.i18n.add('en', {
         copy: { keys: 'Ctrl C · Ctrl V · Ctrl A', does: 'Copy · paste · select all' },
         fit: { keys: 'Home', does: 'Frames the drawing' },
         zoom: { keys: '+ · −', does: 'Zoom in · zoom out' },
+        full: { keys: 'F', does: 'Full screen: only the drawing, the palette and the properties (F or Esc goes back)' },
       },
       free: {
         orbit: { keys: 'Arrows', does: 'Turn the camera in steps of 15°' },

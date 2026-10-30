@@ -56,6 +56,7 @@
     app.hideMenus();
     UI.menus.renderExamples();
     UI.palette.render();
+    UI.fullScreen.label();
     UI.help.refresh();
     UI.tour.refresh();
     UI.theme.render();

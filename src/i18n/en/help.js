@@ -77,7 +77,7 @@ PumpIt.i18n.add('en', {
         },
         zoom: {
           title: 'Zoom',
-          body: 'Zoom out, fit the whole drawing or zoom in. The mouse wheel and the keys <kbd>+</kbd>, <kbd>−</kbd> and <kbd>Home</kbd> do the same.',
+          body: 'Zoom out, fit the whole drawing or zoom in. The mouse wheel and the keys <kbd>+</kbd>, <kbd>−</kbd> and <kbd>Home</kbd> do the same. The last button (or <kbd>F</kbd>) shows only the drawing, the palette and the properties, in full screen.',
         },
         inspector: {
           title: 'Properties',
@@ -299,6 +299,7 @@ PumpIt.i18n.add('en', {
 <tr><td>Move the view</td><td>Drag the background, or use the middle mouse button.</td></tr>
 <tr><td>Zoom in and out</td><td>Mouse wheel, the <kbd>+</kbd> and <kbd>−</kbd> keys, or the [[show:zoom|zoom]] buttons.</td></tr>
 <tr><td>Fit everything</td><td>The <kbd>Home</kbd> key, the [[t:network.zoom.fit]] button or [[t:app.menu.edit]] → [[t:app.menu.fit]].</td></tr>
+<tr><td>Full screen</td><td>The <kbd>F</kbd> key, the last of the [[show:zoom|zoom]] buttons or [[t:app.menu.edit]] → [[t:app.menu.fullScreen]]: the top bar and the tabs go away and the drawing, the palette and the properties panel take the whole screen, to model with more room. <kbd>F</kbd>, <kbd>Esc</kbd> or the same button bring them back.</td></tr>
 </table>`,
           },
           edit: {
@@ -813,6 +814,7 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Undo · redo</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd> · <kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Copy · paste · select all</td></tr>
 <tr><td><kbd>Home</kbd> · <kbd>+</kbd> · <kbd>−</kbd></td><td>Fit · zoom in · zoom out</td></tr>
+<tr><td><kbd>F</kbd></td><td>Full screen, and back</td></tr>
 </table>
 <p>The complete list, with the keys of the 3D view: [[act:shortcuts|Keyboard shortcuts]].</p>`,
           },

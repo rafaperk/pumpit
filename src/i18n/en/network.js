@@ -24,6 +24,7 @@ PumpIt.i18n.add('en', {
     },
     overlayNeedsResults: 'Complete the checklist to colour the drawing with results.',
     zoom: { out: 'Zoom out', fit: 'Fit to screen', in: 'Zoom in' },
+    fullScreen: { enter: 'Full screen (F)', exit: 'Leave full screen (F or Esc)' },
     legend: {
       m: 'Mass flow',
       M: 'Mach (the larger end)',

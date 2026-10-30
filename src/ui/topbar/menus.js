@@ -41,6 +41,7 @@
       if (UI.scene3d.active()) { UI.hud3d.toggle('grid'); return; } // the grid of the 3D view on the screen
       app.prefs.grid = !app.prefs.grid; app.savePrefs(); UI.canvas.render(); toast(app.prefs.grid ? t('app.edit.gridOn') : t('app.edit.gridOff'));
     },
+    'full-screen': () => UI.fullScreen.toggle(),
     system: () => UI.systemWindow.open(),
     help: () => UI.help.open(),
     'help-tour': () => UI.tour.start(),

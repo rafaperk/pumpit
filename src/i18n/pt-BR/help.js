@@ -77,7 +77,7 @@ PumpIt.i18n.add('pt-BR', {
         },
         zoom: {
           title: 'Zoom',
-          body: 'Afaste, enquadre todo o desenho ou aproxime. A roda do mouse e as teclas <kbd>+</kbd>, <kbd>−</kbd> e <kbd>Home</kbd> fazem o mesmo.',
+          body: 'Afaste, enquadre todo o desenho ou aproxime. A roda do mouse e as teclas <kbd>+</kbd>, <kbd>−</kbd> e <kbd>Home</kbd> fazem o mesmo. O último botão (ou <kbd>F</kbd>) mostra só o desenho, a paleta e as propriedades, em tela cheia.',
         },
         inspector: {
           title: 'Propriedades',
@@ -299,6 +299,7 @@ PumpIt.i18n.add('pt-BR', {
 <tr><td>Mover a vista</td><td>Arraste o fundo, ou use o botão do meio do mouse.</td></tr>
 <tr><td>Aproximar e afastar</td><td>Roda do mouse, as teclas <kbd>+</kbd> e <kbd>−</kbd>, ou os botões de [[show:zoom|zoom]].</td></tr>
 <tr><td>Enquadrar tudo</td><td>Tecla <kbd>Home</kbd>, o botão [[t:network.zoom.fit]] ou [[t:app.menu.edit]] → [[t:app.menu.fit]].</td></tr>
+<tr><td>Tela cheia</td><td>Tecla <kbd>F</kbd>, o último dos botões de [[show:zoom|zoom]] ou [[t:app.menu.edit]] → [[t:app.menu.fullScreen]]: a barra do topo e as abas somem e o desenho, a paleta e o painel de propriedades ocupam a tela toda, para modelar com mais espaço. <kbd>F</kbd>, <kbd>Esc</kbd> ou o mesmo botão as trazem de volta.</td></tr>
 </table>`,
           },
           edit: {
@@ -813,6 +814,7 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Desfaz · refaz</td></tr>
 <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd> · <kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Copia · cola · seleciona tudo</td></tr>
 <tr><td><kbd>Home</kbd> · <kbd>+</kbd> · <kbd>−</kbd></td><td>Enquadra · aproxima · afasta</td></tr>
+<tr><td><kbd>F</kbd></td><td>Tela cheia, e volta</td></tr>
 </table>
 <p>A lista completa, com as teclas da vista 3D: [[act:shortcuts|Atalhos de teclado]].</p>`,
           },

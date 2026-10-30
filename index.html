@@ -75,6 +75,7 @@
           <div class="menu-sep"></div>
           <button data-act="fit" data-i18n="app.menu.fit">Fit drawing to screen</button>
           <button data-act="toggle-grid" data-i18n="app.menu.grid">Grid and snapping</button>
+          <button data-act="full-screen" data-i18n="app.menu.fullScreen">Full screen <kbd>F</kbd></button>
           <div class="menu-sep"></div>
           <button data-act="system" data-i18n="app.menu.system">System properties…</button>
         </div>
@@ -220,6 +221,11 @@
               <svg viewBox="0 0 16 16" width="14" height="14"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
             </button>
             <button class="btn ghost icon" id="zoom-in" aria-label="Zoom in" data-i18n-aria-label="network.zoom.in">+</button>
+            <!-- full screen and back; title and label set by src/ui/network/full-screen.js -->
+            <button class="btn ghost icon full-toggle" id="full-screen" type="button" aria-pressed="false" aria-label="Full screen">
+              <svg class="enter" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5L9.2 6.8M6.5 13.5h-4v-4M2.5 13.5l4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg class="leave" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 6.5h-4v-4M9.5 6.5l4.3-4.3M2.5 9.5h4v4M6.5 9.5l-4.3 4.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
           </div>
         </div>
         <div class="legend" id="legend" hidden></div>
@@ -457,13 +463,14 @@
 <script src="src/ui/inspector/pipe-losses-table.js" charset="utf-8"></script>
 <script src="src/ui/inspector/reservoir-drawing.js" charset="utf-8"></script>
 <script src="src/ui/inspector/curve-editor.js" charset="utf-8"></script>
-<!-- Network view: drawing area, palette and right-click card -->
+<!-- Network view: drawing area, palette, right-click card and full screen -->
 <script src="src/ui/network/color-scales.js" charset="utf-8"></script>
 <script src="src/ui/network/drawing.js" charset="utf-8"></script>
 <script src="src/ui/network/canvas.js" charset="utf-8"></script>
 <script src="src/ui/network/palette.js" charset="utf-8"></script>
 <script src="src/ui/network/info-card.js" charset="utf-8"></script>
 <script src="src/ui/network/context-menu.js" charset="utf-8"></script>
+<script src="src/ui/network/full-screen.js" charset="utf-8"></script>
 <!-- 3D view: scene, drawing, navigation, controls on the drawing and inspector section -->
 <script src="src/ui/view3d/scene.js" charset="utf-8"></script>
 <script src="src/ui/view3d/commands.js" charset="utf-8"></script>
