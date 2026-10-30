@@ -115,23 +115,28 @@ The outputs, their formulas and the decisions are in [docs/result-outputs.md](do
 
 In "Results on the drawing › Velocity", the colour of each pipe follows a fixed scale for water, not the minimum and maximum of the model. The same colour therefore means the same band in any network. The right-click card and the inspector show the band next to the velocity.
 
+The economic velocity is the one of the diameter with the lowest total cost over the life of the installation: a larger pipe costs more to buy and lay, a smaller one more in pumping energy, since the head loss grows with about the square of the velocity. The bands follow what reference books, standards and studies give for that optimum in water mains (revised on 29 October 2026):
+
 | Velocity (m/s) | Colour | Band | Basis |
 | --- | --- | --- | --- |
-| below 0.6 | blue | below the usual minimum | self-cleansing minimum of 0.6–0.7 m/s, to avoid sedimentation |
-| 0.6 to 1.0 | blue → teal | low | pipe probably oversized for the flow |
-| 1.0 to 1.5 | teal → green | economic range, low side | studies of economic velocity in pumping mains: 0.62–2.65 m/s |
-| 1.5 to 2.5 | green | economic range | pumping practice of 1–3 m/s; general service of 1.2–3.0 m/s (Crane TP-410) |
-| 2.5 to 3.0 | green → yellow | high | 3 m/s is the usual upper limit for water |
-| 3.0 to 5.0 | yellow → orange → red | very high | erosion in carbon steel from ~4.6 m/s (15 ft/s); higher risk of water hammer |
+| below 0.6 | blue | below the usual minimum | minimum against deposits of 0.30 to 0.60 m/s by the quality of the water (Martins, 1976, in Tsutiya, 2006); 0.40 m/s in distribution networks (ABNT NBR 12218:2017). The scale keeps 0.6 m/s, the safe side |
+| 0.6 to 0.9 | blue → green | low | below the economic optimum: the pipe is probably larger than it pays to be |
+| 0.9 to 1.5 | green | economic range | Bresse's formula D = K·√Q with K from 0.9 to 1.2 in continuous pumping (Azevedo Netto) gives 0.9 to 1.6 m/s; 0.92 to 1.54 m/s computed by Zocoler et al. (2006); lowest cost at 3 to 4 ft/s (0.9 to 1.2 m/s) and water industry rule of 3 to 5 ft/s (0.9 to 1.5 m/s) (Pumps & Systems, 2025); 1.5 m/s for carbon steel (Chemical Engineering, 2018) |
+| 1.5 to 2.0 | green → lime | above the economic range | still economic when the pump runs a few hours a day or the pipe is dear: the economic velocity rises as the operating time falls (Caldas et al., 2016: up to 2.5–2.6 m/s); Bresse with K = 0.8 gives 2.0 m/s; 2.7 m/s for stainless steel (Chemical Engineering, 2018) |
+| 2.0 to 3.0 | lime → yellow | high | the energy lost in friction grows fast; 3.0 m/s is the usual technical and economic maximum of water mains (Tsutiya, 2006) |
+| 3.0 to 5.0 | yellow → orange → red | very high | beyond that maximum: wear, noise and a stronger water hammer (the surge of a sudden stop grows with the velocity) |
 | above 5.0 | black | off the scale | |
 
-The values are design references, not code limits. The economic velocity of each installation depends on the energy cost, the operating hours, the static head and the material. The bands live in `src/core/data/water-velocity.js` (`WATER_VELOCITY`) and can be adjusted there.
+The values are design references, not code limits. The economic velocity of each installation depends on the energy cost, the operating hours, the static head, the material and the diameter: in distribution networks the head loss is kept to about 10 m/km, which gives lower velocities in small pipes (0.5 m/s in DN 50 to 1.8 m/s in DN 600; Martins, 1976, in Tsutiya, 2006). The bands live in `src/core/data/water-velocity.js` (`WATER_VELOCITY`) and can be adjusted there.
 
 Sources consulted:
-- Caldas et al. (2016), economic velocity in pumping mains (galvanized steel 0.88–2.65 m/s; PVC 0.68–2.54 m/s): <https://periodicos.ufv.br/reveng/article/download/538/369/2945>
-- Perroni et al. (2011), cited in UFPel proceedings (galvanized steel 0.67–1.63 m/s; PVC 0.62–1.97 m/s; 0.49–3.11 m/s measured in 40 stations): <https://anais-siiepe.ufpel.edu.br/2015/CA_02884.pdf>
-- Suction and discharge design ranges, Crane TP-410 and the erosion limit in carbon steel (technical discussions): <https://www.eng-tips.com/viewthread.cfm?qid=425625>, <https://resources.skill-lync.com/branches/chemical-engineering/questions/fluid-mechanics-chem/pipe-sizing-velocity>
-- Minimum of ~0.7 m/s against sedimentation and maximums of 5–8 ft/s in building distribution: <https://engineerexcel.com/water-velocity-in-pipe/>
+- Azevedo Netto, J. M. et al., *Manual de Hidráulica*, Blucher: Bresse's formula for continuous pumping, D = K·√Q with K from 0.8 to 1.3 (as given, from the 2010 edition, in the lecture notes of UFPel): <https://wp.ufpel.edu.br/hugoguedes/files/2019/10/Aula-5-Adutoras.pdf>
+- Tsutiya, M. T., *Abastecimento de Água*, Escola Politécnica da USP, 2006: minimum velocities by the quality of the water (Martins, 1976), the technical and economic maximum of 3.0 m/s, the maximum velocities of distribution networks by diameter and the minimum of 0.40 m/s of NBR 12218:2017 (as given in the lecture notes of UFPR): <https://docs.ufpr.br/~rtkishi.dhs/TH028/TH028_06_Adutoras.pdf>, <https://docs.ufpr.br/~rtkishi.dhs/TH028/TH028_09_Rede.pdf>
+- Zocoler, J. L.; Baggio Filho, F. C.; Oliveira, L. A. F.; Hernandez, F. B. T. (2006), "Model for determining flow diameter and economic velocity in water elevating systems", *Mathematical Problems in Engineering*, article 17263 (economic velocities of 0.92 to 1.54 m/s by the drive and the energy tariff): <https://doi.org/10.1155/MPE/2006/17263>
+- Caldas et al. (2016), *Revista Engenharia na Agricultura* (UFV): galvanized steel 0.88–2.65 m/s, PVC 0.68–2.54 m/s; the economic velocity falls as the operating time and the static head grow: <https://periodicos.ufv.br/reveng/article/download/538/369/2945>
+- Perroni et al. (2011), as cited in the proceedings of UFPel: galvanized steel 0.67–1.63 m/s, PVC 0.62–1.97 m/s: <https://anais-siiepe.ufpel.edu.br/2015/CA_02884.pdf>
+- Anaya Durand, A.; Soto Estrada, J. A.; Cabrera Delgado, N. (2018), "Recommended fluid velocities in pipelines", *Chemical Engineering*: economic velocity of water 4.95 ft/s (1.5 m/s) in carbon steel and 8.88 ft/s (2.7 m/s) in stainless steel: <https://www.chemengonline.com/recommended-fluid-velocities-pipelines/>
+- Despars, D. P. (2025), "Operating pump systems at best efficiency point", *Pumps & Systems*: lowest combined cost of pipe and pump energy at 3 to 4 ft/s; water industry rule of 3 to 5 ft/s: <https://www.pumpsandsystems.com/operating-pump-systems-best-efficiency-point>
 
 ## Project structure
 

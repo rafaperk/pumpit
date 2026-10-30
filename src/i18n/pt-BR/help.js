@@ -667,14 +667,15 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
             body: `<p>Em [[t:network.overlay.V]], a cor segue uma escala fixa para água — e não o mínimo e o máximo do modelo —, para que a mesma cor signifique a mesma faixa em qualquer rede:</p>
 <table>
 <tr><th>Velocidade (m/s)</th><th>Faixa</th></tr>
-<tr><td>abaixo de 0,6</td><td>[[t:core.data.velocity.belowMin]]: risco de sedimentação</td></tr>
-<tr><td>0,6 a 1,0</td><td>[[t:core.data.velocity.low]]: o tubo talvez esteja superdimensionado</td></tr>
-<tr><td>1,0 a 2,5</td><td>[[t:core.data.velocity.economic]]</td></tr>
-<tr><td>2,5 a 3,0</td><td>[[t:core.data.velocity.high]]</td></tr>
+<tr><td>abaixo de 0,6</td><td>[[t:core.data.velocity.belowMin]]: risco de depósitos</td></tr>
+<tr><td>0,6 a 0,9</td><td>[[t:core.data.velocity.low]]: o tubo provavelmente é maior do que compensa</td></tr>
+<tr><td>0,9 a 1,5</td><td>[[t:core.data.velocity.economic]]</td></tr>
+<tr><td>1,5 a 2,0</td><td>[[t:core.data.velocity.acceptable]]: ainda econômica quando a bomba funciona poucas horas por dia</td></tr>
+<tr><td>2,0 a 3,0</td><td>[[t:core.data.velocity.high]]: a energia perdida no atrito cresce depressa</td></tr>
 <tr><td>3,0 a 5,0</td><td>[[t:core.data.velocity.veryHigh]]</td></tr>
 <tr><td>acima de 5,0</td><td>fora da escala (preto)</td></tr>
 </table>
-<p>São referências de projeto, não limites de norma: a velocidade econômica de cada instalação depende do custo da energia, das horas de operação e do material. O cartão de dados e o painel do tubo mostram a faixa ao lado da velocidade.</p>`,
+<p>A velocidade econômica é a do diâmetro de menor custo total: um tubo maior custa mais para comprar e assentar, um menor gasta mais energia de bombeamento. As faixas seguem livros de referência, normas e estudos de adutoras (Azevedo Netto, Tsutiya, NBR 12218 e outros). São referências de projeto, não limites de norma: a velocidade econômica de cada instalação depende do custo da energia, das horas de operação, do material e do diâmetro. O cartão de dados e o painel do tubo mostram a faixa ao lado da velocidade.</p>`,
           },
           inputs: {
             title: 'Dados do modelo',

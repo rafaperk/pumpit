@@ -667,14 +667,15 @@ Choosing a catalogue also sets the roughness of its material, which can still be
             body: `<p>With [[t:network.overlay.V]], the colour follows a fixed scale for water — not the minimum and maximum of the model —, so that the same colour means the same band in any network:</p>
 <table>
 <tr><th>Velocity (m/s)</th><th>Band</th></tr>
-<tr><td>below 0.6</td><td>[[t:core.data.velocity.belowMin]]: risk of sedimentation</td></tr>
-<tr><td>0.6 to 1.0</td><td>[[t:core.data.velocity.low]]: the pipe may be oversized</td></tr>
-<tr><td>1.0 to 2.5</td><td>[[t:core.data.velocity.economic]]</td></tr>
-<tr><td>2.5 to 3.0</td><td>[[t:core.data.velocity.high]]</td></tr>
+<tr><td>below 0.6</td><td>[[t:core.data.velocity.belowMin]]: risk of deposits</td></tr>
+<tr><td>0.6 to 0.9</td><td>[[t:core.data.velocity.low]]: the pipe is probably larger than it pays to be</td></tr>
+<tr><td>0.9 to 1.5</td><td>[[t:core.data.velocity.economic]]</td></tr>
+<tr><td>1.5 to 2.0</td><td>[[t:core.data.velocity.acceptable]]: still economic when the pump runs a few hours a day</td></tr>
+<tr><td>2.0 to 3.0</td><td>[[t:core.data.velocity.high]]: the energy lost in friction grows fast</td></tr>
 <tr><td>3.0 to 5.0</td><td>[[t:core.data.velocity.veryHigh]]</td></tr>
 <tr><td>above 5.0</td><td>off the scale (black)</td></tr>
 </table>
-<p>These are design references, not code limits: the economic velocity of each installation depends on the energy cost, the operating hours and the material. The data card and the pipe panel show the band next to the velocity.</p>`,
+<p>The economic velocity is the one of the diameter with the lowest total cost: a larger pipe costs more to buy and lay, a smaller one more in pumping energy. The bands follow reference books, standards and studies of water mains (Azevedo Netto, Tsutiya, NBR 12218 and others). They are design references, not code limits: the economic velocity of each installation depends on the energy cost, the operating hours, the material and the diameter. The data card and the pipe panel show the band next to the velocity.</p>`,
           },
           inputs: {
             title: 'Model data',

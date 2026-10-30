@@ -667,14 +667,15 @@ Al elegir un catálogo, la rugosidad pasa a ser la del material, y todavía se p
             body: `<p>En [[t:network.overlay.V]], el color sigue una escala fija para agua — no el mínimo y el máximo del modelo —, para que el mismo color signifique la misma franja en cualquier red:</p>
 <table>
 <tr><th>Velocidad (m/s)</th><th>Franja</th></tr>
-<tr><td>por debajo de 0,6</td><td>[[t:core.data.velocity.belowMin]]: riesgo de sedimentación</td></tr>
-<tr><td>0,6 a 1,0</td><td>[[t:core.data.velocity.low]]: la tubería quizás esté sobredimensionada</td></tr>
-<tr><td>1,0 a 2,5</td><td>[[t:core.data.velocity.economic]]</td></tr>
-<tr><td>2,5 a 3,0</td><td>[[t:core.data.velocity.high]]</td></tr>
+<tr><td>por debajo de 0,6</td><td>[[t:core.data.velocity.belowMin]]: riesgo de depósitos</td></tr>
+<tr><td>0,6 a 0,9</td><td>[[t:core.data.velocity.low]]: la tubería probablemente es más grande de lo que compensa</td></tr>
+<tr><td>0,9 a 1,5</td><td>[[t:core.data.velocity.economic]]</td></tr>
+<tr><td>1,5 a 2,0</td><td>[[t:core.data.velocity.acceptable]]: aún económica cuando la bomba funciona pocas horas al día</td></tr>
+<tr><td>2,0 a 3,0</td><td>[[t:core.data.velocity.high]]: la energía perdida por fricción crece deprisa</td></tr>
 <tr><td>3,0 a 5,0</td><td>[[t:core.data.velocity.veryHigh]]</td></tr>
 <tr><td>por encima de 5,0</td><td>fuera de escala (negro)</td></tr>
 </table>
-<p>Son referencias de proyecto, no límites normativos: la velocidad económica de cada instalación depende del costo de la energía, de las horas de operación y del material. La tarjeta de datos y el panel de la tubería muestran la franja junto a la velocidad.</p>`,
+<p>La velocidad económica es la del diámetro de menor costo total: una tubería mayor cuesta más de comprar e instalar, una menor gasta más energía de bombeo. Las franjas siguen libros de referencia, normas y estudios de aductoras (Azevedo Netto, Tsutiya, NBR 12218 y otros). Son referencias de proyecto, no límites normativos: la velocidad económica de cada instalación depende del costo de la energía, de las horas de operación, del material y del diámetro. La tarjeta de datos y el panel de la tubería muestran la franja junto a la velocidad.</p>`,
           },
           inputs: {
             title: 'Datos del modelo',

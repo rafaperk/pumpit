@@ -47,7 +47,7 @@
   function velLegend() {
     const pct = (v) => (v / VEL.max) * 100;
     const grad = VEL.stops.map(([v, c]) => `${c} ${pct(v).toFixed(1)}%`).join(',');
-    const ticks = [0, 0.6, 1.5, 2.5, 3, 5].map((v) => `<span style="left:${pct(v)}%">${v.toLocaleString(F.locale(), { maximumFractionDigits: 1 })}</span>`).join('');
+    const ticks = [0, 0.9, 1.5, 2, 3, 5].map((v) => `<span style="left:${pct(v)}%">${v.toLocaleString(F.locale(), { maximumFractionDigits: 1 })}</span>`).join('');
     return `<div class="eyebrow">${t('network.legend.velocityTitle')}</div>
       <div class="vel-bar"><div class="vel-ramp" style="background:linear-gradient(90deg,${grad})"></div><div class="vel-over" title="${t('network.legend.above', { max: VEL.max })}"></div></div>
       <div class="vel-ticks"><div class="vel-ticks-in">${ticks}</div><span class="vel-gt">&gt;${VEL.max}</span></div>

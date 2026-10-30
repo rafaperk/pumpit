@@ -77,6 +77,7 @@ PumpIt.i18n.add('en', {
         belowMin: 'below the usual minimum',
         low: 'low',
         economic: 'economic range',
+        acceptable: 'above the economic range',
         high: 'high',
         veryHigh: 'very high: risk of erosion and water hammer',
         aboveScale: 'above 5 m/s',

@@ -76,6 +76,7 @@ PumpIt.i18n.add('pt-BR', {
         belowMin: 'abaixo do mínimo usual',
         low: 'baixa',
         economic: 'faixa econômica',
+        acceptable: 'acima da faixa econômica',
         high: 'alta',
         veryHigh: 'muito alta: risco de erosão e golpe',
         aboveScale: 'acima de 5 m/s',
