@@ -98,7 +98,7 @@ Pump It has a **3D view** of the network besides the schematic (orbit camera, op
 
 **D-12. Free 3D view before Phase 3 (superseded by D-23).** It only selected and navigated. Deleting, copying, pasting and every inspector edit work in any view (P2).
 
-**D-13. Labels.** As in the Pump It schematic, the value of a junction goes above its symbol and its id and name below (R-53 says "under the symbol, as in the schematic"). A pipe id goes half a tube width plus 5 px above its anchor and its value half a width plus 13 px below, since tubes are wider than lines.
+**D-13. Labels.** As in the Pump It schematic, the value of a junction goes above its symbol and its id and name below (R-53 says "under the symbol, as in the schematic"). A pipe id goes half a tube width plus 5 px above its anchor and its value half a width plus 13 px below, since tubes are wider than lines. A pipe name, when it has one, goes one line above its id (29 October 2026), as the name of a junction goes under its id; in the schematic both go on the side of the id, running outwards from a sloping pipe so that they never cross it.
 
 **D-14. Undo and the view.** `view3` holds view settings only (the active view, the grid, the working level, the vertical scale and the cameras): undo and redo leave it as it is (R-61).
 

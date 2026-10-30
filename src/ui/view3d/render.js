@@ -435,6 +435,7 @@
       if (pri && smallest(s.k)) continue; // D-30
       const x = (s.a.x + s.b.x) / 2, y = (s.a.y + s.b.y) / 2;
       cands.push({ pri, size: s.len, cls: 'p-label', text: 'P' + s.p.id, x, y, dy: -(s.w / 2 + 5) });
+      if (s.eff.name) cands.push({ pri, size: s.len, cls: 'p-name', text: s.eff.name, x, y, dy: -(s.w / 2 + 18) });
       if (f.ov && f.ov.vals.has(s.p.id)) {
         cands.push({ pri, size: s.len, cls: 'p-val', text: CS.labelOf(f.fmtOv, f.unitOf, f.ov.vals.get(s.p.id), CS.OVERLAY[f.ovKey].cat), x, y, dy: s.w / 2 + 13 });
       }

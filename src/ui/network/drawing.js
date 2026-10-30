@@ -1,6 +1,6 @@
-// SVG markup of the network: grid, pipes (with flow arrows and result labels, and a ring at a loose end), junction
-// symbols, the handles at the ends of the selected pipe, the pipe being drawn and the selection box. Junction symbols
-// and their orientation come from the junction views.
+// SVG markup of the network: grid, pipes (with flow arrows, number, name and result labels, and a ring at a loose
+// end), junction symbols, the handles at the ends of the selected pipe, the pipe being drawn and the selection box.
+// Junction symbols and their orientation come from the junction views.
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui, app = PumpIt.app;
@@ -112,13 +112,13 @@
       // arrow in the actual flow direction when there are results; otherwise in the reference direction
       const flip = r && !r.isolated && r.m < 0;
       const nx = -uy, ny = ux;
-      const lx = mx + nx * 13, ly = my + ny * 13;
+      const name = eff && eff.name;
       out += `<g class="${cls.join(' ')}" data-p="${p.id}">
         <line class="p-hit" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>
         ${underlay}<line class="p-line" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"${lineStyle}/>
         <path class="p-arrow" d="M5 0L-4 -4.5L-4 4.5z" transform="translate(${mx} ${my}) rotate(${ang + (flip ? 180 : 0)})"${arrowStyle}/>
-        <text class="p-label" x="${lx}" y="${ly + 4}" text-anchor="middle">P${p.id}</text>
-        ${val ? `<text class="p-val" x="${mx - nx * 15}" y="${my - ny * 15 + 4}" text-anchor="middle">${F.esc(val)}</text>` : ''}
+        ${besidePipe(mx, my, nx, ny, 13, [['p-label', 'P' + p.id], ...(name ? [['p-name', name]] : [])])}
+        ${val ? besidePipe(mx, my, -nx, -ny, 15, [['p-val', val]]) : ''}
         ${a.loose ? ring('up', a) : ''}${b.loose ? ring('down', b) : ''}
       </g>`;
     }
@@ -178,8 +178,18 @@
     CS.renderLegend(document.getElementById('legend'), ov, ovKey, unitOf, fmtOv, gas);
   }
 
+  // Texts beside a pipe, on the side of the normal (nx, ny), d px from its middle: centred over or under a lying pipe,
+  // and running outwards from the pipe beside a sloping one, so they never cross the line or its arrow. The first line
+  // is the nearest to the pipe.
+  function besidePipe(mx, my, nx, ny, d, lines) {
+    const x = mx + nx * d, y = my + ny * d;
+    const anchor = Math.abs(nx) > 0.2 ? (nx > 0 ? 'start' : 'end') : 'middle';
+    const step = anchor === 'middle' && ny < 0 ? -12 : 12;
+    return lines.map(([cls, text], i) => `<text class="${cls}" x="${x}" y="${y + 4 + i * step}" text-anchor="${anchor}">${F.esc(text)}</text>`).join('');
+  }
+
   // the ring of a loose end, which takes the pointer to drag it onto a junction
-  const ring = (end, at) => `<circle class="p-loose" data-end="${end}" cx="${at.x}" cy="${at.y}" r="${LOOSE_R}"><title>${F.esc(t('network.ends.looseTitle'))}</title></circle>`;
+  const ring =(end, at) => `<circle class="p-loose" data-end="${end}" cx="${at.x}" cy="${at.y}" r="${LOOSE_R}"><title>${F.esc(t('network.ends.looseTitle'))}</title></circle>`;
   const handle = (end, at) => `<circle class="p-end" data-end="${end}" cx="${at.x}" cy="${at.y}" r="${HANDLE_R}"><title>${F.esc(t('network.ends.handleTitle'))}</title></circle>`;
 
   PumpIt.ui.drawing = { render, symbolAngle, R };

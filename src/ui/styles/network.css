@@ -86,6 +86,8 @@
 .p-arrow { fill: var(--pipe); }
 .p-label { font: 500 11px var(--f-mono); fill: var(--ink-2); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
 .p-val { font: 500 11px var(--f-mono); fill: var(--ink); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+/* the name of a pipe, as the name of a junction (.j-name) */
+.p-name { font: 11px var(--f-ui); fill: var(--ink-3); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
 .sel .p-line { stroke: var(--sel); stroke-width: 4; }
 .sel .p-arrow { fill: var(--sel); }
 .sel .j-bg { stroke: var(--sel); stroke-width: 2.5; }
