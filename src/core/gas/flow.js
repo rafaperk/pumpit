@@ -290,6 +290,9 @@
       const dFdUp = s2.ok ? (outEq(cx, s2, dn.pk) - F0) / hP : 1;
       dGdDn = isFin(dFdG) && dFdG < 0 ? 1 / dFdG : 0;
       dGdUp = isFin(dFdG) && dFdG < 0 ? -dFdUp / dFdG : r.G / up.P;
+      // a drive too small for the differences of the march (a link of almost no loss: its change with the flux is of the
+      // size of the rounding): the slopes of a quadratic loss, ΔP ∝ G²
+      if (!(isFin(dFdG) && dFdG < 0) || drive < 1e-6 * up.P) { dGdDn = -r.G / (2 * drive); dGdUp = r.G / (2 * drive); }
     }
     if (dir > 0) { out.dPa = A * dGdUp; out.dPb = A * dGdDn; }
     else { out.dPb = -A * dGdUp; out.dPa = -A * dGdDn; }

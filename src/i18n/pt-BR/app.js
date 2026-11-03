@@ -6,7 +6,7 @@ PumpIt.i18n.add('pt-BR', {
     welcome: 'Exemplo carregado: bombeamento entre tanques. O cálculo é refeito a cada alteração.',
     exampleLoaded: 'Exemplo carregado: {name}.',
     page: {
-      description: 'Simulador de redes de tubulação em regime permanente, escrito em clean room a partir de métodos públicos.',
+      description: 'Simulador de redes de tubulação em regime permanente e no tempo, escrito em clean room a partir de métodos públicos.',
       titleInput: 'Título do modelo',
       menus: 'Menus',
     },

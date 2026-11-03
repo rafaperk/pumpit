@@ -64,6 +64,7 @@
     if (example) { app.model = example.build(); app.pruneSelection(); app.save(); }
     app.version++;
     app.results = {};
+    app.timeRuns = {};
     app.recalc();
     app.renderAll();
   };

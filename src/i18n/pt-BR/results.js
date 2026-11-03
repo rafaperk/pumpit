@@ -111,6 +111,7 @@ PumpIt.i18n.add('pt-BR', {
         Cv: 'Cv efetivo',
         Kv: 'Kv efetivo',
         K: 'K efetivo',
+        open: 'Abertura (%)',
       },
     },
     gasColumns: {
@@ -149,7 +150,7 @@ PumpIt.i18n.add('pt-BR', {
       valves: {
         id: 'Válvula', name: 'Nome', typeLabel: 'Tipo', state: 'Estado', m: 'Vazão mássica', Q: 'Vazão na entrada', QN: 'Vazão normal',
         Pin: 'P estática entrada', Pout: 'P estática saída', P0in: 'P0 entrada', P0out: 'P0 saída', dP: 'ΔP0', dPs: 'ΔP estática',
-        chokedTxt: 'Bloqueio', K: 'K efetivo', Cv: 'Cv efetivo', Kv: 'Kv efetivo',
+        chokedTxt: 'Bloqueio', K: 'K efetivo', Cv: 'Cv efetivo', Kv: 'Kv efetivo', open: 'Abertura (%)',
       },
     },
     // groups of the outputs in the column window

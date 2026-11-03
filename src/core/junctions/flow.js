@@ -19,6 +19,12 @@
       return net.addNode({ z, jid: j.id, demand: j.dir === 'in' ? -m : m });
     },
 
+    // time simulation: the imposed flow follows a table (the direction stays; 0 is no flow)
+    time: {
+      imposedFlow: true,
+      quantities: () => [{ what: 'Q', cat: 'flow', min: 0, noNegative: true, steady: (j, si) => si(j.Q, 'flow'), apply: (jc, v) => { jc.Q = q(v, 'kg/s'); } }],
+    },
+
     // compressible mode: a mass flow, a volume at the conditions of the node or a normal volume (§8.4)
     gas: {
       node: (j, net, z) => net.addNode({ z, jid: j.id, ext: net.flowExt(j.Q, j.dir === 'in' ? 1 : -1, j) }),

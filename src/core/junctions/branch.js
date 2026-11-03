@@ -16,6 +16,12 @@
 
     buildNode: (j, net, z) => net.addNode({ z, jid: j.id, demand: -net.si(j.source, 'flow') }),
 
+    // time simulation: the source follows a table, with its sign (+ enters the network)
+    time: {
+      imposedFlow: true,
+      quantities: () => [{ what: 'source', cat: 'flow', steady: (j, si) => si(j.source, 'flow'), apply: (jc, v) => { jc.source = q(v, 'kg/s'); } }],
+    },
+
     // compressible mode: the mass balance of the node, with the source as an external flow (§10.4)
     gas: {
       node: (j, net, z) => net.addNode({ z, jid: j.id, ext: net.flowExt(j.source, 1, j) }),

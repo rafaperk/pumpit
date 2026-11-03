@@ -28,6 +28,25 @@
 
     buildNode: (j, net) => net.addNode({ kind: 'fixed', value: net.si(j.surfP, 'pressure'), z: net.si(j.liquidElev, 'length'), jid: j.id, isRes: true }),
 
+    // time simulation: an infinite reservoir takes tables of its level and of its surface pressure; a finite tank
+    // (j.tank, src/core/time/tanks.js) has its level calculated, and only its surface pressure follows a table; in a closed
+    // tank the gas gives that pressure, and a table drives the pressure of its relief. For a gas (ctx.gas), a finite vessel
+    // (j.vessel, src/core/time/vessels.js) has its pressure calculated and takes no table
+    time: {
+      tank: true,
+      quantities(j, ctx = {}) {
+        const surfP = { what: 'surfP', cat: 'pressure', steady: (x, si) => si(x.surfP, 'pressure'), apply: (jc, v) => { jc.surfP = q(v, 'Pa(a)'); } };
+        const level = { what: 'level', cat: 'length', steady: (x, si) => si(x.liquidElev, 'length'), apply: (jc, v) => { jc.liquidElev = q(v, 'm'); } };
+        if (ctx.gas) return PumpIt.time.vessels.isFinite(j) ? [] : [level, surfP];
+        if (PumpIt.time.tanks.isClosed(j)) {
+          const given = (x) => x.tank.gas && x.tank.gas.pMax && Number.isFinite(x.tank.gas.pMax.value);
+          return [{ what: 'pMax', cat: 'pressure', min: 0, steady: (x, si) => (given(x) ? si(x.tank.gas.pMax, 'pressure') : NaN), apply: (jc, v) => { jc.tank.gas.pMax = q(v, 'Pa(a)'); } }];
+        }
+        if (PumpIt.time.tanks.isFinite(j)) return [surfP];
+        return [level, surfP];
+      },
+    },
+
     // compressible mode: a vessel of gas at rest, its pressure a stagnation pressure at the level of the reference
     // (§10.4), its temperature that of the gas it supplies
     gas: {

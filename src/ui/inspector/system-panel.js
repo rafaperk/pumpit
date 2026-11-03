@@ -1,5 +1,6 @@
 // The properties of the system: the regime of the model (incompressible liquid or compressible gas), the fluid of that
-// regime, the environment, the solution control and the current scenario. They are edited in the system window
+// regime, the environment, the solution control, the control of the time simulation (src/ui/time/system.js) and the
+// current scenario. They are edited in the system window
 // (system-window.js, which draws them with build); with nothing selected, the inspector (collapsed then, until its
 // arrow opens it) shows a summary of them and the button that opens the window.
 (function (root) {
@@ -54,6 +55,7 @@
       }
     } catch (e) { s.appendChild(hint(F.esc(e.message))); }
     s.appendChild(readout(tx('patm'), typed(sys.patm)));
+    UI.timeSystem.summary(s);
     const b = el('button', { class: 'btn primary sys-open', type: 'button' }, F.esc(tx('open')));
     b.addEventListener('click', () => UI.systemWindow.open());
     s.appendChild(b);
@@ -97,6 +99,7 @@
     s3.appendChild(chk(ks, 'adaptive', tx('adaptive')));
     s3.appendChild(chk(ks, 'checkMass', tx('checkMass')));
     right.appendChild(s3);
+    right.appendChild(UI.timeSystem.section());
 
     const s4 = section(tx('scenario'));
     const notes = el('textarea', { id: 'scn-notes', rows: '3', style: 'width:100%;resize:vertical', placeholder: tx('notes'), 'aria-label': tx('notes') });

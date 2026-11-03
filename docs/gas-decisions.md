@@ -30,6 +30,7 @@ Clean room (§1.1): only the specification, the code of this repository and publ
 | Gas results in the interface (§12.2) | `src/ui/results/columns.js` (`GAS_COLS`), the inspector panels, the right-click card, `src/ui/network/color-scales.js`, the profile chart |
 | Compressor (§10.5) | the `gas` hooks of `src/core/junctions/pump.js` and its view `src/ui/junctions/pump.js` |
 | Models of .aro files | `src/core/import/aro.js` (docs/aro-import.md) |
+| Finite gas vessels of the time simulation | `src/core/time/vessels.js` ([time-simulation.md](time-simulation.md), T-30) |
 | Help (phase 4) | chapters `gas` and `gasTech` of `src/ui/help/help.js`, the formulas in `src/ui/help/equations.js`, texts in `src/i18n/<language>/help.js` |
 
 ## Decisions
@@ -108,3 +109,10 @@ Clean room (§1.1): only the specification, the code of this repository and publ
 - The help (chapter *Gas*) says how pressures are typed and shown; `tests/gas.test.cjs` compares the example in absolute pressures (T13) and checks R-13 (T29).
 
 **G-36 Models of .aro files.** A `.aro` file of a gas network opens as a model of the compressible mode ([aro-import.md](aro-import.md)). The fields its format description asked for were already in Pump It: a unit on every flow (mass, local volume or normal volume), the temperature of each source (G-28), a fixed f, and the standard conditions, used during the import. So the model and the calculation did not change. A compressor curve of pressure rise against flow becomes the head curve of G-27 at a suction state, the one stored in the file when it has results (A-21).
+
+**G-37 Links of almost no loss (time simulation, 2 November 2026).** The finite gas vessels of the time simulation ([time-simulation.md](time-simulation.md), T-30 and T-31) join a vessel to a short, wide pipe, whose loss is tiny against its pressures. Two changes let the solver handle such a link, and the cases of `tests/gas.test.cjs` keep their results:
+
+- `src/core/gas/newton.js`: a node joined by such a link may not balance to 10⁻⁸ of its flow, since a few units in the last place of its pressure move its flows by more than that. When the Newton step falls below 32 units in the last place of every unknown with every misfit under 10⁻⁶, nothing can improve the balance, and the solution is taken as converged.
+- `src/core/gas/flow.js`: the slopes of a link come from finite differences of its march, which round to nothing when its drive is of the size of the rounding. When the drive is below 10⁻⁶ of the upstream pressure, or the differences give no usable slope, the link takes the slopes of a quadratic loss, ∂G/∂P_up = G/(2·ΔP) and ∂G/∂P_down = −G/(2·ΔP).
+
+Before them the adiabatic discharge of case T19 of the time simulation diverged, to a flow of −2017 kg/s, and the isothermal one of T18 did not converge.

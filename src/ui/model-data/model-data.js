@@ -1,5 +1,6 @@
-// Model data view: the inputs of the current scenario as tables of pipes and junctions. Cells that
-// differ from the parent scenario are highlighted; clicking a row selects the object.
+// Model data view: the inputs of the current scenario as tables of pipes and junctions (and of the time data and finite
+// tanks of the time simulation, src/ui/time/data-section.js). Cells that differ from the parent scenario are highlighted;
+// clicking a row selects the object.
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, UI = PumpIt.ui;
@@ -50,7 +51,7 @@
       </div>
       <div class="card"><div class="card-head"><h3>${tx('junctions')}</h3><span class="muted small">${tx('junctionCount', { n: eff.junctions.length })}</span></div>
         ${eff.junctions.length ? `<div class="table-scroll"><table class="grid"><thead><tr><th class="txt">${tx('col.junction')}</th><th class="txt">${tx('col.name')}</th><th class="txt">${tx('col.type')}</th><th>${tx('col.elevation')}</th><th class="txt">${tx('col.mainData')}</th></tr></thead><tbody>${jRows}</tbody></table></div>` : `<div class="empty">${tx('noJunctions')}</div>`}
-      </div>`;
+      </div>${UI.timeData.modelData(eff)}`;
   }
 
   function bind() {

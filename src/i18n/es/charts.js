@@ -2,8 +2,8 @@
 PumpIt.i18n.add('es', {
   charts: {
     title: 'Gráficos',
-    intro: 'Curva de la bomba contra la curva del sistema, o perfil de las líneas de carga a lo largo de un camino.',
-    tabs: { pump: 'Bomba × sistema', profile: 'Perfil' },
+    intro: 'Curva de la bomba contra la curva del sistema, perfil de las líneas de carga a lo largo de un camino, o resultados de la simulación en el tiempo.',
+    tabs: { pump: 'Bomba × sistema', profile: 'Perfil', time: 'En el tiempo' },
     noData: 'Sin datos para el gráfico.',
     chart: 'Gráfico',
     pump: {
@@ -47,6 +47,20 @@ PumpIt.i18n.add('es', {
       yPressure: 'Presión ({u})',
       notesGas: 'Camino: {path} · {length} {u}. La presión de un gas cae cada vez más rápido a lo largo de la tubería, a medida que se expande y acelera; las curvas siguen los puntos calculados dentro de cada tubería.',
       notes: 'Camino: {path} · {length} {u}. HGL y EGL usan presión absoluta; los escalones verticales son uniones con pérdida o ganancia.',
+    },
+    time: {
+      noRun: 'Active la simulación en el tiempo en las propiedades del sistema; cuando se ejecute, sus series aparecen aquí.',
+      object: 'Objeto',
+      quantity: 'Magnitud',
+      add: 'Agregar al gráfico',
+      axis: 'Eje del tiempo',
+      clock: 'Reloj (d hh:mm)',
+      choose: 'Elija un objeto y una magnitud y agréguelos al gráfico. Cada unidad tiene un panel propio.',
+      time: 'Tiempo',
+      clockAxis: 'Reloj (d hh:mm)',
+      unit: 'Unidad del panel',
+      remove: 'Quitar del gráfico',
+      cursorNote: 'Las marcas muestran el paso del cursor de tiempo, en {t}.',
     },
   },
 });

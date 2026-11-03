@@ -1,9 +1,9 @@
 {
   "name": "pump-it",
   "private": true,
-  "description": "Steady-state pipe network simulator for the browser (no build step, no dependencies).",
+  "description": "Pipe network simulator for the browser, steady state and over time (no build step, no dependencies).",
   "scripts": {
-    "test": "node tests/run-tests.js && node tests/gas.test.cjs && node tests/check-i18n.js && node tests/view3d.test.cjs && node tests/fth-import.test.cjs && node tests/aro-import.test.cjs && node tests/pipe-ends.test.cjs && node tests/result-columns.test.cjs",
+    "test": "node tests/run-tests.js && node tests/gas.test.cjs && node tests/time.test.cjs && node tests/check-i18n.js && node tests/view3d.test.cjs && node tests/fth-import.test.cjs && node tests/aro-import.test.cjs && node tests/pipe-ends.test.cjs && node tests/result-columns.test.cjs",
     "validate": "node tests/validate-fth.js",
     "build": "node tools/build-standalone.cjs"
   },

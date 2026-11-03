@@ -13,7 +13,8 @@
 
   // effective model of a scenario: a copy of the base with the overrides applied from the root to the leaf
   function effective(m, sid) {
-    const e = M.clone({ system: m.system, solution: m.solution, pipes: m.pipes, junctions: m.junctions, title: m.title });
+    // the named events of the time simulation belong to the model, the same in every scenario (§5.4 of its specification)
+    const e = M.clone({ system: m.system, solution: m.solution, pipes: m.pipes, junctions: m.junctions, title: m.title, events: m.events || [] });
     for (const s of chain(m, sid)) {
       const keys = Object.keys(s.overrides).sort((a, b) => a.length - b.length);
       for (const k of keys) {

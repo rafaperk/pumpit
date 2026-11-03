@@ -6,7 +6,7 @@ PumpIt.i18n.add('en', {
     welcome: 'Example loaded: pumping between tanks. The calculation runs again after every change.',
     exampleLoaded: 'Example loaded: {name}.',
     page: {
-      description: 'Steady-state pipe network simulator, written as a clean-room implementation from public methods.',
+      description: 'Pipe network simulator, in steady state and over time, written as a clean-room implementation from public methods.',
       titleInput: 'Model title',
       menus: 'Menus',
     },

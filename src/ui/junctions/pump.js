@@ -44,6 +44,8 @@
         return;
       }
       if (j.mode === 'curve') s.appendChild(f.num(key, 'speed', tx('form.speed'), { suffix: tx('form.speedSuffix') }));
+      // a check valve of its own, on its curve (liquids)
+      if (j.mode === 'curve' && !gas) s.appendChild(f.chk(key, 'noReverse', tx('form.noReverse'), { info: tx('form.noReverseHint') }));
       // a controlling pump: its speed comes from the set point (affinity laws)
       if (j.mode === 'controlFlow') s.appendChild(f.qty(key, 'setQ', tx('form.setQ'), 'flow', { info: tx('form.affinityHint') }));
       if (j.mode === 'controlDischarge' || j.mode === 'controlSuction') s.appendChild(f.qty(key, 'setP', tx('form.setP'), 'pressure', { info: tx('form.affinityHint') }));

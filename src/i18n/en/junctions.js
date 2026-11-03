@@ -22,6 +22,14 @@ PumpIt.i18n.add('en', {
       Kv: 'Kv (metric)',
       CvHint: 'ΔP[psi] = SG·(Q[gpm]/Cv)², SG relative to water at 60 °F.',
       KvHint: 'ΔP[bar] = SG·(Q[m³/h]/Kv)².',
+      opening: 'Opening and characteristic',
+      CvMax: 'Cv fully open',
+      char: 'Characteristic',
+      chars: { linear: 'Linear', equalPct: 'Equal percentage' },
+      R: 'Rangeability',
+      open: 'Opening',
+      openHint: 'Linear: Cv = Cv fully open × opening. Equal percentage: Cv = Cv fully open × R^(opening − 1), with the opening from 0 to 1; an opening of 0 closes the valve. A table of the time simulation can drive the opening.',
+      check: { CvMax: 'Cv fully open', char: 'characteristic', R: 'rangeability above 1', open: 'opening from 0 to 100 %' },
     },
 
     reservoir: {
@@ -145,6 +153,8 @@ PumpIt.i18n.add('en', {
         setQ: 'Control flow',
         setP: 'Control static pressure',
         nPumps: 'Identical pumps in parallel',
+        noReverse: 'Check valve (no reverse flow)',
+        noReverseHint: 'The pump closes when the flow would go back, and opens again when its head at no flow overcomes the pressure against it. Only on its curve.',
         affinityHint: 'The required speed comes from the affinity laws, H(Q; s) = s²·H(Q/s).',
       },
       curves: {
@@ -193,6 +203,20 @@ PumpIt.i18n.add('en', {
       summaryClosed: ' · closed',
     },
 
+    check: {
+      label: 'Check valve',
+      check: { vClose: 'closing velocity', dPopen: 'reopening pressure difference, zero or more' },
+      form: {
+        hint: 'Lets the flow through in the reference direction of the valve only. Open, its loss is that of its loss model.',
+        vClose: 'Closes below the velocity',
+        vCloseHint: 'The valve closes when the velocity in its direction, in the pipe that comes in, falls below this value (0: when the flow would go back).',
+        dPopen: 'Opens at the pressure difference',
+        dPopenHint: 'Closed, the valve opens again when the pressure before it exceeds the one after it by this difference.',
+        closed: 'Valve closed',
+      },
+      summaryClosed: ' · closed',
+    },
+
     control: {
       label: 'Control valve',
       check: { setP: 'set pressure', setQ: 'set flow', setDP: 'set pressure drop', kOpen: 'fully open K' },
@@ -220,6 +244,9 @@ PumpIt.i18n.add('en', {
         setDP: 'Set pressure drop',
         alwaysControl: 'Always control (may add pressure, with a warning)',
         kOpen: 'Fully open K',
+        char: 'Characteristic (for the opening)',
+        charNone: 'None',
+        charHint: 'With the Cv fully open and the characteristic, the results give the opening of the valve (and an event of the time simulation can test it).',
         special: 'Special condition',
         specialNone: 'Normal',
         specialClosed: 'Closed',

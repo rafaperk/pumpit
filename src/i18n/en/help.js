@@ -350,7 +350,8 @@ PumpIt.i18n.add('en', {
 <tr><td></td><td>[[icon:spray]] [[t:junctions.spray.label]]</td><td>1 to 4</td><td>Discharge through an effective area to an external pressure</td></tr>
 <tr><td>[[t:junctions.groups.connection]]</td><td>[[icon:branch]] [[t:junctions.branch.label]]</td><td>2 to 25</td><td>Where pipes meet, with an optional source or demand</td></tr>
 <tr><td>[[t:junctions.groups.equipment]]</td><td>[[icon:pump]] [[t:junctions.pump.label]]</td><td>2</td><td>Adds head following its head × flow curve</td></tr>
-<tr><td>[[t:junctions.groups.valves]]</td><td>[[icon:valve]] [[t:junctions.valve.label]]</td><td>2</td><td>Loss by K, Cv or Kv; may be closed</td></tr>
+<tr><td>[[t:junctions.groups.valves]]</td><td>[[icon:valve]] [[t:junctions.valve.label]]</td><td>2</td><td>Loss by K, Cv, Kv or an opening; may be closed</td></tr>
+<tr><td></td><td>[[icon:check]] [[t:junctions.check.label]]</td><td>2</td><td>Lets the flow through one way only</td></tr>
 <tr><td></td><td>[[icon:control]] [[t:junctions.control.label]]</td><td>2</td><td>Holds a pressure, a flow or a ΔP</td></tr>
 <tr><td></td><td>[[icon:exitvalve]] [[t:junctions.exitvalve.label]]</td><td>1</td><td>Discharge to a residual pressure</td></tr>
 <tr><td>[[t:junctions.groups.losses]]</td><td>[[icon:orifice]] [[t:junctions.orifice.label]]</td><td>2</td><td>Orifice plate</td></tr>
@@ -423,6 +424,7 @@ PumpIt.i18n.add('en', {
 <li>[[t:junctions.pump.form.modes.fixedFlow]]: the pump delivers the given flow and the calculation shows the head it needs. It uses no curve — it is the mode for choosing a pump.</li>
 <li>[[t:junctions.pump.form.modes.controlFlow]], [[t:junctions.pump.form.modes.controlDischarge]] and [[t:junctions.pump.form.modes.controlSuction]]: the speed adjusts to hold the set flow or static pressure, and the result shows the speed needed.</li>
 <li>[[t:junctions.pump.form.nPumps]]: identical pumps side by side; each carries the total flow divided by N.</li>
+<li>[[t:junctions.pump.form.noReverse]] (on the curve): a check valve in the pump, which closes when the flow would go back.</li>
 </ul>
 <h4>Curves</h4>
 <p>Give points of the [[t:junctions.pump.curves.head]] and, if you wish, of the efficiency and of the required NPSH. In each table choose the units and the [[t:inspector.curve.fitType]] (polynomial of order 0 to 4 or linear interpolation); the chart beside it shows the points and the fitted curve, and the calculation always uses the fitted curve. Without an efficiency curve, the shaft power equals the hydraulic power.</p>
@@ -434,9 +436,21 @@ PumpIt.i18n.add('en', {
             body: `<p>[[icon:valve]] A valve, or any in-line component with a known local loss.</p>
 <ul>
 <li>[[t:junctions.lossModel.label]]: [[t:junctions.lossModel.K]], [[t:junctions.lossModel.Cv]] or [[t:junctions.lossModel.Kv]].</li>
+<li>[[t:junctions.lossModel.opening]]: the Cv fully open, a linear or equal percentage characteristic and the opening in %; an opening of 0 closes the valve. A table of the [[go:time.data|time simulation]] can drive the opening.</li>
 <li>[[t:junctions.valve.form.closed]]: zero flow. In the 3D view, a closed valve is drawn in red.</li>
 </ul>
 <p>The results bring the pressure drop, the effective K and the equivalent Cv. For losses that travel with the pipe, such as bends and isolation valves that stay open, you can also use the list of [[go:pipes.fittings|pipe fittings]].</p>`,
+          },
+          check: {
+            title: 'Check valve',
+            body: `<p>[[icon:check]] A valve that lets the flow through in its reference direction only, the direction of its drawing. It needs one pipe arriving and another leaving.</p>
+<ul>
+<li>[[t:junctions.lossModel.label]]: the loss of the open valve, by K, Cv or Kv.</li>
+<li>[[t:junctions.check.form.vClose]]: the valve closes when the velocity in its direction falls below this value; 0 closes it when the flow would go back.</li>
+<li>[[t:junctions.check.form.dPopen]]: closed, it opens again when the pressure before it exceeds the one after it by this difference.</li>
+<li>[[t:junctions.check.form.closed]]: keeps it closed.</li>
+</ul>
+<p>Its state, open or closed, appears in the valves table. In a [[go:time.concept|time simulation]] the valve closes and opens within the same step, and keeps its state to the next one. A pump on its curve may hold a check valve of its own: [[t:junctions.pump.form.noReverse]]. The check valve is for liquids: the compressible mode does not take it.</p>`,
           },
           control: {
             title: 'Control valve',
@@ -605,6 +619,80 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <li>In the [[t:app.tabs.data]] tab, the cells that differ from the parent are highlighted.</li>
 <li>The buttons next to the list rename and delete the current scenario, together with its children. The Base scenario cannot be deleted.</li>
 </ul>`,
+          },
+        },
+      },
+
+      time: {
+        title: 'Time simulation',
+        sections: {
+          concept: {
+            title: 'How it works',
+            body: `<p>The time simulation follows the network over time: tanks that fill and empty, pumps that start and stop by level or by the clock, demands that follow a daily profile, valves that open and close. It is a sequence of steady states, one per time step. Between two steps the tables of the junctions give their new values, events start tables and the levels of the tanks move with the flows that enter and leave them.</p>
+<ul>
+<li>The first step is always the model as it is, so it gives the steady result exactly.</li>
+<li>Pressure waves (water hammer) and the inertia of the fluid are out of its scope: each step is a steady state.</li>
+<li>It works for a liquid and, in the [[go:gas.concept|compressible mode]], for a gas, whose reservoirs may be vessels of a fixed volume.</li>
+</ul>
+<p>After every change the steady state comes at once, as always, and the time simulation follows in the background. The stamp [[t:time.stamp.label]], next to the title of the model, shows its progress; a click on it stops the run, and what was calculated stays.</p>`,
+          },
+          control: {
+            title: 'Time control',
+            body: `<p>In the [[t:inspector.system.title]] window, section [[t:time.system.title]]:</p>
+<ul>
+<li>[[t:time.system.on]]: turns the simulation on for the scenario. Off, the time data and the tanks are kept and not used.</li>
+<li>[[t:time.system.start]], [[t:time.system.stop]] and [[t:time.system.step]]: the clock. A line below gives the number of steps and the memory of the run (at most 100 000 steps).</li>
+<li>[[t:time.system.saveEvery]]: the series keep fewer steps; extremes, totals and the event log still use every one.</li>
+<li>[[t:time.system.method]]: [[t:time.system.methods.forward]] uses the level at the start of each step; [[t:time.system.methods.central]] uses the mean level of the step, by iteration, and is more accurate with the same step.</li>
+<li>[[t:time.system.dataEnd]]: hold the last value or extrapolate.</li>
+<li>[[t:time.system.exactEvents]] (forward method): an event on a level fires at the time the level crosses its value, instead of at the next step.</li>
+<li>[[t:time.system.tariff.use]]: a price per kWh by the time of the day, the same every day, for the cost of the energy of the pumps.</li>
+</ul>
+<p class="tip"><b>Choosing the step:</b> an event takes effect one step after it is seen. Keep the step at most half of the shortest ramp of a table, and short against the time a level takes to go from one limit to the other.</p>
+<p>The time control belongs to the solution of the scenario, so a [[go:scenarios.concept|child scenario]] can change it.</p>`,
+          },
+          data: {
+            title: 'Time data and events',
+            body: `<p>Select a junction and, in the inspector, use [[t:time.data.add]] in the section [[t:time.data.title]]. The data drive one quantity of the junction:</p>
+<ul>
+<li>a reservoir: its level and its surface pressure (a finite tank, only its surface pressure; a closed one, its relief pressure);</li>
+<li>an imposed pressure or flow, and the source of a branch;</li>
+<li>a pump: its speed on the curve (0 stops it, as [[t:time.data.stopMode]] says), its flow, its set point or, for a compressor, its pressure ratio;</li>
+<li>a valve or an exit valve: its K, Cv or Kv, or its opening; a control valve: its set point; a nozzle: its effective area.</li>
+</ul>
+<p>The table gives values against time, typed or pasted from a spreadsheet with [[t:time.points.paste]]. The values are absolute or [[t:time.data.bases.relative]]; between points, a straight line or steps; repeated, a table makes a daily profile, for example. With a gas, a flow is a mass flow or a normal volume flow (Nm³).</p>
+<h4>When a table applies</h4>
+<ul>
+<li>[[t:time.data.starts.time]]: from the second step on.</li>
+<li>[[t:time.data.starts.single]]: when a condition holds, such as a level below a value or a pump that stops; the table applies from the next step and its time counts from the event.</li>
+<li>[[t:time.data.starts.dualCyclic]]: two conditions and two tables that alternate, such as start at a low level and stop at a high one.</li>
+<li>[[t:time.data.starts.dualSequential]]: two tables, one after the other.</li>
+<li>[[t:time.data.starts.combined]]: an event of the model, named in the system window under [[t:time.system.events.title]], which joins conditions with and, or and not.</li>
+</ul>
+<p>A condition compares a time, a level, a volume, a pressure, a flow, a velocity, a speed, a head, a Cv, an opening or the state of a pump or valve with a value; it may also compare the difference of a quantity between two places.</p>`,
+          },
+          tanks: {
+            title: 'Tanks and gas vessels',
+            body: `<p>A reservoir keeps its level, unless its section [[t:time.tank.title]] makes it a finite tank: its level then comes from the flows that enter and leave it.</p>
+<ul>
+<li>[[t:time.tank.models.open]] or [[t:time.tank.models.closed]]: in a closed tank the gas over the liquid is compressed and expanded by the level, with its [[t:time.tank.gasN]], between the [[t:time.tank.pMax]] and the [[t:time.tank.pMin]], both optional.</li>
+<li>[[t:time.tank.bottom]], [[t:time.tank.height]] and [[t:time.tank.shape]]: constant, a table of volume by height, or a horizontal cylinder.</li>
+<li>[[t:time.tank.knownLevel]] and [[t:time.tank.knownPressure]]: one of them may be left for the network, which gives it in the first step.</li>
+</ul>
+<p>A full tank overflows; an empty one, or one whose surface falls below a pipe that would draw from it, closes that pipe, which opens again when the liquid covers it or the network pushes liquid in. A demand left without supply is counted apart. The drawing marks finite tanks with a small clock.</p>
+<h4>Gas vessels</h4>
+<p>In the compressible mode the section is [[t:time.vessel.title]]: [[t:time.vessel.models.finite]], with its [[t:time.vessel.volume]]. Its mass follows the gas that enters and leaves it, and its pressure and temperature follow its mass: a constant temperature in the isothermal model, the energy of the gas in the adiabatic one, without heat through the walls. A gas is always integrated with the forward method.</p>`,
+          },
+          results: {
+            title: 'Results over time',
+            body: `<p>The time cursor, beside the tabs, picks the step that the drawing, the tables, the cards and the panels show: first, previous, play, next, last, or the slider. Every result of the app then shows that step.</p>
+<ul>
+<li>[[t:time.results.tabs.series]]: every recorded step of one object, with the columns and units of its table. A click on a row takes the cursor there.</li>
+<li>[[t:time.results.tabs.events]]: the event log, by time or by object: tables that start, pumps that start and stop, valves that open and close, tanks that fill or empty, pipes closed by a tank, demands without supply.</li>
+<li>[[t:time.results.tabs.extremes]]: the highest and lowest values of each object, and when they came.</li>
+<li>[[t:time.results.tabs.totals]]: the energy of the pumps and its cost, the volumes or masses pumped and delivered, starts and time running, and the balance of every tank, every vessel and the network.</li>
+</ul>
+<p>The chart [[t:charts.tabs.time]] draws series chosen by object and quantity, one panel per unit. The Excel export adds a sheet per kind of object and the event log. The results of a run are not saved with the model: they come back with the next calculation.</p>`,
           },
         },
       },

@@ -30,7 +30,8 @@
     $('#scenario-select').addEventListener('change', (e) => {
       app.model.scenarios.current = e.target.value;
       app.save();
-      if (!app.currentResults()) app.recalc();
+      if (!app.steadyResults()) app.recalc();
+      else if (!app.timeResult() && !app.timeProgress()) app.startTime();
       app.renderAll();
     });
     $('#btn-scn-add').addEventListener('click', () => askText(t('app.scenario.newTitle'), t('app.scenario.newLabel', { parent: app.scenario().name }), '', (name) => {

@@ -11,7 +11,8 @@
     return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p;
   }
 
-  // generic line chart: o = { title, xLabel, yLabel, xMin, yMin, series: [{ name, pts, color, dash, width, marker }], points }
+  // generic line chart: o = { title, xLabel, yLabel, xMin, yMin, series: [{ name, pts, color, dash, width, marker }], points,
+  // xTick (optional: the text of a tick of the x axis, from its value) }
   function lineChart(o) {
     const W = 880, Hh = 400, L = 70, R = 24, T = 18, B = 52;
     const all = o.series.flatMap((s) => s.pts).concat((o.points || []).map((p) => [p.x, p.y])).filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1]));
@@ -28,7 +29,7 @@
     const Y = (y) => T + (1 - (y - y0) / (y1 - y0)) * (Hh - T - B);
     let g = '';
     for (let v = y0; v <= y1 + ys / 2; v += ys) g += `<line class="gridline" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${tick(v, ys)}</text>`;
-    for (let v = x0; v <= x1 + xs / 2; v += xs) g += `<line class="gridline" y1="${T}" y2="${Hh - B}" x1="${X(v)}" x2="${X(v)}" opacity=".5"/><text x="${X(v)}" y="${Hh - B + 17}" text-anchor="middle">${tick(v, xs)}</text>`;
+    for (let v = x0; v <= x1 + xs / 2; v += xs) g += `<line class="gridline" y1="${T}" y2="${Hh - B}" x1="${X(v)}" x2="${X(v)}" opacity=".5"/><text x="${X(v)}" y="${Hh - B + 17}" text-anchor="middle">${o.xTick ? F.esc(o.xTick(v)) : tick(v, xs)}</text>`;
     g += `<line class="axis" x1="${L}" x2="${W - R}" y1="${Hh - B}" y2="${Hh - B}"/><line class="axis" x1="${L}" x2="${L}" y1="${T}" y2="${Hh - B}"/>`;
     g += `<text class="axis-label" x="${(L + W - R) / 2}" y="${Hh - 10}" text-anchor="middle">${F.esc(o.xLabel)}</text>`;
     g += `<text class="axis-label" transform="translate(16 ${(T + Hh - B) / 2}) rotate(-90)" text-anchor="middle">${F.esc(o.yLabel)}</text>`;

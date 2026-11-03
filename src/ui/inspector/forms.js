@@ -61,10 +61,13 @@
     return f;
   }
 
-  function unitOptions(cat, current) {
+  // only (optional): a test of the units offered (the flows of a gas over time leave out the volumes at the conditions of
+  // the pipe)
+  function unitOptions(cat, current, only) {
     // a flow: mass or volume; for a gas (compressible mode) also a normal volume (§8.4)
     const gas = cat === 'flow' && PumpIt.model.isCompressible(app.eff());
-    const units = cat === 'flow' ? U.list('massFlow').concat(U.list('volFlow'), gas ? U.list('normFlow') : []) : U.list(cat);
+    let units = cat === 'flow' ? U.list('massFlow').concat(U.list('volFlow'), gas ? U.list('normFlow') : []) : U.list(cat);
+    if (only) units = units.filter(only);
     if (current && !units.includes(current)) units.unshift(current);
     return units.map((u) => `<option value="${F.esc(u)}"${u === current ? ' selected' : ''}>${F.esc(F.unit(u))}</option>`).join('');
   }

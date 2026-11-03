@@ -184,13 +184,14 @@
       }
     }
     const sc = scales(prep);
-    let st = S.initialStates(prep);
+    // states to start from and parts without supply left out: options of the time simulation (as for a liquid)
+    let st = S.initialStates(prep, opts.states);
     const seen = new Set();
     let res = null, cycling = false, pass = 0, totalIt = 0, guess = null;
     const allHist = [];
     for (pass = 0; pass < 50; pass++) {
       S.configure(prep, st);
-      const errs = S.analyze(prep);
+      const errs = S.analyze(prep, opts);
       if (errs.length) return { ok: false, errors: errs, warnings: prep.warnings };
       seen.add(JSON.stringify(st));
       if (!guess) guess = opts.guess || initialGuess(prep, sc);

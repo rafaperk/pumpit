@@ -38,6 +38,12 @@
       s.appendChild(f.chk(key, 'alwaysControl', tx('form.alwaysControl')));
       s.appendChild(f.num(key, 'kOpen', tx('form.kOpen')));
       s.appendChild(f.sel(key, 'special', tx('form.special'), [['none', tx('form.specialNone')], ['closed', tx('form.specialClosed')], ['open', tx('form.specialOpen')]]));
+      // an optional characteristic, for the opening in the results
+      s.appendChild(f.sel(key, 'char', tx('form.char'), [['none', tx('form.charNone')], ['linear', t('junctions.lossModel.chars.linear')], ['equalPct', t('junctions.lossModel.chars.equalPct')]], { info: tx('form.charHint') }));
+      if (j.char && j.char !== 'none') {
+        s.appendChild(f.num(key, 'CvMax', t('junctions.lossModel.CvMax'), { info: t('junctions.lossModel.CvHint') }));
+        if (j.char === 'equalPct') s.appendChild(f.num(key, 'R', t('junctions.lossModel.R')));
+      }
     },
 
     summary: (j, q) => `${j.ctype} ${j.ctype === 'FCV' ? q(j.setQ) : j.ctype === 'PDCV' ? q(j.setDP) : q(j.setP)}`,

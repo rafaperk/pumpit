@@ -201,7 +201,7 @@
 
     const order = { critical: 0, warning: 1, caution: 2, info: 3 };
     W.sort((a, b) => order[a.level] - order[b.level]);
-    return {
+    const out = {
       ok: true, regime: 'compressible', gasMode: env.mode, converged: res.converged, iterations: meta.totalIt, passes: meta.passes,
       history: meta.hist,
       fluid: {
@@ -209,6 +209,9 @@
       },
       patm: env.patm, g: env.g, pipes, junctions, pumps, valves, states: st, warnings: W,
     };
+    // the parts left without supply (an option of the time simulation)
+    if (prep.unsupplied) out.unsupplied = prep.unsupplied;
+    return out;
   }
 
   Object.assign(PumpIt.gas, { postprocess });

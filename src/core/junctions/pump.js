@@ -1,6 +1,8 @@
 // Pump: head curve H(Q) scaled by speed (affinity laws) and number of identical pumps in parallel.
 // Modes: curve; fixed flow (sizing, no curve needed); flow, discharge-pressure or suction-pressure control
-// (the speed that meets the set point is reported). States: on, off with flow through, off and closed.
+// (the speed that meets the set point is reported). States: on, off with flow through, off and closed. On its curve, a
+// pump may hold a check valve (noReverse, §7.4 of the time simulation): it closes when the flow would go back, and opens
+// again when the head of the pump at no flow overcomes the pressure against it.
 (function (root) {
   const PumpIt = root.PumpIt;
   const { t } = PumpIt.i18n;
@@ -47,15 +49,34 @@
     else if (j.mode === 'controlFlow') { lk.mode = 'fixedFlow'; lk.value = si(j.setQ, 'flow'); lk.controlled = true; }
     else if (j.mode === 'controlDischarge') { lk.mode = 'pDown'; lk.value = si(j.setP, 'pressure'); lk.dynPipe = Pout; lk.controlled = true; }
     else if (j.mode === 'controlSuction') { lk.mode = 'pUp'; lk.value = si(j.setP, 'pressure'); lk.dynPipe = Pin; lk.controlled = true; }
+    if (j.noReverse && j.state === 'on' && j.mode === 'curve' && lk.Hof) lk.device = checkDevice(lk);
   }
 
-  function pumpResult(env, el, j, jr, warn) {
+  // the check valve of a pump on its curve: 'run' as built, or 'shut' (closed); it closes at a reverse flow and opens
+  // again when the pressure the pump gives at no flow reaches what holds it closed (§7.4). The small margins keep it from
+  // chattering on a flow or a difference that is zero but for rounding
+  function checkDevice(lk) {
+    const phi = lk.phi, mode = lk.mode;
+    return {
+      anyway: true,
+      initial: () => 'run',
+      configure(l, s) { if (s === 'shut') l.mode = 'closed'; else { l.mode = mode; l.phi = phi; } },
+      review(l, sol, st, next, env) {
+        if (st[l.jid] === 'run') { if (sol.m[l.idx] < -1e-9 * l.mref) next[l.jid] = 'shut'; }
+        else if (sol.P[l.a] - sol.P[l.b] + env.rho * env.g * l.Hof(0) > 1e-3) next[l.jid] = 'run';
+      },
+    };
+  }
+
+  function pumpResult(env, el, j, jr, warn, st) {
     const { rho, g, pv } = env;
     const m = jr.m, Q = m / rho;
     const dP = jr.P0out - jr.P0in;
     const dH = dP / (rho * g);
     const r = { m, Q, dP, dH, speed: j.speed, state: j.state, mode: j.mode, NPSHA: (jr.P0in - pv) / (rho * g) };
     if (j.state !== 'on') { r.speed = 0; r.NPSHA = NaN; return r; }
+    // a pump held by its check valve: running, against it, without flow
+    if (el.device) r.checkClosed = st && st[j.id] === 'shut';
     if (j.mode === 'fixedFlow') {
       // sizing: reports the required head; without a curve there is no speed, efficiency or NPSHR
       r.speed = NaN; r.eta = NaN; r.etaAssumed = true;
@@ -70,8 +91,9 @@
       const target = dH;
       const f = (sp) => sp * sp * H.evalCurve(el.curve, Q / (el.N * sp)) - target;
       let lo = 0.01, hi = 3;
-      if (f(hi) < 0) { s = NaN; warn('warning', t('junctions.pump.warn.speedTooHigh', { id: j.id }), 'j:' + j.id); }
-      else if (f(lo) > 0) { s = lo; warn('warning', t('junctions.pump.warn.speedTooLow', { id: j.id }), 'j:' + j.id); }
+      r.control = 'ok';
+      if (f(hi) < 0) { s = NaN; r.control = 'high'; warn('warning', t('junctions.pump.warn.speedTooHigh', { id: j.id }), 'j:' + j.id); }
+      else if (f(lo) > 0) { s = lo; r.control = 'low'; warn('warning', t('junctions.pump.warn.speedTooLow', { id: j.id }), 'j:' + j.id); }
       else {
         for (let i = 0; i < 80; i++) { const mid = (lo + hi) / 2; if (f(mid) > 0) hi = mid; else lo = mid; }
         s = (lo + hi) / 2;
@@ -133,7 +155,35 @@
 
     buildElement,
 
-    elementResults(j, jr, rc) { rc.pumps[j.id] = pumpResult(rc.env, rc.el, j, jr, rc.warn); },
+    elementResults(j, jr, rc) { rc.pumps[j.id] = pumpResult(rc.env, rc.el, j, jr, rc.warn, rc.st); },
+
+    // time simulation: what a table drives depends on the mode. On the curve, the speed (%), where 0 or less stops the
+    // pump (stopMode: 'closed' blocks the flow, the default, or 'open' lets it through); in fixed flow, the flow; under
+    // control, the set point; a compressor of the compressible mode at a fixed ratio, its pressure ratio (§11), where 0 or
+    // less stops it as the speed does. Once its table applies, the pump runs (the special condition no longer applies).
+    time: {
+      results: 'pumps', states: ['on', 'off'], log: 'pump',
+      quantities(j) {
+        const on = (jc) => { jc.state = 'on'; };
+        const stop = (jc) => { jc.state = jc.stopMode === 'open' ? 'offOpen' : 'offClosed'; };
+        if (j.mode === 'curve') {
+          return [{
+            what: 'speed', cat: 'percent', min: 0, steady: (x) => x.speed,
+            apply(jc, v) { if (v > 0) { on(jc); jc.speed = v; } else stop(jc); },
+          }];
+        }
+        if (j.mode === 'ratio') return [{ what: 'ratio', cat: 'none', min: 0, steady: (x) => x.ratio, apply(jc, v) { if (v > 0) { on(jc); jc.ratio = v; } else stop(jc); } }];
+        if (j.mode === 'fixedFlow') return [{ what: 'Q', cat: 'flow', min: 0, noNegative: true, steady: (x, si) => si(x.fixedFlow, 'flow'), apply: (jc, v) => { on(jc); jc.fixedFlow = q(v, 'kg/s'); } }];
+        if (j.mode === 'controlFlow') return [{ what: 'set', cat: 'flow', min: 0, noNegative: true, steady: (x, si) => si(x.setQ, 'flow'), apply: (jc, v) => { on(jc); jc.setQ = q(v, 'kg/s'); } }];
+        if (j.mode === 'controlDischarge' || j.mode === 'controlSuction') return [{ what: 'set', cat: 'pressure', steady: (x, si) => si(x.setP, 'pressure'), apply: (jc, v) => { on(jc); jc.setP = q(v, 'Pa(a)'); } }];
+        return [];
+      },
+      // running: on, and in fixed flow with a flow (a fixed flow of 0 counts as stopped)
+      isOn: (jc) => jc.state === 'on' && !(jc.mode === 'fixedFlow' && !(jc.fixedFlow && jc.fixedFlow.value > 0)),
+      stateOf(jc) { return this.isOn(jc) ? 'on' : 'off'; },
+      // its check valve, when it has one: 'open' or 'closed'
+      checkOf: (jc, sol) => (sol && sol.states && sol.states[jc.id] ? (sol.states[jc.id] === 'shut' ? 'closed' : 'open') : undefined),
+    },
 
     // compressible mode: the pump is a compressor or a blower (§10.5)
     gas: { element: gasElement, results: gasResults },

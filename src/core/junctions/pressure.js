@@ -21,6 +21,11 @@
       return net.addNode({ kind: j.ptype === 'static' ? 'fixedStatic' : 'fixed', value: P, z, jid: j.id });
     },
 
+    // time simulation: the pressure follows a table
+    time: {
+      quantities: () => [{ what: 'P', cat: 'pressure', steady: (j, si) => si(j.P, 'pressure'), apply: (jc, v) => { jc.P = q(v, 'Pa(a)'); } }],
+    },
+
     // compressible mode: a fixed pressure, static or stagnation as chosen (the pipe relations convert at its end)
     gas: {
       node: (j, net, z) => net.addNode({ kind: 'fixed', value: net.si(j.P, 'pressure'), pk: j.ptype === 'static' ? 'static' : 'stagnation', z, jid: j.id, T0: net.sourceT(j) }),

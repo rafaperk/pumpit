@@ -55,6 +55,7 @@
     const sel = app.selSet;
     const undef = app.undefSet();
     const gas = PumpIt.model.isCompressible(app.eff());
+    const timeOn = app.timeOn();
     CS.syncPicker(document.getElementById('overlay-select'), gas, app.prefs.overlay);
     const ovKey = CS.offered(app.prefs.overlay, gas) ? app.prefs.overlay : 'none';
     const ov = CS.overlayValues(res, ovKey);
@@ -148,8 +149,13 @@
         const v = ovKey === 'HGL' ? jr.HGL : jr.Pin;
         val = ovKey === 'HGL' ? fmtOv(v, 'head') + ' ' + F.unit(unitOf('head')) : fmtOv(v, 'pressure') + ' ' + F.unit(unitOf('pressure'));
       }
+      // a junction with time data, or a finite tank: a small clock, while the time simulation is on
+      // (a finite tank for a liquid, a finite vessel for a gas)
+      const finite = gas ? PumpIt.time.vessels.isFinite(effJ) : PumpIt.time.tanks.isFinite(effJ);
+      const timed = timeOn && (PumpIt.time.inputs.active(effJ) || finite);
+      const mark = timed ? `<g class="j-time" transform="translate(15 -15)"><title>${F.esc(t(finite ? (gas ? 'time.drawing.vessel' : 'time.drawing.tank') : 'time.drawing.data'))}</title><circle r="5.6"/><path d="M0 -3.2V0L2.3 1.6"/></g>` : '';
       out += `<g class="${cls.join(' ')}" data-j="${j.id}" transform="translate(${j.x} ${j.y})">
-        <circle class="j-bg" r="${R}"/>
+        <circle class="j-bg" r="${R}"/>${mark}
         <g class="j-sym" transform="rotate(${rot})">${views.get(j.type).symbol || ''}</g>
         <text class="j-label" y="28" text-anchor="middle">J${j.id}</text>
         ${name}

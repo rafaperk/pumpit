@@ -22,6 +22,14 @@ PumpIt.i18n.add('es', {
       Kv: 'Kv (métrico)',
       CvHint: 'ΔP[psi] = SG·(Q[gpm]/Cv)², SG relativa al agua a 60 °F.',
       KvHint: 'ΔP[bar] = SG·(Q[m³/h]/Kv)².',
+      opening: 'Apertura y característica',
+      CvMax: 'Cv totalmente abierta',
+      char: 'Característica',
+      chars: { linear: 'Lineal', equalPct: 'Igual porcentaje' },
+      R: 'Rangeabilidad',
+      open: 'Apertura',
+      openHint: 'Lineal: Cv = Cv totalmente abierta × apertura. Igual porcentaje: Cv = Cv totalmente abierta × R^(apertura − 1), con la apertura de 0 a 1; una apertura de 0 cierra la válvula. Una tabla de la simulación en el tiempo puede mandar la apertura.',
+      check: { CvMax: 'Cv totalmente abierta', char: 'característica', R: 'rangeabilidad mayor que 1', open: 'apertura de 0 a 100 %' },
     },
 
     reservoir: {
@@ -145,6 +153,8 @@ PumpIt.i18n.add('es', {
         setQ: 'Caudal de control',
         setP: 'Presión estática de control',
         nPumps: 'Bombas iguales en paralelo',
+        noReverse: 'Retención (sin flujo inverso)',
+        noReverseHint: 'La bomba se cierra cuando el caudal volvería, y se abre de nuevo cuando su altura sin caudal vence la presión en su contra. Solo en su curva.',
         affinityHint: 'La velocidad necesaria se calcula con las leyes de afinidad, H(Q; s) = s²·H(Q/s).',
       },
       curves: {
@@ -193,6 +203,20 @@ PumpIt.i18n.add('es', {
       summaryClosed: ' · cerrada',
     },
 
+    check: {
+      label: 'Válvula de retención',
+      check: { vClose: 'velocidad de cierre', dPopen: 'diferencia de presión de reapertura, cero o más' },
+      form: {
+        hint: 'Deja pasar el caudal solo en el sentido de referencia de la válvula. Abierta, la pérdida es la de su modelo de pérdida.',
+        vClose: 'Cierra por debajo de la velocidad',
+        vCloseHint: 'La válvula se cierra cuando la velocidad en su sentido, en la tubería que llega, baja de este valor (0: cuando el caudal volvería).',
+        dPopen: 'Abre con la diferencia de presión',
+        dPopenHint: 'Cerrada, la válvula se abre de nuevo cuando la presión antes de ella supera la de después en esta diferencia.',
+        closed: 'Válvula cerrada',
+      },
+      summaryClosed: ' · cerrada',
+    },
+
     control: {
       label: 'Válvula de control',
       check: { setP: 'presión de ajuste', setQ: 'caudal de ajuste', setDP: 'caída de presión de ajuste', kOpen: 'K totalmente abierta' },
@@ -220,6 +244,9 @@ PumpIt.i18n.add('es', {
         setDP: 'Caída de presión de ajuste',
         alwaysControl: 'Controlar siempre (puede añadir presión, con aviso)',
         kOpen: 'K totalmente abierta',
+        char: 'Característica (para la apertura)',
+        charNone: 'Ninguna',
+        charHint: 'Con el Cv totalmente abierta y la característica, los resultados dan la apertura de la válvula (y un evento de la simulación en el tiempo puede probarla).',
         special: 'Condición especial',
         specialNone: 'Normal',
         specialClosed: 'Cerrada',

@@ -46,6 +46,8 @@
     else if (!r) st.textContent = '';
     else if (!r.ok) st.textContent = r.errors[0];
     else st.textContent = t(r.converged ? 'app.status.lineConverged' : 'app.status.lineNotConverged', { n: r.iterations, ms: r.elapsed.toFixed(0) });
+    // a narrow window cuts the line short: its whole text stays in the tip
+    st.title = st.textContent;
     // the badge counts what needs attention (information alone does not)
     const badge = $('#out-badge');
     const shown = r && r.ok ? r.warnings.filter((w) => w.level !== 'info') : [];
@@ -54,6 +56,7 @@
       badge.textContent = shown.length;
       badge.className = 'badge' + (shown.some((w) => w.level === 'critical') ? ' crit' : '');
     } else badge.hidden = true;
+    UI.timeBar.render();
   }
 
   function bind() {

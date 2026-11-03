@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pump It</title>
 <meta name="author" content="Rafael Perktold">
-<meta name="description" content="Steady-state pipe network simulator, written as a clean-room implementation from public methods." data-i18n-content="app.page.description">
+<meta name="description" content="Pipe network simulator, in steady state and over time, written as a clean-room implementation from public methods." data-i18n-content="app.page.description">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="src/ui/styles/documents.css">
 <link rel="stylesheet" href="src/ui/styles/overlays.css">
 <link rel="stylesheet" href="src/ui/styles/help.css">
+<link rel="stylesheet" href="src/ui/styles/time.css">
 <link rel="stylesheet" href="src/ui/styles/responsive.css">
 <!-- Light and dark mode: loaded before the page, so a chosen mode shows from the first paint -->
 <script src="src/ui/topbar/theme.js" charset="utf-8"></script>
@@ -27,6 +28,9 @@
       <span class="brand-name">Pump It</span>
       <input id="model-title" class="title-input" type="text" aria-label="Model title" spellcheck="false" data-i18n-aria-label="app.page.titleInput">
       <button id="regime-stamp" class="stamp" type="button" title="Calculation regime: click to open the system properties" data-i18n-title="app.stamp.title"></button>
+      <!-- the time simulation: its stamp, the progress of its run and the button that stops it (src/ui/time/bar.js) -->
+      <button id="time-stamp" class="stamp time" type="button" hidden></button>
+      <button id="time-cancel" class="btn ghost icon time-cancel" type="button" hidden><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M4 4h8v8H4z" fill="currentColor"/></svg></button>
     </div>
 
     <nav class="menus" aria-label="Menus" data-i18n-aria-label="app.page.menus">
@@ -133,6 +137,8 @@
     <button role="tab" class="tab" data-view="out" data-i18n="app.tabs.out">Results <span class="badge" id="out-badge" hidden></span></button>
     <button role="tab" class="tab" data-view="charts" data-i18n="app.tabs.charts">Charts</button>
     <div class="tab-spacer"></div>
+    <!-- the time cursor of the time simulation (src/ui/time/bar.js) -->
+    <div class="timebar" id="timebar" role="group" hidden></div>
     <div class="status" id="status-line"></div>
   </div>
 
@@ -268,11 +274,12 @@
         <div class="doc-head row">
           <div>
             <h2 data-i18n="charts.title">Charts</h2>
-            <p class="muted" data-i18n="charts.intro">Pump curve against the system curve, or a profile of the grade lines along a path.</p>
+            <p class="muted" data-i18n="charts.intro">Pump curve against the system curve, a profile of the grade lines along a path, or the results of a time simulation.</p>
           </div>
           <div class="seg" id="chart-tabs" role="tablist">
             <button data-chart="pump" class="on" data-i18n="charts.tabs.pump">Pump × system</button>
             <button data-chart="profile" data-i18n="charts.tabs.profile">Profile</button>
+            <button data-chart="time" data-i18n="charts.tabs.time" hidden>Over time</button>
           </div>
         </div>
         <div class="chart-controls" id="chart-controls"></div>
@@ -307,6 +314,7 @@
 <script src="src/i18n/pt-BR/results.js" charset="utf-8"></script>
 <script src="src/i18n/pt-BR/charts.js" charset="utf-8"></script>
 <script src="src/i18n/pt-BR/help.js" charset="utf-8"></script>
+<script src="src/i18n/pt-BR/time.js" charset="utf-8"></script>
 <script src="src/i18n/en/language.js" charset="utf-8"></script>
 <script src="src/i18n/en/core.js" charset="utf-8"></script>
 <script src="src/i18n/en/junctions.js" charset="utf-8"></script>
@@ -318,6 +326,7 @@
 <script src="src/i18n/en/results.js" charset="utf-8"></script>
 <script src="src/i18n/en/charts.js" charset="utf-8"></script>
 <script src="src/i18n/en/help.js" charset="utf-8"></script>
+<script src="src/i18n/en/time.js" charset="utf-8"></script>
 <script src="src/i18n/es/language.js" charset="utf-8"></script>
 <script src="src/i18n/es/core.js" charset="utf-8"></script>
 <script src="src/i18n/es/junctions.js" charset="utf-8"></script>
@@ -329,6 +338,7 @@
 <script src="src/i18n/es/results.js" charset="utf-8"></script>
 <script src="src/i18n/es/charts.js" charset="utf-8"></script>
 <script src="src/i18n/es/help.js" charset="utf-8"></script>
+<script src="src/i18n/es/time.js" charset="utf-8"></script>
 <!-- Calculation core (no DOM; the Node tests load these same files from this list) -->
 <script src="src/core/namespace.js" charset="utf-8"></script>
 <script src="src/core/units.js" charset="utf-8"></script>
@@ -377,10 +387,20 @@
 <script src="src/core/junctions/branch.js" charset="utf-8"></script>
 <script src="src/core/junctions/pump.js" charset="utf-8"></script>
 <script src="src/core/junctions/valve.js" charset="utf-8"></script>
+<script src="src/core/junctions/check-valve.js" charset="utf-8"></script>
 <script src="src/core/junctions/control-valve.js" charset="utf-8"></script>
 <script src="src/core/junctions/exit-valve.js" charset="utf-8"></script>
 <script src="src/core/junctions/orifice.js" charset="utf-8"></script>
 <script src="src/core/junctions/generic.js" charset="utf-8"></script>
+<!-- Time simulation (docs/time-simulation.md) -->
+<script src="src/core/time/tables.js" charset="utf-8"></script>
+<script src="src/core/time/tanks.js" charset="utf-8"></script>
+<script src="src/core/time/vessels.js" charset="utf-8"></script>
+<script src="src/core/time/events.js" charset="utf-8"></script>
+<script src="src/core/time/inputs.js" charset="utf-8"></script>
+<script src="src/core/time/record.js" charset="utf-8"></script>
+<script src="src/core/time/cost.js" charset="utf-8"></script>
+<script src="src/core/time/simulate.js" charset="utf-8"></script>
 <!-- Example models, one file per example -->
 <script src="src/core/examples/examples.js" charset="utf-8"></script>
 <script src="src/core/examples/pump-between-tanks.js" charset="utf-8"></script>
@@ -425,6 +445,7 @@
 <script src="src/ui/junctions/branch.js" charset="utf-8"></script>
 <script src="src/ui/junctions/pump.js" charset="utf-8"></script>
 <script src="src/ui/junctions/valve.js" charset="utf-8"></script>
+<script src="src/ui/junctions/check-valve.js" charset="utf-8"></script>
 <script src="src/ui/junctions/control-valve.js" charset="utf-8"></script>
 <script src="src/ui/junctions/exit-valve.js" charset="utf-8"></script>
 <script src="src/ui/junctions/orifice.js" charset="utf-8"></script>
@@ -492,10 +513,20 @@
 <script src="src/ui/results/column-window.js" charset="utf-8"></script>
 <script src="src/ui/results/results.js" charset="utf-8"></script>
 <script src="src/ui/results/export.js" charset="utf-8"></script>
+<!-- Time simulation: its run, the time cursor, the system control, the time data and tanks in the inspector, the results -->
+<script src="src/ui/time/run.js" charset="utf-8"></script>
+<script src="src/ui/time/bar.js" charset="utf-8"></script>
+<script src="src/ui/time/system.js" charset="utf-8"></script>
+<script src="src/ui/time/point-table.js" charset="utf-8"></script>
+<script src="src/ui/time/data-section.js" charset="utf-8"></script>
+<script src="src/ui/time/events-section.js" charset="utf-8"></script>
+<script src="src/ui/time/tank-section.js" charset="utf-8"></script>
+<script src="src/ui/time/results.js" charset="utf-8"></script>
 <!-- Charts view -->
 <script src="src/ui/charts/line-chart.js" charset="utf-8"></script>
 <script src="src/ui/charts/pump-chart.js" charset="utf-8"></script>
 <script src="src/ui/charts/profile-chart.js" charset="utf-8"></script>
+<script src="src/ui/charts/time-chart.js" charset="utf-8"></script>
 <script src="src/ui/charts/charts.js" charset="utf-8"></script>
 <!-- Start-up (last) -->
 <script src="src/ui/app/main.js" charset="utf-8"></script>

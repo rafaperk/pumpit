@@ -350,7 +350,8 @@ PumpIt.i18n.add('pt-BR', {
 <tr><td></td><td>[[icon:spray]] [[t:junctions.spray.label]]</td><td>1 a 4</td><td>Descarga por uma área efetiva para uma pressão externa</td></tr>
 <tr><td>[[t:junctions.groups.connection]]</td><td>[[icon:branch]] [[t:junctions.branch.label]]</td><td>2 a 25</td><td>Encontro de tubos, com fonte ou consumo opcional</td></tr>
 <tr><td>[[t:junctions.groups.equipment]]</td><td>[[icon:pump]] [[t:junctions.pump.label]]</td><td>2</td><td>Adiciona carga segundo a curva altura × vazão</td></tr>
-<tr><td>[[t:junctions.groups.valves]]</td><td>[[icon:valve]] [[t:junctions.valve.label]]</td><td>2</td><td>Perda por K, Cv ou Kv; pode estar fechada</td></tr>
+<tr><td>[[t:junctions.groups.valves]]</td><td>[[icon:valve]] [[t:junctions.valve.label]]</td><td>2</td><td>Perda por K, Cv, Kv ou uma abertura; pode estar fechada</td></tr>
+<tr><td></td><td>[[icon:check]] [[t:junctions.check.label]]</td><td>2</td><td>Deixa a vazão passar num sentido só</td></tr>
 <tr><td></td><td>[[icon:control]] [[t:junctions.control.label]]</td><td>2</td><td>Mantém uma pressão, uma vazão ou um ΔP</td></tr>
 <tr><td></td><td>[[icon:exitvalve]] [[t:junctions.exitvalve.label]]</td><td>1</td><td>Descarga para uma pressão residual</td></tr>
 <tr><td>[[t:junctions.groups.losses]]</td><td>[[icon:orifice]] [[t:junctions.orifice.label]]</td><td>2</td><td>Placa de orifício</td></tr>
@@ -423,6 +424,7 @@ PumpIt.i18n.add('pt-BR', {
 <li>[[t:junctions.pump.form.modes.fixedFlow]]: a bomba entrega a vazão informada e o cálculo mostra a altura necessária. Não usa curva — é o modo para escolher uma bomba.</li>
 <li>[[t:junctions.pump.form.modes.controlFlow]], [[t:junctions.pump.form.modes.controlDischarge]] e [[t:junctions.pump.form.modes.controlSuction]]: a velocidade se ajusta para manter a vazão ou a pressão estática de ajuste, e o resultado mostra a velocidade necessária.</li>
 <li>[[t:junctions.pump.form.nPumps]]: bombas idênticas lado a lado; cada uma leva a vazão total dividida por N.</li>
+<li>[[t:junctions.pump.form.noReverse]] (na curva): uma retenção na bomba, que fecha quando a vazão voltaria.</li>
 </ul>
 <h4>Curvas</h4>
 <p>Informe pontos da [[t:junctions.pump.curves.head]] e, se quiser, da eficiência e do NPSH requerido. Em cada tabela escolha as unidades e o [[t:inspector.curve.fitType]] (polinômio de ordem 0 a 4 ou interpolação linear); o gráfico ao lado mostra os pontos e a curva ajustada, e o cálculo sempre usa a curva ajustada. Sem curva de eficiência, a potência no eixo é igual à hidráulica.</p>
@@ -434,9 +436,21 @@ PumpIt.i18n.add('pt-BR', {
             body: `<p>[[icon:valve]] Uma válvula, ou qualquer componente em linha com perda localizada conhecida.</p>
 <ul>
 <li>[[t:junctions.lossModel.label]]: [[t:junctions.lossModel.K]], [[t:junctions.lossModel.Cv]] ou [[t:junctions.lossModel.Kv]].</li>
+<li>[[t:junctions.lossModel.opening]]: o Cv totalmente aberta, uma característica linear ou de igual porcentagem e a abertura em %; abertura 0 fecha a válvula. Uma tabela da [[go:time.data|simulação no tempo]] pode comandar a abertura.</li>
 <li>[[t:junctions.valve.form.closed]]: vazão zero. Na vista 3D, a válvula fechada aparece em vermelho.</li>
 </ul>
 <p>Os resultados trazem a queda de pressão, o K efetivo e o Cv equivalente. Para perdas que acompanham o tubo, como curvas e válvulas de bloqueio sempre abertas, também dá para usar a lista de [[go:pipes.fittings|acessórios do tubo]].</p>`,
+          },
+          check: {
+            title: 'Válvula de retenção',
+            body: `<p>[[icon:check]] Uma válvula que deixa a vazão passar só no seu sentido de referência, o do desenho. Precisa de um tubo chegando e outro saindo.</p>
+<ul>
+<li>[[t:junctions.lossModel.label]]: a perda da válvula aberta, por K, Cv ou Kv.</li>
+<li>[[t:junctions.check.form.vClose]]: a válvula fecha quando a velocidade no seu sentido cai abaixo deste valor; 0 a fecha quando a vazão voltaria.</li>
+<li>[[t:junctions.check.form.dPopen]]: fechada, ela abre de novo quando a pressão antes dela passa a de depois por esta diferença.</li>
+<li>[[t:junctions.check.form.closed]]: mantém a válvula fechada.</li>
+</ul>
+<p>O estado, aberta ou fechada, aparece na tabela de válvulas. Numa [[go:time.concept|simulação no tempo]] a válvula fecha e abre dentro do mesmo passo e leva o estado para o seguinte. Uma bomba na curva pode ter a sua própria retenção: [[t:junctions.pump.form.noReverse]]. A retenção é para líquidos: o modo compressível não a aceita.</p>`,
           },
           control: {
             title: 'Válvula de controle',
@@ -605,6 +619,80 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <li>Na aba [[t:app.tabs.data]], as células que diferem do pai ficam destacadas.</li>
 <li>Os botões ao lado da lista renomeiam e excluem o cenário atual, junto com os seus filhos. O cenário Base não pode ser excluído.</li>
 </ul>`,
+          },
+        },
+      },
+
+      time: {
+        title: 'Simulação no tempo',
+        sections: {
+          concept: {
+            title: 'Como funciona',
+            body: `<p>A simulação no tempo acompanha a rede ao longo do tempo: tanques que enchem e esvaziam, bombas que ligam e desligam por nível ou pelo relógio, demandas que seguem um perfil diário, válvulas que abrem e fecham. Ela é uma sequência de regimes permanentes, um por passo de tempo. Entre dois passos as tabelas das junções dão os novos valores, eventos iniciam tabelas e os níveis dos tanques andam com as vazões que entram e saem.</p>
+<ul>
+<li>O primeiro passo é sempre o modelo como está, por isso dá exatamente o resultado do regime permanente.</li>
+<li>Ondas de pressão (golpe de aríete) e a inércia do fluido ficam de fora: cada passo é um regime permanente.</li>
+<li>Vale para um líquido e, no [[go:gas.concept|modo compressível]], para um gás, cujos reservatórios podem ser vasos de volume fixo.</li>
+</ul>
+<p>Depois de cada mudança o regime permanente sai na hora, como sempre, e a simulação no tempo segue em segundo plano. O selo [[t:time.stamp.label]], ao lado do título do modelo, mostra o andamento; um clique nele para a simulação, e o que já foi calculado fica.</p>`,
+          },
+          control: {
+            title: 'Controle do tempo',
+            body: `<p>Na janela [[t:inspector.system.title]], seção [[t:time.system.title]]:</p>
+<ul>
+<li>[[t:time.system.on]]: liga a simulação no cenário. Desligada, os dados no tempo e os tanques ficam guardados e não são usados.</li>
+<li>[[t:time.system.start]], [[t:time.system.stop]] e [[t:time.system.step]]: o relógio. Uma linha abaixo dá o número de passos e a memória da simulação (no máximo 100 000 passos).</li>
+<li>[[t:time.system.saveEvery]]: as séries guardam menos passos; extremos, totais e o registro de eventos continuam usando todos.</li>
+<li>[[t:time.system.method]]: [[t:time.system.methods.forward]] usa o nível do início de cada passo; [[t:time.system.methods.central]] usa o nível médio do passo, por iteração, e é mais preciso com o mesmo passo.</li>
+<li>[[t:time.system.dataEnd]]: manter o último valor ou extrapolar.</li>
+<li>[[t:time.system.exactEvents]] (método progressivo): um evento sobre um nível dispara no instante em que o nível cruza o valor, e não no passo seguinte.</li>
+<li>[[t:time.system.tariff.use]]: um preço por kWh conforme a hora do dia, igual todos os dias, para o custo da energia das bombas.</li>
+</ul>
+<p class="tip"><b>Escolha do passo:</b> um evento faz efeito um passo depois de visto. Use um passo de no máximo metade da rampa mais curta de uma tabela, e curto diante do tempo que um nível leva para ir de um limite ao outro.</p>
+<p>O controle do tempo faz parte da solução do cenário, então um [[go:scenarios.concept|cenário filho]] pode mudá-lo.</p>`,
+          },
+          data: {
+            title: 'Dados no tempo e eventos',
+            body: `<p>Selecione uma junção e, no inspetor, use [[t:time.data.add]] na seção [[t:time.data.title]]. Os dados comandam uma grandeza da junção:</p>
+<ul>
+<li>um reservatório: o nível e a pressão na superfície (um tanque finito, só a pressão na superfície; um fechado, a pressão de alívio);</li>
+<li>uma pressão ou vazão imposta, e a fonte de um nó;</li>
+<li>uma bomba: a rotação na curva (0 a para, como diz [[t:time.data.stopMode]]), a vazão, o ajuste ou, num compressor, a razão de compressão;</li>
+<li>uma válvula ou válvula de saída: o K, o Cv ou o Kv, ou a abertura; uma válvula de controle: o ajuste; um bocal: a área efetiva.</li>
+</ul>
+<p>A tabela dá valores em função do tempo, digitados ou colados de uma planilha com [[t:time.points.paste]]. Os valores são absolutos ou [[t:time.data.bases.relative]]; entre os pontos, reta ou degraus; repetida, uma tabela faz um perfil diário, por exemplo. Com um gás, uma vazão é mássica ou em volume normal (Nm³).</p>
+<h4>Quando uma tabela vale</h4>
+<ul>
+<li>[[t:time.data.starts.time]]: a partir do segundo passo.</li>
+<li>[[t:time.data.starts.single]]: quando uma condição vale, como um nível abaixo de um valor ou uma bomba que para; a tabela vale a partir do passo seguinte e o seu tempo conta desde o evento.</li>
+<li>[[t:time.data.starts.dualCyclic]]: duas condições e duas tabelas que se alternam, como ligar num nível baixo e desligar num alto.</li>
+<li>[[t:time.data.starts.dualSequential]]: duas tabelas, uma depois da outra.</li>
+<li>[[t:time.data.starts.combined]]: um evento do modelo, com nome, criado na janela do sistema em [[t:time.system.events.title]], que junta condições com e, ou e não.</li>
+</ul>
+<p>Uma condição compara com um valor um tempo, um nível, um volume, uma pressão, uma vazão, uma velocidade, uma rotação, uma altura, um Cv, uma abertura ou o estado de uma bomba ou válvula; ela também pode comparar a diferença de uma grandeza entre dois lugares.</p>`,
+          },
+          tanks: {
+            title: 'Tanques e vasos de gás',
+            body: `<p>Um reservatório mantém o nível, a não ser que a sua seção [[t:time.tank.title]] o torne um tanque finito: aí o nível vem das vazões que entram e saem.</p>
+<ul>
+<li>[[t:time.tank.models.open]] ou [[t:time.tank.models.closed]]: num tanque fechado o gás sobre o líquido é comprimido e expandido pelo nível, com o seu [[t:time.tank.gasN]], entre a [[t:time.tank.pMax]] e a [[t:time.tank.pMin]], ambas opcionais.</li>
+<li>[[t:time.tank.bottom]], [[t:time.tank.height]] e [[t:time.tank.shape]]: constante, uma tabela de volume por altura, ou um cilindro horizontal.</li>
+<li>[[t:time.tank.knownLevel]] e [[t:time.tank.knownPressure]]: um dos dois pode ficar para a rede, que o dá no primeiro passo.</li>
+</ul>
+<p>Um tanque cheio transborda; um vazio, ou um cuja superfície desce abaixo de um tubo que tiraria líquido dele, fecha esse tubo, que abre de novo quando o líquido o cobre ou quando a rede empurra líquido para dentro. Uma demanda que fica sem suprimento é contada à parte. O desenho marca os tanques finitos com um pequeno relógio.</p>
+<h4>Vasos de gás</h4>
+<p>No modo compressível a seção é [[t:time.vessel.title]]: [[t:time.vessel.models.finite]], com o seu [[t:time.vessel.volume]]. A massa acompanha o gás que entra e sai, e a pressão e a temperatura acompanham a massa: temperatura constante no modelo isotérmico, a energia do gás no adiabático, sem calor pelas paredes. Um gás é sempre integrado pelo método progressivo.</p>`,
+          },
+          results: {
+            title: 'Resultados no tempo',
+            body: `<p>O cursor de tempo, ao lado das abas, escolhe o passo que o desenho, as tabelas, os cartões e os painéis mostram: primeiro, anterior, reproduzir, próximo, último, ou o controle deslizante. Todo resultado do programa passa a mostrar esse passo.</p>
+<ul>
+<li>[[t:time.results.tabs.series]]: cada passo gravado de um objeto, com as colunas e unidades da sua tabela. Um clique numa linha leva o cursor até ela.</li>
+<li>[[t:time.results.tabs.events]]: o registro de eventos, por tempo ou por objeto: tabelas que começam, bombas que ligam e desligam, válvulas que abrem e fecham, tanques que enchem ou esvaziam, tubos fechados por um tanque, demandas sem suprimento.</li>
+<li>[[t:time.results.tabs.extremes]]: os maiores e menores valores de cada objeto, e quando ocorreram.</li>
+<li>[[t:time.results.tabs.totals]]: a energia das bombas e o seu custo, os volumes ou massas bombeados e entregues, partidas e tempo ligado, e o balanço de cada tanque, de cada vaso e da rede.</li>
+</ul>
+<p>O gráfico [[t:charts.tabs.time]] desenha séries escolhidas por objeto e grandeza, um painel por unidade. A exportação para Excel acrescenta uma planilha por tipo de objeto e o registro de eventos. Os resultados de uma simulação não são salvos com o modelo: eles voltam no cálculo seguinte.</p>`,
           },
         },
       },

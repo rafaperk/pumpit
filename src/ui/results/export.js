@@ -1,5 +1,6 @@
 // Result exports: any result table as tab-separated text (to paste into a spreadsheet) and every result table as a
-// sheet of one .xlsx file, with the columns, order and units chosen for the screen (column-setup.js).
+// sheet of one .xlsx file, with the columns, order and units chosen for the screen (column-setup.js). With a run of the
+// time simulation, the tables are those of the step of the time cursor, and the series and the event log follow.
 (function (root) {
   const PumpIt = root.PumpIt;
   const UI = PumpIt.ui;
@@ -64,7 +65,7 @@
   app.exportResultsXlsx = () => {
     const res = app.okResults();
     if (!res) { app.toast(t('results.export.noResults')); return; }
-    const blob = UI.xlsx.workbook({ sheets: sheets(res, app.eff()) });
+    const blob = UI.xlsx.workbook({ sheets: sheets(res, app.eff()).concat(UI.timeResults.sheets()) });
     const { saveFile, safeName } = UI.download;
     saveFile(`${safeName(app.model.title)} - ${safeName(app.scenario().name)} - ${t('results.export.fileSuffix')}.xlsx`, blob);
   };

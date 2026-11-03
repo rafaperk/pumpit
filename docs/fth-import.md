@@ -25,10 +25,9 @@ The description came with a reference reader and synthetic tests written for ano
 
 - an add-on module switched on (a key "XYZ Use" other than 0);
 - goal seek and control (variables applied in a three-letter control section);
-- time simulation (AnalysisType 2);
 - automatic sizing (OptimizationLevel above 0).
 
-Their data are not imported, and each one has a note. With sizing, the stored results may belong to other diameters, so they are not used for the losses of F-21 and F-23.
+Their data are not imported, and each one has a note. The time simulation (AnalysisType 2) is read, from Annex A of its own specification (F-34 to F-41). With sizing, the stored results may belong to other diameters, so they are not used for the losses of F-21 and F-23.
 
 ## Units
 
@@ -152,6 +151,26 @@ A path that gains pressure gets a negative K, which goes into the fittings of it
 
 **F-32 Opening.** *File → Open* accepts `.json`, `.fth` and `.aro` (docs/aro-import.md); a file dropped anywhere on the window opens the same way. A `.fth` file with several scenarios first shows them to choose from. Undo brings back the model that was open before.
 
+## Time simulation
+
+The time control, the time data of the junctions and the finite tanks follow Annex A of the specification of the time simulation (*Simulação no tempo*, version 1.0 of 2 November 2026; [time-simulation.md](time-simulation.md)), under the rules of F-01: the specification team wrote it from the example files of the reference, and nothing here was taken from a file.
+
+**F-34 Time control.** `AnalysisType` 2 in the settings (`ANALYSISTYPE` in the settings of a child scenario) turns the time simulation on, with a note; 1 leaves it off and its control is still read. The section `[TRANSIENT CONTROL]` gives the start, the end and the step in their units of time (seconds, minutes and hours, also days, weeks and years, a year taken as 365 days), `Frequency` as the recording interval and `DifferenceMethod` 0 as the forward method and 1 as the central one (both inferred by the specification; another code is the forward method, with a note), with the tolerances, the iterations and the relaxation of the central method. A child scenario adds the keys its own section changes, in capitals. An end of −1 is not set: it is left blank, with a note that asks for it. `TotalSteps` is only a check of the file and is not read.
+
+**F-35 Place of the time data.** The block of the time data of a junction (Annex A.2) moves with the kind of the junction, its number of pipes and, in a pump, the size of its curves, so it is found by its shape: a trigger from 0 to 3; two events of eight fields, each with an integer kind and comparison, a numeric value and a unit written out; a text; and a first table that starts with the marker 1, a count and a unit of time. The search starts two fields before the first place seen for the kind (b+81 for an imposed flow, b+110 for a valve, b+97 for a control valve, b+138 for a pump; b+89, b+92, b+103 and b+111 for a branch with two pipes, an imposed pressure, a nozzle and a reservoir with one pipe, plus 3 or 5 fields for each further pipe) and goes 60 fields on. A record without such a block has no time data. The trigger is 0 by the clock, 1 one event, 2 two cyclic events and 3 two events in sequence (3 inferred by the specification).
+
+**F-36 Events.** An event of kind 0 is the time; one of kind 21 is the level of a reservoir, whose ID is the object of the event. The comparisons 0, 1 and 3 are >, ≥ and ≤; 2 is taken as < (inferred by the specification). An event of kind 25 is the opening (%) of the control valve whose ID is its object: it comes in as a condition on the opening, with a note, since the file does not give the characteristic of the valve that an opening needs (the checklist then asks for it; T-26 of [time-simulation.md](time-simulation.md)). Another kind or another comparison leaves out the time data of its junction, with a note. The fields f5, f7 and f8 of an event are not decoded and are not read.
+
+**F-37 Quantity of a table.** When a junction takes more than one quantity the file does not say which one a table drives, so it is chosen by the mode of the junction and the unit of its values (Annex A.2): a unit of the category of a quantity of the junction makes the table that quantity (the first in the order of its type: a length is the level of a reservoir, a pressure its surface pressure); "None" is the K, Cv or Kv of the loss model of a valve, where K = −1 is closed; "Percent" is the speed of a pump on its curve, or else values relative to the steady one when the junction takes a single quantity (inferred by the specification). A table in a unit that fits none, or a second table of another quantity, leaves out the time data of the junction, with a note.
+
+**F-38 An event on a level.** An event on the level of a reservoir that is not imported as a finite tank is kept, with a note that asks to check it; with the simulation on, the checklist then asks for a finite tank or another object.
+
+**F-39 Options of the time data.** The fields after the tables, which should say whether the tables repeat, whether their values are relative and whether the data are ignored, are not decoded. The tables are taken as not repeated, in use and absolute (relative when in percent, F-37), straight lines between their points, with a note for each junction.
+
+**F-40 Finite tank.** In the record of a reservoir (Annex A.3), from b+88 with one pipe and five fields further for each further pipe: the model (0 infinite, 1 open, 2 closed, the last inferred by the specification), whether the level is an elevation (0) or a height over the bottom (1), its value and unit, the bottom, the height of the tank, the section (0 constant) and its area. An open tank of constant section is imported, with a note: the level becomes the elevation of the surface, and connections by depth (F-17) keep the elevations of the ends of their pipes. A closed tank comes in the same way as a closed tank, with the surface pressure of the reservoir as the pressure of its gas at the start; its gas (the exponent, the relief and vent pressures) is not decoded, so the exponent is left blank for the user and a note asks for it. Another model or another section is imported as an infinite reservoir, with a note: the table of volume by height and the flags of a known level and pressure are not decoded.
+
+**F-41 Scenarios and other files.** The time control of a child scenario takes its own sections over those of its parents (F-34). The time data and the tank of a junction are read from its record as rebuilt for the scenario (F-08); where a child changes them, the layout of its sparse fields is not decoded (Annex A.3), so the data may come out as those of its parent. The time data of `.aro` files were not described (Annex A.4) and stay ignored, with a note.
+
 ## Known gaps
 
 What the description leaves open, and how the importer treats it:
@@ -170,6 +189,8 @@ What the description leaves open, and how the importer treats it:
 | Check valves, relief valves and the kinds not seen in files | K = 0 or a node (F-26) |
 | Result columns after the ninth | not read |
 | A base scenario without a network | read: the network of the children as new records, with a note (F-33) |
+| Time simulation: the fields after the tables (repeat, relative, ignored), the fields f5, f7 and f8 of an event, event kinds other than 0, 21 and 25, the characteristic of a control valve watched by an event | not repeated, in use, absolute; the time data of the junction left out for an unknown event; the characteristic left for the user; with notes (F-36, F-39) |
+| Time simulation: the gas of a closed tank, the table of volume by height, the flags of a known level and pressure, the sparse records of a child | the exponent left blank, an infinite reservoir, or the data of the parent, with notes (F-40, F-41) |
 | Writing .fth files | out of scope |
 
 A gap is closed only by a new description from the specification team, never by studying files of other programs here (CONTRIBUTING, clean-room rules).

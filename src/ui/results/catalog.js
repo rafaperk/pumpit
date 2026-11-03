@@ -79,7 +79,7 @@
         o('Q', 'flow', 'volFlow'), o('m', 'flow', 'massFlow'),
         o('Pin', 'press', 'pressure'), o('Pout', 'press', 'pressure'), o('P0in', 'press', 'pressure'), o('P0out', 'press', 'pressure'),
         o('dP', 'loss', 'dp'), o('dPs', 'loss', 'dp', { v: staticDrop }), o('hL', 'loss', 'head', { v: (r, x) => head(r.dP, x) }),
-        o('Cv', 'coef'), o('Kv', 'coef', '', { v: (r) => r.Cv * KV_PER_CV }), o('K', 'coef'),
+        o('Cv', 'coef'), o('Kv', 'coef', '', { v: (r) => r.Cv * KV_PER_CV }), o('K', 'coef'), o('open', 'coef'),
       ],
     },
     // compressible mode (R-25): heads (HGL, EGL, head loss) mean nothing for a gas and are left out
@@ -127,7 +127,7 @@
         o('Pin', 'press', 'pressure'), o('Pout', 'press', 'pressure'), o('P0in', 'press', 'pressure'), o('P0out', 'press', 'pressure'),
         o('dP', 'loss', 'dp'), o('dPs', 'loss', 'dp', { v: staticDrop }),
         o('chokedTxt', 'compressible', 'txt'),
-        o('K', 'coef'), o('Cv', 'coef'), o('Kv', 'coef', '', { v: (r) => r.Cv * KV_PER_CV }),
+        o('K', 'coef'), o('Cv', 'coef'), o('Kv', 'coef', '', { v: (r) => r.Cv * KV_PER_CV }), o('open', 'coef'),
       ],
     },
   };

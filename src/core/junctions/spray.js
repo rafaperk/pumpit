@@ -1,4 +1,5 @@
-// Nozzle / sprinkler: discharges to an external pressure through an effective area (Cd·A or a K factor).
+// Nozzle / sprinkler: discharges to an external pressure through an effective area (Cd·A or a K factor). A table of the
+// time simulation may change that area or close the nozzle (closed).
 (function (root) {
   const PumpIt = root.PumpIt;
   const { t } = PumpIt.i18n;
@@ -23,23 +24,38 @@
       const nd = net.addNode({ z, jid: j.id });
       const ext = net.addNode({ kind: 'fixed', value: net.si(j.Pext, 'pressure'), z, jid: j.id, role: 'ext' });
       const CdA = effectiveArea(j, net.si);
-      net.addLink({
+      const lk = net.addLink({
         kind: 'ext', jid: j.id, a: nd.ix, b: ext.ix, G: 0, mode: 'loss', CdA,
         phi: (m) => m * Math.abs(m) / (2 * rho * CdA * CdA),
         mref: rho * CdA * 1,
         m0: rho * CdA * 10,
       });
+      if (j.closed) { lk.mode = 'closed'; lk.fixedClosed = true; }
       return nd;
     },
 
     nodeResults: (j, jr, rc) => JS.dischargeResults(j, jr, rc),
+
+    // time simulation: the effective area Cd·A follows a table (an area, or % of the steady one); 0 closes the nozzle. A
+    // step takes the area as holes of Cd = 1, whatever the model of the nozzle
+    time: {
+      quantities: () => [{
+        what: 'area', cat: 'area', min: 0, noNegative: true,
+        steady: (j, si) => effectiveArea(j, si),
+        apply(jc, v) {
+          jc.closed = !(v > 0);
+          if (v > 0) Object.assign(jc, { sprayModel: 'CdA', Cd: 1, nHoles: 1, dHole: q(Math.sqrt(4 * v / Math.PI), 'm') });
+        },
+      }],
+    },
 
     // compressible mode: the same effective area, with isentropic flow that chokes below the critical pressure ratio
     gas: {
       node(j, net, z) {
         const nd = net.addNode({ z, jid: j.id });
         const ext = net.addNode({ kind: 'fixed', value: net.si(j.Pext, 'pressure'), pk: 'static', z, jid: j.id, role: 'ext' });
-        net.addLink({ kind: 'ext', jid: j.id, a: nd.ix, b: ext.ix, mode: 'loss', rel: 'nozzle', CdA: effectiveArea(j, net.si), Text: net.env.fluid.T });
+        const lk = net.addLink({ kind: 'ext', jid: j.id, a: nd.ix, b: ext.ix, mode: 'loss', rel: 'nozzle', CdA: effectiveArea(j, net.si), Text: net.env.fluid.T });
+        if (j.closed) { lk.mode = 'closed'; lk.fixedClosed = true; }
         return nd;
       },
       results: (j, jr, rc) => JS.gasDischargeResults(j, jr, rc),

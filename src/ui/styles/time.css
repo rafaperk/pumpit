@@ -1,0 +1,45 @@
+/* The time simulation: its stamp and the time cursor at the top, its blocks in the inspector, its tables and charts. */
+
+/* the stamp beside the regime, and the button that stops a run */
+.stamp.time { border-color: color-mix(in srgb, var(--sel) 50%, var(--line)); color: var(--ink); }
+.stamp.time.running { background: color-mix(in srgb, var(--sel) 14%, var(--panel)); }
+.time-cancel { min-height: 24px; padding: 2px 6px; color: var(--crit); }
+
+/* the time cursor, in the row of the tabs */
+.timebar { display: flex; align-items: center; gap: 2px; padding: 3px 10px; white-space: nowrap; }
+.timebar .btn.icon { min-height: 26px; padding: 3px 6px; }
+.timebar .btn.icon:disabled { opacity: .35; cursor: default; }
+.timebar input[type="range"] { width: clamp(100px, 14vw, 240px); margin: 0 8px; accent-color: var(--accent); }
+.tc-time { font: 12px var(--f-mono); color: var(--ink); }
+.tc-time b { font-weight: 500; }
+.tc-stop { color: var(--warn); font-family: var(--f-ui); }
+.tc-speed { margin-left: 8px; min-height: 24px; padding: 1px 4px; font-size: 12px; }
+
+/* the blocks of the time data in the inspector: an event, a table */
+.td-block { border: 1px solid var(--line); border-radius: var(--r); padding: 6px 8px 8px; margin: 6px 0; background: var(--sunk); }
+.td-title { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; margin-bottom: 4px; }
+.pt-table .pt-unit { min-height: 24px; padding: 1px 3px; font-size: 11.5px; margin-left: 2px; }
+.pt-table .btn-row { margin-top: 4px; }
+
+/* the mark of a junction with time data, or of a finite tank, on the drawing */
+.j-time circle { fill: var(--panel); stroke: var(--sel); stroke-width: 1.4; }
+.j-time path { fill: none; stroke: var(--sel); stroke-width: 1.3; stroke-linecap: round; }
+
+/* the results over time */
+.tr-scroll { max-height: 62vh; }
+#tr-table tbody tr { cursor: pointer; }
+#tr-table tbody tr.cur td { background: var(--accent-soft); }
+#tr-table tbody tr.exact td { font-style: italic; }
+/* the events of the model in the system window: the events an event joins */
+.te-of .check { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.tr-tunit { min-height: 22px; padding: 0 3px; font-size: 11.5px; }
+.seg.small button { padding: 3px 10px; font-size: 12px; }
+#out-tabs .time-tab { border-left: 1px solid var(--line); }
+
+/* the chart over time: the series chosen, and a panel per unit */
+.tc-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex-basis: 100%; }
+.tc-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 4px 1px 10px; font-size: 12px; background: var(--panel); }
+.tc-chip i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.tc-panel + .tc-panel { margin-top: 14px; }
+.tc-panel-head { display: flex; justify-content: flex-end; }
+.tc-panel-head select { min-height: 24px; padding: 1px 4px; font-size: 12px; }

@@ -2,8 +2,8 @@
 PumpIt.i18n.add('en', {
   charts: {
     title: 'Charts',
-    intro: 'Pump curve against the system curve, or a profile of the grade lines along a path.',
-    tabs: { pump: 'Pump × system', profile: 'Profile' },
+    intro: 'Pump curve against the system curve, a profile of the grade lines along a path, or the results of a time simulation.',
+    tabs: { pump: 'Pump × system', profile: 'Profile', time: 'Over time' },
     noData: 'No data for the chart.',
     chart: 'Chart',
     pump: {
@@ -47,6 +47,20 @@ PumpIt.i18n.add('en', {
       yPressure: 'Pressure ({u})',
       notesGas: 'Path: {path} · {length} {u}. The pressure of a gas falls faster and faster along a pipe as it expands and speeds up; the curves follow the points calculated inside each pipe.',
       notes: 'Path: {path} · {length} {u}. HGL and EGL use absolute pressure; vertical steps are junctions with a loss or a gain.',
+    },
+    time: {
+      noRun: 'Turn the time simulation on in the system properties; once it runs, its series are drawn here.',
+      object: 'Object',
+      quantity: 'Quantity',
+      add: 'Add to the chart',
+      axis: 'Time axis',
+      clock: 'Clock (d hh:mm)',
+      choose: 'Choose an object and a quantity, then add it to the chart. Each unit gets a panel of its own.',
+      time: 'Time',
+      clockAxis: 'Clock (d hh:mm)',
+      unit: 'Unit of the panel',
+      remove: 'Remove from the chart',
+      cursorNote: 'The marks show the step of the time cursor, at {t}.',
     },
   },
 });

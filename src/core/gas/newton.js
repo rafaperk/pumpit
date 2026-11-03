@@ -10,7 +10,9 @@
 // Unknowns  P of every free node; m of every constraint link: modes 'dP', 'pDown', 'pUp', 'ratio', and 'fixedFlow' with a
 //           row of its own (a flow set as a volume at the inlet conditions, which follows the pressure there)
 // Converged when every free node balances within 1e-8 of the flow through it (R-40) and every constraint row within
-// 1e-10 of its scale.
+// 1e-10 of its scale. A node joined by a link of almost no loss (a short, wide pipe) may not balance that finely: a few
+// units in the last place of its pressure move its flows by more than that. When the Newton step falls below that
+// resolution with every misfit under 1e-6, nothing can improve the balance further, and the solution is taken.
 (function (root) {
   const PumpIt = root.PumpIt;
   const S = PumpIt.solver;
@@ -172,6 +174,8 @@
         dx = S.solveDense(Jd, b, n);
       }
       if (!dx) return { ok: false, error: t('core.solver.singular'), it, hist };
+      // a step below the resolution of the unknowns (32 units in the last place) cannot balance the nodes any better
+      if (fit.worst <= 1e-6 && dx.every((d, i) => abs(d) <= 32 * Number.EPSILON * max(abs(x[i]), i < nF ? 0 : Mscale))) { converged = true; break; }
       // pressures stay positive: at most 90 % of the way to zero in one step
       let a = 1;
       for (let i = 0; i < nF; i++) if (x[i] + dx[i] < 0.1 * x[i]) a = min(a, 0.9 * x[i] / abs(dx[i]));

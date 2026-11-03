@@ -1,4 +1,5 @@
-// Results view: summary (general), result tables per object kind and the warnings list.
+// Results view: summary (general), result tables per object kind and the warnings list. With a run of the time simulation,
+// the tables show the step of the time cursor, and its own tabs follow (src/ui/time/results.js).
 (function (root) {
   const PumpIt = root.PumpIt;
   const U = PumpIt.units, M = PumpIt.model, UI = PumpIt.ui;
@@ -30,12 +31,14 @@
   function render(container, tabsEl, subEl) {
     const res = app.currentResults();
     const eff = app.eff();
-    const tab = app.prefs.outTab || 'general';
+    const run = app.timeRun();
+    const timeTabs = run ? UI.timeResults.TABS : [];
+    const tab = OUT_TABS.concat(timeTabs).includes(app.prefs.outTab) ? app.prefs.outTab : 'general';
     tabsEl.innerHTML = OUT_TABS.map((k) => {
       let extra = '';
-      if (k === 'warnings' && res && res.ok) extra = ` (${res.warnings.length})`;
+      if (k === 'warnings' && res && res.ok) extra = ` (${res.warnings.length + (run ? run.warnings.length : 0)})`;
       return `<button data-out="${k}" class="${k === tab ? 'on' : ''}">${tx('tabs.' + k)}${extra}</button>`;
-    }).join('');
+    }).join('') + timeTabs.map((k) => `<button data-out="${k}" class="time-tab${k === tab ? ' on' : ''}">${F.esc(t('time.results.tabs.' + k))}</button>`).join('');
     const scn = app.scenario();
     if (!res) {
       subEl.textContent = tx('subNoResults', { name: scn.name });
@@ -44,12 +47,14 @@
     }
     if (!res.ok) {
       subEl.textContent = tx('subRefused', { name: scn.name });
-      container.innerHTML = `<div class="card"><div class="card-head"><h3>${tx('refused')}</h3></div><ul class="warn-list">${res.errors.map((e) => `<li><span class="lvl critical">${tx('error')}</span><span>${F.esc(e)}</span></li>`).join('')}</ul></div>`;
+      container.innerHTML = UI.timeResults.summaryCard() + `<div class="card"><div class="card-head"><h3>${tx('refused')}</h3></div><ul class="warn-list">${res.errors.map((e) => `<li><span class="lvl critical">${tx('error')}</span><span>${F.esc(e)}</span></li>`).join('')}</ul></div>`;
       return;
     }
     subEl.innerHTML = tx('sub', { name: F.esc(scn.name), state: res.converged ? tx('subConverged', { n: res.iterations }) : tx('subNotConverged'), passes: res.passes > 1 ? tx('subPasses', { n: res.passes }) : '', warnings: res.warnings.length });
-    if (tab === 'general') container.innerHTML = general(res, eff);
-    else if (tab === 'warnings') container.innerHTML = warningsCard(res);
+    if (run) subEl.innerHTML += ' · ' + F.esc(t('time.results.atCursor', { t: UI.timeFormat.clock(app.cursorTime()) }));
+    if (timeTabs.includes(tab)) UI.timeResults.render(tab, container);
+    else if (tab === 'general') container.innerHTML = UI.timeResults.summaryCard() + general(res, eff);
+    else if (tab === 'warnings') container.innerHTML = UI.timeResults.warningsCard() + warningsCard(res);
     else {
       const title = tx('tabs.' + tab);
       const pick = F.esc(tx('setup.open'));
@@ -107,6 +112,7 @@
   }
 
   function bind() {
+    UI.timeResults.bind($('#view-out'));
     $('#out-tabs').addEventListener('click', (e) => {
       const b = e.target.closest('[data-out]');
       if (!b) return;

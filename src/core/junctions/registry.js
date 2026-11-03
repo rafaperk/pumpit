@@ -27,6 +27,22 @@
 //     node(j, net, z)           multi: creates the node of the gas network (and any discharge link)
 //     element(j, lk, net)       two-port: fills the element link of the gas network (relation, modes, device)
 //     results(j, jr, rc)        optional: type-specific results in the compressible mode
+//   time                        time simulation (docs/time-simulation.md); without it a junction has no time data:
+//     quantities(j, ctx)        optional (without it, no time data); ctx = { gas: the compressible mode }: what a table can drive in the current mode of the junction: [{ what, cat (unit category
+//                               of the values), min (domain of an extrapolation), steady(j, si) (the steady value in SI,
+//                               base of the relative tables), apply(jc, v) (writes v, in SI, into the copy of a step),
+//                               space (optional: { to, from }, where the table is interpolated), noNegative (a table
+//                               may not hold negative values) }]
+//     results                   'pumps' | 'valves': the result table of the junction (conditions on pumps and valves)
+//     states, stateOf(jc, sol)  the states a condition can test, and the state of the junction in a step
+//     log                       the catalog group of its changes of state in the event log (core.time.log.<log>.<state>)
+//     isOn(jc)                  a pump: running in a step (starts, time running, energy)
+//     isClosed(jc)              a valve: closed in a step (the event log)
+//     opening(j)                a valve whose opening (%) its results give (conditions on the opening)
+//     checkOf(jc, sol)          a pump with a check valve: 'open' or 'closed' in a step (the event log)
+//     tank                      a reservoir that may be a finite tank (j.tank) or, in the compressible mode, a finite gas
+//                               vessel (j.vessel); conditions on levels, volumes and surface pressures
+//     imposedFlow               an imposed flow or source: the volume delivered and the one left without supply
 //
 // Network links may carry, for the solver stages:
 //   phi(m), mref                pressure loss function and flow scale (mode 'loss')

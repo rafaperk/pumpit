@@ -21,19 +21,21 @@
     m.nextId.j = Math.max(m.nextId.j || 1, 1 + Math.max(0, ...m.junctions.map((j) => j.id)));
     m._notes = M.migrate(m);
     M.normalizeRegime(m);
+    M.normalizeTime(m);
     M.normalizeLayout(m);
     M.normalizeEnds(m);
     return m;
   }
 
   app.loadModel = (m, { fit = true } = {}) => {
-    const before = { model: app.model, results: app.results, selSet: app.selSet, sel: app.sel };
+    const before = { model: app.model, results: app.results, timeRuns: app.timeRuns, selSet: app.selSet, sel: app.sel };
     app.model = normalize(m);
     const notes = app.model._notes;
     delete app.model._notes;
     app.selSet = new Set(); app.sel = null;
     app.version++;
     app.results = {};
+    app.timeRuns = {};
     // a damaged file whose model fails to calculate or to draw is refused, and the model before stays; a model is saved
     // only once it works, so the page never opens again on a broken one
     try {

@@ -3,7 +3,8 @@
 // the specification and the format description of 20 October 2026) and this repository. One scenario of the file (the
 // base one, or a child rebuilt from the differences it keeps) becomes a Pump It model. What has no counterpart in Pump
 // It is approximated or left out, and every such case goes into the import notes. The decisions are recorded in
-// docs/fth-import.md (F-xx).
+// docs/fth-import.md (F-xx). The data of the time simulation (its control, the time data of the junctions and the finite
+// tanks) follow Annex A of its specification ("Simulação no tempo", 2 November 2026; F-34 to F-41).
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, U = PumpIt.units;
@@ -60,6 +61,43 @@
   };
   const CONTROL = { 0: 'PRV', 1: 'PSV', 2: 'FCV', 3: 'PDCV' };
 
+  // ---------- time simulation (Annex A.1 of its specification; F-34): the kind of analysis and the time control. The units
+  // of time are written out in full; a year is taken as 365 days
+  const TIME = { seconds: ['s', 1], second: ['s', 1], sec: ['s', 1], minutes: ['min', 1], minute: ['min', 1], min: ['min', 1], hours: ['h', 1], hour: ['h', 1], hr: ['h', 1], days: ['d', 1], day: ['d', 1], weeks: ['d', 7], years: ['d', 365], year: ['d', 365] };
+  function timeControl(S, chain, m, note) {
+    let type = kv(sectionOf(S, 'SETTINGS'), 'AnalysisType');
+    const keys = {};
+    const take = (lines) => { for (const [k, v] of Object.entries(keyValues(lines))) keys[k.toLowerCase()] = v; };
+    take(scenarioSection(S, 'TRANSIENT CONTROL', 1));
+    for (const k of chain.slice(1)) {
+      const sx = scenarioKey(S, 'SETTINGS', k, true), v = sx && kv(S[sx], 'AnalysisType');
+      if (v !== undefined && v !== null) type = v;
+      const tx = scenarioKey(S, 'TRANSIENT CONTROL', k, true);
+      if (tx) take(S[tx]);
+    }
+    const on = str(type) === '2';
+    if (on) note('info', 'timeControl', null);
+    if (!Object.keys(keys).length) return;
+    const tc = m.solution.time;
+    tc.on = on;
+    const unitOf = (k) => TIME[key(keys[k])];
+    const tu = unitOf('timeunits'), su = unitOf('timestepunits') || tu;
+    const val = (k) => num(keys[k]);
+    if (tu && Number.isFinite(val('starttime'))) tc.start = q(val('starttime') * tu[1], tu[0]);
+    if (tu && val('stoptime') === -1) { tc.stop = q(null, tu[0]); if (on) note('missing', 'timeStop', null); }
+    else if (tu && Number.isFinite(val('stoptime'))) tc.stop = q(val('stoptime') * tu[1], tu[0]);
+    if (su && val('timestep') > 0) tc.step = q(val('timestep') * su[1], su[0]);
+    if (Number.isInteger(val('frequency')) && val('frequency') >= 1) tc.saveEvery = val('frequency');
+    const dm = val('differencemethod');
+    if (dm === 1) tc.method = 'central';
+    else if (Number.isFinite(dm) && dm !== 0) note('assumed', 'timeMethod', null, { code: str(keys.differencemethod) });
+    if (val('relativetolerance') > 0) tc.relTol = val('relativetolerance');
+    const au = keys.absolutetoleranceunits;
+    if (val('absolutetolerance') > 0 && inTable(LENGTH, au)) tc.absTol = q(val('absolutetolerance') * LENGTH[key(au)][1], LENGTH[key(au)][0]);
+    if (Number.isInteger(val('maxiterations')) && val('maxiterations') >= 1) tc.maxIter = val('maxiterations');
+    if (val('relaxation') > 0 && val('relaxation') <= 1) tc.relax = val('relaxation');
+  }
+
   // ---------- reading
 
   // text of a .fth file → { model, notes, stored, counts, version, scenario, scenarios }. scenario: its number or its
@@ -88,7 +126,7 @@
     // the add-on modules and settings that change the calculation of the program (F-06)
     const sized = n0(kv(sectionOf(S, 'SIZING CONTROL'), 'OptimizationLevel')) > 0 && addOns(S).length > 0;
     if (goalSeek(S, chain) > 0) note('ignored', 'goalSeek', null);
-    if (kv(sectionOf(S, 'SETTINGS'), 'AnalysisType') === '2') note('ignored', 'timeAnalysis', null);
+    timeControl(S, chain, m, note);
     if (sized) note('ignored', 'sizing', null);
     else if (addOns(S).length) note('ignored', 'addOns', null);
 
@@ -255,6 +293,113 @@
       if (!cf) { note('assumed', 'curveFailed', obj); return null; }
       if (cf.stored) note('assumed', 'curveK', obj, { Q: cf.Q * 3600 }); else note('assumed', 'curveHalf', obj, { Q: cf.Q * 3600 });
       return { lossModel: 'K', K: Math.max(0, kAt(lc, A, cf.Q)) };
+    }
+
+    // ---- time data of a junction (Annex A.2 of the time simulation; F-35 to F-39): a block that starts with the trigger
+    // (0 by time, 1 one event, 2 two cyclic events, 3 two in sequence), two events of 8 fields [kind, comparison, value,
+    // unit, f5, object, f7, f8], the name of a combined event, and the tables [1, n, time unit, value unit, τ1, v1 … τn,
+    // vn, text]. Its place depends on the kind, the number of pipes and, in a pump, on its curves: it is found by its shape
+    // from the first place seen for the kind
+    const TIME_FROM = { 1: (np) => 89 + 3 * (np - 2), 2: (np) => 111 + 5 * (np - 1), 3: () => 81, 4: (np) => 92 + 3 * (np - 1), 8: () => 110, 9: () => 97, 16: (np) => 103 + 5 * (np - 1), 17: () => 138 };
+    const word = (x) => str(x) !== '' && !Number.isFinite(Number(str(x)));
+    const intF = (x) => /^-?\d+$/.test(str(x));
+    const eventAt = (f, k) => intF(f[k]) && intF(f[k + 1]) && Number.isFinite(num(f[k + 2])) && word(f[k + 3]);
+    const tableAt = (f, k) => str(f[k]) === '1' && intF(f[k + 1]) && n0(f[k + 1]) >= 0 && inTable(TIME, f[k + 2]);
+    function timeBlock(f, from) {
+      for (let i = Math.max(0, from - 2); i < from + 60 && i + 21 < f.length; i++) {
+        if (!/^[0-3]$/.test(str(f[i])) || !eventAt(f, i + 1) || !eventAt(f, i + 9) || !tableAt(f, i + 18)) continue;
+        const ev = (k) => ({ code: n0(f[k]), cond: n0(f[k + 1]), v: num(f[k + 2]), unit: f[k + 3], obj: n0(f[k + 5]) });
+        const tables = [];
+        let p = i + 18;
+        while (tables.length < 2 && tableAt(f, p)) {
+          const n = n0(f[p + 1]), pts = [];
+          for (let k = 0; k < n; k++) pts.push([num(f[p + 4 + 2 * k]), num(f[p + 5 + 2 * k])]);
+          tables.push({ tu: f[p + 2], vu: f[p + 3], pts });
+          p += 4 + 2 * n + 1; // the pairs, then a text
+        }
+        return { trig: n0(f[i]), events: [ev(i + 1), ev(i + 9)], tables };
+      }
+      return null;
+    }
+    // the quantity of a table by the mode of the junction and the unit of its values (F-37): a unit of the category of one
+    // of its quantities is that quantity; "Percent" is the speed of a pump, or else values relative to the steady one
+    const BY_CAT = { flow: () => FLOW, pressure: () => PRESSURE, length: () => LENGTH, dp: () => DP };
+    function tableQuantity(j, vu) {
+      const tm = PumpIt.junctionTypes.get(j.type).time;
+      const qs = tm ? tm.quantities(j) : [];
+      const k = key(vu), pct = k === 'percent', none = k === 'none' || k === '';
+      for (const x of qs) {
+        if (x.cat === 'percent' && pct) return { x, basis: 'absolute', unit: '%', f: 1 };
+        if (x.cat === 'none' && none) return { x, basis: 'absolute', unit: '', f: 1 };
+        const tb = BY_CAT[x.cat] && BY_CAT[x.cat]();
+        if (tb && inTable(tb, vu)) return { x, basis: 'absolute', unit: tb[key(vu)][0], f: tb[key(vu)][1] };
+      }
+      if (pct && qs.length === 1) return { x: qs[0], basis: 'relative', unit: '%', f: 1 };
+      return null;
+    }
+    const OPS = { 0: '>', 1: '>=', 2: '<', 3: '<=' };
+    const STARTS = ['time', 'single', 'dualCyclic', 'dualSequential'];
+    const levelEvents = []; // [junction of the data, id of the tank]: checked once every junction is read
+    const openingEvents = []; // [junction of the data, id of the control valve]: the same
+    function readTimeData(f, b, type, np, j, obj) {
+      if (!TIME_FROM[type]) return;
+      const blk = timeBlock(f, b + TIME_FROM[type](np));
+      if (!blk || !blk.tables.length || !blk.tables[0].pts.length) return;
+      const start = STARTS[blk.trig];
+      const nE = PumpIt.time.events.EVENTS[start], nT = PumpIt.time.events.TABLES[start];
+      const when = [];
+      for (let e = 0; e < nE; e++) {
+        const ev = blk.events[e], op = OPS[ev.cond];
+        if (op === undefined) { note('ignored', 'timeCondition', obj, { code: ev.cond }); return; }
+        if (ev.code === 0 && inTable(TIME, ev.unit)) when.push({ q: 'time', op, value: q(ev.v * TIME[key(ev.unit)][1], TIME[key(ev.unit)][0]) });
+        else if (ev.code === 21 && inTable(LENGTH, ev.unit)) { when.push({ q: 'tankLevel', obj: 'j:' + ev.obj, op, value: len(ev.v, ev.unit, obj) }); levelEvents.push([obj, ev.obj]); }
+        // the opening of a control valve (%): the file does not give the characteristic of the valve, which it needs
+        else if (ev.code === 25) { when.push({ q: 'opening', obj: 'j:' + ev.obj, op, value: q(ev.v, '%') }); openingEvents.push([obj, ev.obj]); }
+        else if (ev.code === 0 || ev.code === 21) { unknownUnit(obj, ev.unit); return; }
+        else { note('ignored', 'timeEvent', obj, { code: ev.code }); return; }
+      }
+      if (blk.tables.length < nT) { note('ignored', 'timeTables', obj); return; }
+      const first = tableQuantity(j, blk.tables[0].vu);
+      if (!first) { note('ignored', 'timeQuantity', obj, { unit: str(blk.tables[0].vu) || '?' }); return; }
+      const tables = [];
+      for (const tb of blk.tables.slice(0, nT)) {
+        const qt = tableQuantity(j, tb.vu);
+        if (!qt || qt.x.what !== first.x.what || qt.basis !== first.basis || !inTable(TIME, tb.tu)) { note('ignored', 'timeQuantity', obj, { unit: str(tb.vu) || '?' }); return; }
+        const [tu, tf] = TIME[key(tb.tu)];
+        tables.push({ t: tb.pts.map(([x]) => x * tf), v: tb.pts.map(([, y]) => y * qt.f), tUnit: tu, vUnit: qt.unit });
+      }
+      j.time = { use: true, what: first.x.what, basis: first.basis, start, when, tables, repeat: false, interp: 'linear' };
+      note('assumed', 'timeData', obj);
+    }
+
+    // ---- a finite tank in the record of a reservoir (Annex A.3 of the time simulation; F-40): from b+88 with one pipe,
+    // 5 fields further for each other pipe: the model (0 infinite, 1 open, 2 closed), the level given as an elevation (0) or
+    // as a height over the bottom (1), its value and unit, the bottom, the height of the tank and the area of a constant
+    // section (0). The gas of a closed tank is not decoded: the surface pressure of the reservoir is its pressure at the
+    // start, and its exponent is left blank
+    function readTank(f, b, np, j, obj) {
+      const at2 = (i) => f[b + i + 5 * Math.max(0, np - 1)];
+      if (f.length <= b + 99 + 5 * Math.max(0, np - 1)) return;
+      const model = num(at2(88));
+      if (!(model > 0)) return;
+      if (model !== 1 && model !== 2) { note('ignored', 'tankModel', obj, { code: str(at2(88)) }); return; }
+      if (n0(at2(97)) !== 0) { note('ignored', 'tankShape', obj, { code: str(at2(97)) }); return; }
+      const bottom = len(num(at2(93)), at2(94), obj), height = len(num(at2(95)), at2(96), obj), A = area(num(at2(98)), at2(99), obj);
+      const lv = len(num(at2(90)), at2(91), obj);
+      const zOld = si(j.liquidElev, 'length');
+      if (n0(at2(89)) === 1) j.liquidElev = q(+U.fromSI(si(bottom, 'length') + si(lv, 'length'), bottom.unit, 'length').toPrecision(12), bottom.unit);
+      else if (lv.value !== null) j.liquidElev = lv;
+      // depths below the surface keep the elevations of the ends of the pipes
+      const zNew = si(j.liquidElev, 'length');
+      if (j.connBy === 'depth' && Number.isFinite(zOld) && Number.isFinite(zNew) && zOld !== zNew) {
+        for (const pk of Object.values(j.pipeK || {})) if (pk.depth && Number.isFinite(pk.depth.value)) pk.depth = q(+U.fromSI(si(pk.depth, 'length') + zNew - zOld, pk.depth.unit, 'length').toPrecision(12), pk.depth.unit);
+      }
+      j.tank = Object.assign(PumpIt.time.tanks.newTank(j), { model: 'open', bottom, height, shape: 'constant', area: A });
+      // a closed tank: its gas (exponent, relief and vent pressures) is not decoded, so its exponent is left for the user
+      if (model === 2) {
+        Object.assign(j.tank, { model: 'closed', gas: { n: null, pMax: q(null, j.surfP.unit), pMin: q(null, j.surfP.unit) } });
+        note('missing', 'tankClosed', obj);
+      } else note('info', 'tankOpen', obj);
     }
 
     // ---- junctions (F-15 to F-27)
@@ -532,8 +677,17 @@
           if (Number.isFinite(z) && Number.isFinite(zJ) && Math.abs(z - zJ) > 1e-6) { note('ignored', 'elevations', obj); break; }
         }
       }
+      if (type === 2 && j.type === 'reservoir') readTank(f, b, np, j, obj);
+      readTimeData(f, b, type, np, j, obj);
       m.junctions.push(j);
     }
+    // an event on the level of a reservoir that is not a finite tank (F-38)
+    for (const [obj, tid] of levelEvents) {
+      const tj = m.junctions.find((x) => x.id === tid);
+      if (!tj || !PumpIt.time.tanks.isFinite(tj)) note('assumed', 'timeNotTank', obj, { id: 'J' + tid });
+    }
+    // an event on the opening of a control valve, whose characteristic the user gives (F-36)
+    for (const [obj, vid] of openingEvents) note('missing', 'timeOpening', obj, { id: 'J' + vid });
 
     // set point of a pressure control valve: a static or a stagnation pressure. The stored results tell which one, when
     // the valve was controlling at that point (the pressure next to it falls on one of the two); otherwise static (F-20)

@@ -16,10 +16,10 @@ Pump It is a static web app: plain HTML, CSS and JavaScript with no build step a
 flowchart LR
   i18n["src/i18n (engine + catalogs)"] --> core
   subgraph core["src/core (no DOM)"]
-    units --> fluids --> data --> hydraulics --> registry["junctions/registry"] --> model --> solver --> gas --> jtypes["junctions/*"] --> examples --> imports["import"] --> view3d
+    units --> fluids --> data --> hydraulics --> registry["junctions/registry"] --> model --> solver --> gas --> jtypes["junctions/*"] --> time --> examples --> imports["import"] --> view3d
   end
   subgraph ui["src/ui"]
-    common --> jviews["junctions/* (views)"] --> app --> topbar --> help --> inspector --> network --> view3dui["view3d"] --> modeldata["model-data"] --> results --> charts --> main["app/main.js"]
+    common --> jviews["junctions/* (views)"] --> app --> topbar --> help --> inspector --> network --> view3dui["view3d"] --> modeldata["model-data"] --> results --> timeui["time"] --> charts --> main["app/main.js"]
   end
   core --> ui
 ```
@@ -35,6 +35,7 @@ flowchart LR
 | Solver | `src/core/solver/` | `PumpIt.solver` | `run`, `prepare`, `systemCurve` and the internal stages |
 | Compressible mode | `src/core/gas/` | `PumpIt.gas` | The reference physics of gas flow (`gas.js`, appendix A of its specification), the flow relations of the links (`flow.js`), the gas network of a model (`network.js`), Newton on the node pressures (`newton.js`), results (`results.js`) and `solveModelGas` (`solver.js`); see [gas-decisions.md](gas-decisions.md) |
 | Junction types | `src/core/junctions/` | `PumpIt.junctionTypes` | Registry and one file per type |
+| Time simulation | `src/core/time/` | `PumpIt.time` | Quasi-static runs: the tables of the junctions (`tables.js`), conditions, triggers and the named events of the model (`events.js`), finite tanks, open or closed (`tanks.js`), the gas vessels of the compressible mode (`vessels.js`), the energy cost of the pumps (`cost.js`), the model of a step (`inputs.js`), the record of a run (`record.js`) and the main loop `run` / `start` (`simulate.js`); see [time-simulation.md](time-simulation.md) |
 | Examples | `src/core/examples/` | `PumpIt.examples` | Builder helpers and one file per example |
 | Import | `src/core/import/` | `PumpIt.importers`, `PumpIt.importShared` | Readers of model files of other formats, one per file extension: `.fth` for liquids and `.aro` for gases (the format descriptions of the specification team; docs/fth-import.md, docs/aro-import.md) → the scenarios of the file, a model of one of them, the notes of the import (what needs input, was assumed, left out or read) and the comparison with the results stored in the file. What the two formats share (sections, records, scenarios, units, notes, drawing positions, comparison) is `shared.js` |
 | 3D view geometry | `src/core/view3d/` | `PumpIt.view3d` | Camera and projection, navigation, the grid, pipe routes that follow their ends, symbol orientation, scene points from the plan and the elevation, editing, the junction symbols as solids, the view cube (pure functions; see [3D-VIEWS.md](3D-VIEWS.md)) |
@@ -48,7 +49,8 @@ flowchart LR
 | 3D view | `src/ui/view3d/` | `PumpIt.ui.scene3d`, `.commands3d`, `.edit3d` (with `.freeEdit3d`), `.solids3d`, `.render3d`, `.quick3d`, `.nav3d`, `.hud3d`, `.cube3d` | Scene (plan and elevation), commands, editing, the junction symbols as shaded solids, SVG drawing with depth cues and quick frames while something moves, camera navigation and glides, view switch with the menu of the view, the view cube, inspector sections (see [3D-VIEWS.md](3D-VIEWS.md)) |
 | Model data view | `src/ui/model-data/` | `PumpIt.ui.modelData` | Input tables |
 | Results view | `src/ui/results/` | `PumpIt.ui.results`, `.resultCatalog`, `.columnSetup`, `.resultColumns`, `.columnWindow`, `.resultExport` | The outputs each table can show (no DOM), the columns chosen for a liquid and for a gas with their units and the templates of the profile, result tables, the column window, warnings, TSV and Excel export (a sheet per table); see [result-outputs.md](result-outputs.md) |
-| Charts view | `src/ui/charts/` | `PumpIt.ui.charts`, `.lineChart`, `.pumpChart`, `.profileChart` | Charts |
+| Time simulation (interface) | `src/ui/time/` | `PumpIt.ui.timeBar`, `.timeSystem`, `.timeEvents`, `.timeData`, `.pointTable`, `.timeResults`, `.timeFormat` | The run in slices after the steady state and the time cursor (`run.js`, on `PumpIt.app`), the stamp and the cursor bar, the section of the system window with the tariff and the named events of the model (`events-section.js`), the time data and the tank or gas vessel of a junction (inspector sections), the result tabs, the model data and the `.xlsx` sheets |
+| Charts view | `src/ui/charts/` | `PumpIt.ui.charts`, `.lineChart`, `.pumpChart`, `.profileChart`, `.timeChart` | Charts |
 | Styles | `src/ui/styles/` | — | One stylesheet per block, in cascade order |
 
 Load-order rules: a file may use, **at load time**, only modules listed before it in `index.html`; anything used later (inside functions) only needs to exist by the time it is called. `src/ui/app/main.js` is always last: it binds every block to the page on `DOMContentLoaded`. The one script out of its group is `src/ui/topbar/theme.js`, loaded before the page body so that a light or dark mode chosen earlier is set (as `data-theme` on `<html>`, read by `tokens.css`) before the first paint; at load time it uses only the browser.
@@ -58,6 +60,7 @@ Load-order rules: a file may use, **at load time**, only modules listed before i
 1. **Edit.** A panel calls `app.setVal(key, path, value)` (or another command in `src/ui/app/editing.js`). The command pushes an undo snapshot and writes through `PumpIt.model.setField`, which applies the scenario rule: the base scenario holds every value, a child scenario stores only the attributes that differ from its parent.
 2. **Recalculate.** `app.changed()` increments `app.version`, clears every result, saves the model to the browser and calls `app.recalc()`: if the checklist (`PumpIt.model.validate`) of the current scenario is complete, `PumpIt.solver.run(app.eff())` calculates it.
 3. **Render.** `app.renderAll()` redraws the header, the drawing, the inspector, the system window (when open) and the visible view. Panels read `app.eff()` (effective model of the current scenario) and `app.okResults()`.
+4. **Time simulation.** With `solution.time.on`, `app.recalc()` then starts the run of the scenario (`PumpIt.time.start`), which goes on in slices of about 30 ms; any edit cancels it. Once it has recorded steps, `app.currentResults()` gives the step of the time cursor, solved again from its snapshot, so every panel shows that step without knowing about time.
 
 Drawing fields (`PumpIt.model.LAYOUT_KEYS`: the schematic position, symbol rolls, pipe routes, where the loose ends of pipes lie and the 3D view settings) are not calculation data. They live on the objects of the base model, never in scenario overrides; editing them only pushes an undo snapshot and saves, without recalculating or clearing the results; and the solver works on a copy without them. The 3D views draw every junction at its schematic position and at the height of its elevation, which is calculation data: moving a junction up or down there is an elevation edit, with recalculation.
 
@@ -107,6 +110,10 @@ Changing the language (`app.setLanguage`, in `src/ui/topbar/language.js`): switc
 
 The palette, the type selector, the checklist, the solver, the tables, the right-click card and the drawing pick the new type up from the registries.
 
+### Time data of a junction type
+
+A type takes time data through its `time` hook (contract in `src/core/junctions/registry.js`): `quantities(j)` lists what a table can drive in the current mode of the junction (unit category, steady value, how a value is written into the model of a step, an optional interpolation space and domain), and the optional fields say whether it is a pump or a valve for the results and the conditions (`results`, `states`, `stateOf`, `log`, `isOn`, `isClosed`), a valve that gives its opening (`opening`), a pump with a check valve (`checkOf`), a reservoir that may be a finite tank or a gas vessel (`tank`) or an imposed flow (`imposedFlow`). `quantities(j, { gas })` may answer differently in the compressible mode. A device of the solver with states (a check valve) carries `device.anyway` to be reviewed also after a solution that did not converge (`src/core/solver/devices.js`). The inspector section, the checklist, the conditions and the run pick it up from there; the generic code never tests a type.
+
 ### A new language
 
 1. Copy `src/i18n/en/` to `src/i18n/<code>/` (for example `fr`) and translate the texts, keeping keys and `{placeholders}`.
@@ -148,6 +155,7 @@ Add `src/core/examples/<name>.js` calling `PumpIt.examples.register({ id, order,
 
 - `tests/run-tests.js` (also run by `tests/motor.test.cjs`): the core against independent solutions (analytical or by bisection).
 - `tests/gas.test.cjs`: the reference physics of the compressible mode (appendix B of its specification, as given) and the calculation of gas networks against independent solutions.
+- `tests/time.test.cjs`: the time simulation against the cases of section 12 of its specification (expected values calculated by its specification team), every example equal to its steady state over time, the closed tank, the check valves, the energy cost and the gas vessels, and the time data of synthetic `.fth` files.
 - `tests/validate-fth.js`: the core against results stored in reference model files (answer key only; see the clean-room rules in `CONTRIBUTING.md`).
 - `tests/fth-import.test.cjs`: the `.fth` importer, with synthetic files written from the format descriptions by the test itself.
 - `tests/aro-import.test.cjs`: the `.aro` importer, in the same way.

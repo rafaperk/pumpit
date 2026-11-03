@@ -9,7 +9,7 @@
 }
 .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
 .tab-spacer { flex: 1; }
-.status { font-size: 12px; color: var(--ink-3); padding: 8px 0; white-space: nowrap; }
+.status { font-size: 12px; color: var(--ink-3); padding: 8px 0; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .badge { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; font-size: 11px; background: var(--warn); color: var(--panel); text-align: center; }
 .badge.crit { background: var(--crit); }
 

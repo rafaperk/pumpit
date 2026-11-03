@@ -15,12 +15,16 @@
     return j;
   }
 
-  // Models saved before some junction types were removed: convert to the closest equivalent.
+  // Models saved before some junction types were removed: convert to the closest equivalent. The check valve came back
+  // with the time simulation (§7.4 of its specification): one saved before gets the fields it lacks.
   function migrate(m) {
     const notes = [];
     for (const j of m.junctions) {
       const was = j.type;
-      if (was === 'check') { j.type = 'valve'; j.closed = j.special === 'closed'; }
+      if (was === 'check') {
+        if (j.closed === undefined && j.special === 'closed') j.closed = true;
+        for (const [k, v] of Object.entries(types.get('check').defaults())) if (j[k] === undefined) j[k] = v;
+      }
       else if (was === 'bend' || was === 'areachange') {
         Object.assign(j, { type: 'generic', genModel: 'K', K: was === 'bend' && j.bendModel === 'K' ? j.K : (was === 'bend' ? 0.3 : 0) });
         if (!j.curve) j.curve = newJunction('generic', 0, 0, 0).curve;
@@ -65,6 +69,41 @@
     return { kind: 'gas', gas: 'air', name: '', MW: 28.9647, k: 1.4, Z: 1, mu: q(0.01813, 'cP'), T: q(20, '°C') };
   }
 
+  // control of the time simulation (docs/time-simulation.md): off by default, so a model calculates as before. Clock,
+  // step and the parameters of the central method of the tank levels; dataEnd: what a table without repetition gives past
+  // its last point; tariff: the price of the energy by the hour of the day, for the cost of the pumps (off by default);
+  // exactEvents: an event on a level fires at the time the level crosses its value, between two steps (forward method)
+  const TIME_METHODS = ['forward', 'central'];
+  const DATA_END = ['hold', 'extrapolate'];
+  const newTariff = () => ({ use: false, currency: '', t: [0], v: [0], tUnit: 'h' });
+  function newTimeControl() {
+    return {
+      on: false, start: q(0, 'h'), stop: q(24, 'h'), step: q(10, 'min'), saveEvery: 1, method: 'forward',
+      relTol: 1e-5, absTol: q(0.03048, 'mm'), relax: 1, maxIter: 10000, dataEnd: 'hold', tariff: newTariff(), exactEvents: false,
+    };
+  }
+
+  // the time control of a loaded model: missing or invalid fields back to their defaults (a model saved before the time
+  // simulation gets it switched off, and calculates as before)
+  function normalizeTime(m) {
+    const d = newTimeControl(), tc = m.solution && m.solution.time;
+    const o = tc && typeof tc === 'object' && !Array.isArray(tc) ? tc : {};
+    const out = Object.assign({}, d, o);
+    out.on = o.on === true;
+    out.exactEvents = o.exactEvents === true;
+    for (const k of ['start', 'stop', 'step', 'absTol']) if (!isQty(out[k])) out[k] = d[k];
+    for (const k of ['saveEvery', 'relTol', 'relax', 'maxIter']) if (typeof out[k] !== 'number') out[k] = d[k];
+    if (!TIME_METHODS.includes(out.method)) out.method = d.method;
+    if (!DATA_END.includes(out.dataEnd)) out.dataEnd = d.dataEnd;
+    const tf = out.tariff;
+    if (!(tf && typeof tf === 'object' && Array.isArray(tf.t) && Array.isArray(tf.v))) out.tariff = newTariff();
+    else { out.tariff = Object.assign(newTariff(), tf); out.tariff.use = tf.use === true; if (typeof out.tariff.currency !== 'string') out.tariff.currency = ''; }
+    m.solution.time = out;
+    // the named events of the model (combined events): a list
+    if (!Array.isArray(m.events)) m.events = [];
+    return m;
+  }
+
   // a new model; its default texts (title, fluid name, base scenario) are in the current language
   function newModel() {
     return {
@@ -85,9 +124,10 @@
         machLimit: 0.7,
         gasVelLimit: q(30, 'm/s'),
       },
-      solution: { tolRel: 1e-4, maxIter: 500, relax: 1, adaptive: true, checkMass: true },
+      solution: { tolRel: 1e-4, maxIter: 500, relax: 1, adaptive: true, checkMass: true, time: newTimeControl() },
       pipes: [],
       junctions: [],
+      events: [],
       scenarios: { list: [{ id: 'base', name: t('core.model.baseScenario'), parent: null, overrides: {}, notes: '' }], current: 'base' },
       nextId: { p: 1, j: 1 },
     };
@@ -189,6 +229,7 @@
     q, clone, newJunction, newPipe, pipeDefaults, newModel, newGasFluid, migrate,
     getPath, setPath, getObj, deepEqual,
     pipesAt, ports, REGIMES, GAS_MODES, LAMINAR_K, isCompressible, normalizeRegime,
+    TIME_METHODS, DATA_END, newTimeControl, normalizeTime,
   });
   // { type: definition } in display order, built from the junction type registry
   Object.defineProperty(PumpIt.model, 'JT', { get: () => types.table(), enumerable: true, configurable: true });

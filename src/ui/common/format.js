@@ -47,6 +47,7 @@
     pressure: 'kgf/cm²(g)', dp: 'kgf/cm²', head: 'm', massFlow: 'kg/s', volFlow: 'm³/h', normFlow: 'Nm³/h', velocity: 'm/s',
     power: 'kW', length: 'm', density: 'kg/m³', viscosity: 'cP', temperature: '°C',
     volume: 'm³', headGradient: 'm/100 m', dpGradient: 'kgf/cm²/100 m',
+    energy: 'kWh', mass: 'kg', time: 'h', flow: 'm³/h', area: 'cm²',
   };
 
   function conv(vSI, cat, unit, ctx) {

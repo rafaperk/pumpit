@@ -1,6 +1,7 @@
 // Control valve: PRV (downstream pressure), PSV (upstream pressure), FCV (flow) or PDCV (pressure drop).
 // It is a stateful device: controlling, fully open or closed, reviewed after each hydraulic convergence
-// (specification section 7). A special condition (open/closed) fixes the state.
+// (specification section 7). A special condition (open/closed) fixes the state. An optional characteristic (the Cv
+// at full opening, linear or of equal percentage) gives its opening in the results (§7.2 of the time simulation).
 (function (root) {
   const PumpIt = root.PumpIt;
   const { t } = PumpIt.i18n;
@@ -10,6 +11,8 @@
 
   const device = {
     initial: (lk) => (lk.j.special === 'closed' ? 'closed' : lk.j.special === 'open' ? 'open' : 'control'),
+    // a state carried from the step before (time simulation): a special condition still fixes the state
+    resume: (lk, s) => (lk.j.special && lk.j.special !== 'none' ? device.initial(lk) : s),
 
     configure(lk, s) {
       if (s === 'closed') lk.mode = 'closed';
@@ -53,6 +56,7 @@
     defaults: () => ({
       ctype: 'PRV', setP: q(2, 'kgf/cm²(g)'), setQ: q(20, 'm³/h'), setDP: q(0.5, 'kgf/cm²'),
       basis: 'static', alwaysControl: true, kOpen: 0, failAction: 'open', special: 'none',
+      char: 'none', CvMax: 100, R: 50,
     }),
 
     validate(j, miss, { fin, pos, gasP }) {
@@ -61,6 +65,7 @@
       if (j.ctype === 'FCV' && !pos(j.setQ)) miss.push(t('junctions.control.check.setQ'));
       if (j.ctype === 'PDCV' && !fin(j.setDP)) miss.push(t('junctions.control.check.setDP'));
       if (!(j.kOpen >= 0)) miss.push(t('junctions.control.check.kOpen'));
+      if (j.char && j.char !== 'none') JS.checkCharacteristic(j, miss, false);
     },
 
     buildElement(j, lk, net) {
@@ -79,6 +84,23 @@
       const vr = JS.inlineValveResult(j, jr, rc);
       stateAndWarnings(j, vr, rc);
       rc.valves[j.id] = vr;
+    },
+
+    // time simulation: the set point follows a table; once it applies, the valve controls (the special condition no
+    // longer applies). Its state is that of the device: controlling, fully open or closed
+    time: {
+      results: 'valves', states: ['control', 'open', 'closed'], log: 'control',
+      quantities(j) {
+        const set = (field, cat, unit, min) => ({
+          what: 'set', cat, min, noNegative: min === 0, steady: (x, si) => si(x[field], cat),
+          apply: (jc, v) => { jc.special = 'none'; jc[field] = q(v, unit); },
+        });
+        if (j.ctype === 'FCV') return [set('setQ', 'flow', 'kg/s', 0)];
+        if (j.ctype === 'PDCV') return [set('setDP', 'dp', 'Pa')];
+        return [set('setP', 'pressure', 'Pa(a)')];
+      },
+      stateOf: (jc, sol) => (sol && sol.states ? sol.states[jc.id] : undefined),
+      opening: (j) => !!(j.char && j.char !== 'none'),
     },
 
     // compressible mode: the same states and rules, with the gas relations. Open, the valve is a K element of kOpen;
@@ -130,6 +152,8 @@
     const s = rc.st[j.id];
     vr.state = t('junctions.states.' + (s === 'control' ? 'controlling' : s === 'open' ? 'fullyOpen' : 'closed'));
     vr.ctype = j.ctype;
+    // the opening, from the characteristic: closed 0 %, fully open 100 %, controlling the inverse of its Cv
+    if (j.char && j.char !== 'none' && j.CvMax > 0) vr.open = s === 'closed' ? 0 : s === 'open' ? 100 : 100 * JS.openingOfCv(j.char, j.CvMax, j.R, vr.Cv);
     if (s === 'control' && rc.dP < 0) {
       vr.state = t('junctions.states.addingPressure');
       rc.warn('critical', t('junctions.control.warn.addingPressure', { id: j.id, dp: fmtSI(-rc.dP / KGF) }), 'j:' + j.id);
@@ -149,6 +173,7 @@
   }
   const gasDevice = {
     initial: device.initial,
+    resume: device.resume,
     configure(lk, s) {
       const o = s === 'open' ? lk.open : s === 'control' ? lk.ctrl : null;
       if (!o) { lk.mode = 'closed'; return; }

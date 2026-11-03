@@ -59,7 +59,24 @@
       if (def.directional && pr && !pr.consistent) miss.push(t('core.checklist.junction.direction'));
     }
     if (def.validate) def.validate(j, miss, { fin, pos, curveOk, pipeCount: n, gas: M.isCompressible(m), gasP: gasPressure(m, miss) });
+    if (timeOn(m)) checkTime(m, j, def, miss);
     return miss;
+  }
+
+  // the time simulation (docs/time-simulation.md): with it on, the time data of a junction and the geometry of a finite
+  // tank (or, for a gas, the volume of a finite vessel) are checked too; with it off they are kept and not used
+  const timeOn = (m) => !!(m.solution && m.solution.time && m.solution.time.on && PumpIt.time);
+  function checkTime(m, j, def, miss) {
+    const T = PumpIt.time;
+    if (T.inputs.active(j)) for (const k of T.inputs.check(j, m)) miss.push(t('core.checklist.time.' + k));
+    // a finite gas vessel in the compressible mode, a finite tank for a liquid (each regime keeps its own)
+    if (def.time && def.time.tank && M.isCompressible(m)) {
+      if (T.vessels.isFinite(j)) for (const k of T.vessels.check(j)) miss.push(t('core.checklist.vessel.' + k));
+    } else if (def.time && def.time.tank && T.tanks.isFinite(j)) {
+      let patm;
+      try { patm = PumpIt.units.toSI(m.system.patm.value, m.system.patm.unit, 'pressure'); } catch (e) { /* the system checks it */ }
+      for (const k of T.tanks.check(j, { patm })) miss.push(t('core.checklist.tank.' + k));
+    }
   }
 
   // compressible mode (R-13): a pressure is gauge or absolute by its unit, and the gas is calculated in absolute pressure,
@@ -123,6 +140,11 @@
       { label: t('core.checklist.items.pipes'), ok: eff.pipes.length > 0 && pipesBad === 0, detail: eff.pipes.length ? t('core.checklist.items.pipesIncomplete', { bad: pipesBad, n: eff.pipes.length }) : t('core.checklist.items.noPipes') },
       { label: t('core.checklist.items.junctions'), ok: eff.junctions.length > 0 && jBad === 0, detail: eff.junctions.length ? t('core.checklist.items.junctionsIncomplete', { bad: jBad, n: eff.junctions.length }) : t('core.checklist.items.noJunctions') },
     ];
+    // the time control, when the time simulation is on (§3 of its specification)
+    if (timeOn(eff)) {
+      const tm = PumpIt.time.checkControl(eff.solution.time, eff).map((k) => t('core.checklist.time.' + k));
+      items.splice(1, 0, { key: 'time', label: t('core.checklist.items.time'), ok: tm.length === 0, detail: tm.join(', ') });
+    }
     return { ok: items.every((i) => i.ok), items, undef };
   }
 

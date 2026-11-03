@@ -4,7 +4,8 @@
 // reference of the per-pipe table: its elevation, its depth below the surface (with a dimension from the surface) or
 // the bottom. A pipe above the surface discharges in free fall. The panel draws it again on every change, and the field
 // with the focus or under the pointer lights its part of it. For a gas (compressible mode) the tank is a closed vessel
-// and the level is the reference elevation of its pressure.
+// and the level is the reference elevation of its pressure. A finite tank of the time simulation has its walls up to its
+// top and its floor at its own bottom (with the elevation of the reservoir apart when it differs).
 (function (root) {
   const PumpIt = root.PumpIt;
   const M = PumpIt.model, U = PumpIt.units, UI = PumpIt.ui;
@@ -55,6 +56,13 @@
     const zB = fin(j.elevation) ? si(j.elevation, 'length') : NaN;
     const depth = j.connBy === 'depth';
     const field = depth ? 'depth' : 'elev';
+    // a finite tank: its bottom and its top
+    const TK = PumpIt.time && PumpIt.time.tanks;
+    const tank = !gas && !!TK && TK.isFinite(j) && fin(j.tank.bottom) && fin(j.tank.height) && j.tank.height.value > 0;
+    const zTb = tank ? si(j.tank.bottom, 'length') : NaN;
+    const zTt = tank ? zTb + si(j.tank.height, 'length') : NaN;
+    const apart = tank && Number.isFinite(zB) && Math.abs(zB - zTb) > 1e-9;
+    const roof = tank && j.tank.model === 'closed';
 
     // each pipe where the calculation connects it: its own elevation or depth, or the bottom; pipes at one place and
     // with one label share a stub
@@ -77,27 +85,36 @@
     }
     const list = [...groups.values()];
 
-    const zs = [zB, zL, ...list.map((g) => g.z)].filter(Number.isFinite);
+    const zs = [zB, zL, zTb, zTt, ...list.map((g) => g.z)].filter(Number.isFinite);
     const lo = zs.length ? Math.min(...zs) : 0;
     const hi = zs.length && Math.max(...zs) - lo > 1e-9 ? Math.max(...zs) : lo + 1;
     const Y = (z) => FLOOR - ((z - lo) / (hi - lo)) * (FLOOR - TOP);
     const yB = Number.isFinite(zB) ? Y(zB) : FLOOR;
     const yS = Number.isFinite(zL) ? Y(zL) : NaN;
+    // the floor and the rim of the walls: those of a finite tank, or the bottom of the reservoir and the top of the frame
+    const yF = tank ? Y(zTb) : yB, yT = tank ? Y(zTt) : RIM;
     const parts = [];
 
     // the tank (or the vessel of a gas), its liquid and its floor
     if (gas) parts.push(`<rect class="wall gasfill" x="${X0}" y="${RIM}" width="${X1 - X0}" height="${Math.max(yB - RIM, 8)}" rx="9"/>`);
     else {
-      if (yS < yB) parts.push(`<rect class="liq" x="${X0}" y="${yS}" width="${X1 - X0}" height="${yB - yS}"/>`);
-      parts.push(`<path class="wall" d="M${X0} ${RIM}V${yB}H${X1}V${RIM}"/>`);
+      if (yS < yF) parts.push(`<rect class="liq" x="${X0}" y="${yS}" width="${X1 - X0}" height="${yF - yS}"/>`);
+      // a closed tank: a roof, and its gas above the liquid
+      if (roof && yS > yT) parts.push(`<rect class="gasfill" x="${X0}" y="${yT}" width="${X1 - X0}" height="${yS - yT}"/>`);
+      parts.push(`<path class="wall" d="M${X0} ${yT}V${yF}H${X1}V${yT}${roof ? 'Z' : ''}"/>`);
     }
 
     // the reservoir's own elevations, on the left
     const levelName = t(gas ? 'junctions.reservoir.form.gasElev' : 'junctions.reservoir.form.liquidElev');
+    const out = tank ? zL < zTb - 1e-9 || zL > zTt + 1e-9 : zL < zB - 1e-9;
     const left = [
-      { part: 'level', name: levelName, value: len(zL), y: Number.isFinite(yS) ? yS : TOP, at: yS, h: 28, bad: zL < zB - 1e-9 },
-      { part: 'bottom', name: t('junctions.reservoir.elevation'), value: len(zB), y: yB, at: Number.isFinite(zB) ? yB : NaN, h: 28 },
+      { part: 'level', name: levelName, value: len(zL), y: Number.isFinite(yS) ? yS : TOP, at: yS, h: 28, bad: out },
+      { part: apart || !tank ? 'bottom' : 'bottom tankBottom', name: t('junctions.reservoir.elevation'), value: len(zB), y: yB, at: Number.isFinite(zB) ? yB : NaN, h: 28 },
     ];
+    if (tank) {
+      left.push({ part: 'top', name: t('time.tank.top'), value: len(zTt), y: yT, at: yT, h: 28 });
+      if (apart) left.push({ part: 'tankBottom', name: t('time.tank.bottom'), value: len(zTb), y: yF, at: yF, h: 28 });
+    }
     let bottom = Math.max(spread(left, 32, FLOOR + 22), FLOOR + 22);
     for (const it of left) {
       const lead = Number.isFinite(it.at) ? `<path class="lead" d="M2 ${it.c}H${X0 - 18}L${X0 - 2} ${it.at}"/>` : '';
@@ -107,7 +124,10 @@
         mark = gas ? `<path class="ref" d="M${X0} ${yS}H${X1}"/>`
           : `<path class="surf" d="M${X0} ${yS}H${X1}"/><path class="surf" d="M${X0 + 9} ${yS - 8}h10l-5 7z"/><path class="surf" d="M${X0 + 10} ${yS + 3}h8M${X0 + 12} ${yS + 6}h4"/>`;
       }
-      if (it.part === 'bottom') mark = `<path class="floor" d="M${X0 + (gas ? 9 : 0)} ${yB}H${X1 - (gas ? 9 : 0)}"/>`;
+      // the floor; the elevation of a reservoir whose tank has its bottom elsewhere is a line of reference
+      if (it.part.startsWith('bottom')) mark = apart ? `<path class="ref" d="M${X0} ${yB}H${X1}"/>` : `<path class="floor" d="M${X0 + (gas ? 9 : 0)} ${yB}H${X1 - (gas ? 9 : 0)}"/>`;
+      if (it.part === 'tankBottom') mark = `<path class="floor" d="M${X0} ${yF}H${X1}"/>`;
+      if (it.part === 'top') mark = roof ? `<path class="floor" d="M${X0} ${yT}H${X1}"/>` : `<path class="floor" d="M${X0 - 6} ${yT}H${X0}M${X1} ${yT}h6"/>`;
       parts.push(`<g data-part="${it.part}">${mark}${lead}<text x="2" y="${it.c - 4}">${F.esc(it.name)}</text><text class="v${it.bad ? ' bad' : ''}" x="2" y="${it.c + 11}">${F.esc(it.value)}</text></g>`);
     }
 
@@ -153,6 +173,7 @@
 
     // what the drawing shows, for a screen reader
     const said = [`${t('junctions.reservoir.elevation')} ${len(zB)}`, `${levelName} ${len(zL)}`, `${pName} ${pValue}`]
+      .concat(tank ? [`${t('time.tank.bottom')} ${len(zTb)}`, `${t('time.tank.top')} ${len(zTt)}`] : [])
       .concat(right.map(({ g, ids }) => `${ids}: ${g.label}${g.above ? ', ' + tx('freeFall') : g.below ? ', ' + tx('belowBottom') : ''}`));
     const H = Math.ceil(bottom + 6);
     const box = el('div', {});
@@ -163,7 +184,7 @@
 
   // the field with the focus or under the pointer lights its part of the drawing: the bottom, the level, the pressure,
   // one pipe (its row of the per-pipe table) or every pipe (the choice of reference)
-  const FIELDS = { elevation: 'bottom', liquidElev: 'level', surfP: 'pressure', connBy: 'pipes' };
+  const FIELDS = { elevation: 'bottom', liquidElev: 'level', surfP: 'pressure', connBy: 'pipes', tank_bottom: 'tankBottom', tank_height: 'top' };
   function partOf(node) {
     const box = node && node.closest ? node.closest('.field, tr') : null;
     const c = box && box.querySelector('input[id], select[id], [role="radiogroup"][id]');

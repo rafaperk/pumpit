@@ -47,8 +47,13 @@
     density: { 'kg/m³': 1, 'g/cm³': 1000, 'lbm/ft³': LBM / FT ** 3 },
     viscosity: { 'Pa·s': 1, cP: 1e-3, 'mPa·s': 1e-3, 'lbm/(ft·s)': LBM / FT },
     power: { W: 1, kW: 1e3, MW: 1e6, hp: 745.699872 },
+    energy: { J: 1, kJ: 1e3, MJ: 1e6, Wh: 3600, kWh: 3.6e6, MWh: 3.6e9 },
+    mass: { kg: 1, t: 1000, lbm: LBM },
     kfactor: { 'gpm/psi½': GAL / 60 / Math.sqrt(PSI), 'L/min/bar½': 1e-3 / 60 / Math.sqrt(1e5), 'm³/h/bar½': 1 / 3600 / Math.sqrt(1e5) },
     temperature: { '°C': 0, K: 0, '°F': 0, '°R': 0 }, // handled separately (offsets)
+    // time (the clock of the time simulation, its step and the axis of its tables) and a percentage (the speed of a pump)
+    time: { s: 1, min: 60, h: 3600, d: 86400 },
+    percent: { '%': 1 },
     none: { '': 1 },
   };
   // flow: mass, volumetric (needs the density) or normal volumetric (needs the normal density; a liquid takes its density)

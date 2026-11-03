@@ -4,7 +4,7 @@
 - [x] English support.
 - [x] Spanish support.
 - [ ] Transient support.
-- [ ] Add time simulation support.
+- [x] Add time simulation support.
 - [ ] Add goal seek support.
 - [ ] Upgrade the 3D model.
 - [ ] Import .xlsx files.

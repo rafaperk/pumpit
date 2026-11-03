@@ -1,6 +1,9 @@
 // Steady-state solver entry point (specification section 7). Pipeline:
 //   prepare (network.js) → [configure devices → analyze (connectivity.js) → newton (newton.js) → review devices]
 //   repeated until the device states settle → postprocess (results.js)
+// Options (all optional): guess (mass flows to start from, by pipe and element), states (device states to start from),
+// dropUnsupplied (a part with an imposed flow and no pressure reference is left without flow instead of being an error:
+// the time simulation, docs/time-simulation.md)
 (function (root) {
   const PumpIt = root.PumpIt;
   const S = PumpIt.solver;
@@ -62,20 +65,27 @@
       }
     }
 
-    let st = S.initialStates(prep);
+    let st = S.initialStates(prep, opts.states);
     const seen = new Set();
     let res = null, cycling = false, pass = 0, totalIt = 0;
     const allHist = [];
     for (pass = 0; pass < 50; pass++) {
       S.configure(prep, st);
-      const errs = S.analyze(prep);
+      const errs = S.analyze(prep, opts);
       if (errs.length) return { ok: false, errors: errs, warnings: prep.warnings };
       seen.add(JSON.stringify(st));
       res = S.newton(prep, guess, sc);
       if (!res.ok) return { ok: false, errors: [res.error], warnings: prep.warnings, history: res.hist };
       totalIt += res.it;
       allHist.push(...res.hist.map((h) => Object.assign({ pass }, h)));
-      if (!res.converged) break;
+      if (!res.converged) {
+        // a check valve may be what keeps the solution from converging (a pump driven backwards on its curve): those
+        // devices are reviewed anyway, and a change of their state solves again
+        const next = S.review(prep, res, st, true);
+        if (JSON.stringify(next) === JSON.stringify(st) || seen.has(JSON.stringify(next))) break;
+        st = next;
+        continue;
+      }
       const next = S.review(prep, res, st);
       if (JSON.stringify(next) === JSON.stringify(st)) break;
       if (seen.has(JSON.stringify(next))) { cycling = true; break; }
