@@ -35,6 +35,7 @@ table.grid td.na { color: var(--ink-3); }
 .kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); overflow: hidden; }
 .kv > div { padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: -1px; }
 .kv b { font: 500 16px var(--f-mono); font-variant-numeric: tabular-nums; }
+.kv b > .pill { display: block; width: fit-content; } /* alone in its value: no line of text around it */
 .empty { padding: 28px 16px; text-align: center; color: var(--ink-2); }
 
 .chart-controls { display: flex; gap: 10px 14px; flex-wrap: wrap; align-items: flex-end; }

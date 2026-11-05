@@ -9,6 +9,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .small { font-size: 12px; }
 .eyebrow { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
 .num, td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+/* the line height tables had before the page declared its doctype (browsers set it in quirks mode) */
+table { line-height: normal; }
 kbd { font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); margin-left: auto; padding-left: 16px; }
 
 #app { display: grid; grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr); height: 100%; min-height: 0; }

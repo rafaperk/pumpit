@@ -140,6 +140,8 @@ function test() {
 async function main() {
   test();
   let html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  // without its doctype the browser would lay the page out in quirks mode, which the stylesheets no longer assume
+  if (!/^<!DOCTYPE html>/i.test(html)) throw new Error('index.html must start with <!DOCTYPE html>');
   const link = /<link rel="stylesheet" href="(https:\/\/fonts\.googleapis\.com\/[^"]+)">/.exec(html);
   if (!link) throw new Error('index.html no longer links the Google Fonts stylesheet');
   const fonts = await embeddedFonts(link[1].replace(/&amp;/g, '&'));

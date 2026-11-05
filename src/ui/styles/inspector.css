@@ -46,7 +46,7 @@
 .mini-table td.x { width: 26px; }
 .row-btn { border: 0; background: transparent; cursor: pointer; color: var(--ink-3); padding: 2px 5px; border-radius: 4px; }
 .row-btn:hover { color: var(--crit); background: var(--sunk); }
-.curve-chart { border: 1px solid var(--line); border-radius: 6px; background: var(--sunk); }
+.curve-chart { display: block; border: 1px solid var(--line); border-radius: 6px; background: var(--sunk); }
 /* the drawing of a reservoir (reservoir-drawing.js); --hl lights the part whose field has the focus or the pointer */
 .res-draw { display: block; border: 1px solid var(--line); border-radius: 6px; background: var(--sunk); }
 .res-draw text { font: 10.5px var(--f-ui); fill: var(--hl, var(--ink-2)); }
