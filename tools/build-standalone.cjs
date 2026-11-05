@@ -5,10 +5,11 @@
 //   2. the Google Fonts it links (IBM Plex) go inside as data, with their licence (tools/OFL-IBM-Plex.txt), so the
 //      file keeps its fonts offline. They are fetched on every build and kept in dist/fonts/ for a build without a
 //      connection;
-//   3. the file stays offline and asks for nothing: a source that names a network API, loads or opens a web address
+//   3. the licence of Pump It goes with the file: a notice at its top, and NOTICE and LICENSE in a comment at its end;
+//   4. the file stays offline and asks for nothing: a source that names a network API, loads or opens a web address
 //      or asks for a device or a permission stops the build, and a Content-Security-Policy at the top of the page
 //      makes the browser refuse every connection and run only the page's own scripts, known by their SHA-256;
-//   4. dist/PumpIt.sha256.txt holds the SHA-256 of the file, for whoever receives it to check their copy.
+//   5. dist/PumpIt.sha256.txt holds the SHA-256 of the file, for whoever receives it to check their copy.
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -96,6 +97,20 @@ async function embeddedFonts(href) {
   return { css: `/* IBM Plex, from Google Fonts, embedded in this file when it was built: the page loads them from no server.\n\n${licence}\n*/\n${rules.join('')}`, files: faces.size };
 }
 
+// the licence of Pump It, which goes with every copy: a notice for the top of the file and, for its end, the copyright
+// and the additional terms (NOTICE) and the text of the GNU AGPL (LICENSE), in a comment that nothing in them may close
+function licence() {
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8').replace(/\r\n?/g, '\n').trim();
+  const notice = read('NOTICE'), text = read('LICENSE');
+  for (const [f, t] of [['NOTICE', notice], ['LICENSE', text]]) if (/-->|--!>|<!--/.test(t)) throw new Error(`${f} would close its HTML comment`);
+  const copyright = /^Copyright .+$/m.exec(notice);
+  if (!copyright) throw new Error('NOTICE has no copyright line');
+  return {
+    top: `<!-- Pump It. ${copyright[0]}. Free software under the GNU Affero General Public License, version 3, with additional terms: both are at the end of this file. -->\n`,
+    end: `<!--\n${notice}\n\n\n${text}\n-->\n`,
+  };
+}
+
 // the commit the file is built from, whether the files of the app had changes not committed yet, and the day of the
 // build where it was built (not in UTC, which in Brazil turns to the next day in the evening)
 function stamp() {
@@ -133,8 +148,10 @@ async function main() {
     .replace(link[0], () => `<style>\n${fonts.css}</style>`)
     .replace(/<link rel="stylesheet" href="(src\/[^"]+\.css)">/g, (m, file) => { sheets++; return `<style>/* ${file} */\n${source(file, '</style')}</style>`; })
     .replace(/<script src="(src\/[^"]+\.js)" charset="utf-8"><\/script>/g, (m, file) => { scripts++; return `<script>// ${file}\n${source(file, '</script', '<!--')}</script>`; });
+  const legal = licence();
+  html += legal.end;
   // every file the page loads is inside now, every script is one the policy lists, and the page itself (index.html)
-  // reaches for no web address either
+  // and the licence at its end reach for no web address either
   const left = html.match(/<script src=[^>]*>|<link [^>]*>|url\(https?:[^)]*\)/g);
   if (left) throw new Error(`still loaded from outside: ${left.join(', ')}`);
   const odd = html.match(/<script(?!>)[^>]*>/g);
@@ -142,6 +159,7 @@ async function main() {
   for (const re of NETWORK) { const m = re.exec(html); if (m) throw new Error(`index.html reaches for the network (${m[0]}); the file must stay offline`); }
   html = html.replace('<meta charset="utf-8">\n', () => '<meta charset="utf-8">\n'
     + `<!-- ${stamp()} by tools/build-standalone.cjs from index.html and src/: change those, not this file -->\n`
+    + legal.top
     + '<!-- Security policy: the browser loads nothing from outside, connects nowhere, sends no form and runs only the scripts of this file, known by their SHA-256 -->\n'
     + `<meta http-equiv="Content-Security-Policy" content="${policy(html)}">\n`);
   fs.mkdirSync(DIST, { recursive: true });

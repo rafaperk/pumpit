@@ -2,6 +2,8 @@
   "name": "pump-it",
   "private": true,
   "description": "Pipe network simulator for the browser, steady state and over time (no build step, no dependencies).",
+  "author": "Rafael Perktold",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "test": "node tests/run-tests.js && node tests/gas.test.cjs && node tests/time.test.cjs && node tests/check-i18n.js && node tests/view3d.test.cjs && node tests/fth-import.test.cjs && node tests/aro-import.test.cjs && node tests/pipe-ends.test.cjs && node tests/result-columns.test.cjs",
     "validate": "node tests/validate-fth.js",

@@ -1330,7 +1330,8 @@ Ao escolher um catálogo, a rugosidade passa a ser a do material, e ainda pode s
 <li>Interface em português, inglês e espanhol.</li>
 <li>Os seus modelos ficam no seu computador: o app não os envia para nenhum servidor.</li>
 </ul>
-<p>Os resultados são uma ferramenta de engenharia: confira as hipóteses, os dados de entrada e os avisos antes de usá-los num projeto.</p>`,
+<p>Os resultados são uma ferramenta de engenharia: confira as hipóteses, os dados de entrada e os avisos antes de usá-los num projeto.</p>
+<p class="legal">Copyright © 2026 Rafael Perktold. O Pump It é software livre: você pode redistribuí-lo e modificá-lo nos termos da GNU Affero General Public License, versão 3, publicada pela Free Software Foundation, com os termos adicionais do arquivo NOTICE, entre eles manter o crédito acima. Ele é distribuído sem nenhuma garantia. O texto da licença e dos termos adicionais está nos arquivos LICENSE e NOTICE do código-fonte e, na versão em arquivo único (PumpIt.html), no fim do próprio arquivo, que qualquer editor de texto abre.</p>`,
           },
         },
       },

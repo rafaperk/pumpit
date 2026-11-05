@@ -155,8 +155,11 @@ console.log('\nHelp');
       }
     }
     for (const st of steps) if (!cat.has(`help.tour.steps.${st}.title`) || !cat.has(`help.tour.steps.${st}.body`)) err(`${code}: tour step ${st} without its texts`);
-    // the About section credits the person who conceived the app, in every language
-    if (!String(cat.get('help.chapters.about.sections.about.body')).includes(AUTHOR)) err(`${code}: the About section lost the credit to ${AUTHOR}`);
+    // the About section credits the person who conceived the app, in every language, and shows the legal notices that
+    // the licence asks of a program with a user interface; NOTICE makes every copy keep the credit (AGPL section 7(b))
+    const about = String(cat.get('help.chapters.about.sections.about.body'));
+    if (!new RegExp(`<p class="credit">[^<]*<b>${AUTHOR}</b>`).test(about)) err(`${code}: the About section lost the credit to ${AUTHOR}`);
+    for (const s of [`Copyright © 2026 ${AUTHOR}`, 'GNU Affero General Public License', 'NOTICE', 'LICENSE']) if (!about.includes(s)) err(`${code}: the About section lost its legal notice (${s})`);
   }
   console.log(`  ${bad ? 'FAIL' : 'ok  '} ${sections.size} sections, ${n} tokens and ${steps.length} tour steps checked in every language`);
 }

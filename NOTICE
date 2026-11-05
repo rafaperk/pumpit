@@ -1,0 +1,42 @@
+Pump It
+Copyright (C) 2026 Rafael Perktold
+
+Pump It is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License, version 3 only, as
+published by the Free Software Foundation (SPDX identifier
+AGPL-3.0-only), with the additional terms below. The text of the licence
+is in the file LICENSE.
+
+Pump It is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+License for more details.
+
+
+Additional terms, under section 7 of the licence
+
+1. Credit to the author (section 7(b)). Every copy and every modified
+   version of Pump It must keep, in the Appropriate Legal Notices it
+   displays (in Pump It, the About section of the help), the attribution
+   "Conceived by Rafael Perktold", or its translation in the language of
+   the interface, such as "Idealizado por Rafael Perktold" or "Ideado por
+   Rafael Perktold".
+
+2. The name (section 7(e)). The licence grants no right, under trademark
+   law, to use the name "Pump It" (or "PumpIt") as the name of a modified
+   version. A modified version may state truthfully that it is based on
+   Pump It.
+
+
+Third-party material
+
+The single-file build (dist/PumpIt.html) embeds the IBM Plex fonts,
+Copyright (C) 2017 IBM Corp., with Reserved Font Name "Plex", under the
+SIL Open Font License, version 1.1. Their licence is in
+tools/OFL-IBM-Plex.txt and goes into that file with them.
+
+
+Contributions
+
+Contributions are accepted under the Pump It Contributor Licence
+Agreement, in the file CLA.md.

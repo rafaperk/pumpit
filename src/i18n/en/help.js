@@ -1330,7 +1330,8 @@ Choosing a catalogue also sets the roughness of its material, which can still be
 <li>Interface in Portuguese, English and Spanish.</li>
 <li>Your models stay on your computer: the app sends them to no server.</li>
 </ul>
-<p>The results are an engineering tool: check the assumptions, the input data and the warnings before using them in a design.</p>`,
+<p>The results are an engineering tool: check the assumptions, the input data and the warnings before using them in a design.</p>
+<p class="legal">Copyright © 2026 Rafael Perktold. Pump It is free software: you can redistribute it and modify it under the terms of the GNU Affero General Public License, version 3, as published by the Free Software Foundation, with the additional terms of the NOTICE file, among them keeping the credit above. It comes with no warranty. The text of the licence and of its additional terms is in the LICENSE and NOTICE files of the source code and, in the single-file version (PumpIt.html), at the end of the file itself, which any text editor opens.</p>`,
           },
         },
       },

@@ -1,6 +1,6 @@
 # Pump It
 
-Conceived by **Rafael Perktold**.
+Conceived by **Rafael Perktold**. Free software under the GNU Affero General Public License, version 3 (see [Licence](#licence)).
 
 Web simulator of pipe networks for liquids (incompressible flow) and gases (compressible flow), in steady state or over time (a sequence of steady states: tanks that fill and empty, pumps that start and stop, demands that follow a profile). The user draws the network (pipes and junctions) and fills in the properties. The calculation runs again automatically after every change. Results appear in tables, charts, a data card per object (right click) and on the drawing itself.
 
@@ -9,7 +9,7 @@ The product uses no trademarks, names, icons, texts or screens of any commercial
 ## How to use
 
 - **Open:** double-click `index.html` (it works straight from disk, with no server and no installation). Fonts come from Google Fonts when online; offline, the browser uses system fonts.
-- **Share:** `npm run build` (Node 18 or newer) runs the tests and, when they pass, writes `dist/PumpIt.html`, the whole app in one file with its fonts inside (IBM Plex, under the SIL Open Font License, whose text goes with them). Send that file: it opens with a double-click, offline too, with nothing to install. It never goes to the network: a Content-Security-Policy at its top makes the browser refuse every connection and run only its own scripts, and the build stops at a source that names a network API or a web address. `dist/PumpIt.sha256.txt` holds the SHA-256 of the file, for whoever receives it to check their copy.
+- **Share:** `npm run build` (Node 18 or newer) runs the tests and, when they pass, writes `dist/PumpIt.html`, the whole app in one file with its fonts inside (IBM Plex, under the SIL Open Font License, whose text goes with them) and the licence of Pump It at its end (NOTICE and LICENSE). Send that file: it opens with a double-click, offline too, with nothing to install. It never goes to the network: a Content-Security-Policy at its top makes the browser refuse every connection and run only its own scripts, and the build stops at a source that names a network API or a web address. `dist/PumpIt.sha256.txt` holds the SHA-256 of the file, for whoever receives it to check their copy.
 - **Open a model:** *File → Open* reads a model saved as `.json`, or imports a `.fth` model of a liquid or a `.aro` model of a gas (see [Importing .fth files](#importing-fth-files) and [Importing .aro files](#importing-aro-files)). Dropping the file on the window does the same.
 - **Tests:** `npm test` (Node 18 or newer) runs the calculation core checks (`tests/run-tests.js`, also run by `node tests/motor.test.cjs`), the compressible mode checks (`tests/gas.test.cjs`), the time simulation checks (`tests/time.test.cjs`), the language consistency check (`tests/check-i18n.js`, which also checks the references inside the help), the checks of the 3D views geometry and of the drawing/calculation contract (`tests/view3d.test.cjs`), the checks of the `.fth` and `.aro` imports (`tests/fth-import.test.cjs`, `tests/aro-import.test.cjs`), the checks of the ends of pipes (`tests/pipe-ends.test.cjs`) and the checks of the result columns (`tests/result-columns.test.cjs`).
 - **Help:** the Help menu (or F1) opens the guide to the whole app, the guided tour of the screen and the technical reference of the calculation, for liquids and for gases.
@@ -208,6 +208,10 @@ docs/fth-import.md         import of .fth files: what is read, assumed and left 
 docs/aro-import.md         import of .aro files: what is read, assumed and left out (decisions A-xx)
 docs/pipe-library.md       pipe catalogues: sources, rules and decisions (P-xx)
 CONTRIBUTING.md            conventions and how to work in parallel
+CLA.md                     contributor licence agreement, accepted in the first pull request
+LICENSE                    GNU Affero General Public License, version 3
+NOTICE                     copyright, the additional terms of the licence and the third-party material
+.github/                   pull request template, with the acceptance of CLA.md
 ```
 
 ## What is implemented
@@ -346,3 +350,11 @@ The 39 verification models left out of the comparison are:
 - one model without results.
 
 The examples folder has no comparable answer key: 23 files were saved without results and the others use add-on modules (time simulation, goal seek, sizing or slurries).
+
+## Licence
+
+Pump It is free software under the [GNU Affero General Public License, version 3](LICENSE), that version only (SPDX `AGPL-3.0-only`). Copyright © 2026 Rafael Perktold. Anyone may use, study, change and share it under the same licence; whoever shares a changed version, or offers one to other people over a network, must also give them its source. Using it as it is, in a company too, brings no obligation.
+
+[NOTICE](NOTICE) holds the copyright and two additional terms that section 7 of the licence allows: every copy and every modified version keeps the credit "Conceived by Rafael Perktold" (or its translation) in the About section of its help, and the licence gives no right to the name Pump It for a modified version. The About section shows these notices in every language, and `tests/check-i18n.js` fails if a language loses them. The IBM Plex fonts of the single-file build are under the SIL Open Font License ([tools/OFL-IBM-Plex.txt](tools/OFL-IBM-Plex.txt)).
+
+Contributions are accepted under the [contributor licence agreement](CLA.md), accepted in the first pull request (see [CONTRIBUTING.md](CONTRIBUTING.md)). The contributor keeps the copyright and grants the maintainer a licence that also allows other terms, commercial ones included; the maintainer promises to keep each contribution available as open source.

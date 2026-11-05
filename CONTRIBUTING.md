@@ -1,5 +1,9 @@
 # Contributing
 
+## Licence and contributor agreement
+
+Pump It is free software under the GNU Affero General Public License, version 3 ([LICENSE](LICENSE)), with the additional terms of [NOTICE](NOTICE). A contribution is merged only after its author accepts the [contributor licence agreement](CLA.md): in your first pull request, keep the sentence of acceptance that the pull request template brings and add your name (and, if you contribute on behalf of a company, its name). You keep the copyright of your work. The agreement lets the maintainer, Rafael Perktold, license the project with your contribution under other terms as well, and promises that your contribution stays available as open source.
+
 ## Working in parallel
 
 The code is split into blocks (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)). To avoid conflicts:
